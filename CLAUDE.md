@@ -109,9 +109,20 @@
 ## Core Principles
 
 ### 1. User Experience First
-- Smooth CAPTCHA handling (browser visible, user solves, auto-continues)
 - Clear feedback during long operations
 - Mobile-friendly design
+
+### CAPTCHA Strategy (by Phase)
+
+**Phase 0 (MVP - Local):**
+- Browser opens locally, user solves CAPTCHA manually
+- Works for developer testing
+
+**Phase 2+ (Multi-user - Web):**
+- Option A: **CAPTCHA Proxy** - Detect CAPTCHA, show it to user in webapp iframe, forward solution back
+- Option B: **CAPTCHA Service** - Use 2captcha/Anti-Captcha API (~$2-3/1000 solves)
+- Option C: **Session Cookies** - User logs in manually once, we store session cookies
+- **Recommended:** Option A for user control, Option B as fallback for automation
 
 ### 2. Security & Privacy
 - Encrypt stored credentials

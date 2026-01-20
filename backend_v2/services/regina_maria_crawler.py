@@ -125,9 +125,12 @@ class ReginaMariaCrawler(BaseCrawler):
             content = page.content()
 
             # 1. Success - check for dashboard or any authenticated page
-            if any(x in current_url.lower() for x in ["dashboard", "pacient", "acasa"]) and "login" not in current_url.lower():
-                self.log("Login Successful (Dashboard detected).")
-                return
+            # Root URL /#/ also indicates successful login (redirects there)
+            if "login" not in current_url.lower():
+                # Check if we're on an authenticated page
+                if any(x in current_url.lower() for x in ["dashboard", "pacient", "acasa"]) or current_url.endswith("/#/") or current_url.endswith("/#"):
+                    self.log("Login Successful (Authenticated page detected).")
+                    return
 
             # 2. ReCAPTCHA Detection
             if "recaptcha" in content.lower() or "g-recaptcha" in content.lower():
@@ -157,12 +160,16 @@ class ReginaMariaCrawler(BaseCrawler):
             page.wait_for_timeout(5000)
 
         # Final check
-        if any(x in page.url.lower() for x in ["dashboard", "pacient"]) and "login" not in page.url.lower():
+        final_url = page.url
+        if "login" not in final_url.lower() and (
+            any(x in final_url.lower() for x in ["dashboard", "pacient"]) or
+            final_url.endswith("/#/") or final_url.endswith("/#")
+        ):
             self.log("Login seemingly successful.")
         else:
-            self.log(f"Stuck on URL: {page.url}")
+            self.log(f"Stuck on URL: {final_url}")
             page.screenshot(path=f"{self.download_dir}/login_stuck.png")
-            raise Exception(f"Login failed - Timed out waiting for Dashboard. Stuck at {page.url}")
+            raise Exception(f"Login failed - Timed out waiting for Dashboard. Stuck at {final_url}")
 
     def navigate_to_records_sync(self, page: Page):
         self.log(f"Navigating to {self.analize_url}...")
