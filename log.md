@@ -130,7 +130,14 @@ python -m backend_v2.test_crawlers -p regina -u YOUR_EMAIL -pw YOUR_PASSWORD
 
 ---
 
-### Next Steps
-1. Verify crawlers work after Windows asyncio fix
-2. Test full sync flow (crawl -> parse -> display)
-3. Implement missing frontend pages (Evolution charts, Documents list)
+### Git Repository
+- **URL:** https://github.com/dragusinb/healthy.git
+- **Tag:** `v0.0-foundation` - Initial project setup
+
+---
+
+### Next Steps (Phase 0 Completion)
+1. Test Synevo crawler with real credentials
+2. Test Regina Maria crawler with real credentials (solve CAPTCHA manually)
+3. Verify documents are downloaded and stored
+4. Once crawlers work reliably, tag `v0.1-mvp`
