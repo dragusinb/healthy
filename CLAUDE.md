@@ -1,0 +1,182 @@
+# Healthy Project - Guidelines for Claude
+
+## Project Vision
+**Healthy** is a multi-user commercial medical data aggregation platform. Users connect their medical provider accounts, and the system automatically downloads lab results, extracts biomarkers using AI, and provides health insights through specialist AI agents.
+
+## Development Phases
+
+### Phase 0: MVP - Single User Functional Product (CURRENT)
+**Goal:** Working product for the developer's own accounts
+
+**Outcomes:**
+- [ ] Synevo crawler works reliably (login, download PDFs)
+- [ ] Regina Maria crawler works reliably (login, handle reCAPTCHA smoothly, download PDFs)
+- [ ] CAPTCHA handling integrated smoothly in sync flow (visible browser, user solves, continues)
+- [ ] Basic document storage and management
+
+**Tag:** `v0.1-mvp`
+
+---
+
+### Phase 1: Biomarker Extraction & Visualization
+**Goal:** Extract and display biomarkers with history
+
+**Outcomes:**
+- [ ] AI correctly extracts biomarkers from PDFs (name, value, unit, reference range)
+- [ ] Biomarkers stored with proper categorization
+- [ ] Table view: All biomarkers with search/filter
+- [ ] Chart view: Historical trends for each biomarker
+- [ ] Flag out-of-range values (HIGH/LOW)
+- [ ] Dashboard with health summary
+
+**Tag:** `v0.2-biomarkers`
+
+---
+
+### Phase 2: Multi-User & AI Health Analysis
+**Goal:** Open registration + AI-powered health insights
+
+**Outcomes:**
+- [ ] User registration and authentication
+- [ ] Secure credential storage (encrypted)
+- [ ] AI Generalist Agent: Reviews full health history, identifies concerns
+- [ ] AI Specialist Agents: Cardiologist, Endocrinologist, Hematologist, etc.
+- [ ] Health Report generation with findings and recommendations
+- [ ] Report history and comparison
+
+**Tag:** `v0.3-ai-analysis`
+
+---
+
+### Phase 3: Monetization & Mobile App
+**Goal:** Revenue model + cross-platform access
+
+**Outcomes:**
+- [ ] Subscription tiers (Free/Premium)
+- [ ] Payment integration (Stripe)
+- [ ] React Native mobile app
+- [ ] Push notifications for new results
+- [ ] Offline access to reports
+- [ ] Share reports with doctors
+
+**Tag:** `v0.4-mobile`
+
+---
+
+### Phase 4: Production Deployment
+**Goal:** Live, scalable, secure production system
+
+**Outcomes:**
+- [ ] PostgreSQL database (production)
+- [ ] Cloud deployment (AWS/GCP/Azure)
+- [ ] SSL/HTTPS
+- [ ] GDPR compliance
+- [ ] Backup and disaster recovery
+- [ ] Monitoring and alerting
+- [ ] Load balancing
+
+**Tag:** `v1.0-production`
+
+---
+
+## Roles & Responsibilities
+
+### AI Agents (Phase 2+)
+
+| Agent | Role | Triggers |
+|-------|------|----------|
+| **Generalist** | Initial evaluation, identifies areas of concern | After every sync |
+| **Cardiologist** | Heart health, cholesterol, blood pressure markers | Lipid panel abnormalities |
+| **Endocrinologist** | Hormones, thyroid, diabetes markers | Glucose, HbA1c, thyroid abnormalities |
+| **Hematologist** | Blood cells, anemia, clotting | CBC abnormalities |
+| **Hepatologist** | Liver function | Liver enzyme abnormalities |
+| **Nephrologist** | Kidney function | Creatinine, BUN abnormalities |
+
+### System Components
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Backend API | FastAPI | REST API, business logic |
+| Frontend Web | React + Vite | Web interface |
+| Frontend Mobile | React Native | Mobile apps (Phase 3) |
+| Database | SQLite → PostgreSQL | Data storage |
+| Crawlers | Playwright | Browser automation |
+| AI Parsing | OpenAI GPT-4o | Document extraction |
+| AI Analysis | OpenAI GPT-4o | Health analysis |
+
+---
+
+## Core Principles
+
+### 1. User Experience First
+- Smooth CAPTCHA handling (browser visible, user solves, auto-continues)
+- Clear feedback during long operations
+- Mobile-friendly design
+
+### 2. Security & Privacy
+- Encrypt stored credentials
+- HTTPS everywhere
+- GDPR compliant
+- User owns their data
+
+### 3. Reliability
+- Multiple download fallback methods
+- Graceful error handling
+- Retry logic for transient failures
+
+### 4. Maintainability
+- Clean code, clear separation of concerns
+- Document progress in log.md
+- Tag releases in git
+
+---
+
+## Git Workflow
+
+```bash
+# Feature development
+git checkout -b feature/feature-name
+# ... make changes ...
+git commit -m "Description"
+git push origin feature/feature-name
+
+# After phase completion
+git tag -a v0.X-name -m "Phase X complete"
+git push origin --tags
+```
+
+**Repository:** GitHub (configured with token)
+**Main branch:** `main`
+
+---
+
+## File Structure
+```
+Healthy/
+├── backend_v2/          # FastAPI backend
+│   ├── main.py          # App entry point
+│   ├── models.py        # SQLAlchemy models
+│   ├── routers/         # API endpoints
+│   └── services/        # Crawlers, AI, business logic
+├── frontend_v2/         # React frontend
+├── data/raw/            # Downloaded PDFs (gitignored)
+├── log.md               # Development progress log
+├── CLAUDE.md            # This file - project guidelines
+└── PLAN.md              # Detailed implementation plan
+```
+
+---
+
+## Session Workflow
+1. Read `log.md` and `CLAUDE.md` to understand context
+2. Identify current phase and pending tasks
+3. Make incremental progress
+4. Update `log.md` with changes
+5. Commit and push to git
+6. Tag releases at phase completion
+
+---
+
+## Current Status
+**Phase:** 0 (MVP)
+**Focus:** Fix crawlers, smooth CAPTCHA flow

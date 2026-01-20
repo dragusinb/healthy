@@ -1,0 +1,116 @@
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from sqlalchemy.orm import Session
+from typing import List
+from backend_v2.database import get_db
+from backend_v2.models import User, Document, TestResult
+from backend_v2.routers.auth import oauth2_scheme
+from backend_v2.services.ai_parser import AIParser
+import shutil
+import os
+import datetime
+
+router = APIRouter(prefix="/documents", tags=["documents"])
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    from backend_v2.auth.security import verify_password, get_password_hash, create_access_token # circular import fix?
+    # Simplified decode for now
+    from jose import jwt
+    from backend_v2.auth.security import SECRET_KEY, ALGORITHM
+    
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+@router.get("/")
+def list_documents(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return current_user.documents
+
+@router.post("/upload")
+def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Save file
+    safe_filename = file.filename
+    upload_dir = f"data/uploads/{current_user.id}"
+    os.makedirs(upload_dir, exist_ok=True)
+    file_path = os.path.join(upload_dir, safe_filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    # Create DB Entry
+    doc = Document(
+        user_id=current_user.id,
+        filename=safe_filename,
+        file_path=file_path,
+        provider="Upload",
+        upload_date=datetime.datetime.now(),
+        is_processed=False
+    )
+    db.add(doc)
+    db.commit()
+    db.refresh(doc)
+    
+    # Trigger Async Processing (Synchronous for now)
+    process_document(doc.id, db)
+    
+    return doc
+
+def process_document(doc_id: int, db: Session):
+    doc = db.query(Document).filter(Document.id == doc_id).first()
+    if not doc:
+        return
+        
+    # Read text (simplified, assuming PDF)
+    import pdfplumber
+    full_text = ""
+    try:
+        with pdfplumber.open(doc.file_path) as pdf:
+            for page in pdf.pages:
+                full_text += (page.extract_text() or "") + "\n"
+    except Exception as e:
+        print(f"Error reading PDF: {e}")
+        return
+
+    # AI Parse
+    parser = AIParser() # Ensure API Key is set in ENV
+    result = parser.parse_text(full_text)
+    
+    if "results" in result:
+        for r in result["results"]:
+             tr = TestResult(
+                 document_id=doc.id,
+                 test_name=r.get("test_name"),
+                 value=str(r.get("value")),
+                 unit=r.get("unit"),
+                 reference_range=r.get("reference_range"),
+                 flags=r.get("flags", "NORMAL"),
+                 numeric_value= _safe_float(r.get("value"))
+             )
+             db.add(tr)
+        
+        doc.is_processed = True
+        
+        # Update provider/date if found
+        meta = result.get("metadata", {})
+        if "provider" in meta:
+            doc.provider = meta["provider"]
+        if "date" in meta:
+            try:
+                doc.document_date = datetime.datetime.strptime(meta["date"], "%Y-%m-%d")
+            except: pass
+            
+        db.commit()
+
+def _safe_float(val):
+    try:
+        return float(val)
+    except:
+        return None

@@ -1,0 +1,35 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+secret.key
+
+.DS_Store
+node_modules/
+dist/
+build/
+.vscode/
+*.pdf
+backend/data/*.pdf
+data/*.pdf
+data/raw/**/*.pdf
+data/raw/**/*.png
+
+# Environment and secrets
+.env
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs and debug files
+*.log
+debug_*.py
+debug_*.txt
+creds_dump.log
+
+# Temporary and backup files
+node_modules_backup/
+*.bak
+
+# IDE
+.idea/

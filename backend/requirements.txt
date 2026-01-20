@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlalchemy
+playwright
+pypdf2
+cryptography
+pandas
+pytesseract
+python-dateutil
+python-multipart
