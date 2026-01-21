@@ -35,9 +35,15 @@ class AIParser:
             
             content = response.choices[0].message.content
             data = json.loads(content)
-            
+
             results = data.get("results", [])
-            return {"provider": "ai_parsed", "results": results}
+            metadata = data.get("metadata", {})
+
+            return {
+                "results": results,
+                "metadata": metadata,
+                "provider": metadata.get("provider", "Unknown")
+            }
 
         except Exception as e:
             return {"error": str(e), "results": []}
@@ -45,12 +51,13 @@ class AIParser:
     def _construct_prompt(self, text: str) -> str:
         return f"""
         Analyze the following medical laboratory report text and extract all biomarker test results.
-        
+
         Rules:
         1. Extract: Test Name, Value (number), Unit, Reference Range.
         2. Detect Provider: If text contains "Regina Maria" or "Centrul Medical Unirea", provider="Regina Maria". If "Synevo", provider="Synevo". Else "Unknown".
-        3. Extract Date: Find date in format DD.MM.YYYY or YYYY-MM-DD (e.g. from "Data cerere", "Data rezultatului"). Convert to YYYY-MM-DD.
-        4. Output strictly valid JSON with this structure:
+        3. Extract Date: Find date in format DD.MM.YYYY or YYYY-MM-DD (e.g. from "Data cerere", "Data rezultatului", "Data recoltarii"). Convert to YYYY-MM-DD.
+        4. For flags: Compare value to reference_range. If outside range, set "HIGH" or "LOW". If within range, set "NORMAL".
+        5. Output strictly valid JSON with this structure:
         {{
             "metadata": {{
                 "provider": "Regina Maria",
@@ -61,22 +68,12 @@ class AIParser:
                     "test_name": "Hemoglobina",
                     "value": 14.2,
                     "unit": "g/dL",
-                    "reference_range": "12-16",
-                    "flags": "NORMAL"
-                }}
-            ]
-        }}
-            "results": [
-                {{
-                    "test_name": "Hemoglobina",
-                    "value": 14.2,
-                    "unit": "g/dL",
                     "reference_range": "12 - 16",
                     "flags": "NORMAL"
                 }}
             ]
         }}
-        
+
         Text content:
-        {text[:4000]} 
+        {text[:4000]}
         """
