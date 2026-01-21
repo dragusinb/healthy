@@ -11,8 +11,6 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => 
                 <div className={cn("p-3 rounded-2xl shadow-sm transition-colors", colorClass)}>
                     <Icon size={24} className="text-white" />
                 </div>
-                {/* Decorative background circle */}
-                <div className={cn("absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-10 transition-transform group-hover:scale-125", colorClass.replace('bg-', 'bg-text-'))} />
             </div>
 
             <div>
@@ -21,6 +19,8 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => 
                 {subtitle && <p className="text-xs text-slate-400 mt-2 font-medium">{subtitle}</p>}
             </div>
         </div>
+        {/* Decorative background circle */}
+        <div className={cn("absolute -right-6 -top-6 w-28 h-28 rounded-full opacity-5 transition-transform group-hover:scale-125", colorClass)} />
     </div>
 );
 

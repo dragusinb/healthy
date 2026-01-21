@@ -33,24 +33,34 @@ const parseRefRange = (refRange) => {
 };
 
 // Custom tooltip component
-const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-        const data = payload[0].payload;
-        return (
-            <div className="bg-white p-3 rounded-lg shadow-lg border border-slate-200">
-                <p className="font-semibold text-slate-800">{label}</p>
-                <p className="text-blue-600 font-bold">{data.value} {data.unit}</p>
-                <p className="text-xs text-slate-500">Ref: {data.ref_range || 'N/A'}</p>
-                <p className={cn(
-                    "text-xs font-semibold mt-1",
-                    data.flags === 'NORMAL' ? "text-teal-600" : "text-rose-600"
-                )}>
-                    {data.flags === 'NORMAL' ? '✓ Normal' : '⚠ Out of range'}
-                </p>
-            </div>
-        );
+const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload || payload.length === 0) {
+        return null;
     }
-    return null;
+
+    // Get the data point from the payload
+    const point = payload[0];
+    const data = point?.payload;
+
+    if (!data) {
+        return null;
+    }
+
+    return (
+        <div className="bg-white p-3 rounded-lg shadow-lg border border-slate-200 min-w-[160px]">
+            <p className="font-semibold text-slate-800 mb-1">{data.date}</p>
+            <p className="text-blue-600 font-bold text-lg">
+                {data.value} <span className="text-sm font-normal text-slate-500">{data.unit || ''}</span>
+            </p>
+            <p className="text-xs text-slate-500 mt-1">Ref: {data.ref_range || 'N/A'}</p>
+            <p className={cn(
+                "text-xs font-semibold mt-1",
+                data.flags === 'NORMAL' ? "text-teal-600" : "text-rose-600"
+            )}>
+                {data.flags === 'NORMAL' ? '✓ Normal' : '⚠ Out of range'}
+            </p>
+        </div>
+    );
 };
 
 const Evolution = () => {
