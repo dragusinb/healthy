@@ -7,7 +7,7 @@ from backend_v2.services.base import BaseCrawler
 
 
 class SynevoCrawler(BaseCrawler):
-    def __init__(self, headless: bool = False):
+    def __init__(self, headless: bool = True):  # Headless by default
         super().__init__("synevo", headless)
         self.login_url = "https://webresults.synevo.ro/Account/Login?defaultusertype=2"
         self.dashboard_url = "https://webresults.synevo.ro/ro-RO"

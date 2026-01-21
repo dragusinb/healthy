@@ -188,6 +188,31 @@ Healthy/
 
 ---
 
+## Backlog / Known Issues
+
+| Issue | Priority | Notes |
+|-------|----------|-------|
+| Regina Maria headless CAPTCHA bypass | Low | Site detects headless mode despite extensive stealth. Fallback to visible browser works fine. Revisit when we have more time for advanced evasion techniques. |
+
+---
+
 ## Current Status
-**Phase:** 0 (MVP)
-**Focus:** Fix crawlers, smooth CAPTCHA flow
+**Phase:** 0 & 1 COMPLETE ✓ | Ready for Phase 2
+**Focus:** Multi-user & AI Health Analysis
+
+### Phase 0 - COMPLETE ✓
+- [x] Synevo crawler works reliably (headless, downloads all docs)
+- [x] Regina Maria crawler works (fallback to visible browser for CAPTCHA)
+- [x] CAPTCHA handling integrated (auto-detects, opens visible browser)
+- [x] Real-time sync status feedback in UI
+- [x] Basic document storage (41 docs imported)
+- [x] AI parsing works (703 biomarkers extracted)
+- [x] Dashboard shows imported documents and stats
+
+### Phase 1 - COMPLETE ✓
+- [x] Biomarkers page: Table view with all extracted biomarkers
+- [x] Search/filter biomarkers by name, status (All/Issues)
+- [x] Evolution page: Historical chart for each biomarker (Recharts)
+- [x] Flag HIGH/LOW values visually (color-coded badges)
+- [x] Dashboard: Real recent biomarkers + alerts count
+- [x] API endpoints: /recent-biomarkers, /alerts-count, /evolution/{name}

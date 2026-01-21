@@ -25,24 +25,27 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => 
 );
 
 const Dashboard = () => {
-    const [stats, setStats] = useState({ documents_count: 0, biomarkers_count: 0 });
-    // Mocking recent/trending biomarkers until we have a dedicated endpoint
-    const recentBiomarkers = [
-        { name: 'Hemoglobina', lastValue: '14.5 g/dL', status: 'normal', date: 'Oct 12' },
-        { name: 'VSH', lastValue: '10 mm/h', status: 'normal', date: 'Oct 12' },
-        { name: 'Colesterol Total', lastValue: '240 mg/dL', status: 'high', date: 'Dec 01' },
-    ];
+    const [stats, setStats] = useState({ documents_count: 0, biomarkers_count: 0, alerts_count: 0 });
+    const [recentBiomarkers, setRecentBiomarkers] = useState([]);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                const res = await api.get('/dashboard/stats');
-                setStats(res.data);
+                const [statsRes, recentRes, alertsRes] = await Promise.all([
+                    api.get('/dashboard/stats'),
+                    api.get('/dashboard/recent-biomarkers'),
+                    api.get('/dashboard/alerts-count')
+                ]);
+                setStats({
+                    ...statsRes.data,
+                    alerts_count: alertsRes.data.alerts_count
+                });
+                setRecentBiomarkers(recentRes.data);
             } catch (e) {
-                console.error("Failed to fetch stats");
+                console.error("Failed to fetch dashboard data", e);
             }
         };
-        fetchStats();
+        fetchData();
     }, []);
 
     return (
@@ -67,10 +70,10 @@ const Dashboard = () => {
                 />
                 <StatCard
                     title="Health Alerts"
-                    value="0"
-                    subtitle="All values within normal range"
-                    icon={ShieldCheck}
-                    colorClass="bg-indigo-500"
+                    value={stats.alerts_count}
+                    subtitle={stats.alerts_count === 0 ? "All values within normal range" : "Values outside normal range"}
+                    icon={stats.alerts_count > 0 ? AlertTriangle : ShieldCheck}
+                    colorClass={stats.alerts_count > 0 ? "bg-rose-500" : "bg-indigo-500"}
                     delay="delay-200"
                 />
             </div>
@@ -90,35 +93,42 @@ const Dashboard = () => {
                         </div>
 
                         <div className="space-y-3">
-                            {recentBiomarkers.map((bio, i) => (
-                                <Link
-                                    key={i}
-                                    to={`/evolution/${encodeURIComponent(bio.name)}`}
-                                    className="group flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-all duration-200"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm",
-                                            bio.status === 'normal' ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600'
-                                        )}>
-                                            {bio.name.charAt(0)}
+                            {recentBiomarkers.length === 0 ? (
+                                <div className="text-center py-8 text-slate-400">
+                                    <Activity size={32} className="mx-auto mb-2 opacity-50" />
+                                    <p>No biomarkers yet. Sync your medical accounts to get started.</p>
+                                </div>
+                            ) : (
+                                recentBiomarkers.map((bio, i) => (
+                                    <Link
+                                        key={i}
+                                        to={`/evolution/${encodeURIComponent(bio.name)}`}
+                                        className="group flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-all duration-200"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className={cn(
+                                                "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm",
+                                                bio.status === 'normal' ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600'
+                                            )}>
+                                                {bio.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-slate-800 group-hover:text-primary-700 transition-colors">{bio.name}</p>
+                                                <p className="text-xs text-slate-400">{bio.date}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-semibold text-slate-800 group-hover:text-primary-700 transition-colors">{bio.name}</p>
-                                            <p className="text-xs text-slate-400">{bio.date}</p>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right">
+                                                <p className="font-bold text-slate-700">{bio.lastValue}</p>
+                                                <p className={cn("text-xs font-semibold uppercase tracking-wider", bio.status === 'normal' ? "text-teal-500" : "text-rose-500")}>
+                                                    {bio.status === 'normal' ? 'Normal' : 'Attention'}
+                                                </p>
+                                            </div>
+                                            <ArrowRight size={18} className="text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
                                         </div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="text-right">
-                                            <p className="font-bold text-slate-700">{bio.lastValue}</p>
-                                            <p className={cn("text-xs font-semibold uppercase tracking-wider", bio.status === 'normal' ? "text-teal-500" : "text-rose-500")}>
-                                                {bio.status === 'normal' ? 'Normal' : 'Attention'}
-                                            </p>
-                                        </div>
-                                        <ArrowRight size={18} className="text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
-                                    </div>
-                                </Link>
-                            ))}
+                                    </Link>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>

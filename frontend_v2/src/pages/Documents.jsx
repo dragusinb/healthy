@@ -108,7 +108,7 @@ const Documents = () => {
                 {/* Table Header */}
                 <div className="grid grid-cols-12 gap-4 p-5 border-b border-slate-100 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     <div className="col-span-6 md:col-span-5 pl-2">Document Details</div>
-                    <div className="col-span-3 md:col-span-3">Uploaded Date</div>
+                    <div className="col-span-3 md:col-span-3">Test Date</div>
                     <div className="col-span-3 md:col-span-2">Provider</div>
                     <div className="hidden md:block md:col-span-2 text-right pr-2">Status</div>
                 </div>

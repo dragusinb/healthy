@@ -1,59 +1,97 @@
-from backend_v2.services.regina_maria_crawler import ReginaMariaCrawler
+from backend_v2.services.regina_maria_crawler import ReginaMariaCrawler, CaptchaRequiredError
 from backend_v2.services.synevo_crawler import SynevoCrawler
+from backend_v2.services import sync_status
 import asyncio
 
 import traceback
 
-def trigger_crawl_regina(username, password):
-    print(f"Starting Regina Maria crawl for {username}")
-    try:
-        crawler = ReginaMariaCrawler(headless=True)
-        # Since we are likely in a synchronous endpoint context but crawlers are async,
-        # we need to run them properly.
-        # If this is called from a FastAPI async path, we should ideally await it.
-        # But for now, using asyncio.run() creates a new event loop which might conflict if already running.
-        # Better: make these trigger functions async and await them in the router.
-        
-        # However, for this simple wrapper:
-        return {"status": "error", "message": "Crawler requires async execution. Please update router to call await crawler.run()"}
-    except Exception as e:
-        err = traceback.format_exc()
-        print(err)
-        return {"status": "error", "message": f"Setup Failed: {str(e)}"}
-
-async def run_regina_async(username, password, headless=False):
+async def run_regina_async(username, password, headless=True, user_id=None):
     """
-    Run Regina Maria crawler.
+    Run Regina Maria crawler with status updates.
+    Auto-retries with visible browser if CAPTCHA is detected.
 
     Args:
         username: Regina Maria account username
         password: Regina Maria account password
-        headless: If False (default), browser window will be visible for manual reCAPTCHA solving
+        headless: If True (default), browser window will be hidden
+        user_id: User ID for status tracking (optional)
     """
+    provider = "Regina Maria"
     crawler = ReginaMariaCrawler(headless=headless)
+
+    # Set up status callback
+    if user_id:
+        crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+
     try:
         docs = await crawler.run({"username": username, "password": password})
         return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
+    except CaptchaRequiredError:
+        # CAPTCHA detected in headless mode - retry with visible browser
+        if headless:
+            print("CAPTCHA detected - retrying with visible browser for manual solving")
+            if user_id:
+                sync_status.set_status(user_id, provider, "captcha",
+                    "CAPTCHA detected - opening browser for manual solving...")
+
+            # Retry with visible browser
+            crawler = ReginaMariaCrawler(headless=False)
+            if user_id:
+                crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+
+            try:
+                docs = await crawler.run({"username": username, "password": password})
+                return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
+            except Exception as e:
+                err = traceback.format_exc()
+                print(f"Crawler Error (visible mode): {err}")
+                return {"status": "error", "message": f"Regina Failed: {str(e)}"}
+        else:
+            return {"status": "error", "message": "CAPTCHA solving failed"}
     except Exception as e:
         err = traceback.format_exc()
         print(f"Crawler Error: {err}")
         return {"status": "error", "message": f"Regina Failed: {str(e)}"}
 
-async def run_synevo_async(username, password, headless=False):
+async def run_synevo_async(username, password, headless=True, user_id=None):
     """
-    Run Synevo crawler.
+    Run Synevo crawler with status updates.
 
     Args:
         username: Synevo account CNP (Romanian ID number)
         password: Synevo account password
-        headless: If False (default), browser window will be visible
+        headless: If True (default), browser window will be hidden
+        user_id: User ID for status tracking (optional)
     """
+    provider = "Synevo"
     crawler = SynevoCrawler(headless=headless)
+
+    # Set up status callback
+    if user_id:
+        crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+
     try:
         docs = await crawler.run({"username": username, "password": password})
         return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
     except Exception as e:
         err = traceback.format_exc()
         print(f"Crawler Error: {err}")
-        return {"status": "error", "message": f"Synevo Failed: {type(e).__name__} - {str(e)}\nDetails: {err[:150]}..."}
+        return {"status": "error", "message": f"Synevo Failed: {type(e).__name__} - {str(e)}"}
+
+
+def _update_status(user_id: int, provider: str, stage: str, message: str):
+    """Helper to update sync status."""
+    if stage == "login":
+        sync_status.status_logging_in(user_id, provider)
+    elif stage == "logged_in":
+        sync_status.status_logged_in(user_id, provider)
+    elif stage == "navigating":
+        sync_status.status_navigating(user_id, provider)
+    elif stage == "scanning":
+        sync_status.status_scanning(user_id, provider)
+    elif stage == "downloading":
+        # Parse progress from message if available
+        sync_status.set_status(user_id, provider, "downloading", message)
+    else:
+        sync_status.set_status(user_id, provider, stage, message)
 

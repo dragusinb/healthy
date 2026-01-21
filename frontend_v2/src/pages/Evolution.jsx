@@ -1,15 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/client';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceArea } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
 import { ArrowLeft, Activity, Calendar } from 'lucide-react';
 import { cn } from '../lib/utils';
+
+// Parse reference range string like "12 - 16", "<20", ">5", "70-99"
+const parseRefRange = (refRange) => {
+    if (!refRange) return { min: null, max: null };
+
+    const range = refRange.toString().trim();
+
+    // Handle "min - max" format
+    const dashMatch = range.match(/(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)/);
+    if (dashMatch) {
+        return { min: parseFloat(dashMatch[1]), max: parseFloat(dashMatch[2]) };
+    }
+
+    // Handle "<max" format
+    const lessThanMatch = range.match(/<\s*(\d+\.?\d*)/);
+    if (lessThanMatch) {
+        return { min: 0, max: parseFloat(lessThanMatch[1]) };
+    }
+
+    // Handle ">min" format
+    const greaterThanMatch = range.match(/>\s*(\d+\.?\d*)/);
+    if (greaterThanMatch) {
+        return { min: parseFloat(greaterThanMatch[1]), max: null };
+    }
+
+    return { min: null, max: null };
+};
+
+// Custom tooltip component
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div className="bg-white p-3 rounded-lg shadow-lg border border-slate-200">
+                <p className="font-semibold text-slate-800">{label}</p>
+                <p className="text-blue-600 font-bold">{data.value} {data.unit}</p>
+                <p className="text-xs text-slate-500">Ref: {data.ref_range || 'N/A'}</p>
+                <p className={cn(
+                    "text-xs font-semibold mt-1",
+                    data.flags === 'NORMAL' ? "text-teal-600" : "text-rose-600"
+                )}>
+                    {data.flags === 'NORMAL' ? '✓ Normal' : '⚠ Out of range'}
+                </p>
+            </div>
+        );
+    }
+    return null;
+};
 
 const Evolution = () => {
     const { name } = useParams(); // Biomarker name from URL
     const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refRange, setRefRange] = useState({ min: null, max: null });
 
     useEffect(() => {
         if (name) {
@@ -20,9 +69,13 @@ const Evolution = () => {
     const fetchEvolution = async () => {
         setLoading(true);
         try {
-            // Decode name if needed, though react router handles it
             const res = await api.get(`/dashboard/evolution/${encodeURIComponent(name)}`);
             setData(res.data);
+
+            // Parse reference range from first result
+            if (res.data.length > 0 && res.data[0].ref_range) {
+                setRefRange(parseRefRange(res.data[0].ref_range));
+            }
         } catch (e) {
             console.error("Failed to fetch evolution data", e);
         } finally {
@@ -104,8 +157,30 @@ const Evolution = () => {
                 </h3>
                 <div className="h-80 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+
+                            {/* Reference range area (green zone) */}
+                            {refRange.min !== null && refRange.max !== null && (
+                                <ReferenceArea
+                                    y1={refRange.min}
+                                    y2={refRange.max}
+                                    fill="#10b981"
+                                    fillOpacity={0.1}
+                                    stroke="#10b981"
+                                    strokeOpacity={0.3}
+                                    label={{ value: 'Normal Range', position: 'insideTopRight', fill: '#10b981', fontSize: 11 }}
+                                />
+                            )}
+
+                            {/* Reference lines for min/max */}
+                            {refRange.min !== null && (
+                                <ReferenceLine y={refRange.min} stroke="#10b981" strokeDasharray="5 5" />
+                            )}
+                            {refRange.max !== null && (
+                                <ReferenceLine y={refRange.max} stroke="#10b981" strokeDasharray="5 5" />
+                            )}
+
                             <XAxis
                                 dataKey="date"
                                 tickMargin={10}
@@ -119,20 +194,30 @@ const Evolution = () => {
                                 tickLine={false}
                                 stroke="#9ca3af"
                                 fontSize={12}
+                                domain={['auto', 'auto']}
                             />
-                            <Tooltip
-                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                            />
+                            <Tooltip content={<CustomTooltip />} />
                             <Line
                                 type="monotone"
                                 dataKey="value"
                                 stroke="#2563eb"
                                 strokeWidth={3}
-                                dot={{ r: 4, fill: "#2563eb", strokeWidth: 2, stroke: "#fff" }}
-                                activeDot={{ r: 6, fill: "#2563eb" }}
+                                dot={{ r: 5, fill: "#2563eb", strokeWidth: 2, stroke: "#fff" }}
+                                activeDot={{ r: 7, fill: "#2563eb" }}
                             />
                         </LineChart>
                     </ResponsiveContainer>
+                </div>
+                {/* Legend */}
+                <div className="flex justify-center gap-6 mt-4 text-sm">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+                        <span className="text-slate-600">Your Values</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-3 bg-teal-500/20 border border-teal-500/30 rounded"></div>
+                        <span className="text-slate-600">Normal Range</span>
+                    </div>
                 </div>
             </div>
         </div>

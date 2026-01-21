@@ -68,3 +68,38 @@ def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depen
         })
         
     return biomarkers
+
+
+@router.get("/recent-biomarkers")
+def get_recent_biomarkers(db: Session = Depends(get_db), current_user: User = Depends(get_current_user), limit: int = 5):
+    """Get most recent unique biomarkers for dashboard display."""
+    # Get distinct test names with their most recent result
+    results = db.query(TestResult).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .order_by(Document.document_date.desc())\
+        .limit(100).all()
+
+    # Get unique biomarkers (most recent of each)
+    seen = set()
+    recent = []
+    for r in results:
+        if r.test_name not in seen and len(recent) < limit:
+            seen.add(r.test_name)
+            recent.append({
+                "name": r.test_name,
+                "lastValue": f"{r.numeric_value if r.numeric_value else r.value} {r.unit or ''}".strip(),
+                "status": "normal" if r.flags == "NORMAL" else "high",
+                "date": r.document.document_date.strftime("%b %d") if r.document.document_date else "Unknown"
+            })
+
+    return recent
+
+
+@router.get("/alerts-count")
+def get_alerts_count(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Count biomarkers that are out of normal range."""
+    count = db.query(TestResult).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .filter(TestResult.flags != 'NORMAL')\
+        .count()
+    return {"alerts_count": count}

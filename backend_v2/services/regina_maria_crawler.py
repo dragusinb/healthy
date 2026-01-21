@@ -5,11 +5,17 @@ from playwright.sync_api import Page
 from backend_v2.services.base import BaseCrawler
 
 
+class CaptchaRequiredError(Exception):
+    """Raised when CAPTCHA is detected and visible browser is needed."""
+    pass
+
+
 class ReginaMariaCrawler(BaseCrawler):
 
-    def __init__(self, headless: bool = False):  # Default to non-headless for reCAPTCHA
+    def __init__(self, headless: bool = True):  # Headless by default
         super().__init__("regina_maria", headless)
-        self.login_url = "https://contulmeu.reginamaria.ro/#/login"
+        # Main page has the login form
+        self.login_url = "https://contulmeu.reginamaria.ro/#/"
         self.dashboard_url = "https://contulmeu.reginamaria.ro/#/Pacient/Dashboard"
         self.analize_url = "https://contulmeu.reginamaria.ro/#/Pacient/Analize"
 
@@ -124,16 +130,18 @@ class ReginaMariaCrawler(BaseCrawler):
             current_url = page.url
             content = page.content()
 
-            # 1. Success - check for dashboard or any authenticated page
-            # Root URL /#/ also indicates successful login (redirects there)
-            if "login" not in current_url.lower():
-                # Check if we're on an authenticated page
-                if any(x in current_url.lower() for x in ["dashboard", "pacient", "acasa"]) or current_url.endswith("/#/") or current_url.endswith("/#"):
-                    self.log("Login Successful (Authenticated page detected).")
-                    return
+            # 1. Check if we're actually authenticated by looking for authenticated UI elements
+            # Look for elements that only appear when logged in
+            is_authenticated = self._check_authenticated(page)
+            if is_authenticated:
+                self.log("Login Successful (Authenticated content detected).")
+                return
 
             # 2. ReCAPTCHA Detection
             if "recaptcha" in content.lower() or "g-recaptcha" in content.lower():
+                if self.headless:
+                    self.log("reCAPTCHA detected in headless mode - need visible browser")
+                    raise CaptchaRequiredError("reCAPTCHA detected - visible browser required")
                 if i == 0:  # Only log once
                     self.log("reCAPTCHA detected! Please solve it manually in the browser window.")
                     self.log("Waiting for manual reCAPTCHA solution...")
@@ -142,16 +150,13 @@ class ReginaMariaCrawler(BaseCrawler):
             if "Date de autentificare incorecte" in content or "Incercare de autentificare nereusita" in content:
                 raise Exception("Invalid credentials detected on page.")
 
-            # 4. 404 Recovery - might have been redirected oddly
-            if "404" in current_url and "login" not in current_url:
-                self.log("Detected 404 Page. Attempting to recover to Dashboard...")
+            # 4. 404 Recovery - navigate to main page and check again
+            if "404" in current_url:
+                self.log("Detected 404 Page. Navigating to main page...")
                 try:
-                    page.goto(self.dashboard_url)
+                    page.goto("https://contulmeu.reginamaria.ro/#/")
                     page.wait_for_load_state("domcontentloaded")
-                    page.wait_for_timeout(2000)
-                    if "dashboard" in page.url.lower() or "pacient" in page.url.lower():
-                        self.log("Successfully recovered to dashboard.")
-                        return
+                    page.wait_for_timeout(3000)
                 except:
                     pass
 
@@ -160,16 +165,54 @@ class ReginaMariaCrawler(BaseCrawler):
             page.wait_for_timeout(5000)
 
         # Final check
-        final_url = page.url
-        if "login" not in final_url.lower() and (
-            any(x in final_url.lower() for x in ["dashboard", "pacient"]) or
-            final_url.endswith("/#/") or final_url.endswith("/#")
-        ):
-            self.log("Login seemingly successful.")
+        if self._check_authenticated(page):
+            self.log("Login successful after wait.")
         else:
-            self.log(f"Stuck on URL: {final_url}")
+            self.log(f"Stuck on URL: {page.url}")
             page.screenshot(path=f"{self.download_dir}/login_stuck.png")
-            raise Exception(f"Login failed - Timed out waiting for Dashboard. Stuck at {final_url}")
+            raise Exception(f"Login failed - Could not detect authenticated session. Stuck at {page.url}")
+
+    def _check_authenticated(self, page: Page) -> bool:
+        """Check if we're actually logged in by looking for authenticated UI elements."""
+        try:
+            content = page.content()
+
+            # Check for login page elements (means NOT authenticated)
+            login_indicators = [
+                "Intra in cont",
+                "Creeaza cont nou",
+                "Ai uitat parola",
+                "input-username",
+                "input-password"
+            ]
+            for indicator in login_indicators:
+                if indicator in content:
+                    return False
+
+            # Check for authenticated elements (means logged in)
+            auth_indicators = [
+                "Deconectare",
+                "Logout",
+                "Programarile mele",
+                "Rezultate analize",
+                "Dosarul meu",
+                "Bun venit"
+            ]
+            for indicator in auth_indicators:
+                if indicator in content:
+                    return True
+
+            # Also check URL patterns that indicate authenticated state
+            url = page.url.lower()
+            if any(x in url for x in ["pacient", "dashboard"]) and "login" not in url:
+                # Double-check by looking for logout button
+                logout_btn = page.locator("text=Deconectare, text=Logout, text=Iesire").first
+                if logout_btn.count() > 0:
+                    return True
+
+            return False
+        except:
+            return False
 
     def navigate_to_records_sync(self, page: Page):
         self.log(f"Navigating to {self.analize_url}...")
@@ -247,10 +290,13 @@ class ReginaMariaCrawler(BaseCrawler):
                         btn.click()
                     download = download_info.value
                     if download.suggested_filename:
-                        filename = download.suggested_filename
+                        # Add index to filename to avoid overwriting
+                        base_name = download.suggested_filename
+                        name_part = base_name.rsplit('.', 1)[0] if '.' in base_name else base_name
+                        ext_part = '.' + base_name.rsplit('.', 1)[1] if '.' in base_name else '.pdf'
+                        filename = f"{name_part}_{i+1:03d}{ext_part}"
                         target_path = os.path.join(self.download_dir, filename)
-                    if os.path.exists(target_path):
-                        os.remove(target_path)
+                    # Don't remove existing - we want unique files
                     download.save_as(target_path)
                     download_success = True
                     self.log(f"Downloaded: {filename}")

@@ -3,13 +3,60 @@ import api from '../api/client';
 import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, linking, syncing }) => {
+const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, linking, syncing, syncStatus }) => {
     const [creds, setCreds] = useState({ username: '', password: '' });
     const [showForm, setShowForm] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         onLink(name, creds);
+    };
+
+    const getStatusDisplay = () => {
+        if (!syncStatus) return null;
+        const { stage, message, progress, total } = syncStatus;
+
+        const stageLabels = {
+            'starting': 'Starting...',
+            'login': 'Logging in...',
+            'logged_in': 'Logged in',
+            'navigating': 'Navigating...',
+            'scanning': 'Scanning...',
+            'downloading': 'Downloading...',
+            'processing': 'Processing...',
+            'captcha': 'CAPTCHA Required',
+            'complete': 'Complete!',
+            'error': 'Error'
+        };
+
+        const isCaptcha = stage === 'captcha';
+
+        return (
+            <div className={cn(
+                "mt-3 p-3 rounded-lg border",
+                isCaptcha ? "bg-amber-50 border-amber-200" : "bg-blue-50 border-blue-100"
+            )}>
+                <div className={cn(
+                    "flex items-center gap-2 text-sm",
+                    isCaptcha ? "text-amber-700" : "text-blue-700"
+                )}>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span className="font-medium">{stageLabels[stage] || stage}</span>
+                </div>
+                <p className={cn("text-xs mt-1", isCaptcha ? "text-amber-600" : "text-blue-600")}>{message}</p>
+                {progress > 0 && total > 0 && (
+                    <div className="mt-2">
+                        <div className="h-1.5 bg-blue-200 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-blue-600 transition-all duration-300"
+                                style={{ width: `${(progress / total) * 100}%` }}
+                            />
+                        </div>
+                        <p className="text-xs text-blue-500 mt-1">{progress} / {total}</p>
+                    </div>
+                )}
+            </div>
+        );
     };
 
     return (
@@ -50,9 +97,10 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                             className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all shadow-md shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2"
                         >
                             {syncing ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
-                            {syncing ? 'Syncing Documents...' : 'Sync Now'}
+                            {syncing ? 'Syncing...' : 'Sync Now'}
                         </button>
-                        <p className="text-xs text-center text-slate-400 mt-2">This may take a few minutes.</p>
+                        {syncing && getStatusDisplay()}
+                        {!syncing && <p className="text-xs text-center text-slate-400 mt-2">Click to sync your documents.</p>}
                     </div>
                 ) : (
                     <div>
@@ -119,10 +167,41 @@ const LinkedAccounts = () => {
     const [linking, setLinking] = useState(null); // 'Regina Maria' or 'Synevo'
     const [syncing, setSyncing] = useState(null);
     const [message, setMessage] = useState(null);
+    const [syncStatus, setSyncStatus] = useState({}); // { 'Regina Maria': {...}, 'Synevo': {...} }
 
     useEffect(() => {
         fetchAccounts();
     }, []);
+
+    // Poll for sync status when syncing
+    useEffect(() => {
+        if (!syncing) return;
+
+        const pollStatus = async () => {
+            try {
+                const res = await api.get(`/users/sync-status/${syncing}`);
+                setSyncStatus(prev => ({ ...prev, [syncing]: res.data }));
+
+                // Check if complete or error
+                if (res.data.is_complete) {
+                    if (res.data.is_error) {
+                        setMessage({ type: 'error', text: res.data.message });
+                    } else {
+                        setMessage({ type: 'success', text: res.data.message });
+                    }
+                    setSyncing(null);
+                    setSyncStatus(prev => ({ ...prev, [syncing]: null }));
+                }
+            } catch (e) {
+                console.error("Status poll failed", e);
+            }
+        };
+
+        // Poll immediately then every 2 seconds
+        pollStatus();
+        const interval = setInterval(pollStatus, 2000);
+        return () => clearInterval(interval);
+    }, [syncing]);
 
     const fetchAccounts = async () => {
         try {
@@ -160,18 +239,18 @@ const LinkedAccounts = () => {
 
     const handleSync = async (provider) => {
         setSyncing(provider);
-        setMessage({ type: 'info', text: `Starting sync for ${provider}. This may take a few minutes...` });
+        setMessage(null);
+        setSyncStatus(prev => ({ ...prev, [provider]: { stage: 'starting', message: 'Starting sync...' } }));
         try {
             const res = await api.post(`/users/sync/${provider}`);
-            if (res.data.status === 'success') {
-                setMessage({ type: 'success', text: res.data.message });
-            } else {
-                setMessage({ type: 'error', text: res.data.message });
+            // Sync started in background - status polling will handle the rest
+            if (res.data.status === 'in_progress') {
+                setMessage({ type: 'info', text: 'Sync already in progress.' });
             }
         } catch (e) {
             setMessage({ type: 'error', text: `Sync failed: ${e.response?.data?.detail || e.message}` });
-        } finally {
             setSyncing(null);
+            setSyncStatus(prev => ({ ...prev, [provider]: null }));
         }
     };
 
@@ -203,6 +282,7 @@ const LinkedAccounts = () => {
                     onSync={handleSync}
                     linking={linking === 'Regina Maria'}
                     syncing={syncing === 'Regina Maria'}
+                    syncStatus={syncStatus['Regina Maria']}
                 />
                 <ProviderCard
                     name="Synevo"
@@ -213,6 +293,7 @@ const LinkedAccounts = () => {
                     onSync={handleSync}
                     linking={linking === 'Synevo'}
                     syncing={syncing === 'Synevo'}
+                    syncStatus={syncStatus['Synevo']}
                 />
             </div>
         </div>

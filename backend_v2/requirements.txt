@@ -12,3 +12,4 @@ pandas
 playwright
 requests
 pypdf
+httpx
