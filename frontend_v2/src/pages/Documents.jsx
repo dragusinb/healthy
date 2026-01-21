@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api/client';
-import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Search, Filter } from 'lucide-react';
+import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Activity, Eye } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const Documents = () => {
@@ -13,6 +14,20 @@ const Documents = () => {
     useEffect(() => {
         fetchDocuments();
     }, []);
+
+    const handleViewPdf = async (docId, filename) => {
+        try {
+            const response = await api.get(`/documents/${docId}/download`, {
+                responseType: 'blob'
+            });
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (e) {
+            console.error("Failed to download PDF", e);
+            setError("Failed to open PDF");
+        }
+    };
 
     const fetchDocuments = async () => {
         setLoading(true);
@@ -107,10 +122,11 @@ const Documents = () => {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
                 {/* Table Header */}
                 <div className="grid grid-cols-12 gap-4 p-5 border-b border-slate-100 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <div className="col-span-6 md:col-span-5 pl-2">Document Details</div>
-                    <div className="col-span-3 md:col-span-3">Test Date</div>
-                    <div className="col-span-3 md:col-span-2">Provider</div>
-                    <div className="hidden md:block md:col-span-2 text-right pr-2">Status</div>
+                    <div className="col-span-4 pl-2">Document Details</div>
+                    <div className="col-span-2">Test Date</div>
+                    <div className="col-span-2">Provider</div>
+                    <div className="col-span-2">Status</div>
+                    <div className="col-span-2 text-right pr-2">Actions</div>
                 </div>
 
                 {loading ? (
@@ -131,39 +147,53 @@ const Documents = () => {
                     <div className="divide-y divide-slate-50">
                         {documents.map((doc) => (
                             <div key={doc.id} className="grid grid-cols-12 gap-4 p-5 items-center hover:bg-slate-50/80 transition-all duration-200 group">
-                                <div className="col-span-6 md:col-span-5 flex items-center gap-4 pl-2">
-                                    <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0 border border-primary-100 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                        <FileText size={24} />
+                                <div className="col-span-4 flex items-center gap-4 pl-2">
+                                    <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0 border border-primary-100 shadow-sm">
+                                        <FileText size={20} />
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="font-semibold text-slate-900 truncate" title={doc.filename}>{doc.filename}</p>
-                                        <div className="flex items-center gap-2 mt-0.5">
-                                            <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
-                                            <span className="text-xs text-slate-400 truncate hidden sm:inline" title={doc.file_path}>{doc.file_path.split('/').pop()}</span>
-                                        </div>
+                                        <p className="font-semibold text-slate-900 truncate text-sm" title={doc.filename}>{doc.filename}</p>
+                                        <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
                                     </div>
                                 </div>
 
-                                <div className="col-span-3 md:col-span-3 flex items-center gap-2 text-slate-600 text-sm font-medium">
-                                    <Calendar size={14} className="text-slate-400" />
+                                <div className="col-span-2 flex items-center gap-2 text-slate-600 text-sm">
+                                    <Calendar size={14} className="text-slate-400 hidden sm:block" />
                                     {doc.document_date ? new Date(doc.document_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown'}
                                 </div>
 
-                                <div className="col-span-3 md:col-span-2 flex items-center gap-2 text-slate-600 text-sm">
-                                    <Building size={14} className="text-slate-400" />
-                                    {doc.provider || 'Manual Upload'}
+                                <div className="col-span-2 flex items-center gap-2 text-slate-600 text-sm">
+                                    <Building size={14} className="text-slate-400 hidden sm:block" />
+                                    <span className="truncate">{doc.provider || 'Upload'}</span>
                                 </div>
 
-                                <div className="hidden md:block md:col-span-2 text-right pr-2">
+                                <div className="col-span-2">
                                     {doc.is_processed ? (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-100 shadow-sm">
-                                            <CheckCircle size={12} /> Processed
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-100">
+                                            <CheckCircle size={10} /> Done
                                         </span>
                                     ) : (
-                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100 shadow-sm">
-                                            <Clock size={12} /> Pending
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                            <Clock size={10} /> Pending
                                         </span>
                                     )}
+                                </div>
+
+                                <div className="col-span-2 flex items-center justify-end gap-2 pr-2">
+                                    <button
+                                        onClick={() => handleViewPdf(doc.id, doc.filename)}
+                                        className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                        title="View PDF"
+                                    >
+                                        <Eye size={18} />
+                                    </button>
+                                    <Link
+                                        to={`/biomarkers?doc=${doc.id}`}
+                                        className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                                        title="View Biomarkers"
+                                    >
+                                        <Activity size={18} />
+                                    </Link>
                                 </div>
                             </div>
                         ))}

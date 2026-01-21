@@ -1,21 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api/client';
-import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, Filter } from 'lucide-react';
+import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, Filter, X, FileText } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 
 const Biomarkers = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const docId = searchParams.get('doc');
+
     const [biomarkers, setBiomarkers] = useState([]);
+    const [documentInfo, setDocumentInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('all'); // all, out_of_range
 
     useEffect(() => {
-        fetchBiomarkers();
-    }, []);
+        if (docId) {
+            fetchDocumentBiomarkers(docId);
+        } else {
+            fetchBiomarkers();
+        }
+    }, [docId]);
 
     const fetchBiomarkers = async () => {
         setLoading(true);
+        setDocumentInfo(null);
         try {
             const res = await api.get('/dashboard/biomarkers');
             setBiomarkers(res.data);
@@ -24,6 +34,23 @@ const Biomarkers = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchDocumentBiomarkers = async (id) => {
+        setLoading(true);
+        try {
+            const res = await api.get(`/documents/${id}/biomarkers`);
+            setBiomarkers(res.data.biomarkers);
+            setDocumentInfo(res.data.document);
+        } catch (e) {
+            console.error("Failed to fetch document biomarkers", e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const clearDocumentFilter = () => {
+        setSearchParams({});
     };
 
     const mockBiomarkers = [
@@ -43,6 +70,30 @@ const Biomarkers = () => {
 
     return (
         <div>
+            {/* Document Filter Banner */}
+            {documentInfo && (
+                <div className="mb-6 p-4 bg-primary-50 border border-primary-100 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <FileText size={20} className="text-primary-600" />
+                        <div>
+                            <p className="text-sm font-medium text-primary-900">
+                                Showing biomarkers from: <span className="font-bold">{documentInfo.filename}</span>
+                            </p>
+                            <p className="text-xs text-primary-600">
+                                {documentInfo.provider} • {documentInfo.date ? new Date(documentInfo.date).toLocaleDateString() : 'Unknown date'}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={clearDocumentFilter}
+                        className="p-2 text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
+                        title="Show all biomarkers"
+                    >
+                        <X size={18} />
+                    </button>
+                </div>
+            )}
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div className="flex gap-2 w-full md:w-auto">
                     <div className="relative flex-1 md:flex-none group">

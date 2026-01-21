@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from backend_v2.database import get_db
 from backend_v2.models import User, Document, TestResult
 from backend_v2.routers.auth import oauth2_scheme
@@ -33,6 +34,59 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 @router.get("/")
 def list_documents(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return current_user.documents
+
+
+@router.get("/{doc_id}/download")
+def download_document(doc_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Download/view a document PDF."""
+    doc = db.query(Document).filter(
+        Document.id == doc_id,
+        Document.user_id == current_user.id
+    ).first()
+
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    if not os.path.exists(doc.file_path):
+        raise HTTPException(status_code=404, detail="File not found on disk")
+
+    return FileResponse(
+        doc.file_path,
+        media_type="application/pdf",
+        filename=doc.filename
+    )
+
+
+@router.get("/{doc_id}/biomarkers")
+def get_document_biomarkers(doc_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Get all biomarkers from a specific document."""
+    doc = db.query(Document).filter(
+        Document.id == doc_id,
+        Document.user_id == current_user.id
+    ).first()
+
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    results = db.query(TestResult).filter(TestResult.document_id == doc_id).all()
+
+    return {
+        "document": {
+            "id": doc.id,
+            "filename": doc.filename,
+            "date": doc.document_date.strftime("%Y-%m-%d") if doc.document_date else None,
+            "provider": doc.provider
+        },
+        "biomarkers": [{
+            "id": r.id,
+            "name": r.test_name,
+            "value": r.numeric_value if r.numeric_value is not None else r.value,
+            "unit": r.unit,
+            "range": r.reference_range,
+            "status": "normal" if r.flags == "NORMAL" else "high",
+            "flags": r.flags
+        } for r in results]
+    }
 
 @router.post("/upload")
 def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
