@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
-import { Activity, FileCheck, AlertTriangle, ArrowRight, TrendingUp, Plus, ShieldCheck } from 'lucide-react';
+import { Activity, FileCheck, AlertTriangle, ArrowRight, TrendingUp, Plus, ShieldCheck, Brain } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => (
@@ -144,19 +144,33 @@ const Dashboard = () => {
                         <p className="text-sm text-slate-500 mt-2 px-4">Drag and drop your PDF medical files here to analyze them instantly.</p>
                     </Link>
 
+                    {/* AI Analysis CTA */}
+                    <Link to="/health" className="card p-6 bg-gradient-to-br from-primary-600 to-primary-700 text-white relative overflow-hidden group hover:shadow-lg transition-all">
+                        <div className="absolute top-0 right-0 p-8 opacity-20">
+                            <Brain size={120} />
+                        </div>
+                        <div className="relative z-10">
+                            <h4 className="text-lg font-bold">AI Health Analysis</h4>
+                            <p className="text-primary-100 text-sm mt-2 mb-6">Get AI-powered insights from your biomarkers.</p>
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                Run Analysis <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </div>
+                    </Link>
+
                     {/* Sync Account CTA */}
-                    <div className="card p-6 bg-gradient-to-br from-slate-800 to-slate-900 text-white relative overflow-hidden">
+                    <Link to="/linked-accounts" className="card p-6 bg-gradient-to-br from-slate-800 to-slate-900 text-white relative overflow-hidden group hover:shadow-lg transition-all">
                         <div className="absolute top-0 right-0 p-8 opacity-10">
                             <Activity size={120} />
                         </div>
                         <div className="relative z-10">
                             <h4 className="text-lg font-bold">Connect Providers</h4>
                             <p className="text-slate-300 text-sm mt-2 mb-6">Sync directly with Regina Maria or Synevo.</p>
-                            <button className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-lg text-sm font-medium transition-colors w-full">
-                                Manage Linked Accounts
-                            </button>
+                            <div className="flex items-center gap-2 text-sm font-medium">
+                                Manage Accounts <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                            </div>
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </div>
