@@ -5,6 +5,7 @@ from backend_v2.database import get_db
 from backend_v2.models import User, LinkedAccount
 from backend_v2.routers.documents import get_current_user
 from backend_v2.services import sync_status
+from backend_v2.auth.crypto import encrypt_password, decrypt_password
 import datetime
 
 
@@ -25,23 +26,26 @@ def read_users_me(current_user: User = Depends(get_current_user)):
 
 @router.post("/link-account")
 def link_account(account: LinkedAccountCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Encrypt the password before storing
+    encrypted_pwd = encrypt_password(account.password)
+
     # Check if exists
     existing = db.query(LinkedAccount).filter(
         LinkedAccount.user_id == current_user.id,
         LinkedAccount.provider_name == account.provider_name
     ).first()
-    
+
     if existing:
         existing.username = account.username
-        existing.encrypted_password = account.password # TODO: Encrypt
+        existing.encrypted_password = encrypted_pwd
         db.commit()
         return {"message": "Account updated"}
-    
+
     new_link = LinkedAccount(
         user_id=current_user.id,
         provider_name=account.provider_name,
         username=account.username,
-        encrypted_password=account.password # TODO: Encrypt
+        encrypted_password=encrypted_pwd
     )
     db.add(new_link)
     db.commit()
@@ -90,11 +94,14 @@ async def sync_provider(
     return {"status": "started", "message": "Sync started. Check /sync-status for progress."}
 
 
-def run_sync_task(user_id: int, provider_name: str, username: str, password: str):
+def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_password: str):
     """Background task to run sync with status updates."""
     import asyncio
     from backend_v2.database import SessionLocal
     from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
+
+    # Decrypt password for use
+    password = decrypt_password(encrypted_password)
 
     # Create new db session for background task
     db = SessionLocal()

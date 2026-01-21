@@ -13,3 +13,4 @@ playwright
 requests
 pypdf
 httpx
+cryptography

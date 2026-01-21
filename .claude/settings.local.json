@@ -12,7 +12,13 @@
       "Bash(git push:*)",
       "Bash(git checkout:*)",
       "Bash(git branch:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(ls:*)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(python:*)",
+      "Bash(curl:*)",
+      "Bash(pip install:*)",
+      "Bash(del /f nul)"
     ]
   }
 }

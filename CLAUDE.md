@@ -197,7 +197,7 @@ Healthy/
 ---
 
 ## Current Status
-**Phase:** 0 & 1 COMPLETE ✓ | Ready for Phase 2
+**Phase:** 0, 1, & 2 IN PROGRESS
 **Focus:** Multi-user & AI Health Analysis
 
 ### Phase 0 - COMPLETE ✓
@@ -216,3 +216,13 @@ Healthy/
 - [x] Flag HIGH/LOW values visually (color-coded badges)
 - [x] Dashboard: Real recent biomarkers + alerts count
 - [x] API endpoints: /recent-biomarkers, /alerts-count, /evolution/{name}
+
+### Phase 2 - IN PROGRESS
+- [x] User registration and authentication (email/password)
+- [x] Google OAuth authentication
+- [x] Secure credential storage (Fernet encryption)
+- [x] AI Generalist Agent: Reviews health history, identifies concerns
+- [x] AI Specialist Agents: Cardiology, Endocrinology, Hematology, Hepatology, Nephrology
+- [x] Health Report generation with findings and recommendations
+- [x] Health Reports page in frontend
+- [ ] Report history and comparison (in progress)

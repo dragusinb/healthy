@@ -57,3 +57,24 @@ class TestResult(Base):
     category = Column(String, default="General")
 
     document = relationship("Document", back_populates="results")
+
+
+class HealthReport(Base):
+    __tablename__ = "health_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    report_type = Column(String)  # "general", "cardiology", "endocrinology", etc.
+    title = Column(String)
+    summary = Column(Text)  # Brief overview
+    findings = Column(Text)  # Detailed findings (JSON string)
+    recommendations = Column(Text)  # AI recommendations (JSON string)
+    risk_level = Column(String, default="normal")  # normal, attention, concern, urgent
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    biomarkers_analyzed = Column(Integer, default=0)
+
+    user = relationship("User", back_populates="health_reports")
+
+
+# Add relationship to User model
+User.health_reports = relationship("HealthReport", back_populates="user")

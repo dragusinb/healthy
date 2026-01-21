@@ -12,7 +12,7 @@ load_dotenv() # Load .env file
 
 # Force reload trigger 2
 from fastapi.middleware.cors import CORSMiddleware
-from backend_v2.routers import auth, users, dashboard, documents
+from backend_v2.routers import auth, users, dashboard, documents, health
 from backend_v2.database import Base, engine, SessionLocal
 from backend_v2.routers.auth import seed_default_user
 
@@ -45,6 +45,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(dashboard.router)
 app.include_router(documents.router)
+app.include_router(health.router)
 
 
 @app.get("/")

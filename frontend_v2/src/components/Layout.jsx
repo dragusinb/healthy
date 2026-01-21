@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const SidebarItem = ({ to, icon: Icon, label }) => (
@@ -40,6 +40,7 @@ const Layout = ({ children }) => {
         if (path.startsWith('/documents')) return 'Medical Documents';
         if (path.startsWith('/biomarkers')) return 'Biomarkers';
         if (path.startsWith('/evolution')) return 'Evolution & Trends';
+        if (path.startsWith('/health')) return 'AI Health Analysis';
         if (path.startsWith('/linked-accounts')) return 'Connect Providers';
         return '';
     }
@@ -61,6 +62,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" />
                         <SidebarItem to="/documents" icon={FileText} label="Documents" />
                         <SidebarItem to="/biomarkers" icon={Activity} label="Biomarkers" />
+                        <SidebarItem to="/health" icon={Brain} label="AI Analysis" />
                         <div className="pt-4 mt-4 border-t border-slate-100"></div>
                         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">Settings</div>
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label="Linked Accounts" />
