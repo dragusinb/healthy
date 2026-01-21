@@ -210,10 +210,36 @@ const Evolution = () => {
                             <Line
                                 type="monotone"
                                 dataKey="value"
-                                stroke="#2563eb"
-                                strokeWidth={3}
-                                dot={{ r: 5, fill: "#2563eb", strokeWidth: 2, stroke: "#fff" }}
-                                activeDot={{ r: 7, fill: "#2563eb" }}
+                                stroke="#94a3b8"
+                                strokeWidth={2}
+                                dot={(props) => {
+                                    const { cx, cy, payload } = props;
+                                    const isNormal = payload.flags === 'NORMAL';
+                                    return (
+                                        <circle
+                                            cx={cx}
+                                            cy={cy}
+                                            r={6}
+                                            fill={isNormal ? '#10b981' : '#ef4444'}
+                                            stroke="#fff"
+                                            strokeWidth={2}
+                                        />
+                                    );
+                                }}
+                                activeDot={(props) => {
+                                    const { cx, cy, payload } = props;
+                                    const isNormal = payload.flags === 'NORMAL';
+                                    return (
+                                        <circle
+                                            cx={cx}
+                                            cy={cy}
+                                            r={8}
+                                            fill={isNormal ? '#10b981' : '#ef4444'}
+                                            stroke="#fff"
+                                            strokeWidth={2}
+                                        />
+                                    );
+                                }}
                             />
                         </LineChart>
                     </ResponsiveContainer>
@@ -221,8 +247,12 @@ const Evolution = () => {
                 {/* Legend */}
                 <div className="flex justify-center gap-6 mt-4 text-sm">
                     <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                        <span className="text-slate-600">Your Values</span>
+                        <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                        <span className="text-slate-600">Normal</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                        <span className="text-slate-600">Out of Range</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-3 bg-teal-500/20 border border-teal-500/30 rounded"></div>
