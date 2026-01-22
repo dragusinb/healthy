@@ -37,9 +37,7 @@ default_origins = [
     "http://localhost:5173",  # React Vite dev
     "http://localhost:3000",
     "http://localhost:4173",  # Vite preview
-    "https://healthy-six.vercel.app",  # Vercel production
-    "https://healthy-dragusinb.vercel.app",  # Vercel preview
-    "https://healthy-git-main-dragusinbs-projects.vercel.app",  # Vercel git preview
+    "https://healthy-liart.vercel.app",  # Vercel production
 ]
 # Add production origins from env (comma-separated)
 extra_origins = os.getenv("CORS_ORIGINS", "").split(",")
