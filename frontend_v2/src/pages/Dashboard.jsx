@@ -78,99 +78,95 @@ const Dashboard = () => {
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Evolution & Trends Column */}
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="card p-6 h-full">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><TrendingUp size={18} /></span>
-                                Recent Analysis
-                            </h3>
-                            <Link to="/biomarkers" className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
-                                View All <ArrowRight size={14} />
-                            </Link>
-                        </div>
-
-                        <div className="space-y-3">
-                            {recentBiomarkers.length === 0 ? (
-                                <div className="text-center py-8 text-slate-400">
-                                    <Activity size={32} className="mx-auto mb-2 opacity-50" />
-                                    <p>No biomarkers yet. Sync your medical accounts to get started.</p>
-                                </div>
-                            ) : (
-                                recentBiomarkers.map((bio, i) => (
-                                    <Link
-                                        key={i}
-                                        to={`/evolution/${encodeURIComponent(bio.name)}`}
-                                        className="group flex items-center justify-between p-4 rounded-xl border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-all duration-200"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={cn(
-                                                "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm",
-                                                bio.status === 'normal' ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600'
-                                            )}>
-                                                {bio.name.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold text-slate-800 group-hover:text-primary-700 transition-colors">{bio.name}</p>
-                                                <p className="text-xs text-slate-400">{bio.date}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-right">
-                                                <p className="font-bold text-slate-700">{bio.lastValue}</p>
-                                                <p className={cn("text-xs font-semibold uppercase tracking-wider", bio.status === 'normal' ? "text-teal-500" : "text-rose-500")}>
-                                                    {bio.status === 'normal' ? 'Normal' : 'Attention'}
-                                                </p>
-                                            </div>
-                                            <ArrowRight size={18} className="text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
-                                        </div>
-                                    </Link>
-                                ))
-                            )}
-                        </div>
+            {/* Quick Actions Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {/* Upload CTA */}
+                <Link to="/documents" className="card p-6 flex items-center gap-4 hover:ring-2 hover:ring-primary-500/20 group cursor-pointer hover:shadow-md transition-all">
+                    <div className="p-3 bg-primary-50 rounded-xl group-hover:scale-110 transition-transform">
+                        <Plus size={24} className="text-primary-600" />
                     </div>
+                    <div>
+                        <h4 className="font-bold text-slate-800">Upload Report</h4>
+                        <p className="text-sm text-slate-500">Add new PDF documents</p>
+                    </div>
+                    <ArrowRight size={18} className="ml-auto text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
+                </Link>
+
+                {/* AI Analysis CTA */}
+                <Link to="/health" className="card p-6 flex items-center gap-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white group hover:shadow-md transition-all">
+                    <div className="p-3 bg-white/20 rounded-xl">
+                        <Brain size={24} />
+                    </div>
+                    <div>
+                        <h4 className="font-bold">AI Analysis</h4>
+                        <p className="text-sm text-primary-100">Get health insights</p>
+                    </div>
+                    <ArrowRight size={18} className="ml-auto text-primary-200 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                </Link>
+
+                {/* Sync Account CTA */}
+                <Link to="/linked-accounts" className="card p-6 flex items-center gap-4 bg-gradient-to-r from-slate-700 to-slate-800 text-white group hover:shadow-md transition-all">
+                    <div className="p-3 bg-white/10 rounded-xl">
+                        <Activity size={24} />
+                    </div>
+                    <div>
+                        <h4 className="font-bold">Sync Providers</h4>
+                        <p className="text-sm text-slate-300">Connect medical accounts</p>
+                    </div>
+                    <ArrowRight size={18} className="ml-auto text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                </Link>
+            </div>
+
+            {/* Recent Biomarkers */}
+            <div className="card p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><TrendingUp size={18} /></span>
+                        Recent Biomarkers
+                    </h3>
+                    <Link to="/biomarkers" className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
+                        View All <ArrowRight size={14} />
+                    </Link>
                 </div>
 
-                {/* Quick Actions Column */}
-                <div className="lg:col-span-1 space-y-6">
-                    {/* Upload CTA */}
-                    <Link to="/documents" className="card p-6 flex flex-col items-center text-center hover:ring-2 hover:ring-primary-500/20 group cursor-pointer border-dashed border-2 border-slate-200 hover:border-primary-300 bg-slate-50/50">
-                        <div className="p-4 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform duration-300">
-                            <Plus size={32} className="text-primary-500" />
+                <div className="space-y-3">
+                    {recentBiomarkers.length === 0 ? (
+                        <div className="text-center py-12 text-slate-400">
+                            <Activity size={40} className="mx-auto mb-3 opacity-50" />
+                            <p className="text-lg font-medium">No biomarkers yet</p>
+                            <p className="text-sm mt-1">Sync your medical accounts or upload a PDF to get started.</p>
                         </div>
-                        <h4 className="text-lg font-bold text-slate-800">Upload New Report</h4>
-                        <p className="text-sm text-slate-500 mt-2 px-4">Drag and drop your PDF medical files here to analyze them instantly.</p>
-                    </Link>
-
-                    {/* AI Analysis CTA */}
-                    <Link to="/health" className="card p-6 bg-gradient-to-br from-primary-600 to-primary-700 text-white relative overflow-hidden group hover:shadow-lg transition-all">
-                        <div className="absolute top-0 right-0 p-8 opacity-20">
-                            <Brain size={120} />
-                        </div>
-                        <div className="relative z-10">
-                            <h4 className="text-lg font-bold">AI Health Analysis</h4>
-                            <p className="text-primary-100 text-sm mt-2 mb-6">Get AI-powered insights from your biomarkers.</p>
-                            <div className="flex items-center gap-2 text-sm font-medium">
-                                Run Analysis <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                            </div>
-                        </div>
-                    </Link>
-
-                    {/* Sync Account CTA */}
-                    <Link to="/linked-accounts" className="card p-6 bg-gradient-to-br from-slate-800 to-slate-900 text-white relative overflow-hidden group hover:shadow-lg transition-all">
-                        <div className="absolute top-0 right-0 p-8 opacity-10">
-                            <Activity size={120} />
-                        </div>
-                        <div className="relative z-10">
-                            <h4 className="text-lg font-bold">Connect Providers</h4>
-                            <p className="text-slate-300 text-sm mt-2 mb-6">Sync directly with Regina Maria or Synevo.</p>
-                            <div className="flex items-center gap-2 text-sm font-medium">
-                                Manage Accounts <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                            </div>
-                        </div>
-                    </Link>
+                    ) : (
+                        recentBiomarkers.map((bio, i) => (
+                            <Link
+                                key={i}
+                                to={`/evolution/${encodeURIComponent(bio.name)}`}
+                                className="group flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-primary-200 hover:bg-primary-50/30 transition-all duration-200"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={cn(
+                                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm",
+                                        bio.status === 'normal' ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600'
+                                    )}>
+                                        {bio.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-slate-800 group-hover:text-primary-700 transition-colors">{bio.name}</p>
+                                        <p className="text-xs text-slate-400">{bio.date}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-right">
+                                        <p className="font-bold text-slate-700">{bio.lastValue}</p>
+                                        <p className={cn("text-xs font-semibold uppercase tracking-wider", bio.status === 'normal' ? "text-teal-500" : "text-rose-500")}>
+                                            {bio.status === 'normal' ? 'Normal' : 'Attention'}
+                                        </p>
+                                    </div>
+                                    <ArrowRight size={18} className="text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
+                                </div>
+                            </Link>
+                        ))
+                    )}
                 </div>
             </div>
         </div>
