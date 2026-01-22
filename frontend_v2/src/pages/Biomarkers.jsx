@@ -1,9 +1,163 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/client';
-import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, Filter, X, FileText } from 'lucide-react';
+import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
+
+// Biomarker category definitions
+const CATEGORIES = {
+    hematology: {
+        name: 'Blood & Hematology',
+        icon: Droplets,
+        color: 'rose',
+        keywords: ['hemoglobin', 'hematocrit', 'rbc', 'wbc', 'platelets', 'mcv', 'mch', 'mchc', 'rdw', 'reticulocytes', 'leucocite', 'eritrocite', 'trombocite', 'hematies', 'vsh', 'esr', 'neutrofil', 'limfocit', 'monocit', 'eozinofil', 'bazofil', 'htc', 'hgb']
+    },
+    lipids: {
+        name: 'Lipid Profile',
+        icon: Heart,
+        color: 'amber',
+        keywords: ['cholesterol', 'colesterol', 'ldl', 'hdl', 'triglycerides', 'trigliceride', 'lipoprotein', 'apolipoprotein', 'lipid']
+    },
+    liver: {
+        name: 'Liver Function',
+        icon: FlaskConical,
+        color: 'emerald',
+        keywords: ['alt', 'ast', 'alp', 'ggt', 'bilirubin', 'bilirubina', 'albumin', 'albumina', 'tgp', 'tgo', 'gama', 'hepat', 'ficat']
+    },
+    kidney: {
+        name: 'Kidney Function',
+        icon: Stethoscope,
+        color: 'blue',
+        keywords: ['creatinin', 'creatinine', 'bun', 'urea', 'egfr', 'cystatin', 'uric', 'acid uric', 'rinichi', 'renal']
+    },
+    metabolic: {
+        name: 'Metabolic & Diabetes',
+        icon: Activity,
+        color: 'violet',
+        keywords: ['glucose', 'glucoza', 'glicemie', 'hba1c', 'hemoglobina glicata', 'insulin', 'insulina', 'glyc']
+    },
+    thyroid: {
+        name: 'Thyroid',
+        icon: Dna,
+        color: 'cyan',
+        keywords: ['tsh', 't3', 't4', 'ft3', 'ft4', 'tiroid', 'thyroid']
+    },
+    vitamins: {
+        name: 'Vitamins & Minerals',
+        icon: Pill,
+        color: 'orange',
+        keywords: ['vitamin', 'vitamina', 'fier', 'iron', 'ferritin', 'feritina', 'zinc', 'magneziu', 'magnesium', 'calciu', 'calcium', 'potasiu', 'potassium', 'sodiu', 'sodium', 'fosfor', 'b12', 'd3', 'folat', 'folic']
+    },
+    other: {
+        name: 'Other Tests',
+        icon: Activity,
+        color: 'slate',
+        keywords: []
+    }
+};
+
+const COLOR_CLASSES = {
+    rose: { bg: 'bg-rose-50', border: 'border-rose-200', text: 'text-rose-700', icon: 'text-rose-500' },
+    amber: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', icon: 'text-amber-500' },
+    emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', icon: 'text-emerald-500' },
+    blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: 'text-blue-500' },
+    violet: { bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-700', icon: 'text-violet-500' },
+    cyan: { bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-700', icon: 'text-cyan-500' },
+    orange: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', icon: 'text-orange-500' },
+    slate: { bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-700', icon: 'text-slate-500' },
+};
+
+function categorize(biomarkerName) {
+    const name = biomarkerName.toLowerCase();
+    for (const [key, cat] of Object.entries(CATEGORIES)) {
+        if (key === 'other') continue;
+        if (cat.keywords.some(kw => name.includes(kw))) {
+            return key;
+        }
+    }
+    return 'other';
+}
+
+const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
+    const category = CATEGORIES[categoryKey];
+    const colors = COLOR_CLASSES[category.color];
+    const Icon = category.icon;
+    const issueCount = biomarkers.filter(b => b.status !== 'normal').length;
+
+    return (
+        <div className="card overflow-hidden">
+            <button
+                onClick={onToggle}
+                className={cn(
+                    "w-full p-4 flex items-center justify-between transition-colors",
+                    expanded ? colors.bg : "hover:bg-slate-50"
+                )}
+            >
+                <div className="flex items-center gap-3">
+                    <div className={cn("p-2 rounded-lg", colors.bg, colors.border, "border")}>
+                        <Icon size={20} className={colors.icon} />
+                    </div>
+                    <div className="text-left">
+                        <h3 className="font-semibold text-slate-800">{category.name}</h3>
+                        <p className="text-xs text-slate-500">{biomarkers.length} tests</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    {issueCount > 0 && (
+                        <span className="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full">
+                            {issueCount} issue{issueCount > 1 ? 's' : ''}
+                        </span>
+                    )}
+                    {expanded ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+                </div>
+            </button>
+
+            {expanded && (
+                <div className="border-t border-slate-100">
+                    <div className="grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        <div className="col-span-5 pl-2">Test Name</div>
+                        <div className="col-span-2">Value</div>
+                        <div className="col-span-2">Ref. Range</div>
+                        <div className="col-span-2">Date</div>
+                        <div className="col-span-1 text-right pr-2">Status</div>
+                    </div>
+                    <div className="divide-y divide-slate-50">
+                        {biomarkers.map((bio) => (
+                            <Link
+                                key={bio.id}
+                                to={`/evolution/${encodeURIComponent(bio.name)}`}
+                                className="grid grid-cols-12 gap-4 p-3 items-center hover:bg-slate-50/80 transition-all duration-200 group"
+                            >
+                                <div className="col-span-5 font-medium text-slate-800 pl-2 group-hover:text-primary-600 transition-colors truncate">
+                                    {bio.name}
+                                </div>
+                                <div className="col-span-2 font-bold text-slate-800 flex items-baseline gap-1">
+                                    {bio.value} <span className="text-slate-400 text-xs font-medium">{bio.unit}</span>
+                                </div>
+                                <div className="col-span-2 text-xs text-slate-500 font-medium">
+                                    {bio.range}
+                                </div>
+                                <div className="col-span-2 text-xs text-slate-500">
+                                    {new Date(bio.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
+                                </div>
+                                <div className="col-span-1 text-right pr-2">
+                                    {bio.status === 'normal' ? (
+                                        <span className="inline-block w-2 h-2 bg-teal-500 rounded-full" title="Normal" />
+                                    ) : (
+                                        <span className="inline-flex items-center text-rose-600" title="Out of Range">
+                                            {bio.status === 'high' ? <ArrowUp size={14} strokeWidth={3} /> : <ArrowDown size={14} strokeWidth={3} />}
+                                        </span>
+                                    )}
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const Biomarkers = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -13,7 +167,8 @@ const Biomarkers = () => {
     const [documentInfo, setDocumentInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filter, setFilter] = useState('all'); // all, out_of_range
+    const [filter, setFilter] = useState('all');
+    const [expandedCategories, setExpandedCategories] = useState(new Set(['hematology', 'lipids', 'liver']));
 
     useEffect(() => {
         if (docId) {
@@ -53,20 +208,45 @@ const Biomarkers = () => {
         setSearchParams({});
     };
 
-    const mockBiomarkers = [
-        { id: 1, name: 'Hemoglobina', value: 14.5, unit: 'g/dL', range: '12-16', date: '2023-10-15', provider: 'Synevo', status: 'normal' },
-        { id: 2, name: 'Glucoza', value: 105, unit: 'mg/dL', range: '70-99', date: '2023-10-15', provider: 'Synevo', status: 'high' },
-        { id: 3, name: 'Colesterol Total', value: 240, unit: 'mg/dL', range: '<200', date: '2023-12-01', provider: 'Regina Maria', status: 'high' },
-        { id: 4, name: 'VSH', value: 10, unit: 'mm/h', range: '<20', date: '2023-12-01', provider: 'Regina Maria', status: 'normal' },
-        { id: 5, name: 'Creatinina', value: 0.8, unit: 'mg/dL', range: '0.6-1.1', date: '2023-12-01', provider: 'Regina Maria', status: 'normal' },
-        { id: 6, name: 'TGP', value: 45, unit: 'U/L', range: '<40', date: '2023-12-01', provider: 'Regina Maria', status: 'high' },
-    ];
+    const toggleCategory = (key) => {
+        setExpandedCategories(prev => {
+            const next = new Set(prev);
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+            return next;
+        });
+    };
 
-    // Use state data instead of mock
-    const filteredBiomarkers = biomarkers.filter(b =>
-        b.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (filter === 'all' || (filter === 'out_of_range' && b.status !== 'normal'))
-    );
+    const expandAll = () => setExpandedCategories(new Set(Object.keys(CATEGORIES)));
+    const collapseAll = () => setExpandedCategories(new Set());
+
+    // Filter and group biomarkers
+    const groupedBiomarkers = useMemo(() => {
+        const filtered = biomarkers.filter(b =>
+            b.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (filter === 'all' || (filter === 'out_of_range' && b.status !== 'normal'))
+        );
+
+        const groups = {};
+        for (const bio of filtered) {
+            const cat = categorize(bio.name);
+            if (!groups[cat]) groups[cat] = [];
+            groups[cat].push(bio);
+        }
+
+        // Sort each group by date descending
+        for (const cat in groups) {
+            groups[cat].sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        return groups;
+    }, [biomarkers, searchTerm, filter]);
+
+    const totalFiltered = Object.values(groupedBiomarkers).flat().length;
+    const totalIssues = Object.values(groupedBiomarkers).flat().filter(b => b.status !== 'normal').length;
 
     return (
         <div>
@@ -94,7 +274,8 @@ const Biomarkers = () => {
                 </div>
             )}
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            {/* Controls */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div className="flex gap-2 w-full md:w-auto">
                     <div className="relative flex-1 md:flex-none group">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
@@ -111,7 +292,7 @@ const Biomarkers = () => {
                             onClick={() => setFilter('all')}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-all",
-                                filter === 'all' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                                filter === 'all' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
                             )}
                         >
                             All
@@ -120,7 +301,7 @@ const Biomarkers = () => {
                             onClick={() => setFilter('out_of_range')}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-1.5",
-                                filter === 'out_of_range' ? "bg-white text-rose-600 shadow-sm" : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                                filter === 'out_of_range' ? "bg-white text-rose-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
                             )}
                         >
                             <AlertTriangle size={14} />
@@ -128,66 +309,53 @@ const Biomarkers = () => {
                         </button>
                     </div>
                 </div>
+                <div className="flex gap-2 text-sm">
+                    <button onClick={expandAll} className="text-primary-600 hover:text-primary-700 font-medium">Expand All</button>
+                    <span className="text-slate-300">|</span>
+                    <button onClick={collapseAll} className="text-primary-600 hover:text-primary-700 font-medium">Collapse All</button>
+                </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="grid grid-cols-12 gap-4 p-5 border-b border-slate-100 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <div className="col-span-4 pl-2">Test Name</div>
-                    <div className="col-span-2">Value</div>
-                    <div className="col-span-2">Ref. Range</div>
-                    <div className="col-span-2">Date</div>
-                    <div className="col-span-2 text-right pr-2">Status</div>
+            {/* Summary */}
+            <div className="mb-6 flex items-center gap-4 text-sm text-slate-600">
+                <span><strong>{totalFiltered}</strong> biomarkers</span>
+                {totalIssues > 0 && (
+                    <span className="text-rose-600"><strong>{totalIssues}</strong> out of range</span>
+                )}
+            </div>
+
+            {/* Loading */}
+            {loading ? (
+                <div className="flex items-center justify-center h-64">
+                    <Loader2 className="animate-spin text-primary-500" size={32} />
                 </div>
+            ) : (
+                /* Category Sections */
+                <div className="space-y-4">
+                    {Object.entries(CATEGORIES).map(([key]) => {
+                        const catBiomarkers = groupedBiomarkers[key];
+                        if (!catBiomarkers || catBiomarkers.length === 0) return null;
 
-                <div className="divide-y divide-slate-50">
-                    {filteredBiomarkers.map((bio) => (
-                        <div key={bio.id} className="grid grid-cols-12 gap-4 p-5 items-center hover:bg-slate-50/80 transition-all duration-200 group">
-                            <div className="col-span-4 font-semibold text-slate-900 flex items-center gap-3 pl-2">
-                                <Link to={`/evolution/${encodeURIComponent(bio.name)}`} className="flex items-center gap-3 hover:text-primary-600 transition-colors">
-                                    <div className={cn(
-                                        "p-2 rounded-lg border shadow-sm",
-                                        bio.status === 'normal' ? "bg-teal-50 border-teal-100 text-teal-600" : "bg-rose-50 border-rose-100 text-rose-600"
-                                    )}>
-                                        <Activity size={18} />
-                                    </div>
-                                    {bio.name}
-                                </Link>
-                            </div>
+                        return (
+                            <CategorySection
+                                key={key}
+                                categoryKey={key}
+                                biomarkers={catBiomarkers}
+                                expanded={expandedCategories.has(key)}
+                                onToggle={() => toggleCategory(key)}
+                            />
+                        );
+                    })}
 
-                            <div className="col-span-2 font-bold text-slate-800 flex items-baseline gap-1">
-                                {bio.value} <span className="text-slate-400 text-xs font-medium">{bio.unit}</span>
-                            </div>
-
-                            <div className="col-span-2 text-sm text-slate-500 font-medium bg-slate-50 px-2 py-1 rounded inline-block w-fit">
-                                {bio.range}
-                            </div>
-
-                            <div className="col-span-2 text-sm text-slate-500 flex items-center gap-1.5">
-                                <Calendar size={14} className="text-slate-400" />
-                                {new Date(bio.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                            </div>
-
-                            <div className="col-span-2 text-right pr-2">
-                                {bio.status === 'normal' ? (
-                                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-100 shadow-sm">
-                                        Normal
-                                    </span>
-                                ) : (
-                                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-100 shadow-sm">
-                                        {bio.value > 100 ? <ArrowUp size={12} strokeWidth={3} /> : <ArrowDown size={12} strokeWidth={3} />}
-                                        Out of Range
-                                    </span>
-                                )}
-                            </div>
+                    {totalFiltered === 0 && (
+                        <div className="card p-12 text-center">
+                            <Activity size={40} className="mx-auto mb-3 text-slate-300" />
+                            <p className="text-lg font-medium text-slate-600">No biomarkers found</p>
+                            <p className="text-sm text-slate-400 mt-1">Try adjusting your search or filters</p>
                         </div>
-                    ))}
+                    )}
                 </div>
-
-                {/* Footer info */}
-                <div className="p-4 bg-slate-50 border-t border-slate-100 text-center text-xs text-slate-400 font-medium">
-                    Showing {filteredBiomarkers.length} results based on your filters
-                </div>
-            </div>
+            )}
         </div>
     );
 };
