@@ -2,7 +2,7 @@
 Sync status tracking for real-time feedback to users.
 """
 from typing import Dict, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import threading
 
 # In-memory status store (per user, per provider)
@@ -10,9 +10,23 @@ import threading
 _sync_status: Dict[int, Dict[str, dict]] = {}
 _lock = threading.Lock()
 
+# Cleanup threshold - remove completed statuses older than this
+STATUS_CLEANUP_MINUTES = 30
+
+
+_last_cleanup: Optional[datetime] = None
 
 def get_status(user_id: int, provider_name: str) -> Optional[dict]:
     """Get current sync status for a user/provider."""
+    global _last_cleanup
+
+    # Periodic cleanup (every 5 minutes)
+    if _last_cleanup is None or datetime.now() - _last_cleanup > timedelta(minutes=5):
+        _last_cleanup = datetime.now()
+        # Run cleanup in a separate thread to avoid blocking
+        cleanup_thread = threading.Thread(target=cleanup_old_statuses, daemon=True)
+        cleanup_thread.start()
+
     with _lock:
         if user_id in _sync_status and provider_name in _sync_status[user_id]:
             return _sync_status[user_id][provider_name].copy()
@@ -85,3 +99,33 @@ def status_complete(user_id: int, provider_name: str, doc_count: int):
 def status_error(user_id: int, provider_name: str, error_msg: str):
     set_status(user_id, provider_name, "error", error_msg,
                is_complete=True, is_error=True)
+
+
+def cleanup_old_statuses():
+    """Remove completed status entries older than STATUS_CLEANUP_MINUTES.
+    Call this periodically to prevent memory leaks."""
+    cutoff = datetime.now() - timedelta(minutes=STATUS_CLEANUP_MINUTES)
+
+    with _lock:
+        users_to_remove = []
+        for user_id, providers in _sync_status.items():
+            providers_to_remove = []
+            for provider_name, status in providers.items():
+                if status.get("is_complete", False):
+                    updated_at = status.get("updated_at")
+                    if updated_at:
+                        try:
+                            status_time = datetime.fromisoformat(updated_at)
+                            if status_time < cutoff:
+                                providers_to_remove.append(provider_name)
+                        except ValueError:
+                            pass
+
+            for provider in providers_to_remove:
+                del providers[provider]
+
+            if not providers:
+                users_to_remove.append(user_id)
+
+        for user_id in users_to_remove:
+            del _sync_status[user_id]

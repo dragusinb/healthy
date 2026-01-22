@@ -13,8 +13,6 @@ import datetime
 router = APIRouter(prefix="/documents", tags=["documents"])
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    from backend_v2.auth.security import verify_password, get_password_hash, create_access_token # circular import fix?
-    # Simplified decode for now
     from jose import jwt
     from backend_v2.auth.security import SECRET_KEY, ALGORITHM
     
@@ -83,7 +81,7 @@ def get_document_biomarkers(doc_id: int, db: Session = Depends(get_db), current_
             "value": r.numeric_value if r.numeric_value is not None else r.value,
             "unit": r.unit,
             "range": r.reference_range,
-            "status": "normal" if r.flags == "NORMAL" else "high",
+            "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high"),
             "flags": r.flags
         } for r in results]
     }

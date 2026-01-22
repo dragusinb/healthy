@@ -37,15 +37,9 @@ def encrypt_password(plain_password: str) -> str:
     if not plain_password:
         return ""
 
-    try:
-        f = _get_fernet()
-        encrypted = f.encrypt(plain_password.encode())
-        return encrypted.decode()
-    except ValueError as e:
-        # If encryption key not set, store plain (dev mode warning)
-        print(f"WARNING: {e}")
-        print("Storing password without encryption (dev mode only)")
-        return f"PLAIN:{plain_password}"
+    f = _get_fernet()  # Will raise ValueError if ENCRYPTION_KEY not set
+    encrypted = f.encrypt(plain_password.encode())
+    return encrypted.decode()
 
 
 def decrypt_password(encrypted_password: str) -> str:

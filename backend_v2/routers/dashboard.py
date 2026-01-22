@@ -64,7 +64,7 @@ def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depen
             "range": r.reference_range,
             "date": r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown",
             "provider": r.document.provider,
-            "status": "normal" if r.flags == "NORMAL" else "high" # Simplified mapping, real logic might be more complex
+            "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high")
         })
         
     return biomarkers
@@ -88,7 +88,7 @@ def get_recent_biomarkers(db: Session = Depends(get_db), current_user: User = De
             recent.append({
                 "name": r.test_name,
                 "lastValue": f"{r.numeric_value if r.numeric_value else r.value} {r.unit or ''}".strip(),
-                "status": "normal" if r.flags == "NORMAL" else "high",
+                "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high"),
                 "date": r.document.document_date.strftime("%b %d") if r.document.document_date else "Unknown"
             })
 

@@ -66,7 +66,8 @@ class AIParser:
             "results": [
                 {{
                     "test_name": "Hemoglobina",
-                    "value": 14.2,
+                    "value": "14.2",
+                    "numeric_value": 14.2,
                     "unit": "g/dL",
                     "reference_range": "12 - 16",
                     "flags": "NORMAL"

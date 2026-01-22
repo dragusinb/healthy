@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/client';
 import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -168,19 +168,34 @@ const LinkedAccounts = () => {
     const [syncing, setSyncing] = useState(null);
     const [message, setMessage] = useState(null);
     const [syncStatus, setSyncStatus] = useState({}); // { 'Regina Maria': {...}, 'Synevo': {...} }
+    const syncingRef = useRef(null); // Track current syncing provider to avoid race conditions
 
     useEffect(() => {
         fetchAccounts();
     }, []);
 
+    // Keep ref in sync with state
+    useEffect(() => {
+        syncingRef.current = syncing;
+    }, [syncing]);
+
     // Poll for sync status when syncing
     useEffect(() => {
         if (!syncing) return;
 
+        const currentProvider = syncing; // Capture current provider for this effect
+
         const pollStatus = async () => {
+            // Check if we're still syncing the same provider
+            if (syncingRef.current !== currentProvider) return;
+
             try {
-                const res = await api.get(`/users/sync-status/${syncing}`);
-                setSyncStatus(prev => ({ ...prev, [syncing]: res.data }));
+                const res = await api.get(`/users/sync-status/${currentProvider}`);
+
+                // Double-check we're still syncing this provider
+                if (syncingRef.current !== currentProvider) return;
+
+                setSyncStatus(prev => ({ ...prev, [currentProvider]: res.data }));
 
                 // Check if complete or error
                 if (res.data.is_complete) {
@@ -190,16 +205,19 @@ const LinkedAccounts = () => {
                         setMessage({ type: 'success', text: res.data.message });
                     }
                     setSyncing(null);
-                    setSyncStatus(prev => ({ ...prev, [syncing]: null }));
+                    // Clear status after a short delay so user can see completion
+                    setTimeout(() => {
+                        setSyncStatus(prev => ({ ...prev, [currentProvider]: null }));
+                    }, 2000);
                 }
             } catch (e) {
                 console.error("Status poll failed", e);
             }
         };
 
-        // Poll immediately then every 2 seconds
+        // Poll immediately then every 1.5 seconds (faster polling)
         pollStatus();
-        const interval = setInterval(pollStatus, 2000);
+        const interval = setInterval(pollStatus, 1500);
         return () => clearInterval(interval);
     }, [syncing]);
 

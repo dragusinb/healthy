@@ -26,11 +26,15 @@ db.close()
 
 app = FastAPI(title="Healthy v2 API", version="2.0")
 
-# CORS
-origins = [
-    "http://localhost:5173",  # React Vite Wrapper
+# CORS - configurable via environment
+default_origins = [
+    "http://localhost:5173",  # React Vite dev
     "http://localhost:3000",
+    "http://localhost:4173",  # Vite preview
 ]
+# Add production origins from env (comma-separated)
+extra_origins = os.getenv("CORS_ORIGINS", "").split(",")
+origins = default_origins + [o.strip() for o in extra_origins if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,

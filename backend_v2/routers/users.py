@@ -178,13 +178,21 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
             try:
                 parsed_data = ai_service.process_document(doc_info["local_path"])
 
-                if "results" in parsed_data:
+                if "results" in parsed_data and parsed_data["results"]:
                     for r in parsed_data["results"]:
+                        # Handle numeric_value - try dedicated field first, then parse from value
+                        numeric_val = r.get("numeric_value")
+                        if numeric_val is None:
+                            try:
+                                numeric_val = float(r.get("value"))
+                            except (TypeError, ValueError):
+                                numeric_val = None
+
                         tr = TestResult(
                             document_id=new_doc.id,
                             test_name=r.get("test_name"),
                             value=str(r.get("value")),
-                            numeric_value=r.get("numeric_value") if r.get("numeric_value") else None,
+                            numeric_value=numeric_val,
                             unit=r.get("unit"),
                             reference_range=r.get("reference_range"),
                             flags=r.get("flags", "NORMAL")
@@ -204,8 +212,16 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
                     new_doc.is_processed = True
                     db.commit()
                     count_processed += 1
+                elif "error" in parsed_data:
+                    print(f"AI parsing error for {doc_info['filename']}: {parsed_data['error']}")
+                    # Mark as processed but with no results to avoid re-processing
+                    new_doc.is_processed = True
+                    db.commit()
             except Exception as e:
                 print(f"Failed to parse {doc_info['filename']}: {e}")
+                # Mark document as processed to avoid re-processing loop
+                new_doc.is_processed = True
+                db.commit()
 
         sync_status.status_complete(user_id, provider_name, count_processed)
 
