@@ -1,9 +1,14 @@
-from backend_v2.services.regina_maria_crawler import ReginaMariaCrawler, CaptchaRequiredError
-from backend_v2.services.synevo_crawler import SynevoCrawler
-from backend_v2.services import sync_status
 import asyncio
-
 import traceback
+
+try:
+    from backend_v2.services.regina_maria_crawler import ReginaMariaCrawler, CaptchaRequiredError
+    from backend_v2.services.synevo_crawler import SynevoCrawler
+    from backend_v2.services import sync_status
+except ImportError:
+    from services.regina_maria_crawler import ReginaMariaCrawler, CaptchaRequiredError
+    from services.synevo_crawler import SynevoCrawler
+    from services import sync_status
 
 async def run_regina_async(username, password, headless=True, user_id=None):
     """

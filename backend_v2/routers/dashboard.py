@@ -1,9 +1,15 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from backend_v2.database import get_db
-from backend_v2.models import User, Document, TestResult
-from backend_v2.routers.documents import get_current_user
+
+try:
+    from backend_v2.database import get_db
+    from backend_v2.models import User, Document, TestResult
+    from backend_v2.routers.documents import get_current_user
+except ImportError:
+    from database import get_db
+    from models import User, Document, TestResult
+    from routers.documents import get_current_user
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 

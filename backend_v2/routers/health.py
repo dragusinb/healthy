@@ -2,13 +2,20 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from backend_v2.database import get_db
-from backend_v2.models import User, Document, TestResult, HealthReport
-from backend_v2.routers.documents import get_current_user
-from backend_v2.services.health_agents import HealthAnalysisService, SpecialistAgent
 import json
 from datetime import datetime
 from typing import Optional
+
+try:
+    from backend_v2.database import get_db
+    from backend_v2.models import User, Document, TestResult, HealthReport
+    from backend_v2.routers.documents import get_current_user
+    from backend_v2.services.health_agents import HealthAnalysisService, SpecialistAgent
+except ImportError:
+    from database import get_db
+    from models import User, Document, TestResult, HealthReport
+    from routers.documents import get_current_user
+    from services.health_agents import HealthAnalysisService, SpecialistAgent
 
 router = APIRouter(prefix="/health", tags=["health"])
 

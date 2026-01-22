@@ -2,20 +2,30 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from backend_v2.database import get_db
-from backend_v2.models import User, Document, TestResult
-from backend_v2.routers.auth import oauth2_scheme
-from backend_v2.services.ai_parser import AIParser
 import shutil
 import os
 import datetime
+
+try:
+    from backend_v2.database import get_db
+    from backend_v2.models import User, Document, TestResult
+    from backend_v2.routers.auth import oauth2_scheme
+    from backend_v2.services.ai_parser import AIParser
+except ImportError:
+    from database import get_db
+    from models import User, Document, TestResult
+    from routers.auth import oauth2_scheme
+    from services.ai_parser import AIParser
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     from jose import jwt
-    from backend_v2.auth.security import SECRET_KEY, ALGORITHM
-    
+    try:
+        from backend_v2.auth.security import SECRET_KEY, ALGORITHM
+    except ImportError:
+        from auth.security import SECRET_KEY, ALGORITHM
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")

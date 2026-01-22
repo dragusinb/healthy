@@ -1,12 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from backend_v2.database import get_db
-from backend_v2.models import User, LinkedAccount
-from backend_v2.routers.documents import get_current_user
-from backend_v2.services import sync_status
-from backend_v2.auth.crypto import encrypt_password, decrypt_password
 import datetime
+
+try:
+    from backend_v2.database import get_db
+    from backend_v2.models import User, LinkedAccount
+    from backend_v2.routers.documents import get_current_user
+    from backend_v2.services import sync_status
+    from backend_v2.auth.crypto import encrypt_password, decrypt_password
+except ImportError:
+    from database import get_db
+    from models import User, LinkedAccount
+    from routers.documents import get_current_user
+    from services import sync_status
+    from auth.crypto import encrypt_password, decrypt_password
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -97,8 +105,12 @@ async def sync_provider(
 def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_password: str):
     """Background task to run sync with status updates."""
     import asyncio
-    from backend_v2.database import SessionLocal
-    from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
+    try:
+        from backend_v2.database import SessionLocal
+        from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
+    except ImportError:
+        from database import SessionLocal
+        from services.crawlers_manager import run_regina_async, run_synevo_async
 
     # Decrypt password for use
     password = decrypt_password(encrypted_password)
@@ -133,8 +145,12 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
             return
 
         # Process documents
-        from backend_v2.models import Document, TestResult
-        from backend_v2.services.ai_service import AIService
+        try:
+            from backend_v2.models import Document, TestResult
+            from backend_v2.services.ai_service import AIService
+        except ImportError:
+            from models import Document, TestResult
+            from services.ai_service import AIService
 
         try:
             ai_service = AIService()

@@ -2,7 +2,11 @@ import os
 import datetime
 from typing import Dict, Any, List
 from playwright.sync_api import Page
-from backend_v2.services.base import BaseCrawler
+
+try:
+    from backend_v2.services.base import BaseCrawler
+except ImportError:
+    from services.base import BaseCrawler
 
 
 class CaptchaRequiredError(Exception):

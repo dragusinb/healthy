@@ -10,11 +10,17 @@ if sys.platform == "win32":
 
 load_dotenv() # Load .env file
 
-# Force reload trigger 2
 from fastapi.middleware.cors import CORSMiddleware
-from backend_v2.routers import auth, users, dashboard, documents, health
-from backend_v2.database import Base, engine, SessionLocal
-from backend_v2.routers.auth import seed_default_user
+
+# Support both local development (backend_v2.X) and production (X) imports
+try:
+    from backend_v2.routers import auth, users, dashboard, documents, health
+    from backend_v2.database import Base, engine, SessionLocal
+    from backend_v2.routers.auth import seed_default_user
+except ImportError:
+    from routers import auth, users, dashboard, documents, health
+    from database import Base, engine, SessionLocal
+    from routers.auth import seed_default_user
 
 # Create Tables
 Base.metadata.create_all(bind=engine)
@@ -31,6 +37,8 @@ default_origins = [
     "http://localhost:5173",  # React Vite dev
     "http://localhost:3000",
     "http://localhost:4173",  # Vite preview
+    "https://healthy-six.vercel.app",  # Vercel production
+    "https://healthy-dragusinb.vercel.app",  # Vercel preview
 ]
 # Add production origins from env (comma-separated)
 extra_origins = os.getenv("CORS_ORIGINS", "").split(",")
