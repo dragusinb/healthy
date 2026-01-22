@@ -39,6 +39,7 @@ default_origins = [
     "http://localhost:4173",  # Vite preview
     "https://healthy-six.vercel.app",  # Vercel production
     "https://healthy-dragusinb.vercel.app",  # Vercel preview
+    "https://healthy-git-main-dragusinbs-projects.vercel.app",  # Vercel git preview
 ]
 # Add production origins from env (comma-separated)
 extra_origins = os.getenv("CORS_ORIGINS", "").split(",")
