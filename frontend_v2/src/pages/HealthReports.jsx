@@ -470,15 +470,31 @@ const HealthReports = () => {
                                     <div className="space-y-3">
                                         {selectedReport.findings.map((finding, i) => {
                                             const style = getRiskStyle(finding.status);
+                                            // Handle both general report format (category/explanation) and specialist format (marker/significance)
+                                            const title = finding.category || finding.marker;
+                                            const description = finding.explanation || finding.significance;
+                                            const value = finding.value;
                                             return (
                                                 <div key={i} className={cn("p-4 rounded-xl border", style.bg, style.border)}>
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <span className={cn("font-semibold", style.text)}>{finding.category}</span>
+                                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                                        <span className={cn("font-semibold", style.text)}>{title}</span>
                                                         <span className={cn("text-xs px-2 py-0.5 rounded-full border", style.bg, style.text, style.border)}>
                                                             {finding.status}
                                                         </span>
                                                     </div>
-                                                    <p className="text-slate-600 text-sm">{finding.explanation}</p>
+                                                    {value && (
+                                                        <p className="text-slate-800 font-medium text-sm mb-1">{value}</p>
+                                                    )}
+                                                    <p className="text-slate-600 text-sm">{description}</p>
+                                                    {finding.markers?.length > 0 && (
+                                                        <div className="flex flex-wrap gap-2 mt-2">
+                                                            {finding.markers.map((marker, j) => (
+                                                                <span key={j} className="text-xs bg-white/50 px-2 py-1 rounded border border-slate-200">
+                                                                    {marker}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             );
                                         })}
