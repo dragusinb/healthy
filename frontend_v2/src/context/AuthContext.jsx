@@ -60,6 +60,12 @@ export const AuthProvider = ({ children }) => {
         await checkUser();
     };
 
+    const register = async (email, password) => {
+        const res = await api.post('/auth/register', { email, password });
+        localStorage.setItem('token', res.data.access_token);
+        await checkUser();
+    };
+
     const loginWithGoogle = useCallback(() => {
         return new Promise((resolve, reject) => {
             if (!GOOGLE_CLIENT_ID) {
@@ -109,7 +115,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, loginWithGoogle, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, loginWithGoogle, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );

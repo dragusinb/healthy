@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Mail, Lock } from 'lucide-react';
+import { Activity, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { login, loginWithGoogle } = useAuth();
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [isRegisterMode, setIsRegisterMode] = useState(false);
+    const { login, register, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -15,13 +17,37 @@ const Login = () => {
         e.preventDefault();
         setLoading(true);
         setError('');
-        try {
-            await login(email, password);
-            navigate('/');
-        } catch (err) {
-            setError('Invalid email or password');
-        } finally {
-            setLoading(false);
+
+        if (isRegisterMode) {
+            // Registration validation
+            if (password.length < 6) {
+                setError('Password must be at least 6 characters');
+                setLoading(false);
+                return;
+            }
+            if (password !== confirmPassword) {
+                setError('Passwords do not match');
+                setLoading(false);
+                return;
+            }
+            try {
+                await register(email, password);
+                navigate('/');
+            } catch (err) {
+                setError(err.response?.data?.detail || 'Registration failed. Email may already be registered.');
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            // Login
+            try {
+                await login(email, password);
+                navigate('/');
+            } catch (err) {
+                setError('Invalid email or password');
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -38,6 +64,12 @@ const Login = () => {
         }
     };
 
+    const toggleMode = () => {
+        setIsRegisterMode(!isRegisterMode);
+        setError('');
+        setConfirmPassword('');
+    };
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50">
             <div className="w-full max-w-md">
@@ -50,9 +82,11 @@ const Login = () => {
                     <p className="text-slate-500 mt-1">Track your health journey</p>
                 </div>
 
-                {/* Login Card */}
+                {/* Login/Register Card */}
                 <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-                    <h2 className="text-xl font-semibold text-slate-800 mb-6 text-center">Sign in to your account</h2>
+                    <h2 className="text-xl font-semibold text-slate-800 mb-6 text-center">
+                        {isRegisterMode ? 'Create your account' : 'Sign in to your account'}
+                    </h2>
 
                     {error && (
                         <div className="bg-rose-50 text-rose-600 p-3 rounded-xl mb-4 text-sm border border-rose-100">
@@ -112,17 +146,59 @@ const Login = () => {
                                     className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                     placeholder="••••••••"
                                     required
+                                    minLength={isRegisterMode ? 6 : undefined}
                                 />
                             </div>
+                            {isRegisterMode && (
+                                <p className="text-xs text-slate-400 mt-1">Must be at least 6 characters</p>
+                            )}
                         </div>
+
+                        {isRegisterMode && (
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+                                <div className="relative">
+                                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+                                        placeholder="••••••••"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-primary-600 text-white py-3 px-4 rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-primary-600 text-white py-3 px-4 rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            {loading ? 'Signing in...' : 'Sign In'}
+                            {loading ? (
+                                isRegisterMode ? 'Creating account...' : 'Signing in...'
+                            ) : (
+                                <>
+                                    {isRegisterMode ? <UserPlus size={18} /> : <LogIn size={18} />}
+                                    {isRegisterMode ? 'Create Account' : 'Sign In'}
+                                </>
+                            )}
                         </button>
                     </form>
+
+                    {/* Toggle Login/Register */}
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-slate-500">
+                            {isRegisterMode ? 'Already have an account?' : "Don't have an account?"}
+                            <button
+                                onClick={toggleMode}
+                                className="ml-1 text-primary-600 hover:text-primary-700 font-semibold"
+                            >
+                                {isRegisterMode ? 'Sign in' : 'Sign up'}
+                            </button>
+                        </p>
+                    </div>
                 </div>
 
                 {/* Footer */}
