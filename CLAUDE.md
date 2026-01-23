@@ -135,7 +135,24 @@
 - Graceful error handling
 - Retry logic for transient failures
 
-### 4. Maintainability
+### 4. Hardware Awareness
+**Be mindful of server resources - don't overload the machine.**
+
+Current limits implemented:
+- `MAX_CONCURRENT_SYNCS = 2` - Only 2 provider syncs can run simultaneously
+- `MAX_CONCURRENT_DOCUMENT_PROCESSING = 3` - Only 3 documents processed at once
+- Scheduler intervals: Sync check every 30 min, document processing every 2 min, cleanup every 1 hour
+- Consecutive failure limit: 5 failures before disabling auto-sync for an account
+- Stuck sync timeout: 1 hour before marking as failed
+
+When adding new background jobs or concurrent operations:
+- Always implement concurrency limits
+- Use tracking sets to prevent duplicate operations
+- Add timeouts and cleanup mechanisms
+- Consider the Contabo VPS has limited RAM/CPU
+- Test with realistic load before deploying
+
+### 5. Maintainability
 - Clean code, clear separation of concerns
 - Document progress in log.md
 - Tag releases in git
