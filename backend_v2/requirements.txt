@@ -15,3 +15,5 @@ pypdf
 httpx
 cryptography
 psycopg2-binary
+apscheduler
+psutil

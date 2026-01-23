@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const SidebarItem = ({ to, icon: Icon, label }) => (
@@ -27,21 +28,28 @@ const Layout = ({ children }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const { t, i18n } = useTranslation();
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
+    const toggleLanguage = () => {
+        const newLang = i18n.language === 'ro' ? 'en' : 'ro';
+        i18n.changeLanguage(newLang);
+    };
+
     // Page Title mapping based on path
     const getPageTitle = () => {
         const path = location.pathname;
-        if (path === '/') return 'Dashboard';
-        if (path.startsWith('/documents')) return 'Medical Documents';
-        if (path.startsWith('/biomarkers')) return 'Biomarkers';
-        if (path.startsWith('/evolution')) return 'Evolution & Trends';
-        if (path.startsWith('/health')) return 'AI Health Analysis';
-        if (path.startsWith('/linked-accounts')) return 'Connect Providers';
+        if (path === '/') return t('nav.dashboard');
+        if (path.startsWith('/documents')) return t('nav.documents');
+        if (path.startsWith('/biomarkers')) return t('nav.biomarkers');
+        if (path.startsWith('/evolution')) return t('evolution.title');
+        if (path.startsWith('/health')) return t('healthReports.title');
+        if (path.startsWith('/linked-accounts')) return t('linkedAccounts.title');
+        if (path.startsWith('/admin')) return t('admin.title');
         return '';
     }
 
@@ -59,13 +67,16 @@ const Layout = ({ children }) => {
 
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">Menu</div>
                     <nav className="space-y-1.5">
-                        <SidebarItem to="/" icon={LayoutDashboard} label="Dashboard" />
-                        <SidebarItem to="/documents" icon={FileText} label="Documents" />
-                        <SidebarItem to="/biomarkers" icon={Activity} label="Biomarkers" />
-                        <SidebarItem to="/health" icon={Brain} label="AI Analysis" />
+                        <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} />
+                        <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} />
+                        <SidebarItem to="/biomarkers" icon={Activity} label={t('nav.biomarkers')} />
+                        <SidebarItem to="/health" icon={Brain} label={t('healthReports.title')} />
                         <div className="pt-4 mt-4 border-t border-slate-100"></div>
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">Settings</div>
-                        <SidebarItem to="/linked-accounts" icon={LinkIcon} label="Linked Accounts" />
+                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
+                        <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
+                        {user?.is_admin && (
+                            <SidebarItem to="/admin" icon={Shield} label={t('nav.admin')} />
+                        )}
                     </nav>
                 </div>
 
@@ -74,18 +85,30 @@ const Layout = ({ children }) => {
                         <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 overflow-hidden border-2 border-white shadow-sm">
                             <User size={20} />
                         </div>
-                        <div className="overflow-hidden">
+                        <div className="overflow-hidden flex-1">
                             <p className="text-sm font-semibold text-slate-700 truncate">{user?.email?.split('@')[0]}</p>
-                            <p className="text-xs text-slate-400 truncate font-medium">Free Plan</p>
+                            <p className="text-xs text-slate-400 truncate font-medium">
+                                {user?.is_admin ? 'Admin' : 'Free Plan'}
+                            </p>
                         </div>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 mt-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors font-medium"
-                    >
-                        <LogOut size={16} />
-                        Sign Out
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={toggleLanguage}
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors font-medium border border-slate-200"
+                            title={t('settings.language')}
+                        >
+                            <Globe size={16} />
+                            {i18n.language.toUpperCase()}
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors font-medium"
+                        >
+                            <LogOut size={16} />
+                            {t('nav.logout')}
+                        </button>
+                    </div>
                 </div>
             </aside>
 

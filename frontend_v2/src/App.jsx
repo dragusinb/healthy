@@ -8,6 +8,7 @@ import Biomarkers from './pages/Biomarkers';
 import Evolution from './pages/Evolution';
 import LinkedAccounts from './pages/LinkedAccounts';
 import HealthReports from './pages/HealthReports';
+import Admin from './pages/Admin';
 import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }) => {
@@ -64,6 +65,13 @@ const App = () => {
             <PrivateRoute>
               <Layout>
                 <HealthReports />
+              </Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/admin" element={
+            <PrivateRoute>
+              <Layout>
+                <Admin />
               </Layout>
             </PrivateRoute>
           } />

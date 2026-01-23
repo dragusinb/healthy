@@ -14,13 +14,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Support both local development (backend_v2.X) and production (X) imports
 try:
-    from backend_v2.routers import auth, users, dashboard, documents, health
+    from backend_v2.routers import auth, users, dashboard, documents, health, admin
     from backend_v2.database import Base, engine, SessionLocal
     from backend_v2.routers.auth import seed_default_user
+    from backend_v2.services.scheduler import init_scheduler, shutdown_scheduler
 except ImportError:
-    from routers import auth, users, dashboard, documents, health
+    from routers import auth, users, dashboard, documents, health, admin
     from database import Base, engine, SessionLocal
     from routers.auth import seed_default_user
+    from services.scheduler import init_scheduler, shutdown_scheduler
 
 # Create Tables
 Base.metadata.create_all(bind=engine)
@@ -57,6 +59,18 @@ app.include_router(users.router)
 app.include_router(dashboard.router)
 app.include_router(documents.router)
 app.include_router(health.router)
+app.include_router(admin.router)
+
+
+# Initialize scheduler on startup
+@app.on_event("startup")
+def startup_event():
+    init_scheduler()
+
+
+@app.on_event("shutdown")
+def shutdown_event():
+    shutdown_scheduler()
 
 
 @app.get("/")

@@ -29,6 +29,8 @@ def read_users_me(current_user: User = Depends(get_current_user)):
     return {
         "email": current_user.email,
         "id": current_user.id,
+        "is_admin": current_user.is_admin,
+        "language": current_user.language,
         "linked_accounts": current_user.linked_accounts
     }
 

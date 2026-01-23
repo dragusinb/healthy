@@ -41,7 +41,11 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             try {
                 const res = await api.get('/users/me');
-                setUser(res.data);
+                // Ensure is_admin is included
+                setUser({
+                    ...res.data,
+                    is_admin: res.data.is_admin || false
+                });
             } catch (e) {
                 localStorage.removeItem('token');
                 setUser(null);
