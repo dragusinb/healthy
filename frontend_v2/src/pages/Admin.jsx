@@ -4,7 +4,7 @@ import api from '../api/client';
 import {
     Shield, Users, FileText, Activity, Server, Cpu, HardDrive,
     MemoryStick, RefreshCw, AlertTriangle, CheckCircle, Loader2,
-    Trash2, RotateCcw, UserCog, Play
+    Trash2, RotateCcw, UserCog, Play, Brain
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -138,6 +138,19 @@ const Admin = () => {
             fetchData();
         } catch (e) {
             alert(e.response?.data?.detail || "Reprocess failed");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleRegenerateReports = async () => {
+        setActionLoading('regenerate');
+        try {
+            const res = await api.post('/admin/regenerate-health-reports');
+            alert(res.data.message);
+            fetchData();
+        } catch (e) {
+            alert(e.response?.data?.detail || "Regeneration failed");
         } finally {
             setActionLoading(null);
         }
@@ -301,6 +314,14 @@ const Admin = () => {
                     >
                         {actionLoading === 'reprocess' ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
                         Reprocess Documents ({stats?.documents?.pending || 0})
+                    </button>
+                    <button
+                        onClick={handleRegenerateReports}
+                        disabled={actionLoading === 'regenerate'}
+                        className="flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 hover:bg-violet-200 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        {actionLoading === 'regenerate' ? <Loader2 size={16} className="animate-spin" /> : <Brain size={16} />}
+                        Regenerate AI Reports (Romanian)
                     </button>
                 </div>
             </div>

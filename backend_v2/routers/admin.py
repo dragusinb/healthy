@@ -281,3 +281,119 @@ def get_pending_documents(db: Session = Depends(get_db), admin: User = Depends(r
         "upload_date": doc.upload_date.isoformat() if doc.upload_date else None,
         "file_path": doc.file_path
     } for doc in pending]
+
+
+@router.post("/regenerate-health-reports")
+def regenerate_all_health_reports(db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    """Regenerate health reports for all users in their preferred language."""
+    from threading import Thread
+    import json
+
+    try:
+        from backend_v2.models import TestResult
+        from backend_v2.services.health_agents import HealthAnalysisService
+    except ImportError:
+        from models import TestResult
+        from services.health_agents import HealthAnalysisService
+
+    def regenerate_for_user(user_id: int, language: str):
+        """Regenerate reports for a single user."""
+        from database import SessionLocal
+        from models import Document, TestResult, HealthReport
+
+        db_session = SessionLocal()
+        try:
+            # Get user's biomarkers
+            results = db_session.query(TestResult).join(Document)\
+                .filter(Document.user_id == user_id)\
+                .order_by(Document.document_date.desc())\
+                .all()
+
+            if not results:
+                return 0
+
+            biomarkers = []
+            for r in results:
+                biomarkers.append({
+                    "name": r.test_name,
+                    "value": r.numeric_value if r.numeric_value is not None else r.value,
+                    "unit": r.unit,
+                    "range": r.reference_range,
+                    "date": r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown",
+                    "status": "normal" if r.flags == "NORMAL" else "abnormal",
+                    "flags": r.flags
+                })
+
+            # Delete old reports
+            db_session.query(HealthReport).filter(HealthReport.user_id == user_id).delete()
+
+            # Run new analysis in user's language
+            service = HealthAnalysisService(language=language)
+            analysis = service.run_full_analysis(biomarkers)
+
+            # Save general report
+            general = analysis.get("general", {})
+            report = HealthReport(
+                user_id=user_id,
+                report_type="general",
+                title="Comprehensive Health Analysis",
+                summary=general.get("summary", "Analysis complete"),
+                findings=json.dumps(general.get("findings", [])),
+                recommendations=json.dumps(general.get("recommendations", [])),
+                risk_level=general.get("risk_level", "normal"),
+                biomarkers_analyzed=len(biomarkers)
+            )
+            db_session.add(report)
+
+            # Save specialist reports
+            for specialty, specialist_data in analysis.get("specialists", {}).items():
+                specialist_report = HealthReport(
+                    user_id=user_id,
+                    report_type=specialty,
+                    title=f"{specialty.title()} Analysis",
+                    summary=specialist_data.get("summary", ""),
+                    findings=json.dumps(specialist_data.get("key_findings", [])),
+                    recommendations=json.dumps(specialist_data.get("recommendations", [])),
+                    risk_level=specialist_data.get("risk_level", "normal"),
+                    biomarkers_analyzed=len(specialist_data.get("key_findings", []))
+                )
+                db_session.add(specialist_report)
+
+            db_session.commit()
+            return len(analysis.get("specialists", {})) + 1
+
+        except Exception as e:
+            print(f"Error regenerating for user {user_id}: {e}")
+            return 0
+        finally:
+            db_session.close()
+
+    def regenerate_all():
+        """Background task to regenerate all reports."""
+        from database import SessionLocal
+        from models import User
+
+        db_session = SessionLocal()
+        try:
+            users = db_session.query(User).all()
+            for user in users:
+                language = user.language if user.language else "ro"
+                print(f"Regenerating reports for user {user.id} ({user.email}) in {language}")
+                count = regenerate_for_user(user.id, language)
+                print(f"  Generated {count} reports")
+        finally:
+            db_session.close()
+
+    # Get count of users with biomarkers
+    users_with_biomarkers = db.query(User).join(Document, Document.user_id == User.id)\
+        .join(TestResult, TestResult.document_id == Document.id)\
+        .distinct().count()
+
+    # Run regeneration in background
+    thread = Thread(target=regenerate_all, daemon=True)
+    thread.start()
+
+    return {
+        "message": f"Started regenerating health reports for {users_with_biomarkers} users",
+        "users": users_with_biomarkers
+    }

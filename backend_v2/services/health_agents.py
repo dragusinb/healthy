@@ -12,19 +12,32 @@ from datetime import datetime
 class HealthAgent:
     """Base class for health analysis agents."""
 
-    def __init__(self):
+    LANGUAGE_INSTRUCTIONS = {
+        "ro": "IMPORTANT: You MUST respond entirely in Romanian. All text including summary, findings, explanations, and recommendations must be written in Romanian language.",
+        "en": "Respond in English."
+    }
+
+    def __init__(self, language: str = "en"):
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
         self.client = OpenAI(api_key=api_key)
         self.model = "gpt-4o"
+        self.language = language if language in self.LANGUAGE_INSTRUCTIONS else "en"
+
+    def _get_language_instruction(self) -> str:
+        """Get the language instruction for prompts."""
+        return self.LANGUAGE_INSTRUCTIONS.get(self.language, self.LANGUAGE_INSTRUCTIONS["en"])
 
     def _call_ai(self, system_prompt: str, user_prompt: str) -> str:
         """Make an API call to OpenAI."""
+        # Add language instruction to system prompt
+        full_system_prompt = f"{system_prompt}\n\n{self._get_language_instruction()}"
+
         response = self.client.chat.completions.create(
             model=self.model,
             messages=[
-                {"role": "system", "content": system_prompt},
+                {"role": "system", "content": full_system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
             temperature=0.3,
@@ -35,6 +48,9 @@ class HealthAgent:
 
 class GeneralistAgent(HealthAgent):
     """General health analyst that reviews all biomarkers and identifies areas of concern."""
+
+    def __init__(self, language: str = "en"):
+        super().__init__(language=language)
 
     SYSTEM_PROMPT = """You are an AI health analyst assistant. Your role is to review lab test results
 and provide a general health assessment. You are NOT a doctor and cannot diagnose conditions.
@@ -172,8 +188,8 @@ class SpecialistAgent(HealthAgent):
         }
     }
 
-    def __init__(self, specialty: str):
-        super().__init__()
+    def __init__(self, specialty: str, language: str = "en"):
+        super().__init__(language=language)
         if specialty not in self.SPECIALISTS:
             raise ValueError(f"Unknown specialty: {specialty}")
         self.specialty = specialty
@@ -291,8 +307,9 @@ Focus on {self.config['focus']}. Provide your specialist analysis in JSON format
 class HealthAnalysisService:
     """Service to run health analysis across all agents."""
 
-    def __init__(self):
-        self.generalist = GeneralistAgent()
+    def __init__(self, language: str = "en"):
+        self.language = language
+        self.generalist = GeneralistAgent(language=language)
 
     def run_full_analysis(self, biomarkers: List[Dict]) -> Dict[str, Any]:
         """Run general analysis and determine if specialist analyses are needed."""
@@ -302,7 +319,8 @@ class HealthAnalysisService:
         result = {
             "general": general_report,
             "specialists": {},
-            "analyzed_at": datetime.now().isoformat()
+            "analyzed_at": datetime.now().isoformat(),
+            "language": self.language
         }
 
         # Run specialist analyses based on referrals or concerning markers
@@ -315,18 +333,18 @@ class HealthAnalysisService:
 
             if not should_analyze:
                 # Check if any concerning markers exist for this specialty
-                specialist = SpecialistAgent(specialty)
+                specialist = SpecialistAgent(specialty, language=self.language)
                 relevant = specialist._filter_relevant_markers(biomarkers)
                 has_concerns = any(b.get('status') != 'normal' for b in relevant)
                 should_analyze = has_concerns
 
             if should_analyze:
-                specialist = SpecialistAgent(specialty)
+                specialist = SpecialistAgent(specialty, language=self.language)
                 result["specialists"][specialty] = specialist.analyze(biomarkers)
 
         return result
 
     def run_specialist_analysis(self, specialty: str, biomarkers: List[Dict]) -> Dict[str, Any]:
         """Run analysis for a specific specialty."""
-        specialist = SpecialistAgent(specialty)
+        specialist = SpecialistAgent(specialty, language=self.language)
         return specialist.analyze(biomarkers)

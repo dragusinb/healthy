@@ -53,8 +53,11 @@ def run_health_analysis(
     if not biomarkers:
         raise HTTPException(status_code=400, detail="No biomarkers available for analysis")
 
+    # Get user's language preference (default to Romanian)
+    user_language = current_user.language if current_user.language else "ro"
+
     try:
-        service = HealthAnalysisService()
+        service = HealthAnalysisService(language=user_language)
         analysis = service.run_full_analysis(biomarkers)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
@@ -210,8 +213,11 @@ def run_specialist_analysis(
     if not biomarkers:
         raise HTTPException(status_code=400, detail="No biomarkers available for analysis")
 
+    # Get user's language preference (default to Romanian)
+    user_language = current_user.language if current_user.language else "ro"
+
     try:
-        service = HealthAnalysisService()
+        service = HealthAnalysisService(language=user_language)
         analysis = service.run_specialist_analysis(specialty, biomarkers)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
