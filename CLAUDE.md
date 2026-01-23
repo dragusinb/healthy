@@ -197,16 +197,16 @@ Healthy/
 ---
 
 ## Current Status
-**Phase:** 0, 1, & 2 IN PROGRESS
-**Focus:** Multi-user & AI Health Analysis
+**Phase:** 2 NEARLY COMPLETE, Phase 4 PARTIAL
+**Focus:** Finishing Phase 2, preparing for production
 
 ### Phase 0 - COMPLETE ✓
 - [x] Synevo crawler works reliably (headless, downloads all docs)
 - [x] Regina Maria crawler works (fallback to visible browser for CAPTCHA)
 - [x] CAPTCHA handling integrated (auto-detects, opens visible browser)
 - [x] Real-time sync status feedback in UI
-- [x] Basic document storage (41 docs imported)
-- [x] AI parsing works (703 biomarkers extracted)
+- [x] Basic document storage and management
+- [x] AI parsing works (extracts biomarkers from PDFs)
 - [x] Dashboard shows imported documents and stats
 
 ### Phase 1 - COMPLETE ✓
@@ -216,13 +216,45 @@ Healthy/
 - [x] Flag HIGH/LOW values visually (color-coded badges)
 - [x] Dashboard: Real recent biomarkers + alerts count
 - [x] API endpoints: /recent-biomarkers, /alerts-count, /evolution/{name}
+- [x] Biomarkers grouped by category, collapsible sections
+- [x] Sort biomarkers by issues first or most recent
+- [x] PDF view icons to see source documents
 
-### Phase 2 - IN PROGRESS
+### Phase 2 - NEARLY COMPLETE (95%)
 - [x] User registration and authentication (email/password)
 - [x] Google OAuth authentication
 - [x] Secure credential storage (Fernet encryption)
 - [x] AI Generalist Agent: Reviews health history, identifies concerns
 - [x] AI Specialist Agents: Cardiology, Endocrinology, Hematology, Hepatology, Nephrology
 - [x] Health Report generation with findings and recommendations
-- [x] Health Reports page in frontend
-- [ ] Report history and comparison (in progress)
+- [x] Health Reports page in frontend with detailed progress UI
+- [x] Document deletion with cascade delete of biomarkers
+- [x] Edit linked account credentials
+- [ ] Email verification for registration (blocked - needs domain/AWS SES)
+- [ ] Report history and comparison
+
+### Phase 4 - PARTIAL (Production Deployment)
+- [x] PostgreSQL database (production) - Running on Contabo
+- [x] Cloud deployment - Contabo VPS (62.171.163.23)
+- [x] Nginx reverse proxy configured
+- [x] Systemd services for API and Xvfb
+- [ ] SSL/HTTPS (blocked - needs domain)
+- [ ] Custom domain
+- [ ] GDPR compliance
+- [ ] Backup and disaster recovery
+- [ ] Monitoring and alerting
+
+### Deployment Info
+- **Server:** Contabo VPS 62.171.163.23
+- **Frontend:** http://62.171.163.23 (Nginx serving static files)
+- **Backend:** http://62.171.163.23:8000 (FastAPI via Uvicorn)
+- **Database:** PostgreSQL (local on server)
+- **Git:** Auto-deploy via `git pull` + rebuild
+
+### Next Steps
+1. Get domain name
+2. Set up SSL/HTTPS with Let's Encrypt
+3. Configure AWS SES for email verification
+4. Implement report comparison feature
+
+See **BACKLOG.md** for full list of planned features and technical debt.
