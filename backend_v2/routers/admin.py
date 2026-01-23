@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 import psutil
 import os
+import subprocess
 from datetime import datetime, timedelta
 
 try:
@@ -397,3 +398,117 @@ def regenerate_all_health_reports(db: Session = Depends(get_db), admin: User = D
         "message": f"Started regenerating health reports for {users_with_biomarkers} users",
         "users": users_with_biomarkers
     }
+
+
+@router.get("/server-logs")
+def get_server_logs(lines: int = 100, admin: User = Depends(require_admin)):
+    """Get recent server logs."""
+    log_file = "/var/log/healthy.log"
+
+    try:
+        # Use tail to get last N lines
+        result = subprocess.run(
+            ["tail", "-n", str(min(lines, 500)), log_file],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        log_lines = result.stdout.split("\n") if result.stdout else []
+
+        # Parse for errors and warnings
+        errors = [l for l in log_lines if "ERROR" in l or "Error" in l or "error" in l]
+        warnings = [l for l in log_lines if "WARNING" in l or "Warning" in l]
+
+        return {
+            "logs": log_lines[-100:],  # Last 100 lines
+            "errors": errors[-20:],     # Last 20 errors
+            "warnings": warnings[-20:], # Last 20 warnings
+            "total_lines": len(log_lines)
+        }
+    except FileNotFoundError:
+        return {"logs": [], "errors": [], "warnings": [], "message": "Log file not found"}
+    except subprocess.TimeoutExpired:
+        return {"logs": [], "errors": [], "warnings": [], "message": "Timeout reading logs"}
+    except Exception as e:
+        return {"logs": [], "errors": [], "warnings": [], "message": str(e)}
+
+
+@router.get("/service-status")
+def get_service_status(admin: User = Depends(require_admin)):
+    """Get systemd service status and restart history."""
+    try:
+        # Get service status
+        status_result = subprocess.run(
+            ["systemctl", "status", "healthy", "--no-pager"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+
+        # Get recent restarts from journal
+        journal_result = subprocess.run(
+            ["journalctl", "-u", "healthy", "--no-pager", "-n", "50", "--output=short-iso"],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+
+        # Parse status
+        status_lines = status_result.stdout.split("\n") if status_result.stdout else []
+        is_active = any("Active: active" in line for line in status_lines)
+        is_failed = any("Active: failed" in line for line in status_lines)
+
+        # Find restarts in journal
+        journal_lines = journal_result.stdout.split("\n") if journal_result.stdout else []
+        restarts = [l for l in journal_lines if "Started" in l or "Stopped" in l or "failed" in l.lower()]
+
+        # Get uptime
+        uptime = None
+        for line in status_lines:
+            if "Active:" in line and "since" in line:
+                # Extract the time part
+                try:
+                    since_part = line.split("since")[1].strip()
+                    uptime = since_part.split(";")[0].strip()
+                except:
+                    pass
+
+        # Get memory usage from status
+        memory = None
+        for line in status_lines:
+            if "Memory:" in line:
+                memory = line.split("Memory:")[1].strip()
+
+        return {
+            "is_active": is_active,
+            "is_failed": is_failed,
+            "uptime": uptime,
+            "memory": memory,
+            "status_output": status_lines[:15],  # First 15 lines of status
+            "recent_events": restarts[-10:],      # Last 10 restart events
+            "journal_lines": journal_lines[-30:]  # Last 30 journal entries
+        }
+    except subprocess.TimeoutExpired:
+        return {"error": "Timeout getting service status"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@router.post("/restart-server")
+def restart_server(admin: User = Depends(require_admin)):
+    """Restart the healthy service (use with caution)."""
+    try:
+        # Schedule restart in background so we can return response first
+        import threading
+
+        def delayed_restart():
+            import time
+            time.sleep(2)  # Wait 2 seconds before restarting
+            subprocess.run(["systemctl", "restart", "healthy"], timeout=30)
+
+        thread = threading.Thread(target=delayed_restart, daemon=True)
+        thread.start()
+
+        return {"message": "Server restart scheduled in 2 seconds"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
