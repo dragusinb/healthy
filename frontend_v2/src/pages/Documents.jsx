@@ -1,19 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
-import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Activity, Eye } from 'lucide-react';
+import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Activity, Eye, Trash2, X, Brain } from 'lucide-react';
 import { cn } from '../lib/utils';
+
+const UPLOAD_STEPS = [
+    { key: 'uploading', label: 'Uploading file...', duration: 500 },
+    { key: 'reading', label: 'Reading PDF content...', duration: 1000 },
+    { key: 'analyzing', label: 'AI analyzing biomarkers...', duration: 3000 },
+    { key: 'extracting', label: 'Extracting test results...', duration: 2000 },
+    { key: 'saving', label: 'Saving to database...', duration: 500 },
+];
 
 const Documents = () => {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
+    const [uploadStep, setUploadStep] = useState(0);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState(null); // doc to delete
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         fetchDocuments();
     }, []);
+
+    // Simulate upload progress steps
+    useEffect(() => {
+        if (!uploading) {
+            setUploadStep(0);
+            return;
+        }
+
+        let currentStep = 0;
+        const runSteps = () => {
+            if (currentStep < UPLOAD_STEPS.length && uploading) {
+                setUploadStep(currentStep);
+                const delay = UPLOAD_STEPS[currentStep].duration;
+                currentStep++;
+                setTimeout(runSteps, delay);
+            }
+        };
+        runSteps();
+    }, [uploading]);
 
     const handleViewPdf = async (docId, filename) => {
         try {
@@ -60,15 +90,32 @@ const Documents = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            setSuccess("Document uploaded successfully!");
+            setSuccess("Document uploaded and analyzed successfully! AI extracted biomarkers from your PDF.");
             fetchDocuments();
-            setTimeout(() => setSuccess(null), 3000);
+            setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Upload failed", error);
             setError("Failed to upload document.");
         } finally {
             setUploading(false);
             e.target.value = null;
+        }
+    };
+
+    const handleDelete = async (doc) => {
+        setDeleting(true);
+        setError(null);
+        try {
+            await api.delete(`/documents/${doc.id}?regenerate_reports=true`);
+            setSuccess("Document deleted. Health reports have been cleared - run a new analysis when ready.");
+            setDeleteConfirm(null);
+            fetchDocuments();
+            setTimeout(() => setSuccess(null), 5000);
+        } catch (error) {
+            console.error("Delete failed", error);
+            setError("Failed to delete document.");
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -104,6 +151,40 @@ const Documents = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Upload Progress */}
+            {uploading && (
+                <div className="mb-6 bg-primary-50 border border-primary-200 rounded-xl p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="p-3 bg-primary-100 rounded-full">
+                            <Brain size={24} className="text-primary-600 animate-pulse" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-primary-800">Processing Your Document</h3>
+                            <p className="text-sm text-primary-600">{UPLOAD_STEPS[uploadStep]?.label}</p>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        {UPLOAD_STEPS.map((step, i) => (
+                            <div key={step.key} className="flex items-center gap-3">
+                                {i < uploadStep ? (
+                                    <CheckCircle size={16} className="text-primary-600" />
+                                ) : i === uploadStep ? (
+                                    <Loader2 size={16} className="text-primary-600 animate-spin" />
+                                ) : (
+                                    <div className="w-4 h-4 rounded-full border-2 border-primary-300" />
+                                )}
+                                <span className={cn(
+                                    "text-sm",
+                                    i <= uploadStep ? "text-primary-700" : "text-primary-400"
+                                )}>
+                                    {step.label}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {error && (
                 <div className="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-700 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
@@ -179,7 +260,7 @@ const Documents = () => {
                                     )}
                                 </div>
 
-                                <div className="col-span-2 flex items-center justify-end gap-2 pr-2">
+                                <div className="col-span-2 flex items-center justify-end gap-1 pr-2">
                                     <button
                                         onClick={() => handleViewPdf(doc.id, doc.filename)}
                                         className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
@@ -194,12 +275,74 @@ const Documents = () => {
                                     >
                                         <Activity size={18} />
                                     </Link>
+                                    <button
+                                        onClick={() => setDeleteConfirm(doc)}
+                                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                        title="Delete Document"
+                                    >
+                                        <Trash2 size={18} />
+                                    </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => !deleting && setDeleteConfirm(null)}>
+                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="p-3 bg-rose-100 rounded-full">
+                                <Trash2 size={24} className="text-rose-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">Delete Document?</h3>
+                                <p className="text-sm text-slate-500">This action cannot be undone</p>
+                            </div>
+                        </div>
+
+                        <p className="text-slate-600 mb-2">
+                            Are you sure you want to delete <strong>{deleteConfirm.filename}</strong>?
+                        </p>
+                        <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg mb-6">
+                            This will also delete all extracted biomarkers from this document and clear your health reports.
+                            You'll need to run a new AI analysis afterward.
+                        </p>
+
+                        <div className="flex gap-3 justify-end">
+                            <button
+                                onClick={() => setDeleteConfirm(null)}
+                                disabled={deleting}
+                                className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors font-medium"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleDelete(deleteConfirm)}
+                                disabled={deleting}
+                                className={cn(
+                                    "px-4 py-2 bg-rose-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2",
+                                    deleting ? "opacity-70 cursor-wait" : "hover:bg-rose-700"
+                                )}
+                            >
+                                {deleting ? (
+                                    <>
+                                        <Loader2 size={16} className="animate-spin" />
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 size={16} />
+                                        Delete Document
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

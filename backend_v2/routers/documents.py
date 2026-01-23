@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -8,12 +8,12 @@ import datetime
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.models import User, Document, TestResult
+    from backend_v2.models import User, Document, TestResult, HealthReport
     from backend_v2.routers.auth import oauth2_scheme
     from backend_v2.services.ai_parser import AIParser
 except ImportError:
     from database import get_db
-    from models import User, Document, TestResult
+    from models import User, Document, TestResult, HealthReport
     from routers.auth import oauth2_scheme
     from services.ai_parser import AIParser
 
@@ -41,7 +41,16 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 @router.get("/")
 def list_documents(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return current_user.documents
+    # Explicitly filter by user_id to ensure proper isolation
+    docs = db.query(Document).filter(Document.user_id == current_user.id).order_by(Document.upload_date.desc()).all()
+    return [{
+        "id": d.id,
+        "filename": d.filename,
+        "provider": d.provider,
+        "upload_date": d.upload_date.isoformat() if d.upload_date else None,
+        "document_date": d.document_date.isoformat() if d.document_date else None,
+        "is_processed": d.is_processed
+    } for d in docs]
 
 
 @router.get("/{doc_id}/download")
@@ -176,3 +185,45 @@ def _safe_float(val):
         return float(val)
     except:
         return None
+
+
+@router.delete("/{doc_id}")
+def delete_document(
+    doc_id: int,
+    regenerate_reports: bool = True,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a document and its associated biomarkers. Optionally regenerate health reports."""
+    doc = db.query(Document).filter(
+        Document.id == doc_id,
+        Document.user_id == current_user.id
+    ).first()
+
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Delete associated test results
+    db.query(TestResult).filter(TestResult.document_id == doc_id).delete()
+
+    # Delete the file from disk if it exists
+    if doc.file_path and os.path.exists(doc.file_path):
+        try:
+            os.remove(doc.file_path)
+        except Exception as e:
+            print(f"Warning: Could not delete file {doc.file_path}: {e}")
+
+    # Delete the document record
+    db.delete(doc)
+
+    # Delete existing health reports (they're now outdated)
+    if regenerate_reports:
+        db.query(HealthReport).filter(HealthReport.user_id == current_user.id).delete()
+
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": "Document deleted successfully",
+        "reports_cleared": regenerate_reports
+    }
