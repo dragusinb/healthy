@@ -26,10 +26,11 @@ class AIParser:
             response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": "You are an expert medical data assistant. Output strictly valid JSON."},
+                    {"role": "system", "content": "You are an expert medical data assistant. Extract ALL test results from laboratory reports. Output strictly valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0,
+                max_tokens=8000,  # Increased to handle large number of biomarkers
                 response_format={"type": "json_object"}
             )
             
@@ -49,8 +50,14 @@ class AIParser:
             return {"error": str(e), "results": []}
 
     def _construct_prompt(self, text: str) -> str:
+        # GPT-4o supports 128k tokens (~400k chars), but we limit to 50k for safety and cost
+        max_chars = 50000
+        truncated_text = text[:max_chars]
+
         return f"""
-        Analyze the following medical laboratory report text and extract all biomarker test results.
+        Analyze the following medical laboratory report text and extract ALL biomarker test results.
+
+        IMPORTANT: Extract EVERY single test result from the document. Do not skip any tests.
 
         Rules:
         1. Extract: Test Name, Value (number), Unit, Reference Range.
@@ -76,5 +83,5 @@ class AIParser:
         }}
 
         Text content:
-        {text[:4000]}
+        {truncated_text}
         """
