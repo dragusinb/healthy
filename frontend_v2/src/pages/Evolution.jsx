@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
 import { ArrowLeft, Activity, Calendar } from 'lucide-react';
@@ -33,12 +34,11 @@ const parseRefRange = (refRange) => {
 };
 
 // Custom tooltip component
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, t }) => {
     if (!active || !payload || payload.length === 0) {
         return null;
     }
 
-    // Get the data point from the payload
     const point = payload[0];
     const data = point?.payload;
 
@@ -57,14 +57,15 @@ const CustomTooltip = ({ active, payload }) => {
                 "text-xs font-semibold mt-1",
                 data.flags === 'NORMAL' ? "text-teal-600" : "text-rose-600"
             )}>
-                {data.flags === 'NORMAL' ? '✓ Normal' : '⚠ Out of range'}
+                {data.flags === 'NORMAL' ? `✓ ${t('evolution.normalLabel')}` : `⚠ ${t('evolution.outOfRangeLabel')}`}
             </p>
         </div>
     );
 };
 
 const Evolution = () => {
-    const { name } = useParams(); // Biomarker name from URL
+    const { t } = useTranslation();
+    const { name } = useParams();
     const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -82,7 +83,6 @@ const Evolution = () => {
             const res = await api.get(`/dashboard/evolution/${encodeURIComponent(name)}`);
             setData(res.data);
 
-            // Parse reference range from first result
             if (res.data.length > 0 && res.data[0].ref_range) {
                 setRefRange(parseRefRange(res.data[0].ref_range));
             }
@@ -93,23 +93,19 @@ const Evolution = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-gray-500">Loading evolution data...</div>;
+    if (loading) return <div className="p-8 text-center text-gray-500">{t('evolution.loadingEvolution')}</div>;
 
     if (data.length === 0) {
         return (
             <div className="max-w-4xl mx-auto p-6 text-center">
                 <button onClick={() => navigate(-1)} className="mb-4 text-blue-600 hover:underline flex items-center justify-center gap-2">
-                    <ArrowLeft size={16} /> Back
+                    <ArrowLeft size={16} /> {t('common.back')}
                 </button>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">{name}</h2>
-                <p className="text-gray-500">No history found for this biomarker.</p>
+                <p className="text-gray-500">{t('evolution.noHistory')}</p>
             </div>
         );
     }
-
-    // Calculate min/max for domain or references if available
-    // Assuming first point has ref range for visualization or we parse it.
-    // const refRange = data[0]?.ref_range; 
 
     return (
         <div className="max-w-6xl mx-auto p-6">
@@ -117,7 +113,7 @@ const Evolution = () => {
                 onClick={() => navigate(-1)}
                 className="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-800 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm"
             >
-                <ArrowLeft size={16} /> Back
+                <ArrowLeft size={16} /> {t('common.back')}
             </button>
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -128,13 +124,13 @@ const Evolution = () => {
                         </div>
                         {name}
                     </h2>
-                    <p className="text-gray-500 mt-2 ml-1">Evolution history of your results over time.</p>
+                    <p className="text-gray-500 mt-2 ml-1">{t('evolution.evolutionHistory')}</p>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Latest Value</p>
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('evolution.latestValue')}</p>
                     <p className={cn("text-4xl font-bold mt-2", data[data.length - 1]?.flags !== 'NORMAL' ? "text-rose-600" : "text-gray-900")}>
                         {data[data.length - 1]?.value} <span className="text-lg font-normal text-gray-400">{data[data.length - 1]?.unit}</span>
                     </p>
@@ -144,33 +140,32 @@ const Evolution = () => {
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Reference Range</p>
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('evolution.referenceRange')}</p>
                     <p className="text-2xl font-semibold text-gray-800 mt-2">
                         {data[data.length - 1]?.ref_range || 'N/A'}
                     </p>
-                    <p className="text-sm text-gray-400 mt-2">Standard medical range</p>
+                    <p className="text-sm text-gray-400 mt-2">{t('evolution.standardRange')}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Tests</p>
+                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('evolution.totalTests')}</p>
                     <p className="text-4xl font-bold text-blue-600 mt-2">
                         {data.length}
                     </p>
-                    <p className="text-sm text-gray-400 mt-1">Recorded measurements</p>
+                    <p className="text-sm text-gray-400 mt-1">{t('evolution.recordedMeasurements')}</p>
                 </div>
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-2">
                     <Activity className="text-blue-500" size={20} />
-                    Evolution Graph
+                    {t('evolution.evolutionGraph')}
                 </h3>
                 <div className="h-80 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
 
-                            {/* Reference range area (green zone) */}
                             {refRange.min !== null && refRange.max !== null && (
                                 <ReferenceArea
                                     y1={refRange.min}
@@ -179,11 +174,10 @@ const Evolution = () => {
                                     fillOpacity={0.1}
                                     stroke="#10b981"
                                     strokeOpacity={0.3}
-                                    label={{ value: 'Normal Range', position: 'insideTopRight', fill: '#10b981', fontSize: 11 }}
+                                    label={{ value: t('evolution.normalRangeLabel'), position: 'insideTopRight', fill: '#10b981', fontSize: 11 }}
                                 />
                             )}
 
-                            {/* Reference lines for min/max */}
                             {refRange.min !== null && (
                                 <ReferenceLine y={refRange.min} stroke="#10b981" strokeDasharray="5 5" />
                             )}
@@ -206,7 +200,7 @@ const Evolution = () => {
                                 fontSize={12}
                                 domain={['auto', 'auto']}
                             />
-                            <Tooltip content={<CustomTooltip />} />
+                            <Tooltip content={<CustomTooltip t={t} />} />
                             <Line
                                 type="monotone"
                                 dataKey="value"
@@ -248,15 +242,15 @@ const Evolution = () => {
                 <div className="flex justify-center gap-6 mt-4 text-sm">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                        <span className="text-slate-600">Normal</span>
+                        <span className="text-slate-600">{t('evolution.normalLabel')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span className="text-slate-600">Out of Range</span>
+                        <span className="text-slate-600">{t('evolution.outOfRangeLabel')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-3 bg-teal-500/20 border border-teal-500/30 rounded"></div>
-                        <span className="text-slate-600">Normal Range</span>
+                        <span className="text-slate-600">{t('evolution.normalRangeLabel')}</span>
                     </div>
                 </div>
             </div>

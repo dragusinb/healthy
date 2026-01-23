@@ -1,32 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
+import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff } from 'lucide-react';
+import api from '../api/client';
 
 const Login = () => {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
     const { login, register, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [serverStatus, setServerStatus] = useState('checking'); // 'online', 'offline', 'checking'
+
+    // Check server status on mount
+    useEffect(() => {
+        checkServerStatus();
+        const interval = setInterval(checkServerStatus, 30000); // Check every 30 seconds
+        return () => clearInterval(interval);
+    }, []);
+
+    const checkServerStatus = async () => {
+        try {
+            await api.get('/health', { timeout: 5000 });
+            setServerStatus('online');
+        } catch (e) {
+            setServerStatus('offline');
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (serverStatus === 'offline') {
+            setError(t('auth.serverOffline') || 'Server is offline. Please try again later.');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
         if (isRegisterMode) {
-            // Registration validation
             if (password.length < 6) {
-                setError('Password must be at least 6 characters');
+                setError(t('auth.passwordMinLength'));
                 setLoading(false);
                 return;
             }
             if (password !== confirmPassword) {
-                setError('Passwords do not match');
+                setError(t('auth.passwordsNoMatch'));
                 setLoading(false);
                 return;
             }
@@ -34,17 +61,16 @@ const Login = () => {
                 await register(email, password);
                 navigate('/');
             } catch (err) {
-                setError(err.response?.data?.detail || 'Registration failed. Email may already be registered.');
+                setError(err.response?.data?.detail || t('auth.emailRegistered'));
             } finally {
                 setLoading(false);
             }
         } else {
-            // Login
             try {
                 await login(email, password);
                 navigate('/');
             } catch (err) {
-                setError('Invalid email or password');
+                setError(t('auth.invalidCredentials'));
             } finally {
                 setLoading(false);
             }
@@ -52,6 +78,11 @@ const Login = () => {
     };
 
     const handleGoogleLogin = async () => {
+        if (serverStatus === 'offline') {
+            setError(t('auth.serverOffline') || 'Server is offline. Please try again later.');
+            return;
+        }
+
         setLoading(true);
         setError('');
         try {
@@ -78,14 +109,42 @@ const Login = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl shadow-lg shadow-primary-500/30 mb-4">
                         <Activity size={32} className="text-white" />
                     </div>
-                    <h1 className="text-3xl font-bold text-slate-800">Healthy</h1>
-                    <p className="text-slate-500 mt-1">Track your health journey</p>
+                    <h1 className="text-3xl font-bold text-slate-800">{t('auth.appName')}</h1>
+                    <p className="text-slate-500 mt-1">{t('auth.trackHealthJourney')}</p>
                 </div>
 
                 {/* Login/Register Card */}
                 <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                    {/* Server Status Indicator */}
+                    <div className="flex justify-end mb-4">
+                        <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${
+                            serverStatus === 'online'
+                                ? 'bg-teal-50 text-teal-600'
+                                : serverStatus === 'offline'
+                                    ? 'bg-rose-50 text-rose-600'
+                                    : 'bg-slate-50 text-slate-400'
+                        }`}>
+                            {serverStatus === 'online' ? (
+                                <>
+                                    <Wifi size={12} />
+                                    <span>Online</span>
+                                </>
+                            ) : serverStatus === 'offline' ? (
+                                <>
+                                    <WifiOff size={12} />
+                                    <span>Offline</span>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" />
+                                    <span>Checking...</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
                     <h2 className="text-xl font-semibold text-slate-800 mb-6 text-center">
-                        {isRegisterMode ? 'Create your account' : 'Sign in to your account'}
+                        {isRegisterMode ? t('auth.signUp') : t('auth.signIn')}
                     </h2>
 
                     {error && (
@@ -97,7 +156,7 @@ const Login = () => {
                     {/* Google Sign In Button */}
                     <button
                         onClick={handleGoogleLogin}
-                        disabled={loading}
+                        disabled={loading || serverStatus === 'offline'}
                         className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 py-3 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed mb-6"
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -106,7 +165,7 @@ const Login = () => {
                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                         </svg>
-                        Continue with Google
+                        {t('auth.continueWithGoogle')}
                     </button>
 
                     {/* Divider */}
@@ -115,14 +174,14 @@ const Login = () => {
                             <div className="w-full border-t border-slate-200"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white text-slate-400">or continue with email</span>
+                            <span className="px-4 bg-white text-slate-400">{t('auth.orContinueWithEmail')}</span>
                         </div>
                     </div>
 
                     {/* Email/Password Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.email')}</label>
                             <div className="relative">
                                 <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <input
@@ -136,52 +195,66 @@ const Login = () => {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.password')}</label>
                             <div className="relative">
                                 <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+                                    className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                     placeholder="••••••••"
                                     required
                                     minLength={isRegisterMode ? 6 : undefined}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                             {isRegisterMode && (
-                                <p className="text-xs text-slate-400 mt-1">Must be at least 6 characters</p>
+                                <p className="text-xs text-slate-400 mt-1">{t('auth.passwordMinLength')}</p>
                             )}
                         </div>
 
                         {isRegisterMode && (
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Confirm Password</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.confirmPassword')}</label>
                                 <div className="relative">
                                     <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                                     <input
-                                        type="password"
+                                        type={showConfirmPassword ? "text" : "password"}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+                                        className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                         placeholder="••••••••"
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    >
+                                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
                             </div>
                         )}
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || serverStatus === 'offline'}
                             className="w-full bg-primary-600 text-white py-3 px-4 rounded-xl hover:bg-primary-700 transition-all font-semibold shadow-md shadow-primary-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {loading ? (
-                                isRegisterMode ? 'Creating account...' : 'Signing in...'
+                                isRegisterMode ? t('auth.creatingAccount') : t('auth.signingIn')
                             ) : (
                                 <>
                                     {isRegisterMode ? <UserPlus size={18} /> : <LogIn size={18} />}
-                                    {isRegisterMode ? 'Create Account' : 'Sign In'}
+                                    {isRegisterMode ? t('auth.signUp') : t('auth.signIn')}
                                 </>
                             )}
                         </button>
@@ -190,12 +263,12 @@ const Login = () => {
                     {/* Toggle Login/Register */}
                     <div className="mt-6 text-center">
                         <p className="text-sm text-slate-500">
-                            {isRegisterMode ? 'Already have an account?' : "Don't have an account?"}
+                            {isRegisterMode ? t('auth.hasAccount') : t('auth.noAccount')}
                             <button
                                 onClick={toggleMode}
                                 className="ml-1 text-primary-600 hover:text-primary-700 font-semibold"
                             >
-                                {isRegisterMode ? 'Sign in' : 'Sign up'}
+                                {isRegisterMode ? t('auth.signIn') : t('auth.signUp')}
                             </button>
                         </p>
                     </div>
@@ -203,7 +276,7 @@ const Login = () => {
 
                 {/* Footer */}
                 <p className="text-center text-sm text-slate-400 mt-6">
-                    Your health data is encrypted and secure
+                    {t('auth.dataSecure')}
                 </p>
             </div>
         </div>

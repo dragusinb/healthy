@@ -76,3 +76,9 @@ def shutdown_event():
 @app.get("/")
 def read_root():
     return {"message": "Welcome to Healthy v2 API"}
+
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring server status."""
+    return {"status": "ok"}

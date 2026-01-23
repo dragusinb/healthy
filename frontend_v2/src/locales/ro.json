@@ -18,7 +18,8 @@
     "back": "Inapoi",
     "next": "Urmatorul",
     "view": "Vizualizeaza",
-    "download": "Descarca"
+    "download": "Descarca",
+    "refresh": "Reimprospatare"
   },
   "nav": {
     "dashboard": "Panou Principal",
@@ -51,21 +52,35 @@
     "invalidCredentials": "Email sau parola invalida",
     "emailRegistered": "Emailul este deja inregistrat",
     "trackHealthJourney": "Urmareste-ti calatoria spre sanatate",
-    "dataSecure": "Datele tale sunt criptate si securizate"
+    "dataSecure": "Datele tale sunt criptate si securizate",
+    "appName": "Healthy",
+    "serverOffline": "Serverul este offline. Te rugam sa incerci din nou mai tarziu."
   },
   "dashboard": {
     "title": "Panou Principal",
     "welcome": "Bine ai venit",
     "overview": "Prezentare Generala",
-    "documentsCount": "Documente",
-    "biomarkersCount": "Biomarkeri",
-    "alertsCount": "Alerte",
+    "documentsCount": "Documente Analizate",
+    "biomarkersCount": "Biomarkeri Urmariti",
+    "alertsCount": "Alerte Sanatate",
+    "lastUpload": "Ultima incarcare acum {{days}} zile",
+    "acrossProviders": "De la {{count}} furnizori",
+    "allNormal": "Toate valorile in interval normal",
+    "outOfRangeAlert": "Valori in afara intervalului",
     "recentBiomarkers": "Biomarkeri Recenti",
-    "noRecentBiomarkers": "Niciun biomarker recent",
+    "noRecentBiomarkers": "Niciun biomarker inca",
+    "noBiomarkersHint": "Sincronizeaza conturile medicale sau incarca un PDF pentru a incepe.",
     "quickActions": "Actiuni Rapide",
-    "uploadDocument": "Incarca Document",
+    "uploadDocument": "Incarca Raport",
+    "addNewPdf": "Adauga documente PDF noi",
     "viewAllBiomarkers": "Vezi Toti Biomarkerii",
-    "runAnalysis": "Ruleaza Analiza AI"
+    "viewAll": "Vezi Tot",
+    "runAnalysis": "Analiza AI",
+    "getHealthInsights": "Obtine informatii despre sanatate",
+    "syncProviders": "Sincronizeaza Furnizori",
+    "connectMedicalAccounts": "Conecteaza conturi medicale",
+    "normal": "Normal",
+    "attention": "Atentie"
   },
   "documents": {
     "title": "Documente",
@@ -78,7 +93,7 @@
     "provider": "Furnizor",
     "status": "Status",
     "actions": "Actiuni",
-    "processed": "Procesat",
+    "processed": "Finalizat",
     "pending": "In asteptare",
     "viewPdf": "Vezi PDF",
     "viewBiomarkers": "Vezi Biomarkeri",
@@ -89,13 +104,15 @@
     "deleting": "Se sterge...",
     "uploadSuccess": "Document incarcat si analizat cu succes! AI a extras biomarkerii din PDF.",
     "deleteSuccess": "Document sters. Rapoartele de sanatate au fost golite - ruleaza o noua analiza cand esti gata.",
+    "processingYourDocument": "Se proceseaza documentul tau",
     "uploadSteps": {
       "uploading": "Se incarca fisierul...",
       "reading": "Se citeste continutul PDF...",
       "analyzing": "AI analizeaza biomarkerii...",
       "extracting": "Se extrag rezultatele testelor...",
       "saving": "Se salveaza in baza de date..."
-    }
+    },
+    "unknown": "Necunoscut"
   },
   "biomarkers": {
     "title": "Biomarkeri",
@@ -117,6 +134,10 @@
     "normal": "Normal",
     "high": "Ridicat",
     "low": "Scazut",
+    "tests": "teste",
+    "issue": "problema",
+    "issuesCount": "probleme",
+    "showingFrom": "Afisare biomarkeri din",
     "categories": {
       "hematology": "Sange & Hematologie",
       "lipids": "Profil Lipidic",
@@ -139,6 +160,7 @@
     "biomarkersAnalyzed": "biomarkeri analizati",
     "keyFindings": "Constatari Principale",
     "recommendations": "Recomandari",
+    "findings": "Constatari",
     "specialistAnalyses": "Analize Specialisti",
     "deepDiveAnalyses": "Analize aprofundate pe specialitati medicale",
     "viewReport": "Vezi Raport",
@@ -181,20 +203,39 @@
     "syncing": "Se sincronizeaza...",
     "lastSync": "Ultima sincronizare",
     "never": "Niciodata",
+    "connected": "Conectat",
+    "notConnected": "Neconectat",
+    "linkedAs": "Conectat ca",
+    "editCredentials": "Editeaza credentialele",
+    "clickToSync": "Click pentru a sincroniza documentele.",
+    "connectAccount": "Conecteaza Cont",
     "status": {
       "active": "Activ",
       "syncing": "Se sincronizeaza",
+      "error": "Eroare"
+    },
+    "syncStages": {
+      "starting": "Se porneste...",
+      "login": "Se conecteaza...",
+      "logged_in": "Conectat",
+      "navigating": "Se navigheaza...",
+      "scanning": "Se scaneaza...",
+      "downloading": "Se descarca...",
+      "processing": "Se proceseaza...",
+      "captcha": "CAPTCHA Necesar",
+      "complete": "Finalizat!",
       "error": "Eroare"
     },
     "providers": {
       "reginaMaria": "Regina Maria",
       "synevo": "Synevo"
     },
-    "username": "Utilizator",
+    "username": "Utilizator / CNP",
     "password": "Parola",
+    "newPassword": "Parola Noua",
     "connect": "Conecteaza",
     "disconnect": "Deconecteaza",
-    "editCredentials": "Editeaza Credentiale",
+    "update": "Actualizeaza",
     "syncFrequency": "Frecventa Sincronizare",
     "frequencies": {
       "daily": "Zilnic",
@@ -206,8 +247,19 @@
     "title": "Evolutie",
     "selectBiomarker": "Selecteaza un biomarker pentru a vedea evolutia in timp",
     "noData": "Nu sunt date disponibile pentru acest biomarker",
+    "noHistory": "Niciun istoric gasit pentru acest biomarker.",
     "referenceRange": "Interval Referinta",
-    "measurements": "masuratori"
+    "measurements": "masuratori",
+    "evolutionHistory": "Istoricul evolutiei rezultatelor tale in timp.",
+    "latestValue": "Ultima Valoare",
+    "standardRange": "Interval medical standard",
+    "totalTests": "Total Teste",
+    "recordedMeasurements": "Masuratori inregistrate",
+    "evolutionGraph": "Grafic Evolutie",
+    "loadingEvolution": "Se incarca datele de evolutie...",
+    "normalLabel": "Normal",
+    "outOfRangeLabel": "In afara intervalului",
+    "normalRangeLabel": "Interval Normal"
   },
   "admin": {
     "title": "Panou Administrare",
@@ -239,7 +291,20 @@
     "retryFailed": "Reincearca Sincronizarile Esuate",
     "userManagement": "Gestionare Utilizatori",
     "makeAdmin": "Fa Admin",
-    "removeAdmin": "Sterge Admin"
+    "removeAdmin": "Sterge Admin",
+    "accessDenied": "Acces interzis",
+    "adminActions": "Actiuni Admin",
+    "healthReports": "Rapoarte Sanatate",
+    "recentSyncJobs": "Joburi Sincronizare Recente",
+    "email": "Email",
+    "admin": "Admin",
+    "linked": "Conectat",
+    "provider": "Furnizor",
+    "docsFound": "Doc. Gasite",
+    "docsProcessed": "Procesate",
+    "errorMessage": "Eroare",
+    "time": "Timp",
+    "noSyncJobs": "Niciun job de sincronizare inca"
   },
   "settings": {
     "title": "Setari",

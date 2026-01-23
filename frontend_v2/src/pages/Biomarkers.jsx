@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -8,49 +9,49 @@ import { Link } from 'react-router-dom';
 // Biomarker category definitions
 const CATEGORIES = {
     hematology: {
-        name: 'Blood & Hematology',
+        nameKey: 'biomarkers.categories.hematology',
         icon: Droplets,
         color: 'rose',
         keywords: ['hemoglobin', 'hematocrit', 'rbc', 'wbc', 'platelets', 'mcv', 'mch', 'mchc', 'rdw', 'reticulocytes', 'leucocite', 'eritrocite', 'trombocite', 'hematies', 'vsh', 'esr', 'neutrofil', 'limfocit', 'monocit', 'eozinofil', 'bazofil', 'htc', 'hgb']
     },
     lipids: {
-        name: 'Lipid Profile',
+        nameKey: 'biomarkers.categories.lipids',
         icon: Heart,
         color: 'amber',
         keywords: ['cholesterol', 'colesterol', 'ldl', 'hdl', 'triglycerides', 'trigliceride', 'lipoprotein', 'apolipoprotein', 'lipid']
     },
     liver: {
-        name: 'Liver Function',
+        nameKey: 'biomarkers.categories.liver',
         icon: FlaskConical,
         color: 'emerald',
         keywords: ['alt', 'ast', 'alp', 'ggt', 'bilirubin', 'bilirubina', 'albumin', 'albumina', 'tgp', 'tgo', 'gama', 'hepat', 'ficat']
     },
     kidney: {
-        name: 'Kidney Function',
+        nameKey: 'biomarkers.categories.kidney',
         icon: Stethoscope,
         color: 'blue',
         keywords: ['creatinin', 'creatinine', 'bun', 'urea', 'egfr', 'cystatin', 'uric', 'acid uric', 'rinichi', 'renal']
     },
     metabolic: {
-        name: 'Metabolic & Diabetes',
+        nameKey: 'biomarkers.categories.metabolic',
         icon: Activity,
         color: 'violet',
         keywords: ['glucose', 'glucoza', 'glicemie', 'hba1c', 'hemoglobina glicata', 'insulin', 'insulina', 'glyc']
     },
     thyroid: {
-        name: 'Thyroid',
+        nameKey: 'biomarkers.categories.thyroid',
         icon: Dna,
         color: 'cyan',
         keywords: ['tsh', 't3', 't4', 'ft3', 'ft4', 'tiroid', 'thyroid']
     },
     vitamins: {
-        name: 'Vitamins & Minerals',
+        nameKey: 'biomarkers.categories.vitamins',
         icon: Pill,
         color: 'orange',
         keywords: ['vitamin', 'vitamina', 'fier', 'iron', 'ferritin', 'feritina', 'zinc', 'magneziu', 'magnesium', 'calciu', 'calcium', 'potasiu', 'potassium', 'sodiu', 'sodium', 'fosfor', 'b12', 'd3', 'folat', 'folic']
     },
     other: {
-        name: 'Other Tests',
+        nameKey: 'biomarkers.categories.other',
         icon: Activity,
         color: 'slate',
         keywords: []
@@ -95,7 +96,7 @@ const openPdf = async (documentId) => {
     }
 };
 
-const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
+const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle, t }) => {
     const category = CATEGORIES[categoryKey];
     const colors = COLOR_CLASSES[category.color];
     const Icon = category.icon;
@@ -115,14 +116,14 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
                         <Icon size={20} className={colors.icon} />
                     </div>
                     <div className="text-left">
-                        <h3 className="font-semibold text-slate-800">{category.name}</h3>
-                        <p className="text-xs text-slate-500">{biomarkers.length} tests</p>
+                        <h3 className="font-semibold text-slate-800">{t(category.nameKey)}</h3>
+                        <p className="text-xs text-slate-500">{biomarkers.length} {t('biomarkers.tests')}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     {issueCount > 0 && (
                         <span className="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full">
-                            {issueCount} issue{issueCount > 1 ? 's' : ''}
+                            {issueCount} {issueCount > 1 ? t('biomarkers.issuesCount') : t('biomarkers.issue')}
                         </span>
                     )}
                     {expanded ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
@@ -132,11 +133,11 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
             {expanded && (
                 <div className="border-t border-slate-100">
                     <div className="grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <div className="col-span-4 pl-2">Test Name</div>
-                        <div className="col-span-2">Value</div>
-                        <div className="col-span-2">Ref. Range</div>
-                        <div className="col-span-2">Date</div>
-                        <div className="col-span-1 text-center">PDF</div>
+                        <div className="col-span-4 pl-2">{t('biomarkers.testName')}</div>
+                        <div className="col-span-2">{t('biomarkers.value')}</div>
+                        <div className="col-span-2">{t('biomarkers.refRange')}</div>
+                        <div className="col-span-2">{t('biomarkers.date')}</div>
+                        <div className="col-span-1 text-center">{t('biomarkers.pdf')}</div>
                         <div className="col-span-1 text-right pr-2">Status</div>
                     </div>
                     <div className="divide-y divide-slate-50">
@@ -165,7 +166,7 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
                                         <button
                                             onClick={(e) => { e.stopPropagation(); openPdf(bio.document_id); }}
                                             className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                                            title="View PDF"
+                                            title={t('documents.viewPdf')}
                                         >
                                             <Eye size={14} />
                                         </button>
@@ -173,9 +174,9 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
                                 </div>
                                 <div className="col-span-1 text-right pr-2">
                                     {bio.status === 'normal' ? (
-                                        <span className="inline-block w-2 h-2 bg-teal-500 rounded-full" title="Normal" />
+                                        <span className="inline-block w-2 h-2 bg-teal-500 rounded-full" title={t('biomarkers.normal')} />
                                     ) : (
-                                        <span className="inline-flex items-center text-rose-600" title="Out of Range">
+                                        <span className="inline-flex items-center text-rose-600" title={bio.status === 'high' ? t('biomarkers.high') : t('biomarkers.low')}>
                                             {bio.status === 'high' ? <ArrowUp size={14} strokeWidth={3} /> : <ArrowDown size={14} strokeWidth={3} />}
                                         </span>
                                     )}
@@ -190,6 +191,7 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
 };
 
 const Biomarkers = () => {
+    const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const docId = searchParams.get('doc');
 
@@ -198,8 +200,8 @@ const Biomarkers = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('all');
-    const [sortBy, setSortBy] = useState('issues'); // 'issues' or 'recent'
-    const [expandedCategories, setExpandedCategories] = useState(new Set()); // All collapsed by default
+    const [sortBy, setSortBy] = useState('issues');
+    const [expandedCategories, setExpandedCategories] = useState(new Set());
 
     useEffect(() => {
         if (docId) {
@@ -254,7 +256,6 @@ const Biomarkers = () => {
     const expandAll = () => setExpandedCategories(new Set(Object.keys(CATEGORIES)));
     const collapseAll = () => setExpandedCategories(new Set());
 
-    // Filter and group biomarkers
     const groupedBiomarkers = useMemo(() => {
         const filtered = biomarkers.filter(b =>
             b.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -268,16 +269,13 @@ const Biomarkers = () => {
             groups[cat].push(bio);
         }
 
-        // Sort each group based on sortBy preference
         for (const cat in groups) {
             groups[cat].sort((a, b) => {
                 if (sortBy === 'issues') {
-                    // Issues first, then by date descending
                     const aIsIssue = a.status !== 'normal' ? 0 : 1;
                     const bIsIssue = b.status !== 'normal' ? 0 : 1;
                     if (aIsIssue !== bIsIssue) return aIsIssue - bIsIssue;
                 }
-                // Then sort by date descending (most recent first)
                 return new Date(b.date) - new Date(a.date);
             });
         }
@@ -297,17 +295,17 @@ const Biomarkers = () => {
                         <FileText size={20} className="text-primary-600" />
                         <div>
                             <p className="text-sm font-medium text-primary-900">
-                                Showing biomarkers from: <span className="font-bold">{documentInfo.filename}</span>
+                                {t('biomarkers.showingFrom')}: <span className="font-bold">{documentInfo.filename}</span>
                             </p>
                             <p className="text-xs text-primary-600">
-                                {documentInfo.provider} • {documentInfo.date ? new Date(documentInfo.date).toLocaleDateString() : 'Unknown date'}
+                                {documentInfo.provider} • {documentInfo.date ? new Date(documentInfo.date).toLocaleDateString() : t('documents.unknown')}
                             </p>
                         </div>
                     </div>
                     <button
                         onClick={clearDocumentFilter}
                         className="p-2 text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
-                        title="Show all biomarkers"
+                        title={t('common.all')}
                     >
                         <X size={18} />
                     </button>
@@ -321,7 +319,7 @@ const Biomarkers = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
                         <input
                             type="text"
-                            placeholder="Search tests..."
+                            placeholder={t('biomarkers.searchTests')}
                             className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all w-full md:w-80 shadow-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -335,7 +333,7 @@ const Biomarkers = () => {
                                 filter === 'all' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
                             )}
                         >
-                            All
+                            {t('common.all')}
                         </button>
                         <button
                             onClick={() => setFilter('out_of_range')}
@@ -345,7 +343,7 @@ const Biomarkers = () => {
                             )}
                         >
                             <AlertTriangle size={14} />
-                            Issues
+                            {t('biomarkers.issues')}
                         </button>
                     </div>
                     <div className="flex items-center gap-2">
@@ -355,23 +353,23 @@ const Biomarkers = () => {
                             onChange={(e) => setSortBy(e.target.value)}
                             className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
                         >
-                            <option value="issues">Issues First</option>
-                            <option value="recent">Most Recent</option>
+                            <option value="issues">{t('biomarkers.issuesFirst')}</option>
+                            <option value="recent">{t('biomarkers.mostRecent')}</option>
                         </select>
                     </div>
                 </div>
                 <div className="flex gap-2 text-sm">
-                    <button onClick={expandAll} className="text-primary-600 hover:text-primary-700 font-medium">Expand All</button>
+                    <button onClick={expandAll} className="text-primary-600 hover:text-primary-700 font-medium">{t('biomarkers.expandAll')}</button>
                     <span className="text-slate-300">|</span>
-                    <button onClick={collapseAll} className="text-primary-600 hover:text-primary-700 font-medium">Collapse All</button>
+                    <button onClick={collapseAll} className="text-primary-600 hover:text-primary-700 font-medium">{t('biomarkers.collapseAll')}</button>
                 </div>
             </div>
 
             {/* Summary */}
             <div className="mb-6 flex items-center gap-4 text-sm text-slate-600">
-                <span><strong>{totalFiltered}</strong> biomarkers</span>
+                <span><strong>{totalFiltered}</strong> {t('biomarkers.biomarkersCount')}</span>
                 {totalIssues > 0 && (
-                    <span className="text-rose-600"><strong>{totalIssues}</strong> out of range</span>
+                    <span className="text-rose-600"><strong>{totalIssues}</strong> {t('biomarkers.outOfRange')}</span>
                 )}
             </div>
 
@@ -394,6 +392,7 @@ const Biomarkers = () => {
                                 biomarkers={catBiomarkers}
                                 expanded={expandedCategories.has(key)}
                                 onToggle={() => toggleCategory(key)}
+                                t={t}
                             />
                         );
                     })}
@@ -401,8 +400,8 @@ const Biomarkers = () => {
                     {totalFiltered === 0 && (
                         <div className="card p-12 text-center">
                             <Activity size={40} className="mx-auto mb-3 text-slate-300" />
-                            <p className="text-lg font-medium text-slate-600">No biomarkers found</p>
-                            <p className="text-sm text-slate-400 mt-1">Try adjusting your search or filters</p>
+                            <p className="text-lg font-medium text-slate-600">{t('biomarkers.noBiomarkers')}</p>
+                            <p className="text-sm text-slate-400 mt-1">{t('biomarkers.adjustFilters')}</p>
                         </div>
                     )}
                 </div>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { Activity, FileCheck, AlertTriangle, ArrowRight, TrendingUp, Plus, ShieldCheck, Brain } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -25,6 +26,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => 
 );
 
 const Dashboard = () => {
+    const { t } = useTranslation();
     const [stats, setStats] = useState({ documents_count: 0, biomarkers_count: 0, alerts_count: 0 });
     const [recentBiomarkers, setRecentBiomarkers] = useState([]);
 
@@ -53,25 +55,23 @@ const Dashboard = () => {
             {/* Quick Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <StatCard
-                    title="Analyzed Documents"
+                    title={t('dashboard.documentsCount')}
                     value={stats.documents_count}
-                    subtitle="Last upload 2 days ago"
                     icon={FileCheck}
                     colorClass="bg-primary-500"
                     delay="delay-0"
                 />
                 <StatCard
-                    title="Biomarkers Tracked"
+                    title={t('dashboard.biomarkersCount')}
                     value={stats.biomarkers_count}
-                    subtitle="Across 3 providers"
                     icon={Activity}
-                    colorClass="bg-teal-500" // Using Teal for health
+                    colorClass="bg-teal-500"
                     delay="delay-100"
                 />
                 <StatCard
-                    title="Health Alerts"
+                    title={t('dashboard.alertsCount')}
                     value={stats.alerts_count}
-                    subtitle={stats.alerts_count === 0 ? "All values within normal range" : "Values outside normal range"}
+                    subtitle={stats.alerts_count === 0 ? t('dashboard.allNormal') : t('dashboard.outOfRangeAlert')}
                     icon={stats.alerts_count > 0 ? AlertTriangle : ShieldCheck}
                     colorClass={stats.alerts_count > 0 ? "bg-rose-500" : "bg-indigo-500"}
                     delay="delay-200"
@@ -86,8 +86,8 @@ const Dashboard = () => {
                         <Plus size={24} className="text-primary-600" />
                     </div>
                     <div>
-                        <h4 className="font-bold text-slate-800">Upload Report</h4>
-                        <p className="text-sm text-slate-500">Add new PDF documents</p>
+                        <h4 className="font-bold text-slate-800">{t('dashboard.uploadDocument')}</h4>
+                        <p className="text-sm text-slate-500">{t('dashboard.addNewPdf')}</p>
                     </div>
                     <ArrowRight size={18} className="ml-auto text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
                 </Link>
@@ -98,8 +98,8 @@ const Dashboard = () => {
                         <Brain size={24} />
                     </div>
                     <div>
-                        <h4 className="font-bold">AI Analysis</h4>
-                        <p className="text-sm text-primary-100">Get health insights</p>
+                        <h4 className="font-bold">{t('dashboard.runAnalysis')}</h4>
+                        <p className="text-sm text-primary-100">{t('dashboard.getHealthInsights')}</p>
                     </div>
                     <ArrowRight size={18} className="ml-auto text-primary-200 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </Link>
@@ -110,8 +110,8 @@ const Dashboard = () => {
                         <Activity size={24} />
                     </div>
                     <div>
-                        <h4 className="font-bold">Sync Providers</h4>
-                        <p className="text-sm text-slate-300">Connect medical accounts</p>
+                        <h4 className="font-bold">{t('dashboard.syncProviders')}</h4>
+                        <p className="text-sm text-slate-300">{t('dashboard.connectMedicalAccounts')}</p>
                     </div>
                     <ArrowRight size={18} className="ml-auto text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </Link>
@@ -122,10 +122,10 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><TrendingUp size={18} /></span>
-                        Recent Biomarkers
+                        {t('dashboard.recentBiomarkers')}
                     </h3>
                     <Link to="/biomarkers" className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
-                        View All <ArrowRight size={14} />
+                        {t('dashboard.viewAll')} <ArrowRight size={14} />
                     </Link>
                 </div>
 
@@ -133,8 +133,8 @@ const Dashboard = () => {
                     {recentBiomarkers.length === 0 ? (
                         <div className="text-center py-12 text-slate-400">
                             <Activity size={40} className="mx-auto mb-3 opacity-50" />
-                            <p className="text-lg font-medium">No biomarkers yet</p>
-                            <p className="text-sm mt-1">Sync your medical accounts or upload a PDF to get started.</p>
+                            <p className="text-lg font-medium">{t('dashboard.noRecentBiomarkers')}</p>
+                            <p className="text-sm mt-1">{t('dashboard.noBiomarkersHint')}</p>
                         </div>
                     ) : (
                         recentBiomarkers.map((bio, i) => (
@@ -159,7 +159,7 @@ const Dashboard = () => {
                                     <div className="text-right">
                                         <p className="font-bold text-slate-700">{bio.lastValue}</p>
                                         <p className={cn("text-xs font-semibold uppercase tracking-wider", bio.status === 'normal' ? "text-teal-500" : "text-rose-500")}>
-                                            {bio.status === 'normal' ? 'Normal' : 'Attention'}
+                                            {bio.status === 'normal' ? t('dashboard.normal') : t('dashboard.attention')}
                                         </p>
                                     </div>
                                     <ArrowRight size={18} className="text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />

@@ -1,32 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Activity, Eye, Trash2, X, Brain } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const UPLOAD_STEPS = [
-    { key: 'uploading', label: 'Uploading file...', duration: 500 },
-    { key: 'reading', label: 'Reading PDF content...', duration: 1000 },
-    { key: 'analyzing', label: 'AI analyzing biomarkers...', duration: 3000 },
-    { key: 'extracting', label: 'Extracting test results...', duration: 2000 },
-    { key: 'saving', label: 'Saving to database...', duration: 500 },
-];
-
 const Documents = () => {
+    const { t } = useTranslation();
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [uploadStep, setUploadStep] = useState(0);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
-    const [deleteConfirm, setDeleteConfirm] = useState(null); // doc to delete
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [deleting, setDeleting] = useState(false);
+
+    const UPLOAD_STEPS = [
+        { key: 'uploading', label: t('documents.uploadSteps.uploading'), duration: 500 },
+        { key: 'reading', label: t('documents.uploadSteps.reading'), duration: 1000 },
+        { key: 'analyzing', label: t('documents.uploadSteps.analyzing'), duration: 3000 },
+        { key: 'extracting', label: t('documents.uploadSteps.extracting'), duration: 2000 },
+        { key: 'saving', label: t('documents.uploadSteps.saving'), duration: 500 },
+    ];
 
     useEffect(() => {
         fetchDocuments();
     }, []);
 
-    // Simulate upload progress steps
     useEffect(() => {
         if (!uploading) {
             setUploadStep(0);
@@ -55,7 +56,7 @@ const Documents = () => {
             window.open(url, '_blank');
         } catch (e) {
             console.error("Failed to download PDF", e);
-            setError("Failed to open PDF");
+            setError(t('common.error'));
         }
     };
 
@@ -67,7 +68,7 @@ const Documents = () => {
             setError(null);
         } catch (e) {
             console.error("Failed to fetch documents", e);
-            setError("Failed to load documents. Please try again later.");
+            setError(t('common.error'));
         } finally {
             setLoading(false);
         }
@@ -90,12 +91,12 @@ const Documents = () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            setSuccess("Document uploaded and analyzed successfully! AI extracted biomarkers from your PDF.");
+            setSuccess(t('documents.uploadSuccess'));
             fetchDocuments();
             setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Upload failed", error);
-            setError("Failed to upload document.");
+            setError(t('common.error'));
         } finally {
             setUploading(false);
             e.target.value = null;
@@ -107,13 +108,13 @@ const Documents = () => {
         setError(null);
         try {
             await api.delete(`/documents/${doc.id}?regenerate_reports=true`);
-            setSuccess("Document deleted. Health reports have been cleared - run a new analysis when ready.");
+            setSuccess(t('documents.deleteSuccess'));
             setDeleteConfirm(null);
             fetchDocuments();
             setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Delete failed", error);
-            setError("Failed to delete document.");
+            setError(t('common.error'));
         } finally {
             setDeleting(false);
         }
@@ -122,13 +123,8 @@ const Documents = () => {
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    {/* Mobile header compensation in Layout handles title, but we can add breadcrumbs here if needed */}
-                </div>
-
+                <div></div>
                 <div className="flex gap-3 w-full md:w-auto">
-                    {/* Hidden Search Bar potential */}
-
                     <div className="relative group">
                         <input
                             type="file"
@@ -146,7 +142,7 @@ const Documents = () => {
                             )}
                         >
                             {uploading ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} />}
-                            {uploading ? 'Processing...' : 'Upload Report'}
+                            {uploading ? t('documents.processing') : t('documents.uploadReport')}
                         </label>
                     </div>
                 </div>
@@ -160,7 +156,7 @@ const Documents = () => {
                             <Brain size={24} className="text-primary-600 animate-pulse" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-primary-800">Processing Your Document</h3>
+                            <h3 className="font-semibold text-primary-800">{t('documents.processingYourDocument')}</h3>
                             <p className="text-sm text-primary-600">{UPLOAD_STEPS[uploadStep]?.label}</p>
                         </div>
                     </div>
@@ -203,11 +199,11 @@ const Documents = () => {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
                 {/* Table Header */}
                 <div className="grid grid-cols-12 gap-4 p-5 border-b border-slate-100 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <div className="col-span-4 pl-2">Document Details</div>
-                    <div className="col-span-2">Test Date</div>
-                    <div className="col-span-2">Provider</div>
-                    <div className="col-span-2">Status</div>
-                    <div className="col-span-2 text-right pr-2">Actions</div>
+                    <div className="col-span-4 pl-2">{t('documents.documentDetails')}</div>
+                    <div className="col-span-2">{t('documents.testDate')}</div>
+                    <div className="col-span-2">{t('documents.provider')}</div>
+                    <div className="col-span-2">{t('documents.status')}</div>
+                    <div className="col-span-2 text-right pr-2">{t('documents.actions')}</div>
                 </div>
 
                 {loading ? (
@@ -219,9 +215,9 @@ const Documents = () => {
                         <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-400">
                             <FileText size={32} />
                         </div>
-                        <h3 className="text-lg font-medium text-slate-900">No documents yet</h3>
+                        <h3 className="text-lg font-medium text-slate-900">{t('documents.noDocuments')}</h3>
                         <p className="text-slate-500 mt-2 max-w-sm">
-                            Upload your medical PDFs to get instant insights using our AI analysis.
+                            {t('documents.uploadHint')}
                         </p>
                     </div>
                 ) : (
@@ -240,7 +236,7 @@ const Documents = () => {
 
                                 <div className="col-span-2 flex items-center gap-2 text-slate-600 text-sm">
                                     <Calendar size={14} className="text-slate-400 hidden sm:block" />
-                                    {doc.document_date ? new Date(doc.document_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown'}
+                                    {doc.document_date ? new Date(doc.document_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : t('documents.unknown')}
                                 </div>
 
                                 <div className="col-span-2 flex items-center gap-2 text-slate-600 text-sm">
@@ -251,11 +247,11 @@ const Documents = () => {
                                 <div className="col-span-2">
                                     {doc.is_processed ? (
                                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-100">
-                                            <CheckCircle size={10} /> Done
+                                            <CheckCircle size={10} /> {t('documents.processed')}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-100">
-                                            <Clock size={10} /> Pending
+                                            <Clock size={10} /> {t('documents.pending')}
                                         </span>
                                     )}
                                 </div>
@@ -264,21 +260,21 @@ const Documents = () => {
                                     <button
                                         onClick={() => handleViewPdf(doc.id, doc.filename)}
                                         className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                                        title="View PDF"
+                                        title={t('documents.viewPdf')}
                                     >
                                         <Eye size={18} />
                                     </button>
                                     <Link
                                         to={`/biomarkers?doc=${doc.id}`}
                                         className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
-                                        title="View Biomarkers"
+                                        title={t('documents.viewBiomarkers')}
                                     >
                                         <Activity size={18} />
                                     </Link>
                                     <button
                                         onClick={() => setDeleteConfirm(doc)}
                                         className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                                        title="Delete Document"
+                                        title={t('documents.deleteDocument')}
                                     >
                                         <Trash2 size={18} />
                                     </button>
@@ -298,17 +294,16 @@ const Documents = () => {
                                 <Trash2 size={24} className="text-rose-600" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800">Delete Document?</h3>
-                                <p className="text-sm text-slate-500">This action cannot be undone</p>
+                                <h3 className="text-lg font-bold text-slate-800">{t('documents.deleteConfirmTitle')}</h3>
+                                <p className="text-sm text-slate-500">{t('documents.deleteConfirmText')}</p>
                             </div>
                         </div>
 
                         <p className="text-slate-600 mb-2">
-                            Are you sure you want to delete <strong>{deleteConfirm.filename}</strong>?
+                            {t('common.confirm')} <strong>{deleteConfirm.filename}</strong>?
                         </p>
                         <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg mb-6">
-                            This will also delete all extracted biomarkers from this document and clear your health reports.
-                            You'll need to run a new AI analysis afterward.
+                            {t('documents.deleteWarning')}
                         </p>
 
                         <div className="flex gap-3 justify-end">
@@ -317,7 +312,7 @@ const Documents = () => {
                                 disabled={deleting}
                                 className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors font-medium"
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={() => handleDelete(deleteConfirm)}
@@ -330,12 +325,12 @@ const Documents = () => {
                                 {deleting ? (
                                     <>
                                         <Loader2 size={16} className="animate-spin" />
-                                        Deleting...
+                                        {t('documents.deleting')}
                                     </>
                                 ) : (
                                     <>
                                         <Trash2 size={16} />
-                                        Delete Document
+                                        {t('documents.deleteDocument')}
                                     </>
                                 )}
                             </button>

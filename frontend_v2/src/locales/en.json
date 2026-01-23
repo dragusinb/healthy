@@ -18,7 +18,8 @@
     "back": "Back",
     "next": "Next",
     "view": "View",
-    "download": "Download"
+    "download": "Download",
+    "refresh": "Refresh"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -51,21 +52,35 @@
     "invalidCredentials": "Invalid email or password",
     "emailRegistered": "Email already registered",
     "trackHealthJourney": "Track your health journey",
-    "dataSecure": "Your health data is encrypted and secure"
+    "dataSecure": "Your health data is encrypted and secure",
+    "appName": "Healthy",
+    "serverOffline": "Server is offline. Please try again later."
   },
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome",
     "overview": "Overview",
-    "documentsCount": "Documents",
-    "biomarkersCount": "Biomarkers",
-    "alertsCount": "Alerts",
+    "documentsCount": "Analyzed Documents",
+    "biomarkersCount": "Biomarkers Tracked",
+    "alertsCount": "Health Alerts",
+    "lastUpload": "Last upload {{days}} days ago",
+    "acrossProviders": "Across {{count}} providers",
+    "allNormal": "All values within normal range",
+    "outOfRangeAlert": "Values outside normal range",
     "recentBiomarkers": "Recent Biomarkers",
-    "noRecentBiomarkers": "No recent biomarkers",
+    "noRecentBiomarkers": "No biomarkers yet",
+    "noBiomarkersHint": "Sync your medical accounts or upload a PDF to get started.",
     "quickActions": "Quick Actions",
-    "uploadDocument": "Upload Document",
+    "uploadDocument": "Upload Report",
+    "addNewPdf": "Add new PDF documents",
     "viewAllBiomarkers": "View All Biomarkers",
-    "runAnalysis": "Run AI Analysis"
+    "viewAll": "View All",
+    "runAnalysis": "AI Analysis",
+    "getHealthInsights": "Get health insights",
+    "syncProviders": "Sync Providers",
+    "connectMedicalAccounts": "Connect medical accounts",
+    "normal": "Normal",
+    "attention": "Attention"
   },
   "documents": {
     "title": "Documents",
@@ -78,7 +93,7 @@
     "provider": "Provider",
     "status": "Status",
     "actions": "Actions",
-    "processed": "Processed",
+    "processed": "Done",
     "pending": "Pending",
     "viewPdf": "View PDF",
     "viewBiomarkers": "View Biomarkers",
@@ -89,13 +104,15 @@
     "deleting": "Deleting...",
     "uploadSuccess": "Document uploaded and analyzed successfully! AI extracted biomarkers from your PDF.",
     "deleteSuccess": "Document deleted. Health reports have been cleared - run a new analysis when ready.",
+    "processingYourDocument": "Processing Your Document",
     "uploadSteps": {
       "uploading": "Uploading file...",
       "reading": "Reading PDF content...",
       "analyzing": "AI analyzing biomarkers...",
       "extracting": "Extracting test results...",
       "saving": "Saving to database..."
-    }
+    },
+    "unknown": "Unknown"
   },
   "biomarkers": {
     "title": "Biomarkers",
@@ -117,6 +134,10 @@
     "normal": "Normal",
     "high": "High",
     "low": "Low",
+    "tests": "tests",
+    "issue": "issue",
+    "issuesCount": "issues",
+    "showingFrom": "Showing biomarkers from",
     "categories": {
       "hematology": "Blood & Hematology",
       "lipids": "Lipid Profile",
@@ -139,6 +160,7 @@
     "biomarkersAnalyzed": "biomarkers analyzed",
     "keyFindings": "Key Findings",
     "recommendations": "Recommendations",
+    "findings": "Findings",
     "specialistAnalyses": "Specialist Analyses",
     "deepDiveAnalyses": "Deep-dive analyses by medical specialty",
     "viewReport": "View Report",
@@ -181,20 +203,39 @@
     "syncing": "Syncing...",
     "lastSync": "Last sync",
     "never": "Never",
+    "connected": "Connected",
+    "notConnected": "Not Connected",
+    "linkedAs": "Linked as",
+    "editCredentials": "Edit credentials",
+    "clickToSync": "Click to sync your documents.",
+    "connectAccount": "Connect Account",
     "status": {
       "active": "Active",
       "syncing": "Syncing",
+      "error": "Error"
+    },
+    "syncStages": {
+      "starting": "Starting...",
+      "login": "Logging in...",
+      "logged_in": "Logged in",
+      "navigating": "Navigating...",
+      "scanning": "Scanning...",
+      "downloading": "Downloading...",
+      "processing": "Processing...",
+      "captcha": "CAPTCHA Required",
+      "complete": "Complete!",
       "error": "Error"
     },
     "providers": {
       "reginaMaria": "Regina Maria",
       "synevo": "Synevo"
     },
-    "username": "Username",
+    "username": "Username / CNP",
     "password": "Password",
+    "newPassword": "New Password",
     "connect": "Connect",
     "disconnect": "Disconnect",
-    "editCredentials": "Edit Credentials",
+    "update": "Update",
     "syncFrequency": "Sync Frequency",
     "frequencies": {
       "daily": "Daily",
@@ -206,8 +247,19 @@
     "title": "Evolution",
     "selectBiomarker": "Select a biomarker to see its evolution over time",
     "noData": "No data available for this biomarker",
+    "noHistory": "No history found for this biomarker.",
     "referenceRange": "Reference Range",
-    "measurements": "measurements"
+    "measurements": "measurements",
+    "evolutionHistory": "Evolution history of your results over time.",
+    "latestValue": "Latest Value",
+    "standardRange": "Standard medical range",
+    "totalTests": "Total Tests",
+    "recordedMeasurements": "Recorded measurements",
+    "evolutionGraph": "Evolution Graph",
+    "loadingEvolution": "Loading evolution data...",
+    "normalLabel": "Normal",
+    "outOfRangeLabel": "Out of Range",
+    "normalRangeLabel": "Normal Range"
   },
   "admin": {
     "title": "Admin Dashboard",
@@ -235,11 +287,24 @@
     "disk": "Disk",
     "used": "Used",
     "available": "Available",
-    "cleanupLimbo": "Cleanup Limbo Documents",
+    "cleanupLimbo": "Cleanup Stuck Documents",
     "retryFailed": "Retry Failed Syncs",
     "userManagement": "User Management",
     "makeAdmin": "Make Admin",
-    "removeAdmin": "Remove Admin"
+    "removeAdmin": "Remove Admin",
+    "accessDenied": "Admin access required",
+    "adminActions": "Admin Actions",
+    "healthReports": "Health Reports",
+    "recentSyncJobs": "Recent Sync Jobs",
+    "email": "Email",
+    "admin": "Admin",
+    "linked": "Linked",
+    "provider": "Provider",
+    "docsFound": "Docs Found",
+    "docsProcessed": "Processed",
+    "errorMessage": "Error",
+    "time": "Time",
+    "noSyncJobs": "No sync jobs yet"
   },
   "settings": {
     "title": "Settings",
