@@ -4,7 +4,7 @@ import api from '../api/client';
 import {
     Shield, Users, FileText, Activity, Server, Cpu, HardDrive,
     MemoryStick, RefreshCw, AlertTriangle, CheckCircle, Loader2,
-    Trash2, RotateCcw, UserCog
+    Trash2, RotateCcw, UserCog, Play
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -125,6 +125,19 @@ const Admin = () => {
             fetchData();
         } catch (e) {
             alert(e.response?.data?.detail || "Retry failed");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleReprocessDocuments = async () => {
+        setActionLoading('reprocess');
+        try {
+            const res = await api.post('/admin/reprocess-documents');
+            alert(res.data.message);
+            fetchData();
+        } catch (e) {
+            alert(e.response?.data?.detail || "Reprocess failed");
         } finally {
             setActionLoading(null);
         }
@@ -280,6 +293,14 @@ const Admin = () => {
                     >
                         {actionLoading === 'retry' ? <Loader2 size={16} className="animate-spin" /> : <RotateCcw size={16} />}
                         {t('admin.retryFailed')}
+                    </button>
+                    <button
+                        onClick={handleReprocessDocuments}
+                        disabled={actionLoading === 'reprocess'}
+                        className="flex items-center gap-2 px-4 py-2 bg-teal-100 text-teal-700 hover:bg-teal-200 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        {actionLoading === 'reprocess' ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
+                        Reprocess Documents ({stats?.documents?.pending || 0})
                     </button>
                 </div>
             </div>

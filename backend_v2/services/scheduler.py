@@ -43,7 +43,15 @@ def init_scheduler():
                 replace_existing=True
             )
 
-            logger.info("Scheduler initialized")
+            # Add job to process unprocessed documents
+            scheduler.add_job(
+                process_pending_documents,
+                IntervalTrigger(minutes=2),  # Check every 2 minutes
+                id="document_processor",
+                replace_existing=True
+            )
+
+            logger.info("Scheduler initialized with sync checker, cleanup, and document processor")
 
     return scheduler
 
@@ -411,3 +419,145 @@ def cleanup_stuck_syncs():
         logger.error(f"Error in cleanup: {e}")
     finally:
         db.close()
+
+
+# Track documents being processed to avoid duplicates
+_processing_documents = set()
+MAX_CONCURRENT_DOCUMENT_PROCESSING = 3
+
+
+def process_pending_documents():
+    """Process documents that haven't been processed yet."""
+    try:
+        from backend_v2.database import SessionLocal
+        from backend_v2.models import Document, TestResult
+        from backend_v2.services.ai_parser import AIParser
+    except ImportError:
+        from database import SessionLocal
+        from models import Document, TestResult
+        from services.ai_parser import AIParser
+
+    db = SessionLocal()
+    try:
+        # Find unprocessed documents (limit to avoid overload)
+        pending_docs = db.query(Document).filter(
+            Document.is_processed == False
+        ).limit(10).all()
+
+        if not pending_docs:
+            return
+
+        logger.info(f"Found {len(pending_docs)} pending documents to process")
+
+        processed_count = 0
+        for doc in pending_docs:
+            # Skip if already being processed
+            if doc.id in _processing_documents:
+                continue
+
+            # Check concurrency limit
+            if len(_processing_documents) >= MAX_CONCURRENT_DOCUMENT_PROCESSING:
+                logger.info("Max concurrent document processing reached, waiting...")
+                break
+
+            _processing_documents.add(doc.id)
+            try:
+                success = process_single_document(db, doc)
+                if success:
+                    processed_count += 1
+            finally:
+                _processing_documents.discard(doc.id)
+
+        if processed_count > 0:
+            logger.info(f"Processed {processed_count} documents")
+
+    except Exception as e:
+        logger.error(f"Error in document processor: {e}")
+    finally:
+        db.close()
+
+
+def process_single_document(db, doc):
+    """Process a single document with AI parsing."""
+    import pdfplumber
+    import datetime as dt
+
+    try:
+        from backend_v2.models import TestResult
+        from backend_v2.services.ai_parser import AIParser
+    except ImportError:
+        from models import TestResult
+        from services.ai_parser import AIParser
+
+    logger.info(f"Processing document {doc.id}: {doc.filename}")
+
+    # Check if file exists
+    import os
+    if not doc.file_path or not os.path.exists(doc.file_path):
+        logger.error(f"Document {doc.id} file not found: {doc.file_path}")
+        doc.is_processed = True  # Mark as processed to avoid retrying
+        db.commit()
+        return False
+
+    # Extract text from PDF
+    full_text = ""
+    try:
+        with pdfplumber.open(doc.file_path) as pdf:
+            for page in pdf.pages:
+                full_text += (page.extract_text() or "") + "\n"
+    except Exception as e:
+        logger.error(f"Error reading PDF {doc.id}: {e}")
+        doc.is_processed = True  # Mark as processed to avoid retrying
+        db.commit()
+        return False
+
+    if not full_text.strip():
+        logger.warning(f"Document {doc.id} has no extractable text")
+        doc.is_processed = True
+        db.commit()
+        return False
+
+    # AI Parse
+    try:
+        parser = AIParser()
+        result = parser.parse_text(full_text)
+
+        if "results" in result and result["results"]:
+            for r in result["results"]:
+                numeric_val = None
+                try:
+                    numeric_val = float(r.get("value"))
+                except (TypeError, ValueError):
+                    pass
+
+                tr = TestResult(
+                    document_id=doc.id,
+                    test_name=r.get("test_name"),
+                    value=str(r.get("value")),
+                    unit=r.get("unit"),
+                    reference_range=r.get("reference_range"),
+                    flags=r.get("flags", "NORMAL"),
+                    numeric_value=numeric_val
+                )
+                db.add(tr)
+
+            # Update metadata from AI parsing
+            meta = result.get("metadata", {})
+            if meta.get("provider"):
+                doc.provider = meta["provider"]
+            if meta.get("date"):
+                try:
+                    doc.document_date = dt.datetime.strptime(meta["date"], "%Y-%m-%d")
+                except:
+                    pass
+
+            logger.info(f"Document {doc.id}: extracted {len(result['results'])} biomarkers")
+
+        doc.is_processed = True
+        db.commit()
+        return True
+
+    except Exception as e:
+        logger.error(f"AI parsing failed for document {doc.id}: {e}")
+        # Don't mark as processed so it can be retried
+        return False

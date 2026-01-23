@@ -240,3 +240,44 @@ def retry_failed_syncs(db: Session = Depends(get_db), admin: User = Depends(requ
     db.commit()
 
     return {"message": f"Reset {updated} accounts for retry"}
+
+
+@router.post("/reprocess-documents")
+def reprocess_pending_documents(db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    """Manually trigger reprocessing of all unprocessed documents."""
+    from threading import Thread
+
+    try:
+        from backend_v2.services.scheduler import process_pending_documents
+    except ImportError:
+        from services.scheduler import process_pending_documents
+
+    # Count pending documents
+    pending_count = db.query(Document).filter(Document.is_processed == False).count()
+
+    if pending_count == 0:
+        return {"message": "No pending documents to process", "pending": 0}
+
+    # Trigger processing in background thread
+    thread = Thread(target=process_pending_documents, daemon=True)
+    thread.start()
+
+    return {
+        "message": f"Started processing {pending_count} pending documents",
+        "pending": pending_count
+    }
+
+
+@router.get("/pending-documents")
+def get_pending_documents(db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    """Get list of documents that haven't been processed yet."""
+    pending = db.query(Document).filter(Document.is_processed == False).all()
+
+    return [{
+        "id": doc.id,
+        "user_id": doc.user_id,
+        "filename": doc.filename,
+        "provider": doc.provider,
+        "upload_date": doc.upload_date.isoformat() if doc.upload_date else None,
+        "file_path": doc.file_path
+    } for doc in pending]
