@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/client';
-import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save } from 'lucide-react';
+import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, linking, syncing, syncStatus }) => {
     const [creds, setCreds] = useState({ username: '', password: '' });
     const [showForm, setShowForm] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -86,21 +87,79 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
 
                 {isLinked ? (
                     <div>
-                        <div className="flex items-center gap-2 text-sm text-slate-600 mb-6 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                            <Shield size={16} className="text-teal-500" />
-                            <span>Linked as <strong>{username}</strong></span>
-                        </div>
+                        {!isEditing ? (
+                            <>
+                                <div className="flex items-center justify-between text-sm text-slate-600 mb-6 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <div className="flex items-center gap-2">
+                                        <Shield size={16} className="text-teal-500" />
+                                        <span>Linked as <strong>{username}</strong></span>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setCreds({ username: username, password: '' });
+                                            setIsEditing(true);
+                                        }}
+                                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                        title="Edit credentials"
+                                    >
+                                        <Pencil size={14} />
+                                    </button>
+                                </div>
 
-                        <button
-                            onClick={() => onSync(name)}
-                            disabled={syncing}
-                            className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all shadow-md shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2"
-                        >
-                            {syncing ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
-                            {syncing ? 'Syncing...' : 'Sync Now'}
-                        </button>
-                        {syncing && getStatusDisplay()}
-                        {!syncing && <p className="text-xs text-center text-slate-400 mt-2">Click to sync your documents.</p>}
+                                <button
+                                    onClick={() => onSync(name)}
+                                    disabled={syncing}
+                                    className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-all shadow-md shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2"
+                                >
+                                    {syncing ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
+                                    {syncing ? 'Syncing...' : 'Sync Now'}
+                                </button>
+                                {syncing && getStatusDisplay()}
+                                {!syncing && <p className="text-xs text-center text-slate-400 mt-2">Click to sync your documents.</p>}
+                            </>
+                        ) : (
+                            <form onSubmit={(e) => { e.preventDefault(); onLink(name, creds); setIsEditing(false); }} className="space-y-4 animate-in slide-in-from-top-2">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Username / CNP</label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                                        value={creds.username}
+                                        onChange={(e) => setCreds({ ...creds, username: e.target.value })}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">New Password</label>
+                                    <input
+                                        type="password"
+                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
+                                        value={creds.password}
+                                        onChange={(e) => setCreds({ ...creds, password: e.target.value })}
+                                        placeholder="Enter new password"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEditing(false)}
+                                        className="flex-1 py-2 text-slate-500 font-medium hover:bg-slate-50 rounded-lg transition-colors"
+                                        disabled={linking}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={linking}
+                                        className="flex-1 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+                                    >
+                                        {linking ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                        Update
+                                    </button>
+                                </div>
+                            </form>
+                        )}
                     </div>
                 ) : (
                     <div>
