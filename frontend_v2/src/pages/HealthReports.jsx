@@ -3,7 +3,7 @@ import api from '../api/client';
 import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
-    RefreshCw, FileText, TrendingUp, Shield, ChevronDown, X
+    RefreshCw, FileText, TrendingUp, Shield, ChevronDown, X, Eye
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -42,10 +42,27 @@ const ANALYSIS_STEPS = [
     { key: 'finishing', label: 'Finalizing report...', duration: 1500 },
 ];
 
+const openPdf = async (documentId) => {
+    try {
+        const token = localStorage.getItem('token');
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${baseUrl}/documents/${documentId}/download`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Failed to fetch PDF');
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    } catch (e) {
+        console.error('Failed to open PDF:', e);
+    }
+};
+
 const HealthReports = () => {
     const [latestReport, setLatestReport] = useState(null);
     const [reports, setReports] = useState([]);
     const [specialists, setSpecialists] = useState({});
+    const [biomarkers, setBiomarkers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [analyzing, setAnalyzing] = useState(false);
     const [analysisStep, setAnalysisStep] = useState(0);
@@ -78,14 +95,16 @@ const HealthReports = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [latestRes, reportsRes, specialistsRes] = await Promise.all([
+            const [latestRes, reportsRes, specialistsRes, biomarkersRes] = await Promise.all([
                 api.get('/health/latest'),
                 api.get('/health/reports?limit=10'),
-                api.get('/health/specialists')
+                api.get('/health/specialists'),
+                api.get('/dashboard/biomarkers')
             ]);
             setLatestReport(latestRes.data);
             setReports(reportsRes.data);
             setSpecialists(specialistsRes.data);
+            setBiomarkers(biomarkersRes.data);
             setError(null);
         } catch (e) {
             console.error("Failed to fetch health data", e);
@@ -93,6 +112,14 @@ const HealthReports = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Find document_id for a biomarker by name (case insensitive partial match)
+    const findDocumentForMarker = (markerName) => {
+        if (!markerName || !biomarkers.length) return null;
+        const name = markerName.toLowerCase();
+        const match = biomarkers.find(b => b.name.toLowerCase().includes(name) || name.includes(b.name.toLowerCase()));
+        return match?.document_id;
     };
 
     const runAnalysis = async () => {
@@ -268,11 +295,23 @@ const HealthReports = () => {
                                                 <p className="text-slate-600 text-sm">{finding.explanation}</p>
                                                 {finding.markers?.length > 0 && (
                                                     <div className="flex flex-wrap gap-2 mt-2">
-                                                        {finding.markers.map((marker, j) => (
-                                                            <span key={j} className="text-xs bg-white/50 px-2 py-1 rounded border border-slate-200">
-                                                                {marker}
-                                                            </span>
-                                                        ))}
+                                                        {finding.markers.map((marker, j) => {
+                                                            const documentId = findDocumentForMarker(marker);
+                                                            return (
+                                                                <span key={j} className="inline-flex items-center gap-1 text-xs bg-white/50 px-2 py-1 rounded border border-slate-200">
+                                                                    {marker}
+                                                                    {documentId && (
+                                                                        <button
+                                                                            onClick={() => openPdf(documentId)}
+                                                                            className="p-0.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                                                            title="View source PDF"
+                                                                        >
+                                                                            <Eye size={12} />
+                                                                        </button>
+                                                                    )}
+                                                                </span>
+                                                            );
+                                                        })}
                                                     </div>
                                                 )}
                                             </div>
@@ -486,10 +525,22 @@ const HealthReports = () => {
                                             const description = finding.explanation || finding.significance;
                                             const value = finding.value;
                                             const refRange = finding.reference_range;
+                                            const documentId = findDocumentForMarker(finding.marker);
                                             return (
                                                 <div key={i} className={cn("p-4 rounded-xl border", style.bg, style.border)}>
                                                     <div className="flex items-center justify-between gap-2 mb-2">
-                                                        <span className={cn("font-semibold", style.text)}>{title}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={cn("font-semibold", style.text)}>{title}</span>
+                                                            {documentId && (
+                                                                <button
+                                                                    onClick={() => openPdf(documentId)}
+                                                                    className="p-1 text-slate-400 hover:text-primary-600 hover:bg-white/50 rounded transition-colors"
+                                                                    title="View source PDF"
+                                                                >
+                                                                    <Eye size={14} />
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                         <span className={cn("text-xs px-2 py-0.5 rounded-full border", style.bg, style.text, style.border)}>
                                                             {finding.status}
                                                         </span>
@@ -507,11 +558,23 @@ const HealthReports = () => {
                                                     <p className="text-slate-600 text-sm">{description}</p>
                                                     {finding.markers?.length > 0 && (
                                                         <div className="flex flex-wrap gap-2 mt-2">
-                                                            {finding.markers.map((marker, j) => (
-                                                                <span key={j} className="text-xs bg-white/50 px-2 py-1 rounded border border-slate-200">
-                                                                    {marker}
-                                                                </span>
-                                                            ))}
+                                                            {finding.markers.map((marker, j) => {
+                                                                const docId = findDocumentForMarker(marker);
+                                                                return (
+                                                                    <span key={j} className="inline-flex items-center gap-1 text-xs bg-white/50 px-2 py-1 rounded border border-slate-200">
+                                                                        {marker}
+                                                                        {docId && (
+                                                                            <button
+                                                                                onClick={() => openPdf(docId)}
+                                                                                className="p-0.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                                                                title="View source PDF"
+                                                                            >
+                                                                                <Eye size={12} />
+                                                                            </button>
+                                                                        )}
+                                                                    </span>
+                                                                );
+                                                            })}
                                                         </div>
                                                     )}
                                                 </div>

@@ -79,6 +79,22 @@ function categorize(biomarkerName) {
     return 'other';
 }
 
+const openPdf = async (documentId) => {
+    try {
+        const token = localStorage.getItem('token');
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const response = await fetch(`${baseUrl}/documents/${documentId}/download`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Failed to fetch PDF');
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    } catch (e) {
+        console.error('Failed to open PDF:', e);
+    }
+};
+
 const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
     const category = CATEGORIES[categoryKey];
     const colors = COLOR_CLASSES[category.color];
@@ -146,16 +162,13 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
                                 </div>
                                 <div className="col-span-1 text-center">
                                     {bio.document_id && (
-                                        <a
-                                            href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/documents/${bio.document_id}/download`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => e.stopPropagation()}
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); openPdf(bio.document_id); }}
                                             className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                                             title="View PDF"
                                         >
                                             <Eye size={14} />
-                                        </a>
+                                        </button>
                                     )}
                                 </div>
                                 <div className="col-span-1 text-right pr-2">
