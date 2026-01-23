@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff } from 'lucide-react';
+import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe } from 'lucide-react';
 import api from '../api/client';
 
 const Login = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -101,6 +101,11 @@ const Login = () => {
         setConfirmPassword('');
     };
 
+    const toggleLanguage = () => {
+        const newLang = i18n.language === 'ro' ? 'en' : 'ro';
+        i18n.changeLanguage(newLang);
+    };
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50">
             <div className="w-full max-w-md">
@@ -115,8 +120,16 @@ const Login = () => {
 
                 {/* Login/Register Card */}
                 <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-                    {/* Server Status Indicator */}
-                    <div className="flex justify-end mb-4">
+                    {/* Top Bar: Language Toggle & Server Status */}
+                    <div className="flex justify-between items-center mb-4">
+                        <button
+                            onClick={toggleLanguage}
+                            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full bg-slate-50 text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                            title={t('settings.language')}
+                        >
+                            <Globe size={12} />
+                            <span className="font-medium">{i18n.language.toUpperCase()}</span>
+                        </button>
                         <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${
                             serverStatus === 'online'
                                 ? 'bg-teal-50 text-teal-600'

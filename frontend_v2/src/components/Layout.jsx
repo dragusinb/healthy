@@ -115,16 +115,25 @@ const Layout = ({ children }) => {
             {/* Main Content Area */}
             <main className="flex-1 overflow-y-auto relative scroll-smooth">
                 {/* Top Header for Mobile & Title */}
-                <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between md:hidden">
+                <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between md:hidden">
                     <div className="flex items-center gap-2">
                         <div className="p-2 bg-primary-50 rounded-lg">
                             <HeartPulse size={20} className="text-primary-600" />
                         </div>
                         <span className="font-bold text-slate-800">Healthy.ai</span>
                     </div>
-                    <button onClick={handleLogout} className="p-2 text-slate-500">
-                        <LogOut size={20} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={toggleLanguage}
+                            className="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors flex items-center gap-1"
+                        >
+                            <Globe size={18} />
+                            <span className="text-xs font-medium">{i18n.language.toUpperCase()}</span>
+                        </button>
+                        <button onClick={handleLogout} className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                            <LogOut size={18} />
+                        </button>
+                    </div>
                 </header>
 
                 <div className="max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
