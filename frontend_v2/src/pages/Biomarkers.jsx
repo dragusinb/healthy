@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/client';
-import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2 } from 'lucide-react';
+import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 
@@ -116,22 +116,25 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
             {expanded && (
                 <div className="border-t border-slate-100">
                     <div className="grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <div className="col-span-5 pl-2">Test Name</div>
+                        <div className="col-span-4 pl-2">Test Name</div>
                         <div className="col-span-2">Value</div>
                         <div className="col-span-2">Ref. Range</div>
                         <div className="col-span-2">Date</div>
+                        <div className="col-span-1 text-center">PDF</div>
                         <div className="col-span-1 text-right pr-2">Status</div>
                     </div>
                     <div className="divide-y divide-slate-50">
                         {biomarkers.map((bio) => (
-                            <Link
+                            <div
                                 key={bio.id}
-                                to={`/evolution/${encodeURIComponent(bio.name)}`}
                                 className="grid grid-cols-12 gap-4 p-3 items-center hover:bg-slate-50/80 transition-all duration-200 group"
                             >
-                                <div className="col-span-5 font-medium text-slate-800 pl-2 group-hover:text-primary-600 transition-colors truncate">
+                                <Link
+                                    to={`/evolution/${encodeURIComponent(bio.name)}`}
+                                    className="col-span-4 font-medium text-slate-800 pl-2 group-hover:text-primary-600 transition-colors truncate"
+                                >
                                     {bio.name}
-                                </div>
+                                </Link>
                                 <div className="col-span-2 font-bold text-slate-800 flex items-baseline gap-1">
                                     {bio.value} <span className="text-slate-400 text-xs font-medium">{bio.unit}</span>
                                 </div>
@@ -140,6 +143,20 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
                                 </div>
                                 <div className="col-span-2 text-xs text-slate-500">
                                     {new Date(bio.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
+                                </div>
+                                <div className="col-span-1 text-center">
+                                    {bio.document_id && (
+                                        <a
+                                            href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/documents/${bio.document_id}/download`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                            title="View PDF"
+                                        >
+                                            <Eye size={14} />
+                                        </a>
+                                    )}
                                 </div>
                                 <div className="col-span-1 text-right pr-2">
                                     {bio.status === 'normal' ? (
@@ -150,7 +167,7 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle }) => {
                                         </span>
                                     )}
                                 </div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -168,7 +185,8 @@ const Biomarkers = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('all');
-    const [expandedCategories, setExpandedCategories] = useState(new Set(['hematology', 'lipids', 'liver']));
+    const [sortBy, setSortBy] = useState('issues'); // 'issues' or 'recent'
+    const [expandedCategories, setExpandedCategories] = useState(new Set()); // All collapsed by default
 
     useEffect(() => {
         if (docId) {
@@ -237,13 +255,22 @@ const Biomarkers = () => {
             groups[cat].push(bio);
         }
 
-        // Sort each group by date descending
+        // Sort each group based on sortBy preference
         for (const cat in groups) {
-            groups[cat].sort((a, b) => new Date(b.date) - new Date(a.date));
+            groups[cat].sort((a, b) => {
+                if (sortBy === 'issues') {
+                    // Issues first, then by date descending
+                    const aIsIssue = a.status !== 'normal' ? 0 : 1;
+                    const bIsIssue = b.status !== 'normal' ? 0 : 1;
+                    if (aIsIssue !== bIsIssue) return aIsIssue - bIsIssue;
+                }
+                // Then sort by date descending (most recent first)
+                return new Date(b.date) - new Date(a.date);
+            });
         }
 
         return groups;
-    }, [biomarkers, searchTerm, filter]);
+    }, [biomarkers, searchTerm, filter, sortBy]);
 
     const totalFiltered = Object.values(groupedBiomarkers).flat().length;
     const totalIssues = Object.values(groupedBiomarkers).flat().filter(b => b.status !== 'normal').length;
@@ -307,6 +334,17 @@ const Biomarkers = () => {
                             <AlertTriangle size={14} />
                             Issues
                         </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <ArrowUpDown size={14} className="text-slate-400" />
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
+                        >
+                            <option value="issues">Issues First</option>
+                            <option value="recent">Most Recent</option>
+                        </select>
                     </div>
                 </div>
                 <div className="flex gap-2 text-sm">

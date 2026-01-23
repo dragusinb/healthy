@@ -480,6 +480,7 @@ const HealthReports = () => {
                                             const title = finding.category || finding.marker;
                                             const description = finding.explanation || finding.significance;
                                             const value = finding.value;
+                                            const refRange = finding.reference_range;
                                             return (
                                                 <div key={i} className={cn("p-4 rounded-xl border", style.bg, style.border)}>
                                                     <div className="flex items-center justify-between gap-2 mb-2">
@@ -489,7 +490,14 @@ const HealthReports = () => {
                                                         </span>
                                                     </div>
                                                     {value && (
-                                                        <p className="text-slate-800 font-medium text-sm mb-1">{value}</p>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <p className="text-slate-800 font-medium text-sm">{value}</p>
+                                                            {refRange && (
+                                                                <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                                                                    Ref: {refRange}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     )}
                                                     <p className="text-slate-600 text-sm">{description}</p>
                                                     {finding.markers?.length > 0 && (

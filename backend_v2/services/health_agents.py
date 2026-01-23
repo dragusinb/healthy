@@ -201,6 +201,7 @@ Respond in JSON format:
         {{
             "marker": "Marker name",
             "value": "Value with unit",
+            "reference_range": "Reference range from the test",
             "status": "normal|high|low",
             "significance": "What this means for {self.config['focus']}"
         }}

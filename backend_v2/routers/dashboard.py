@@ -70,9 +70,10 @@ def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depen
             "range": r.reference_range,
             "date": r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown",
             "provider": r.document.provider,
-            "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high")
+            "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high"),
+            "document_id": r.document_id
         })
-        
+
     return biomarkers
 
 
