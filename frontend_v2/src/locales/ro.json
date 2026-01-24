@@ -392,6 +392,11 @@
     "conditionsPlaceholder": "Scrie si apasa Enter...",
     "medications": "Medicamente Curente",
     "medicationsPlaceholder": "Scrie si apasa Enter...",
-    "infoNote": "Informatiile din profil sunt folosite de AI pentru a oferi recomandari personalizate. Cu cat profilul este mai complet, cu atat recomandarile vor fi mai bune."
+    "infoNote": "Informatiile din profil sunt folosite de AI pentru a oferi recomandari personalizate. Cu cat profilul este mai complet, cu atat recomandarile vor fi mai bune.",
+    "scanFromDocs": "Scaneaza din Documente",
+    "scanning": "Se scaneaza...",
+    "scanTooltip": "Scaneaza documentele medicale pentru a completa automat profilul (nume, data nasterii, sex)",
+    "scanSuccess": "Date de profil gasite si actualizate!",
+    "scanNoNewData": "Nu s-au gasit date de profil noi (campurile sunt deja completate sau nu exista date in documente)"
   }
 }

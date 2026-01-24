@@ -4,7 +4,7 @@ import api from '../api/client';
 import {
     User, Save, Loader2, CheckCircle, AlertCircle,
     Calendar, Ruler, Scale, Droplets, Heart, Pill,
-    Activity, Wine, Cigarette, AlertTriangle
+    Activity, Wine, Cigarette, AlertTriangle, FileSearch, Sparkles
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -22,6 +22,7 @@ const Profile = () => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [scanning, setScanning] = useState(false);
     const [message, setMessage] = useState(null);
     const [profile, setProfile] = useState({
         full_name: '',
@@ -87,6 +88,43 @@ const Profile = () => {
         }
     };
 
+    const handleScanFromDocuments = async () => {
+        setScanning(true);
+        setMessage(null);
+        try {
+            const res = await api.post('/users/scan-profile');
+            if (res.data.status === 'success') {
+                // Update local profile state with new data
+                setProfile(prev => ({
+                    ...prev,
+                    full_name: res.data.profile.full_name || prev.full_name,
+                    date_of_birth: res.data.profile.date_of_birth || prev.date_of_birth,
+                    gender: res.data.profile.gender || prev.gender,
+                }));
+                setMessage({
+                    type: 'success',
+                    text: t('profile.scanSuccess') || `Found and updated: ${res.data.updates.join(', ')}`
+                });
+            } else if (res.data.status === 'no_new_data') {
+                setMessage({
+                    type: 'info',
+                    text: t('profile.scanNoNewData') || 'No new profile data found (fields already filled or no data in documents)'
+                });
+            } else {
+                setMessage({
+                    type: 'info',
+                    text: res.data.message || 'No profile data found in documents'
+                });
+            }
+            setTimeout(() => setMessage(null), 5000);
+        } catch (e) {
+            console.error('Failed to scan profile', e);
+            setMessage({ type: 'error', text: e.response?.data?.detail || t('common.error') });
+        } finally {
+            setScanning(false);
+        }
+    };
+
     const addArrayItem = (field, value, setter) => {
         if (value.trim() && !profile[field].includes(value.trim())) {
             setProfile(prev => ({
@@ -143,28 +181,48 @@ const Profile = () => {
                         <p className="text-slate-500 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
                     </div>
                 </div>
-                <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className={cn(
-                        "flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all",
-                        saving
-                            ? "bg-primary-100 text-primary-600 cursor-wait"
-                            : "bg-primary-600 text-white hover:bg-primary-700 shadow-md shadow-primary-500/20"
-                    )}
-                >
-                    {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                    {saving ? (t('common.loading') || 'Saving...') : (t('common.save') || 'Save')}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleScanFromDocuments}
+                        disabled={scanning}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all",
+                            scanning
+                                ? "bg-violet-100 text-violet-600 cursor-wait"
+                                : "bg-violet-100 text-violet-700 hover:bg-violet-200"
+                        )}
+                        title={t('profile.scanTooltip') || 'Scan your medical documents to auto-fill profile data'}
+                    >
+                        {scanning ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                        {scanning ? (t('profile.scanning') || 'Scanning...') : (t('profile.scanFromDocs') || 'Scan from Documents')}
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className={cn(
+                            "flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all",
+                            saving
+                                ? "bg-primary-100 text-primary-600 cursor-wait"
+                                : "bg-primary-600 text-white hover:bg-primary-700 shadow-md shadow-primary-500/20"
+                        )}
+                    >
+                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+                        {saving ? (t('common.loading') || 'Saving...') : (t('common.save') || 'Save')}
+                    </button>
+                </div>
             </div>
 
             {/* Message */}
             {message && (
                 <div className={cn(
                     "mb-6 p-4 rounded-xl flex items-center gap-3 border",
-                    message.type === 'error' ? "bg-rose-50 border-rose-200 text-rose-700" : "bg-teal-50 border-teal-200 text-teal-700"
+                    message.type === 'error' ? "bg-rose-50 border-rose-200 text-rose-700" :
+                    message.type === 'info' ? "bg-blue-50 border-blue-200 text-blue-700" :
+                    "bg-teal-50 border-teal-200 text-teal-700"
                 )}>
-                    {message.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
+                    {message.type === 'error' ? <AlertCircle size={20} /> :
+                     message.type === 'info' ? <Sparkles size={20} /> :
+                     <CheckCircle size={20} />}
                     {message.text}
                 </div>
             )}

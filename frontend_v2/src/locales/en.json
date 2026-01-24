@@ -392,6 +392,11 @@
     "conditionsPlaceholder": "Type and press Enter...",
     "medications": "Current Medications",
     "medicationsPlaceholder": "Type and press Enter...",
-    "infoNote": "Your profile information is used by the AI to provide more personalized health insights. The more complete your profile, the better recommendations you'll receive."
+    "infoNote": "Your profile information is used by the AI to provide more personalized health insights. The more complete your profile, the better recommendations you'll receive.",
+    "scanFromDocs": "Scan from Documents",
+    "scanning": "Scanning...",
+    "scanTooltip": "Scan your medical documents to auto-fill profile data (name, date of birth, gender)",
+    "scanSuccess": "Profile data found and updated!",
+    "scanNoNewData": "No new profile data found (fields already filled or no data in documents)"
   }
 }

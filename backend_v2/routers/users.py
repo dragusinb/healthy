@@ -194,6 +194,119 @@ def acknowledge_account_error(
     return {"message": "Error acknowledged"}
 
 
+@router.post("/scan-profile")
+def scan_profile_from_documents(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Scan user's documents to extract profile information using AI."""
+    import os
+
+    try:
+        from backend_v2.models import Document
+        from backend_v2.services.ai_parser import AIParser
+    except ImportError:
+        from models import Document
+        from services.ai_parser import AIParser
+
+    # Get user's processed documents (most recent first)
+    documents = db.query(Document).filter(
+        Document.user_id == current_user.id,
+        Document.is_processed == True
+    ).order_by(Document.document_date.desc()).limit(10).all()
+
+    if not documents:
+        return {"status": "no_documents", "message": "No processed documents found", "profile": {}}
+
+    def extract_text_from_pdf(file_path: str) -> str:
+        """Extract text from a PDF file."""
+        try:
+            import pdfplumber
+            text = ""
+            with pdfplumber.open(file_path) as pdf:
+                # Focus on first 3 pages where patient info usually is
+                for i, page in enumerate(pdf.pages[:3]):
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n"
+            return text
+        except Exception as e:
+            print(f"Error extracting text from {file_path}: {e}")
+            return ""
+
+    parser = AIParser()
+    extracted_profiles = []
+    scanned_count = 0
+
+    for doc in documents:
+        if not doc.file_path or not os.path.exists(doc.file_path):
+            continue
+
+        text = extract_text_from_pdf(doc.file_path)
+        if not text:
+            continue
+
+        scanned_count += 1
+        result = parser.extract_profile(text)
+
+        if result.get("profile") and not result.get("error"):
+            profile_data = result["profile"]
+            profile_data["source_document"] = doc.filename
+            profile_data["confidence"] = result.get("confidence", "low")
+            extracted_profiles.append(profile_data)
+
+        # Stop after finding good data
+        if extracted_profiles and extracted_profiles[-1].get("confidence") == "high":
+            break
+
+    if not extracted_profiles:
+        return {
+            "status": "no_profile_found",
+            "message": f"Scanned {scanned_count} documents but could not extract profile information",
+            "profile": {}
+        }
+
+    # Merge extracted profiles (prefer higher confidence, more recent)
+    merged_profile = {}
+    for profile in reversed(extracted_profiles):  # Oldest first, so newer overwrites
+        for key, value in profile.items():
+            if value and key not in ["source_document", "confidence", "source_hints"]:
+                if key not in merged_profile or profile.get("confidence") == "high":
+                    merged_profile[key] = value
+
+    # Apply to user profile (only fill empty fields)
+    updates_made = []
+
+    if merged_profile.get("full_name") and not current_user.full_name:
+        current_user.full_name = merged_profile["full_name"]
+        updates_made.append("full_name")
+
+    if merged_profile.get("date_of_birth") and not current_user.date_of_birth:
+        try:
+            dob = datetime.datetime.strptime(merged_profile["date_of_birth"], "%Y-%m-%d")
+            current_user.date_of_birth = dob
+            updates_made.append("date_of_birth")
+        except:
+            pass
+
+    if merged_profile.get("gender") and not current_user.gender:
+        if merged_profile["gender"] in ["male", "female"]:
+            current_user.gender = merged_profile["gender"]
+            updates_made.append("gender")
+
+    if updates_made:
+        db.commit()
+
+    return {
+        "status": "success" if updates_made else "no_new_data",
+        "message": f"Updated {len(updates_made)} fields" if updates_made else "No new profile data to update (fields already filled or no data found)",
+        "updates": updates_made,
+        "extracted": merged_profile,
+        "documents_scanned": scanned_count,
+        "profile": get_profile_data(current_user)
+    }
+
+
 @router.post("/link-account")
 def link_account(account: LinkedAccountCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Encrypt the password before storing
