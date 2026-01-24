@@ -130,6 +130,30 @@
 - GDPR compliant
 - User owns their data
 
+#### CRITICAL: Per-User Encryption Vault (TODO)
+**All sensitive user data must be encrypted with the user's password so that even system administrators cannot access it.**
+
+Sensitive data requiring per-user encryption:
+- Provider login credentials (Regina Maria, Synevo usernames/passwords)
+- Medical documents (PDFs)
+- Biomarker values and test results
+- Health reports
+
+Implementation approach:
+1. Derive an encryption key from user's password using PBKDF2/Argon2
+2. Store a "vault key" encrypted with the derived key
+3. Use vault key to encrypt/decrypt all sensitive data
+4. On login, derive key → decrypt vault key → use for session
+5. Password change requires re-encrypting vault key (not all data)
+
+**Important:** This is a breaking change that requires data migration. Implement as final security hardening step after all features are stable.
+
+**Goal:** The system administrator (even with database access) should NOT be able to:
+- Read any user's medical documents
+- See biomarker values
+- Access provider credentials
+- Connect to a user's medical provider accounts
+
 ### 3. Reliability
 - Multiple download fallback methods
 - Graceful error handling
