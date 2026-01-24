@@ -87,7 +87,7 @@ Respond in JSON format with this structure:
     "specialist_referrals": ["cardiology", "endocrinology"] // if needed
 }"""
 
-    def analyze(self, biomarkers: List[Dict]) -> Dict[str, Any]:
+    def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
         """Analyze all biomarkers and generate a general health report."""
         if not biomarkers:
             return {
@@ -101,7 +101,17 @@ Respond in JSON format with this structure:
         # Format biomarkers for the prompt
         biomarker_text = self._format_biomarkers(biomarkers)
 
-        user_prompt = f"""Please analyze these lab test results and provide a comprehensive health assessment:
+        # Include profile context if available
+        profile_section = ""
+        if profile_context:
+            profile_section = f"""
+{profile_context}
+
+Consider the patient's profile when analyzing results. Age, gender, BMI, lifestyle factors, and existing conditions can affect interpretation of lab values.
+
+"""
+
+        user_prompt = f"""{profile_section}Please analyze these lab test results and provide a comprehensive health assessment:
 
 {biomarker_text}
 
@@ -232,7 +242,7 @@ Respond in JSON format:
     "follow_up_tests": ["Suggested additional tests if any"]
 }}"""
 
-    def analyze(self, biomarkers: List[Dict]) -> Dict[str, Any]:
+    def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
         """Analyze biomarkers relevant to this specialty."""
         # Filter to relevant markers
         relevant = self._filter_relevant_markers(biomarkers)
@@ -250,7 +260,17 @@ Respond in JSON format:
 
         biomarker_text = self._format_biomarkers(relevant)
 
-        user_prompt = f"""Please analyze these lab results from a {self.config['name'].lower()} perspective:
+        # Include profile context if available
+        profile_section = ""
+        if profile_context:
+            profile_section = f"""
+{profile_context}
+
+Consider the patient's profile when analyzing results. Age, gender, BMI, lifestyle factors, and existing conditions can affect interpretation.
+
+"""
+
+        user_prompt = f"""{profile_section}Please analyze these lab results from a {self.config['name'].lower()} perspective:
 
 {biomarker_text}
 
@@ -304,23 +324,196 @@ Focus on {self.config['focus']}. Provide your specialist analysis in JSON format
         return "\n".join(lines)
 
 
+class GapAnalysisAgent(HealthAgent):
+    """Agent that recommends missing tests based on age, gender, and medical history."""
+
+    SYSTEM_PROMPT = """You are an AI health screening advisor. Your role is to recommend medical tests
+that a person should consider based on their age, gender, existing health data, and medical history.
+
+You are NOT a doctor and cannot diagnose conditions. Your recommendations are for general health screening.
+
+Consider standard medical screening guidelines such as:
+- Age-appropriate cancer screenings (e.g., colonoscopy after 45, mammograms for women 40+)
+- Cardiovascular risk assessments for those over 40
+- Bone density tests for women over 65
+- Diabetes screening based on risk factors
+- Thyroid function tests based on symptoms or history
+- Vitamin D levels for those with limited sun exposure
+- STD screenings based on risk factors
+
+Be specific about test names and explain why each is recommended.
+
+Respond in JSON format:
+{
+    "recommended_tests": [
+        {
+            "test_name": "Test name",
+            "category": "Category (e.g., Cancer Screening, Cardiovascular, Metabolic)",
+            "priority": "high|medium|low",
+            "reason": "Why this test is recommended",
+            "frequency": "How often this test should be done",
+            "age_recommendation": "Standard age recommendation"
+        }
+    ],
+    "summary": "Brief summary of screening recommendations",
+    "notes": "Any additional notes about the recommendations"
+}"""
+
+    def analyze(self, existing_tests: List[str], profile: Dict[str, Any]) -> Dict[str, Any]:
+        """Recommend tests based on profile and what tests are already done."""
+        profile_text = self._format_profile(profile)
+        tests_text = ", ".join(existing_tests) if existing_tests else "No recent tests on record"
+
+        user_prompt = f"""Based on this patient profile and their existing test history, recommend health screening tests they should consider.
+
+{profile_text}
+
+Existing tests on record (no need to repeat these unless they should be redone):
+{tests_text}
+
+Provide your recommendations in JSON format. Focus on:
+1. Age-appropriate screenings they may be missing
+2. Tests relevant to any chronic conditions or risk factors
+3. Standard preventive care tests
+4. Any follow-up tests suggested by their existing results"""
+
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt)
+
+        try:
+            json_str = response
+            if "```json" in response:
+                json_str = response.split("```json")[1].split("```")[0]
+            elif "```" in response:
+                json_str = response.split("```")[1].split("```")[0]
+
+            return json.loads(json_str)
+        except json.JSONDecodeError:
+            return {
+                "recommended_tests": [],
+                "summary": response[:500],
+                "notes": "",
+                "raw_response": response
+            }
+
+    def _format_profile(self, profile: Dict[str, Any]) -> str:
+        """Format profile for the AI prompt."""
+        parts = ["Patient Profile:"]
+
+        if profile.get("age"):
+            parts.append(f"- Age: {profile['age']} years")
+        elif profile.get("date_of_birth"):
+            parts.append(f"- Date of Birth: {profile['date_of_birth']}")
+        else:
+            parts.append("- Age: Unknown")
+
+        if profile.get("gender"):
+            parts.append(f"- Gender: {profile['gender']}")
+        else:
+            parts.append("- Gender: Unknown")
+
+        if profile.get("bmi"):
+            bmi = profile['bmi']
+            bmi_category = "underweight" if bmi < 18.5 else "normal" if bmi < 25 else "overweight" if bmi < 30 else "obese"
+            parts.append(f"- BMI: {bmi} ({bmi_category})")
+
+        if profile.get("smoking_status"):
+            parts.append(f"- Smoking: {profile['smoking_status']}")
+
+        if profile.get("alcohol_consumption"):
+            parts.append(f"- Alcohol: {profile['alcohol_consumption']}")
+
+        if profile.get("physical_activity"):
+            parts.append(f"- Physical Activity: {profile['physical_activity']}")
+
+        if profile.get("chronic_conditions") and len(profile['chronic_conditions']) > 0:
+            parts.append(f"- Chronic Conditions: {', '.join(profile['chronic_conditions'])}")
+
+        if profile.get("current_medications") and len(profile['current_medications']) > 0:
+            parts.append(f"- Current Medications: {', '.join(profile['current_medications'])}")
+
+        if profile.get("allergies") and len(profile['allergies']) > 0:
+            parts.append(f"- Allergies: {', '.join(profile['allergies'])}")
+
+        return "\n".join(parts)
+
+
 class HealthAnalysisService:
     """Service to run health analysis across all agents."""
 
-    def __init__(self, language: str = "en"):
+    def __init__(self, language: str = "en", profile: Dict[str, Any] = None):
         self.language = language
+        self.profile = profile or {}
         self.generalist = GeneralistAgent(language=language)
+
+    def _format_profile_context(self) -> str:
+        """Format user profile data for AI context."""
+        if not self.profile:
+            return ""
+
+        parts = ["Patient Profile:"]
+
+        if self.profile.get("full_name"):
+            parts.append(f"- Name: {self.profile['full_name']}")
+
+        if self.profile.get("age"):
+            parts.append(f"- Age: {self.profile['age']} years")
+        elif self.profile.get("date_of_birth"):
+            parts.append(f"- Date of Birth: {self.profile['date_of_birth']}")
+
+        if self.profile.get("gender"):
+            parts.append(f"- Gender: {self.profile['gender']}")
+
+        if self.profile.get("height_cm"):
+            parts.append(f"- Height: {self.profile['height_cm']} cm")
+
+        if self.profile.get("weight_kg"):
+            parts.append(f"- Weight: {self.profile['weight_kg']} kg")
+
+        if self.profile.get("bmi"):
+            bmi = self.profile['bmi']
+            bmi_category = "underweight" if bmi < 18.5 else "normal" if bmi < 25 else "overweight" if bmi < 30 else "obese"
+            parts.append(f"- BMI: {bmi} ({bmi_category})")
+
+        if self.profile.get("blood_type"):
+            parts.append(f"- Blood Type: {self.profile['blood_type']}")
+
+        if self.profile.get("smoking_status"):
+            parts.append(f"- Smoking: {self.profile['smoking_status']}")
+
+        if self.profile.get("alcohol_consumption"):
+            parts.append(f"- Alcohol: {self.profile['alcohol_consumption']}")
+
+        if self.profile.get("physical_activity"):
+            parts.append(f"- Physical Activity: {self.profile['physical_activity']}")
+
+        if self.profile.get("allergies") and len(self.profile['allergies']) > 0:
+            parts.append(f"- Allergies: {', '.join(self.profile['allergies'])}")
+
+        if self.profile.get("chronic_conditions") and len(self.profile['chronic_conditions']) > 0:
+            parts.append(f"- Chronic Conditions: {', '.join(self.profile['chronic_conditions'])}")
+
+        if self.profile.get("current_medications") and len(self.profile['current_medications']) > 0:
+            parts.append(f"- Current Medications: {', '.join(self.profile['current_medications'])}")
+
+        if len(parts) == 1:
+            return ""
+
+        return "\n".join(parts)
 
     def run_full_analysis(self, biomarkers: List[Dict]) -> Dict[str, Any]:
         """Run general analysis and determine if specialist analyses are needed."""
+        # Get profile context
+        profile_context = self._format_profile_context()
+
         # Run general analysis first
-        general_report = self.generalist.analyze(biomarkers)
+        general_report = self.generalist.analyze(biomarkers, profile_context)
 
         result = {
             "general": general_report,
             "specialists": {},
             "analyzed_at": datetime.now().isoformat(),
-            "language": self.language
+            "language": self.language,
+            "profile_used": bool(profile_context)
         }
 
         # Run specialist analyses based on referrals or concerning markers
@@ -340,11 +533,17 @@ class HealthAnalysisService:
 
             if should_analyze:
                 specialist = SpecialistAgent(specialty, language=self.language)
-                result["specialists"][specialty] = specialist.analyze(biomarkers)
+                result["specialists"][specialty] = specialist.analyze(biomarkers, profile_context)
 
         return result
 
     def run_specialist_analysis(self, specialty: str, biomarkers: List[Dict]) -> Dict[str, Any]:
         """Run analysis for a specific specialty."""
+        profile_context = self._format_profile_context()
         specialist = SpecialistAgent(specialty, language=self.language)
-        return specialist.analyze(biomarkers)
+        return specialist.analyze(biomarkers, profile_context)
+
+    def run_gap_analysis(self, existing_test_names: List[str]) -> Dict[str, Any]:
+        """Run gap analysis to recommend missing tests."""
+        gap_agent = GapAnalysisAgent(language=self.language)
+        return gap_agent.analyze(existing_test_names, self.profile)

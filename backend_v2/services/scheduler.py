@@ -19,6 +19,54 @@ _running_syncs = set()
 MAX_CONCURRENT_SYNCS = 2
 
 
+def classify_sync_error(error_msg: str) -> str:
+    """Classify error message into a category for user-friendly display.
+
+    Returns one of:
+    - wrong_password: Invalid credentials
+    - captcha_failed: CAPTCHA solving failed/required
+    - site_down: Provider site unavailable
+    - session_expired: Login session expired
+    - timeout: Operation timed out
+    - unknown: Other/unknown error
+    """
+    error_lower = error_msg.lower()
+
+    # Wrong password / invalid credentials
+    if any(phrase in error_lower for phrase in [
+        "invalid credentials", "incorrect", "wrong password",
+        "autentificare nereusita", "date de autentificare incorecte",
+        "parola gresita", "cont incorect"
+    ]):
+        return "wrong_password"
+
+    # CAPTCHA related
+    if any(phrase in error_lower for phrase in [
+        "captcha", "recaptcha", "robot", "verification"
+    ]):
+        return "captcha_failed"
+
+    # Site down / network issues
+    if any(phrase in error_lower for phrase in [
+        "site down", "unavailable", "network", "connection",
+        "timeout", "refused", "unreachable", "503", "502", "500"
+    ]):
+        return "site_down"
+
+    # Session expired
+    if any(phrase in error_lower for phrase in [
+        "session expired", "logged out", "deconectat",
+        "sesiune expirata"
+    ]):
+        return "session_expired"
+
+    # Timeout
+    if "timeout" in error_lower or "timed out" in error_lower:
+        return "timeout"
+
+    return "unknown"
+
+
 def init_scheduler():
     """Initialize the background scheduler."""
     global scheduler
@@ -203,15 +251,18 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
 
         if res.get("status") != "success":
             error_msg = res.get("message", "Sync failed")
+            error_type = classify_sync_error(error_msg)
             sync_job.status = "failed"
             sync_job.error_message = error_msg
             sync_job.completed_at = datetime.utcnow()
             account.status = "ERROR"
             account.last_sync_error = error_msg
+            account.error_type = error_type
+            account.error_acknowledged = False  # Reset acknowledgement for new errors
             account.consecutive_failures += 1
             db.commit()
-            sync_status.status_error(user_id, provider_name, error_msg)
-            logger.error(f"Sync failed for {provider_name}: {error_msg}")
+            sync_status.status_error(user_id, provider_name, error_msg, error_type)
+            logger.error(f"Sync failed for {provider_name}: {error_msg} (type: {error_type})")
             return
 
         # Process documents (similar to users.py run_sync_task)
@@ -236,11 +287,15 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
 
     except Exception as e:
         logger.error(f"Scheduled sync error: {e}")
+        error_msg = str(e)
+        error_type = classify_sync_error(error_msg)
         try:
             account = db.query(LinkedAccount).filter(LinkedAccount.id == account_id).first()
             if account:
                 account.status = "ERROR"
-                account.last_sync_error = str(e)
+                account.last_sync_error = error_msg
+                account.error_type = error_type
+                account.error_acknowledged = False
                 account.consecutive_failures += 1
             sync_job = db.query(SyncJob).filter(
                 SyncJob.linked_account_id == account_id,
@@ -248,12 +303,12 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
             ).first()
             if sync_job:
                 sync_job.status = "failed"
-                sync_job.error_message = str(e)
+                sync_job.error_message = error_msg
                 sync_job.completed_at = datetime.utcnow()
             db.commit()
         except:
             pass
-        sync_status.status_error(user_id, provider_name, str(e))
+        sync_status.status_error(user_id, provider_name, error_msg, error_type)
     finally:
         db.close()
         _running_syncs.discard(sync_key)

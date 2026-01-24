@@ -512,3 +512,155 @@ def restart_server(admin: User = Depends(require_admin)):
         return {"message": "Server restart scheduled in 2 seconds"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/scan-profiles")
+def scan_documents_for_profiles(db: Session = Depends(get_db), admin: User = Depends(require_admin)):
+    """Scan all documents and extract profile data for users who don't have complete profiles."""
+    from threading import Thread
+    import json
+
+    try:
+        from backend_v2.services.ai_parser import AIParser
+    except ImportError:
+        from services.ai_parser import AIParser
+
+    def extract_text_from_pdf(file_path: str) -> str:
+        """Extract text from a PDF file."""
+        try:
+            import pdfplumber
+            text = ""
+            with pdfplumber.open(file_path) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n"
+            return text
+        except Exception as e:
+            print(f"Error extracting text from {file_path}: {e}")
+            return ""
+
+    def scan_user_documents(user_id: int):
+        """Scan documents for a user and extract profile data."""
+        from database import SessionLocal
+        from models import User, Document
+
+        db_session = SessionLocal()
+        try:
+            user = db_session.query(User).filter(User.id == user_id).first()
+            if not user:
+                return {"user_id": user_id, "status": "user_not_found"}
+
+            # Check if user already has most profile data
+            has_dob = user.date_of_birth is not None
+            has_gender = user.gender is not None
+            has_name = user.full_name is not None
+
+            # If all basic fields are set, skip
+            if has_dob and has_gender and has_name:
+                return {"user_id": user_id, "status": "profile_already_complete"}
+
+            # Get user's processed documents
+            documents = db_session.query(Document).filter(
+                Document.user_id == user_id,
+                Document.is_processed == True
+            ).order_by(Document.document_date.desc()).limit(10).all()
+
+            if not documents:
+                return {"user_id": user_id, "status": "no_documents"}
+
+            parser = AIParser()
+            profile_updates = {}
+
+            for doc in documents:
+                if not doc.file_path:
+                    continue
+
+                # Skip if file doesn't exist
+                import os
+                if not os.path.exists(doc.file_path):
+                    continue
+
+                # Extract text and parse
+                text = extract_text_from_pdf(doc.file_path)
+                if not text:
+                    continue
+
+                result = parser.parse_text(text)
+                patient_info = result.get("patient_info", {})
+
+                if not patient_info:
+                    continue
+
+                # Merge patient info (don't overwrite existing)
+                if patient_info.get("full_name") and not profile_updates.get("full_name") and not user.full_name:
+                    profile_updates["full_name"] = patient_info["full_name"]
+
+                if patient_info.get("date_of_birth") and not profile_updates.get("date_of_birth") and not user.date_of_birth:
+                    try:
+                        from datetime import datetime
+                        dob = datetime.strptime(patient_info["date_of_birth"], "%Y-%m-%d")
+                        profile_updates["date_of_birth"] = dob
+                    except:
+                        pass
+
+                if patient_info.get("gender") and not profile_updates.get("gender") and not user.gender:
+                    profile_updates["gender"] = patient_info["gender"]
+
+                if patient_info.get("blood_type") and not profile_updates.get("blood_type") and not user.blood_type:
+                    profile_updates["blood_type"] = patient_info["blood_type"]
+
+                if patient_info.get("height_cm") and not profile_updates.get("height_cm") and not user.height_cm:
+                    profile_updates["height_cm"] = patient_info["height_cm"]
+
+                if patient_info.get("weight_kg") and not profile_updates.get("weight_kg") and not user.weight_kg:
+                    profile_updates["weight_kg"] = patient_info["weight_kg"]
+
+                # If we found all we need, stop
+                if len(profile_updates) >= 4:
+                    break
+
+            # Apply updates
+            if profile_updates:
+                for key, value in profile_updates.items():
+                    setattr(user, key, value)
+                db_session.commit()
+                return {"user_id": user_id, "status": "updated", "fields": list(profile_updates.keys())}
+            else:
+                return {"user_id": user_id, "status": "no_profile_data_found"}
+
+        except Exception as e:
+            print(f"Error scanning for user {user_id}: {e}")
+            return {"user_id": user_id, "status": "error", "message": str(e)}
+        finally:
+            db_session.close()
+
+    def scan_all_users():
+        """Background task to scan all users."""
+        from database import SessionLocal
+        from models import User
+
+        db_session = SessionLocal()
+        results = []
+        try:
+            users = db_session.query(User).all()
+            for user in users:
+                print(f"Scanning documents for user {user.id} ({user.email})")
+                result = scan_user_documents(user.id)
+                results.append(result)
+                print(f"  Result: {result}")
+        finally:
+            db_session.close()
+            print(f"Profile scan complete. Results: {results}")
+
+    # Get count of users
+    user_count = db.query(User).count()
+
+    # Run scan in background
+    thread = Thread(target=scan_all_users, daemon=True)
+    thread.start()
+
+    return {
+        "message": f"Started scanning documents for {user_count} users",
+        "users": user_count
+    }

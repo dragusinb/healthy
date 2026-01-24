@@ -5,7 +5,7 @@ import {
     Shield, Users, FileText, Activity, Server, Cpu, HardDrive,
     MemoryStick, RefreshCw, AlertTriangle, CheckCircle, Loader2,
     Trash2, RotateCcw, UserCog, Play, Brain, Power, ScrollText,
-    Clock, XCircle, ChevronDown, ChevronUp
+    Clock, XCircle, ChevronDown, ChevronUp, UserSearch
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -178,6 +178,19 @@ const Admin = () => {
             fetchData();
         } catch (e) {
             alert(e.response?.data?.detail || "Regeneration failed");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleScanProfiles = async () => {
+        setActionLoading('scanprofiles');
+        try {
+            const res = await api.post('/admin/scan-profiles');
+            alert(res.data.message);
+            fetchData();
+        } catch (e) {
+            alert(e.response?.data?.detail || "Profile scan failed");
         } finally {
             setActionLoading(null);
         }
@@ -494,7 +507,15 @@ const Admin = () => {
                         className="flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 hover:bg-violet-200 rounded-lg transition-colors disabled:opacity-50"
                     >
                         {actionLoading === 'regenerate' ? <Loader2 size={16} className="animate-spin" /> : <Brain size={16} />}
-                        Regenerate AI Reports (Romanian)
+                        Regenerate AI Reports
+                    </button>
+                    <button
+                        onClick={handleScanProfiles}
+                        disabled={actionLoading === 'scanprofiles'}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        {actionLoading === 'scanprofiles' ? <Loader2 size={16} className="animate-spin" /> : <UserSearch size={16} />}
+                        Scan Documents for Profiles
                     </button>
                 </div>
             </div>

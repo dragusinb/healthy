@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
-    RefreshCw, FileText, TrendingUp, Shield, ChevronDown, X, Eye
+    RefreshCw, FileText, TrendingUp, Shield, ChevronDown, X, Eye,
+    ClipboardList, Sparkles, Calendar
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -59,6 +61,7 @@ const openPdf = async (documentId) => {
 };
 
 const HealthReports = () => {
+    const { t } = useTranslation();
     const [latestReport, setLatestReport] = useState(null);
     const [reports, setReports] = useState([]);
     const [specialists, setSpecialists] = useState({});
@@ -68,6 +71,9 @@ const HealthReports = () => {
     const [analysisStep, setAnalysisStep] = useState(0);
     const [error, setError] = useState(null);
     const [selectedReport, setSelectedReport] = useState(null);
+    const [gapAnalysis, setGapAnalysis] = useState(null);
+    const [gapLoading, setGapLoading] = useState(false);
+    const [showGapSection, setShowGapSection] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -114,12 +120,40 @@ const HealthReports = () => {
         }
     };
 
-    // Find document_id for a biomarker by name (case insensitive partial match)
+    // Find document_id for a biomarker by name (improved matching)
     const findDocumentForMarker = (markerName) => {
         if (!markerName || !biomarkers.length) return null;
-        const name = markerName.toLowerCase();
-        const match = biomarkers.find(b => b.name.toLowerCase().includes(name) || name.includes(b.name.toLowerCase()));
-        return match?.document_id;
+        const name = markerName.toLowerCase().trim();
+
+        // Normalize common variations
+        const normalizedName = name
+            .replace(/[-_]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .replace(/hemoglobina/i, 'hemoglobin')
+            .replace(/colesterol/i, 'cholesterol')
+            .replace(/trigliceride/i, 'triglycerides')
+            .replace(/glucoza/i, 'glucose')
+            .replace(/creatinina/i, 'creatinine');
+
+        // Try exact match first
+        let match = biomarkers.find(b => b.name.toLowerCase().trim() === name);
+        if (match) return match.document_id;
+
+        // Try partial match
+        match = biomarkers.find(b => {
+            const bioName = b.name.toLowerCase().trim();
+            return bioName.includes(name) || name.includes(bioName);
+        });
+        if (match) return match.document_id;
+
+        // Try word-based match (any significant word matches)
+        const words = normalizedName.split(' ').filter(w => w.length > 3);
+        for (const word of words) {
+            match = biomarkers.find(b => b.name.toLowerCase().includes(word));
+            if (match) return match.document_id;
+        }
+
+        return null;
     };
 
     const runAnalysis = async () => {
@@ -133,6 +167,21 @@ const HealthReports = () => {
             setError(e.response?.data?.detail || "Analysis failed. Please try again.");
         } finally {
             setAnalyzing(false);
+        }
+    };
+
+    const runGapAnalysis = async () => {
+        setGapLoading(true);
+        setError(null);
+        try {
+            const res = await api.post('/health/gap-analysis');
+            setGapAnalysis(res.data.analysis);
+            setShowGapSection(true);
+        } catch (e) {
+            console.error("Gap analysis failed", e);
+            setError(e.response?.data?.detail || "Gap analysis failed. Please try again.");
+        } finally {
+            setGapLoading(false);
         }
     };
 
@@ -421,6 +470,118 @@ const HealthReports = () => {
                         );
                     })}
                 </div>
+            </div>
+
+            {/* Gap Analysis Section */}
+            <div className="card overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-violet-100 rounded-lg">
+                            <ClipboardList size={20} className="text-violet-600" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.gapAnalysis.title') || 'Recommended Screenings'}</h2>
+                            <p className="text-sm text-slate-500 mt-0.5">{t('healthReports.gapAnalysis.subtitle') || 'AI-recommended tests based on your age and medical history'}</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={runGapAnalysis}
+                        disabled={gapLoading}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all text-sm",
+                            gapLoading
+                                ? "bg-violet-100 text-violet-600 cursor-wait"
+                                : "bg-violet-600 text-white hover:bg-violet-700"
+                        )}
+                    >
+                        {gapLoading ? (
+                            <>
+                                <Loader2 className="animate-spin" size={16} />
+                                {t('common.loading') || 'Analyzing...'}
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles size={16} />
+                                {t('healthReports.gapAnalysis.getRecommendations') || 'Get Recommendations'}
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                {gapAnalysis ? (
+                    <div className="p-6">
+                        {/* Summary */}
+                        {gapAnalysis.summary && (
+                            <p className="text-slate-700 mb-6 leading-relaxed">{gapAnalysis.summary}</p>
+                        )}
+
+                        {/* Recommended Tests */}
+                        {gapAnalysis.recommended_tests?.length > 0 && (
+                            <div className="space-y-3">
+                                {gapAnalysis.recommended_tests.map((test, i) => (
+                                    <div key={i} className={cn(
+                                        "p-4 rounded-xl border",
+                                        test.priority === 'high' ? "bg-rose-50 border-rose-200" :
+                                        test.priority === 'medium' ? "bg-amber-50 border-amber-200" :
+                                        "bg-slate-50 border-slate-200"
+                                    )}>
+                                        <div className="flex items-start justify-between gap-3 mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold text-slate-800">{test.test_name}</span>
+                                                <span className={cn(
+                                                    "text-xs px-2 py-0.5 rounded-full font-medium",
+                                                    test.priority === 'high' ? "bg-rose-100 text-rose-700" :
+                                                    test.priority === 'medium' ? "bg-amber-100 text-amber-700" :
+                                                    "bg-slate-200 text-slate-600"
+                                                )}>
+                                                    {test.priority === 'high' ? (t('healthReports.gapAnalysis.highPriority') || 'High Priority') :
+                                                     test.priority === 'medium' ? (t('healthReports.gapAnalysis.mediumPriority') || 'Medium Priority') :
+                                                     (t('healthReports.gapAnalysis.lowPriority') || 'Low Priority')}
+                                                </span>
+                                            </div>
+                                            {test.category && (
+                                                <span className="text-xs bg-white px-2 py-1 rounded border border-slate-200 text-slate-500">
+                                                    {test.category}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-slate-600 mb-2">{test.reason}</p>
+                                        <div className="flex items-center gap-4 text-xs text-slate-500">
+                                            {test.frequency && (
+                                                <span className="flex items-center gap-1">
+                                                    <Calendar size={12} />
+                                                    {test.frequency}
+                                                </span>
+                                            )}
+                                            {test.age_recommendation && (
+                                                <span className="flex items-center gap-1">
+                                                    <Clock size={12} />
+                                                    {test.age_recommendation}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Notes */}
+                        {gapAnalysis.notes && (
+                            <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-700">
+                                <strong>{t('healthReports.gapAnalysis.note') || 'Note'}:</strong> {gapAnalysis.notes}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div className="p-8 text-center">
+                        <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <ClipboardList size={24} className="text-violet-400" />
+                        </div>
+                        <p className="text-slate-500 text-sm">
+                            {t('healthReports.gapAnalysis.noAnalysisHint') || 'Click "Get Recommendations" to see which health screenings you might be missing based on your age and medical history.'}
+                        </p>
+                    </div>
+                )}
             </div>
 
             {/* Report History */}

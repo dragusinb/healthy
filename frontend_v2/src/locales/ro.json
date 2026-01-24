@@ -19,7 +19,8 @@
     "next": "Urmatorul",
     "view": "Vizualizeaza",
     "download": "Descarca",
-    "refresh": "Reimprospatare"
+    "refresh": "Reimprospatare",
+    "add": "Adauga"
   },
   "nav": {
     "dashboard": "Panou Principal",
@@ -27,6 +28,7 @@
     "biomarkers": "Biomarkeri",
     "healthReports": "Rapoarte Sanatate",
     "evolution": "Evolutie",
+    "profile": "Profil",
     "linkedAccounts": "Conturi Conectate",
     "settings": "Setari",
     "admin": "Administrare",
@@ -193,6 +195,16 @@
       "hepatology": "Hepatologie",
       "nephrology": "Nefrologie",
       "general": "General"
+    },
+    "gapAnalysis": {
+      "title": "Screeninguri Recomandate",
+      "subtitle": "Teste recomandate de AI pe baza varstei si istoricului medical",
+      "getRecommendations": "Obtine Recomandari",
+      "highPriority": "Prioritate Mare",
+      "mediumPriority": "Prioritate Medie",
+      "lowPriority": "Prioritate Mica",
+      "note": "Nota",
+      "noAnalysisHint": "Apasa \"Obtine Recomandari\" pentru a vedea ce screeninguri de sanatate iti lipsesc pe baza varstei si istoricului medical."
     }
   },
   "linkedAccounts": {
@@ -241,6 +253,22 @@
       "daily": "Zilnic",
       "weekly": "Saptamanal",
       "manual": "Manual"
+    },
+    "connectionError": "Eroare Conexiune",
+    "updateCredentials": "Actualizeaza Parola",
+    "errors": {
+      "wrongPassword": "Credentiale Invalide",
+      "wrongPasswordDesc": "Utilizatorul sau parola pe care le-ai introdus sunt incorecte. Te rugam sa actualizezi credentialele pentru a restabili conexiunea.",
+      "captchaFailed": "CAPTCHA Necesar",
+      "captchaFailedDesc": "Furnizorul necesita verificare CAPTCHA. Te rugam sa incerci sincronizarea manual din browser.",
+      "siteDown": "Furnizor Indisponibil",
+      "siteDownDesc": "Site-ul furnizorului este momentan indisponibil. Te rugam sa incerci mai tarziu.",
+      "sessionExpired": "Sesiune Expirata",
+      "sessionExpiredDesc": "Sesiunea ta de conectare a expirat. Te rugam sa incerci din nou.",
+      "timeout": "Conexiune Expirata",
+      "timeoutDesc": "Conexiunea catre furnizor a expirat. Te rugam sa incerci mai tarziu.",
+      "unknown": "Problema de Conexiune",
+      "unknownDesc": "A aparut o problema neasteptata la conectarea cu contul tau de furnizor medical."
     }
   },
   "evolution": {
@@ -316,5 +344,54 @@
     "theme": "Tema",
     "notifications": "Notificari",
     "privacy": "Confidentialitate"
+  },
+  "profile": {
+    "title": "Profilul Tau",
+    "subtitle": "Aceste informatii ajuta AI sa ofere recomandari mai bune",
+    "saved": "Profil salvat cu succes",
+    "basicInfo": "Informatii de Baza",
+    "fullName": "Nume Complet",
+    "dateOfBirth": "Data Nasterii",
+    "gender": "Gen",
+    "selectGender": "Selecteaza...",
+    "male": "Masculin",
+    "female": "Feminin",
+    "other": "Altul",
+    "bloodType": "Grupa Sanguina",
+    "selectBloodType": "Selecteaza...",
+    "bodyMeasurements": "Masuratori Corporale",
+    "height": "Inaltime (cm)",
+    "weight": "Greutate (kg)",
+    "bmi": "IMC",
+    "bmiUnderweight": "Subponderal",
+    "bmiNormal": "Normal",
+    "bmiOverweight": "Supraponderal",
+    "bmiObese": "Obez",
+    "enterHeightWeight": "Introdu inaltimea si greutatea",
+    "lifestyle": "Stil de Viata",
+    "smoking": "Fumat",
+    "select": "Selecteaza...",
+    "smokingNever": "Nu am fumat niciodata",
+    "smokingFormer": "Fost fumator",
+    "smokingCurrent": "Fumator activ",
+    "alcohol": "Alcool",
+    "alcoholNone": "Deloc",
+    "alcoholOccasional": "Ocazional",
+    "alcoholModerate": "Moderat",
+    "alcoholHeavy": "Frecvent",
+    "physicalActivity": "Activitate Fizica",
+    "activitySedentary": "Sedentara",
+    "activityLight": "Usoara (1-2 zile/sapt)",
+    "activityModerate": "Moderata (3-4 zile/sapt)",
+    "activityActive": "Activa (5+ zile/sapt)",
+    "activityVeryActive": "Foarte Activa (sportiv)",
+    "medicalHistory": "Istoric Medical",
+    "allergies": "Alergii",
+    "allergiesPlaceholder": "Scrie si apasa Enter...",
+    "chronicConditions": "Afectiuni Cronice",
+    "conditionsPlaceholder": "Scrie si apasa Enter...",
+    "medications": "Medicamente Curente",
+    "medicationsPlaceholder": "Scrie si apasa Enter...",
+    "infoNote": "Informatiile din profil sunt folosite de AI pentru a oferi recomandari personalizate. Cu cat profilul este mai complet, cu atat recomandarile vor fi mai bune."
   }
 }

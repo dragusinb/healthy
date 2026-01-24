@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from typing import Optional, List
 import datetime
+import json
 
 try:
     from backend_v2.database import get_db
@@ -24,15 +26,173 @@ class LinkedAccountCreate(BaseModel):
     username: str
     password: str
 
+
+class ProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    date_of_birth: Optional[str] = None  # YYYY-MM-DD format
+    gender: Optional[str] = None
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+    blood_type: Optional[str] = None
+    allergies: Optional[List[str]] = None
+    chronic_conditions: Optional[List[str]] = None
+    current_medications: Optional[List[str]] = None
+    smoking_status: Optional[str] = None
+    alcohol_consumption: Optional[str] = None
+    physical_activity: Optional[str] = None
+
 @router.get("/me")
 def read_users_me(current_user: User = Depends(get_current_user)):
+    # Include linked account errors for popup notification
+    linked_accounts_data = []
+    for acc in current_user.linked_accounts:
+        acc_data = {
+            "id": acc.id,
+            "provider_name": acc.provider_name,
+            "username": acc.username,
+            "status": acc.status,
+            "last_sync": acc.last_sync.isoformat() if acc.last_sync else None,
+            "last_sync_error": acc.last_sync_error,
+            "error_type": acc.error_type if hasattr(acc, 'error_type') else None,
+            "error_acknowledged": acc.error_acknowledged if hasattr(acc, 'error_acknowledged') else True,
+            "consecutive_failures": acc.consecutive_failures
+        }
+        linked_accounts_data.append(acc_data)
+
     return {
         "email": current_user.email,
         "id": current_user.id,
         "is_admin": current_user.is_admin,
         "language": current_user.language,
-        "linked_accounts": current_user.linked_accounts
+        "linked_accounts": linked_accounts_data,
+        "profile": get_profile_data(current_user)
     }
+
+
+def get_profile_data(user: User) -> dict:
+    """Extract profile data from user model."""
+    return {
+        "full_name": user.full_name,
+        "date_of_birth": user.date_of_birth.strftime("%Y-%m-%d") if user.date_of_birth else None,
+        "age": calculate_age(user.date_of_birth) if user.date_of_birth else None,
+        "gender": user.gender,
+        "height_cm": user.height_cm,
+        "weight_kg": user.weight_kg,
+        "bmi": calculate_bmi(user.height_cm, user.weight_kg) if user.height_cm and user.weight_kg else None,
+        "blood_type": user.blood_type,
+        "allergies": json.loads(user.allergies) if user.allergies else [],
+        "chronic_conditions": json.loads(user.chronic_conditions) if user.chronic_conditions else [],
+        "current_medications": json.loads(user.current_medications) if user.current_medications else [],
+        "smoking_status": user.smoking_status,
+        "alcohol_consumption": user.alcohol_consumption,
+        "physical_activity": user.physical_activity
+    }
+
+
+def calculate_age(dob: datetime.datetime) -> int:
+    """Calculate age from date of birth."""
+    today = datetime.date.today()
+    return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+
+def calculate_bmi(height_cm: float, weight_kg: float) -> float:
+    """Calculate BMI from height and weight."""
+    if height_cm <= 0:
+        return None
+    height_m = height_cm / 100
+    return round(weight_kg / (height_m * height_m), 1)
+
+
+@router.get("/profile")
+def get_profile(current_user: User = Depends(get_current_user)):
+    """Get user's profile data."""
+    return get_profile_data(current_user)
+
+
+@router.put("/profile")
+def update_profile(
+    profile: ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Update user's profile data."""
+    if profile.full_name is not None:
+        current_user.full_name = profile.full_name
+
+    if profile.date_of_birth is not None:
+        try:
+            current_user.date_of_birth = datetime.datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+
+    if profile.gender is not None:
+        if profile.gender not in ["male", "female", "other", ""]:
+            raise HTTPException(status_code=400, detail="Invalid gender value")
+        current_user.gender = profile.gender if profile.gender else None
+
+    if profile.height_cm is not None:
+        current_user.height_cm = profile.height_cm
+
+    if profile.weight_kg is not None:
+        current_user.weight_kg = profile.weight_kg
+
+    if profile.blood_type is not None:
+        valid_blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", ""]
+        if profile.blood_type not in valid_blood_types:
+            raise HTTPException(status_code=400, detail="Invalid blood type")
+        current_user.blood_type = profile.blood_type if profile.blood_type else None
+
+    if profile.allergies is not None:
+        current_user.allergies = json.dumps(profile.allergies)
+
+    if profile.chronic_conditions is not None:
+        current_user.chronic_conditions = json.dumps(profile.chronic_conditions)
+
+    if profile.current_medications is not None:
+        current_user.current_medications = json.dumps(profile.current_medications)
+
+    if profile.smoking_status is not None:
+        valid_smoking = ["never", "former", "current", ""]
+        if profile.smoking_status not in valid_smoking:
+            raise HTTPException(status_code=400, detail="Invalid smoking status")
+        current_user.smoking_status = profile.smoking_status if profile.smoking_status else None
+
+    if profile.alcohol_consumption is not None:
+        valid_alcohol = ["none", "occasional", "moderate", "heavy", ""]
+        if profile.alcohol_consumption not in valid_alcohol:
+            raise HTTPException(status_code=400, detail="Invalid alcohol consumption value")
+        current_user.alcohol_consumption = profile.alcohol_consumption if profile.alcohol_consumption else None
+
+    if profile.physical_activity is not None:
+        valid_activity = ["sedentary", "light", "moderate", "active", "very_active", ""]
+        if profile.physical_activity not in valid_activity:
+            raise HTTPException(status_code=400, detail="Invalid physical activity value")
+        current_user.physical_activity = profile.physical_activity if profile.physical_activity else None
+
+    db.commit()
+
+    return {"message": "Profile updated", "profile": get_profile_data(current_user)}
+
+@router.post("/accounts/{account_id}/acknowledge-error")
+def acknowledge_account_error(
+    account_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Mark an account error as acknowledged (user has seen it)."""
+    account = db.query(LinkedAccount).filter(
+        LinkedAccount.id == account_id,
+        LinkedAccount.user_id == current_user.id
+    ).first()
+
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    account.error_acknowledged = True
+    db.commit()
+
+    return {"message": "Error acknowledged"}
+
 
 @router.post("/link-account")
 def link_account(account: LinkedAccountCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

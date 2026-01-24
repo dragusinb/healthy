@@ -1,13 +1,143 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil } from 'lucide-react';
+import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil, X, AlertTriangle, KeyRound, Wifi, Clock } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, linking, syncing, syncStatus, t }) => {
+// Error type to icon and color mapping
+const ERROR_TYPES = {
+    wrong_password: {
+        icon: KeyRound,
+        color: 'rose',
+        titleKey: 'linkedAccounts.errors.wrongPassword',
+        descKey: 'linkedAccounts.errors.wrongPasswordDesc'
+    },
+    captcha_failed: {
+        icon: AlertTriangle,
+        color: 'amber',
+        titleKey: 'linkedAccounts.errors.captchaFailed',
+        descKey: 'linkedAccounts.errors.captchaFailedDesc'
+    },
+    site_down: {
+        icon: Wifi,
+        color: 'slate',
+        titleKey: 'linkedAccounts.errors.siteDown',
+        descKey: 'linkedAccounts.errors.siteDownDesc'
+    },
+    session_expired: {
+        icon: Clock,
+        color: 'amber',
+        titleKey: 'linkedAccounts.errors.sessionExpired',
+        descKey: 'linkedAccounts.errors.sessionExpiredDesc'
+    },
+    timeout: {
+        icon: Clock,
+        color: 'slate',
+        titleKey: 'linkedAccounts.errors.timeout',
+        descKey: 'linkedAccounts.errors.timeoutDesc'
+    },
+    unknown: {
+        icon: AlertCircle,
+        color: 'rose',
+        titleKey: 'linkedAccounts.errors.unknown',
+        descKey: 'linkedAccounts.errors.unknownDesc'
+    }
+};
+
+const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t }) => {
+    const errorType = account.error_type || 'unknown';
+    const errorConfig = ERROR_TYPES[errorType] || ERROR_TYPES.unknown;
+    const Icon = errorConfig.icon;
+    const colorClasses = {
+        rose: 'bg-rose-100 text-rose-600 border-rose-200',
+        amber: 'bg-amber-100 text-amber-600 border-amber-200',
+        slate: 'bg-slate-100 text-slate-600 border-slate-200'
+    };
+
+    const handleAcknowledge = async () => {
+        try {
+            await api.post(`/users/accounts/${account.id}/acknowledge-error`);
+            onAcknowledge(account.id);
+        } catch (e) {
+            console.error('Failed to acknowledge error', e);
+        }
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full" onClick={e => e.stopPropagation()}>
+                <div className="p-6">
+                    <div className="flex items-start gap-4">
+                        <div className={cn("p-3 rounded-xl border", colorClasses[errorConfig.color])}>
+                            <Icon size={24} />
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-xl font-bold text-slate-800 mb-1">
+                                {t(errorConfig.titleKey) || 'Connection Problem'}
+                            </h2>
+                            <p className="text-sm text-slate-500 mb-2">
+                                {account.provider_name}
+                            </p>
+                        </div>
+                        <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg">
+                            <X size={20} className="text-slate-400" />
+                        </button>
+                    </div>
+
+                    <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <p className="text-slate-700 mb-2">
+                            {t(errorConfig.descKey) || 'There was a problem connecting to your medical provider account.'}
+                        </p>
+                        {account.last_sync_error && (
+                            <p className="text-xs text-slate-500 font-mono mt-2 p-2 bg-slate-100 rounded">
+                                {account.last_sync_error}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="mt-6 flex gap-3">
+                        {errorType === 'wrong_password' && (
+                            <button
+                                onClick={() => { onUpdateCredentials(account); onClose(); }}
+                                className="flex-1 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors"
+                            >
+                                {t('linkedAccounts.updateCredentials') || 'Update Password'}
+                            </button>
+                        )}
+                        <button
+                            onClick={handleAcknowledge}
+                            className={cn(
+                                "py-2.5 rounded-xl font-medium transition-colors",
+                                errorType === 'wrong_password'
+                                    ? "flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                    : "flex-1 bg-primary-600 text-white hover:bg-primary-700"
+                            )}
+                        >
+                            {t('common.close') || 'Dismiss'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, linking, syncing, syncStatus, account, forceEdit, onEditComplete, t }) => {
     const [creds, setCreds] = useState({ username: '', password: '' });
     const [showForm, setShowForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+
+    // Handle forceEdit from parent (when user clicks update from error modal)
+    useEffect(() => {
+        if (forceEdit && isLinked) {
+            setCreds({ username: username, password: '' });
+            setIsEditing(true);
+        }
+    }, [forceEdit]);
+
+    const hasError = account?.status === 'ERROR';
+    const errorType = account?.error_type;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -63,9 +193,15 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                             <h3 className="text-lg font-bold text-slate-900">{name}</h3>
                             <div className="flex items-center gap-2 mt-1">
                                 {isLinked ? (
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-100">
-                                        <CheckCircle size={12} /> {t('linkedAccounts.connected')}
-                                    </span>
+                                    hasError ? (
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                                            <AlertCircle size={12} /> {t('linkedAccounts.connectionError')}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-700 border border-teal-100">
+                                            <CheckCircle size={12} /> {t('linkedAccounts.connected')}
+                                        </span>
+                                    )
                                 ) : (
                                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
                                         {t('linkedAccounts.notConnected')}
@@ -219,11 +355,25 @@ const LinkedAccounts = () => {
     const [syncing, setSyncing] = useState(null);
     const [message, setMessage] = useState(null);
     const [syncStatus, setSyncStatus] = useState({});
+    const [errorAccount, setErrorAccount] = useState(null); // Account with error to show in modal
+    const [editingProvider, setEditingProvider] = useState(null); // Provider to edit credentials
     const syncingRef = useRef(null);
 
     useEffect(() => {
         fetchAccounts();
     }, []);
+
+    // Check for unacknowledged errors on load
+    useEffect(() => {
+        if (!loading && accounts.length > 0) {
+            const accountWithError = accounts.find(a =>
+                a.status === 'ERROR' && !a.error_acknowledged
+            );
+            if (accountWithError) {
+                setErrorAccount(accountWithError);
+            }
+        }
+    }, [loading, accounts]);
 
     useEffect(() => {
         syncingRef.current = syncing;
@@ -276,9 +426,23 @@ const LinkedAccounts = () => {
         }
     };
 
+    const getAccountByProvider = (provider) => {
+        return accounts.find(a => a.provider_name === provider);
+    };
+
     const isLinked = (provider) => {
-        const acc = accounts.find(a => a.provider_name === provider);
+        const acc = getAccountByProvider(provider);
         return acc ? acc.username : null;
+    };
+
+    const handleAcknowledgeError = (accountId) => {
+        setAccounts(prev => prev.map(a =>
+            a.id === accountId ? { ...a, error_acknowledged: true } : a
+        ));
+    };
+
+    const handleUpdateCredentials = (account) => {
+        setEditingProvider(account.provider_name);
     };
 
     const handleLink = async (provider, creds) => {
@@ -344,6 +508,9 @@ const LinkedAccounts = () => {
                     linking={linking === 'Regina Maria'}
                     syncing={syncing === 'Regina Maria'}
                     syncStatus={syncStatus['Regina Maria']}
+                    account={getAccountByProvider('Regina Maria')}
+                    forceEdit={editingProvider === 'Regina Maria'}
+                    onEditComplete={() => setEditingProvider(null)}
                     t={t}
                 />
                 <ProviderCard
@@ -356,9 +523,23 @@ const LinkedAccounts = () => {
                     linking={linking === 'Synevo'}
                     syncing={syncing === 'Synevo'}
                     syncStatus={syncStatus['Synevo']}
+                    account={getAccountByProvider('Synevo')}
+                    forceEdit={editingProvider === 'Synevo'}
+                    onEditComplete={() => setEditingProvider(null)}
                     t={t}
                 />
             </div>
+
+            {/* Error Modal */}
+            {errorAccount && (
+                <ErrorModal
+                    account={errorAccount}
+                    onClose={() => setErrorAccount(null)}
+                    onAcknowledge={handleAcknowledgeError}
+                    onUpdateCredentials={handleUpdateCredentials}
+                    t={t}
+                />
+            )}
         </div>
     );
 };

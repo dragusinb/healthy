@@ -18,6 +18,24 @@ class User(Base):
     language = Column(String, default="ro")  # User's preferred language (ro/en)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+    # Profile fields
+    full_name = Column(String, nullable=True)
+    date_of_birth = Column(DateTime, nullable=True)
+    gender = Column(String, nullable=True)  # male, female, other
+    height_cm = Column(Float, nullable=True)
+    weight_kg = Column(Float, nullable=True)
+    blood_type = Column(String, nullable=True)  # A+, A-, B+, B-, AB+, AB-, O+, O-
+
+    # Health context
+    allergies = Column(Text, nullable=True)  # JSON array
+    chronic_conditions = Column(Text, nullable=True)  # JSON array
+    current_medications = Column(Text, nullable=True)  # JSON array
+
+    # Lifestyle factors
+    smoking_status = Column(String, nullable=True)  # never, former, current
+    alcohol_consumption = Column(String, nullable=True)  # none, occasional, moderate, heavy
+    physical_activity = Column(String, nullable=True)  # sedentary, light, moderate, active, very_active
+
     linked_accounts = relationship("LinkedAccount", back_populates="user")
     documents = relationship("Document", back_populates="user")
 
@@ -31,6 +49,8 @@ class LinkedAccount(Base):
     encrypted_password = Column(String)
     last_sync = Column(DateTime, nullable=True)
     last_sync_error = Column(String, nullable=True)  # Last error message if any
+    error_type = Column(String, nullable=True)  # wrong_password, captcha_failed, site_down, session_expired, unknown
+    error_acknowledged = Column(Boolean, default=False)  # User has seen the error
     consecutive_failures = Column(Integer, default=0)  # Track consecutive failures
     sync_frequency = Column(String, default="daily")  # daily, weekly, manual
     sync_enabled = Column(Boolean, default=True)  # Enable/disable auto-sync

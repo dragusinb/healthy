@@ -35,7 +35,7 @@ def get_status(user_id: int, provider_name: str) -> Optional[dict]:
 
 def set_status(user_id: int, provider_name: str, stage: str, message: str,
                progress: int = 0, total: int = 0, is_complete: bool = False,
-               is_error: bool = False):
+               is_error: bool = False, error_type: str = None):
     """Update sync status for a user/provider."""
     with _lock:
         if user_id not in _sync_status:
@@ -48,6 +48,7 @@ def set_status(user_id: int, provider_name: str, stage: str, message: str,
             "total": total,
             "is_complete": is_complete,
             "is_error": is_error,
+            "error_type": error_type,
             "updated_at": datetime.now().isoformat()
         }
 
@@ -96,9 +97,18 @@ def status_complete(user_id: int, provider_name: str, doc_count: int):
                is_complete=True)
 
 
-def status_error(user_id: int, provider_name: str, error_msg: str):
+def status_error(user_id: int, provider_name: str, error_msg: str, error_type: str = "unknown"):
+    """Set error status with categorized error type.
+
+    Error types:
+    - wrong_password: Invalid credentials
+    - captcha_failed: CAPTCHA solving failed/required
+    - site_down: Provider site unavailable
+    - session_expired: Login session expired
+    - unknown: Other/unknown error
+    """
     set_status(user_id, provider_name, "error", error_msg,
-               is_complete=True, is_error=True)
+               is_complete=True, is_error=True, error_type=error_type)
 
 
 def cleanup_old_statuses():

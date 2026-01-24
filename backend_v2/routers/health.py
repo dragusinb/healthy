@@ -42,6 +42,59 @@ def get_user_biomarkers(db: Session, user_id: int) -> list:
     return biomarkers
 
 
+def get_user_profile(user: User) -> dict:
+    """Get user profile data for AI analysis."""
+    from datetime import date
+
+    profile = {}
+
+    if user.full_name:
+        profile["full_name"] = user.full_name
+
+    if user.date_of_birth:
+        profile["date_of_birth"] = user.date_of_birth.strftime("%Y-%m-%d")
+        # Calculate age
+        today = date.today()
+        age = today.year - user.date_of_birth.year - ((today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day))
+        profile["age"] = age
+
+    if user.gender:
+        profile["gender"] = user.gender
+
+    if user.height_cm:
+        profile["height_cm"] = user.height_cm
+
+    if user.weight_kg:
+        profile["weight_kg"] = user.weight_kg
+
+    if user.height_cm and user.weight_kg:
+        height_m = user.height_cm / 100
+        profile["bmi"] = round(user.weight_kg / (height_m * height_m), 1)
+
+    if user.blood_type:
+        profile["blood_type"] = user.blood_type
+
+    if user.smoking_status:
+        profile["smoking_status"] = user.smoking_status
+
+    if user.alcohol_consumption:
+        profile["alcohol_consumption"] = user.alcohol_consumption
+
+    if user.physical_activity:
+        profile["physical_activity"] = user.physical_activity
+
+    if user.allergies:
+        profile["allergies"] = json.loads(user.allergies)
+
+    if user.chronic_conditions:
+        profile["chronic_conditions"] = json.loads(user.chronic_conditions)
+
+    if user.current_medications:
+        profile["current_medications"] = json.loads(user.current_medications)
+
+    return profile
+
+
 @router.post("/analyze")
 def run_health_analysis(
     db: Session = Depends(get_db),
@@ -56,8 +109,11 @@ def run_health_analysis(
     # Get user's language preference (default to Romanian)
     user_language = current_user.language if current_user.language else "ro"
 
+    # Get user's profile for context
+    user_profile = get_user_profile(current_user)
+
     try:
-        service = HealthAnalysisService(language=user_language)
+        service = HealthAnalysisService(language=user_language, profile=user_profile)
         analysis = service.run_full_analysis(biomarkers)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
@@ -216,8 +272,11 @@ def run_specialist_analysis(
     # Get user's language preference (default to Romanian)
     user_language = current_user.language if current_user.language else "ro"
 
+    # Get user's profile for context
+    user_profile = get_user_profile(current_user)
+
     try:
-        service = HealthAnalysisService(language=user_language)
+        service = HealthAnalysisService(language=user_language, profile=user_profile)
         analysis = service.run_specialist_analysis(specialty, biomarkers)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
@@ -237,3 +296,35 @@ def run_specialist_analysis(
     db.commit()
 
     return analysis
+
+
+@router.post("/gap-analysis")
+def run_gap_analysis(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Run gap analysis to recommend missing health screenings."""
+    # Get list of existing test names
+    results = db.query(TestResult.test_name).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .distinct()\
+        .all()
+
+    existing_tests = [r[0] for r in results]
+
+    # Get user's language and profile
+    user_language = current_user.language if current_user.language else "ro"
+    user_profile = get_user_profile(current_user)
+
+    try:
+        service = HealthAnalysisService(language=user_language, profile=user_profile)
+        analysis = service.run_gap_analysis(existing_tests)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gap analysis failed: {str(e)}")
+
+    return {
+        "status": "success",
+        "existing_tests_count": len(existing_tests),
+        "analysis": analysis,
+        "analyzed_at": datetime.now().isoformat()
+    }

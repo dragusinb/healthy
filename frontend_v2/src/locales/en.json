@@ -19,7 +19,8 @@
     "next": "Next",
     "view": "View",
     "download": "Download",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "add": "Add"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -27,6 +28,7 @@
     "biomarkers": "Biomarkers",
     "healthReports": "Health Reports",
     "evolution": "Evolution",
+    "profile": "Profile",
     "linkedAccounts": "Linked Accounts",
     "settings": "Settings",
     "admin": "Admin",
@@ -193,6 +195,16 @@
       "hepatology": "Hepatology",
       "nephrology": "Nephrology",
       "general": "General"
+    },
+    "gapAnalysis": {
+      "title": "Recommended Screenings",
+      "subtitle": "AI-recommended tests based on your age and medical history",
+      "getRecommendations": "Get Recommendations",
+      "highPriority": "High Priority",
+      "mediumPriority": "Medium Priority",
+      "lowPriority": "Low Priority",
+      "note": "Note",
+      "noAnalysisHint": "Click \"Get Recommendations\" to see which health screenings you might be missing based on your age and medical history."
     }
   },
   "linkedAccounts": {
@@ -241,6 +253,22 @@
       "daily": "Daily",
       "weekly": "Weekly",
       "manual": "Manual"
+    },
+    "connectionError": "Connection Error",
+    "updateCredentials": "Update Password",
+    "errors": {
+      "wrongPassword": "Invalid Credentials",
+      "wrongPasswordDesc": "The username or password you entered is incorrect. Please update your credentials to restore the connection.",
+      "captchaFailed": "CAPTCHA Required",
+      "captchaFailedDesc": "The provider requires a CAPTCHA verification. Please try syncing manually from a browser.",
+      "siteDown": "Provider Unavailable",
+      "siteDownDesc": "The provider's website is currently unavailable. Please try again later.",
+      "sessionExpired": "Session Expired",
+      "sessionExpiredDesc": "Your login session has expired. Please try syncing again.",
+      "timeout": "Connection Timeout",
+      "timeoutDesc": "The connection to the provider timed out. Please try again later.",
+      "unknown": "Connection Problem",
+      "unknownDesc": "There was an unexpected problem connecting to your medical provider account."
     }
   },
   "evolution": {
@@ -316,5 +344,54 @@
     "theme": "Theme",
     "notifications": "Notifications",
     "privacy": "Privacy"
+  },
+  "profile": {
+    "title": "Your Profile",
+    "subtitle": "This information helps AI provide better health insights",
+    "saved": "Profile saved successfully",
+    "basicInfo": "Basic Information",
+    "fullName": "Full Name",
+    "dateOfBirth": "Date of Birth",
+    "gender": "Gender",
+    "selectGender": "Select...",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "bloodType": "Blood Type",
+    "selectBloodType": "Select...",
+    "bodyMeasurements": "Body Measurements",
+    "height": "Height (cm)",
+    "weight": "Weight (kg)",
+    "bmi": "BMI",
+    "bmiUnderweight": "Underweight",
+    "bmiNormal": "Normal",
+    "bmiOverweight": "Overweight",
+    "bmiObese": "Obese",
+    "enterHeightWeight": "Enter height & weight",
+    "lifestyle": "Lifestyle",
+    "smoking": "Smoking",
+    "select": "Select...",
+    "smokingNever": "Never smoked",
+    "smokingFormer": "Former smoker",
+    "smokingCurrent": "Current smoker",
+    "alcohol": "Alcohol",
+    "alcoholNone": "None",
+    "alcoholOccasional": "Occasional",
+    "alcoholModerate": "Moderate",
+    "alcoholHeavy": "Heavy",
+    "physicalActivity": "Physical Activity",
+    "activitySedentary": "Sedentary",
+    "activityLight": "Light (1-2 days/week)",
+    "activityModerate": "Moderate (3-4 days/week)",
+    "activityActive": "Active (5+ days/week)",
+    "activityVeryActive": "Very Active (athlete)",
+    "medicalHistory": "Medical History",
+    "allergies": "Allergies",
+    "allergiesPlaceholder": "Type and press Enter...",
+    "chronicConditions": "Chronic Conditions",
+    "conditionsPlaceholder": "Type and press Enter...",
+    "medications": "Current Medications",
+    "medicationsPlaceholder": "Type and press Enter...",
+    "infoNote": "Your profile information is used by the AI to provide more personalized health insights. The more complete your profile, the better recommendations you'll receive."
   }
 }
