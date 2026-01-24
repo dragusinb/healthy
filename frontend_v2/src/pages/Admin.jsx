@@ -5,9 +5,193 @@ import {
     Shield, Users, FileText, Activity, Server, Cpu, HardDrive,
     MemoryStick, RefreshCw, AlertTriangle, CheckCircle, Loader2,
     Trash2, RotateCcw, UserCog, Play, Brain, Power, ScrollText,
-    Clock, XCircle, ChevronDown, ChevronUp, UserSearch
+    Clock, XCircle, ChevronDown, ChevronUp, UserSearch, Calendar,
+    Zap, X, KeyRound, Wifi, Timer, Bug, Download, User
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+
+// Error category icons
+const ERROR_ICONS = {
+    auth: KeyRound,
+    captcha: AlertTriangle,
+    timeout: Timer,
+    network: Wifi,
+    site_down: Power,
+    session: Clock,
+    rate_limit: Zap,
+    scraping: Bug,
+    download: Download,
+    unknown: XCircle
+};
+
+// Error Modal Component
+const ErrorModal = ({ job, onClose }) => {
+    if (!job) return null;
+
+    const Icon = ERROR_ICONS[job.error_category] || XCircle;
+
+    return (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+            <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+                <div className="p-6 border-b border-slate-100">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-rose-100 text-rose-600 rounded-lg">
+                                <Icon size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-800">Sync Error Details</h2>
+                                <p className="text-sm text-slate-500">{job.provider_name} - {job.user_email}</p>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg">
+                            <X size={20} className="text-slate-400" />
+                        </button>
+                    </div>
+                </div>
+                <div className="p-6 space-y-4 overflow-y-auto max-h-[60vh]">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                            <span className="text-slate-500">Status</span>
+                            <p className="font-medium text-slate-800">{job.status}</p>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                            <span className="text-slate-500">Time</span>
+                            <p className="font-medium text-slate-800">{job.created_at ? new Date(job.created_at).toLocaleString() : '-'}</p>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                            <span className="text-slate-500">Docs Found</span>
+                            <p className="font-medium text-slate-800">{job.documents_found}</p>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                            <span className="text-slate-500">Docs Processed</span>
+                            <p className="font-medium text-slate-800">{job.documents_processed}</p>
+                        </div>
+                    </div>
+
+                    {job.error_summary && (
+                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                            <h4 className="font-semibold text-amber-800 mb-1">Error Summary</h4>
+                            <p className="text-amber-700">{job.error_summary}</p>
+                        </div>
+                    )}
+
+                    {job.error_message && (
+                        <div className="bg-rose-50 border border-rose-200 p-4 rounded-lg">
+                            <h4 className="font-semibold text-rose-800 mb-2">Full Error Message</h4>
+                            <pre className="text-xs text-rose-700 whitespace-pre-wrap font-mono bg-rose-100 p-3 rounded overflow-x-auto">
+                                {job.error_message}
+                            </pre>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Schedule Visual Component
+const ScheduleVisual = ({ history, nextRuns }) => {
+    // Generate last 14 days
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayData = history?.find(h => h.date === dateStr);
+        days.push({
+            date: dateStr,
+            dayName: date.toLocaleDateString('en', { weekday: 'short' }),
+            dayNum: date.getDate(),
+            ...dayData
+        });
+    }
+
+    // Add future days for next runs
+    const futureDays = [];
+    for (let i = 1; i <= 3; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const hasScheduled = nextRuns?.some(run => run.next_run?.startsWith(dateStr));
+        futureDays.push({
+            date: dateStr,
+            dayName: date.toLocaleDateString('en', { weekday: 'short' }),
+            dayNum: date.getDate(),
+            isFuture: true,
+            hasScheduled
+        });
+    }
+
+    const getBoxColor = (day) => {
+        if (day.isFuture) {
+            return day.hasScheduled ? "bg-blue-100 border-blue-300" : "bg-slate-50 border-slate-200";
+        }
+        if (!day.total) return "bg-slate-50 border-slate-200";
+        if (day.failed > 0 && day.completed === 0) return "bg-rose-100 border-rose-300";
+        if (day.failed > 0) return "bg-amber-100 border-amber-300";
+        return "bg-teal-100 border-teal-300";
+    };
+
+    const getBoxTooltip = (day) => {
+        if (day.isFuture) return day.hasScheduled ? "Scheduled" : "No runs scheduled";
+        if (!day.total) return "No runs";
+        return `${day.completed} completed, ${day.failed} failed`;
+    };
+
+    return (
+        <div className="card p-6">
+            <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <Calendar size={20} />
+                Sync Schedule (Last 14 Days + Next 3)
+            </h2>
+            <div className="flex gap-1 flex-wrap">
+                {[...days, ...futureDays].map((day, idx) => (
+                    <div key={day.date} className="flex flex-col items-center">
+                        <span className="text-[10px] text-slate-400 mb-1">{day.dayName}</span>
+                        <div
+                            className={cn(
+                                "w-10 h-10 rounded-lg border-2 flex items-center justify-center text-xs font-medium transition-all cursor-default",
+                                getBoxColor(day),
+                                day.isFuture && "border-dashed"
+                            )}
+                            title={getBoxTooltip(day)}
+                        >
+                            {day.isFuture ? (
+                                day.hasScheduled ? <Clock size={14} className="text-blue-500" /> : <span className="text-slate-300">{day.dayNum}</span>
+                            ) : (
+                                day.total ? (
+                                    <span className={cn(
+                                        day.failed > 0 && day.completed === 0 ? "text-rose-700" :
+                                            day.failed > 0 ? "text-amber-700" : "text-teal-700"
+                                    )}>{day.total}</span>
+                                ) : <span className="text-slate-300">{day.dayNum}</span>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="flex gap-4 mt-4 text-xs text-slate-500">
+                <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-teal-100 border border-teal-300"></div>
+                    All successful
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-amber-100 border border-amber-300"></div>
+                    Some errors
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-rose-100 border border-rose-300"></div>
+                    All failed
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-blue-100 border border-blue-300 border-dashed"></div>
+                    Scheduled
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const StatCard = ({ icon: Icon, label, value, subValue, color = "primary" }) => {
     const colors = {
@@ -77,6 +261,9 @@ const Admin = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [actionLoading, setActionLoading] = useState(null);
+    const [selectedJob, setSelectedJob] = useState(null); // For error modal
+    const [syncHistory, setSyncHistory] = useState(null);
+    const [schedulerStatus, setSchedulerStatus] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -107,18 +294,22 @@ const Admin = () => {
         setLoading(true);
         setError(null);
         try {
-            const [statsRes, serverRes, usersRes, jobsRes, serviceRes] = await Promise.all([
+            const [statsRes, serverRes, usersRes, jobsRes, serviceRes, historyRes, schedulerRes] = await Promise.all([
                 api.get('/admin/stats'),
                 api.get('/admin/server'),
                 api.get('/admin/users'),
                 api.get('/admin/sync-jobs?limit=20'),
-                api.get('/admin/service-status')
+                api.get('/admin/service-status'),
+                api.get('/admin/sync-history?days=14'),
+                api.get('/admin/scheduler-status')
             ]);
             setStats(statsRes.data);
             setServerStats(serverRes.data);
             setUsers(usersRes.data);
             setSyncJobs(jobsRes.data);
             setServiceStatus(serviceRes.data);
+            setSyncHistory(historyRes.data);
+            setSchedulerStatus(schedulerRes.data);
         } catch (e) {
             console.error("Failed to fetch admin data", e);
             if (e.response?.status === 403) {
@@ -191,6 +382,32 @@ const Admin = () => {
             fetchData();
         } catch (e) {
             alert(e.response?.data?.detail || "Profile scan failed");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleTriggerSync = async () => {
+        setActionLoading('triggersync');
+        try {
+            const res = await api.post('/admin/trigger-sync-job?job_type=provider_sync');
+            alert(res.data.message);
+            fetchData();
+        } catch (e) {
+            alert(e.response?.data?.detail || "Trigger failed");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleTriggerDocProcessing = async () => {
+        setActionLoading('triggerdocs');
+        try {
+            const res = await api.post('/admin/trigger-sync-job?job_type=document_processing');
+            alert(res.data.message);
+            fetchData();
+        } catch (e) {
+            alert(e.response?.data?.detail || "Trigger failed");
         } finally {
             setActionLoading(null);
         }
@@ -473,6 +690,53 @@ const Admin = () => {
                 </div>
             )}
 
+            {/* Schedule Visual */}
+            {syncHistory && (
+                <ScheduleVisual history={syncHistory.history} nextRuns={syncHistory.next_runs} />
+            )}
+
+            {/* Scheduler Info */}
+            {schedulerStatus && schedulerStatus.status === 'running' && (
+                <div className="card p-6">
+                    <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <Zap size={20} />
+                        Scheduler Jobs
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                        {schedulerStatus.jobs.map(job => (
+                            <div key={job.id} className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <p className="font-medium text-slate-800 text-sm">{job.name}</p>
+                                <p className="text-xs text-slate-500 mt-1">{job.trigger}</p>
+                                {job.next_run && (
+                                    <p className="text-xs text-primary-600 mt-1 flex items-center gap-1">
+                                        <Clock size={12} />
+                                        Next: {new Date(job.next_run).toLocaleString()}
+                                    </p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={handleTriggerSync}
+                            disabled={actionLoading === 'triggersync'}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm transition-colors disabled:opacity-50"
+                        >
+                            {actionLoading === 'triggersync' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
+                            Run Provider Sync Now
+                        </button>
+                        <button
+                            onClick={handleTriggerDocProcessing}
+                            disabled={actionLoading === 'triggerdocs'}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm transition-colors disabled:opacity-50"
+                        >
+                            {actionLoading === 'triggerdocs' ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                            Run Document Processing Now
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Actions */}
             <div className="card p-6">
                 <h2 className="text-lg font-semibold text-slate-800 mb-4">Admin Actions</h2>
@@ -586,37 +850,67 @@ const Admin = () => {
                     <table className="w-full">
                         <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                             <tr>
+                                <th className="px-4 py-3 text-left">User</th>
                                 <th className="px-4 py-3 text-left">Provider</th>
                                 <th className="px-4 py-3 text-center">Status</th>
-                                <th className="px-4 py-3 text-center">Docs Found</th>
-                                <th className="px-4 py-3 text-center">Processed</th>
+                                <th className="px-4 py-3 text-center">Docs</th>
                                 <th className="px-4 py-3 text-left">Error</th>
                                 <th className="px-4 py-3 text-right">Time</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {syncJobs.map(job => (
-                                <tr key={job.id} className="hover:bg-slate-50">
-                                    <td className="px-4 py-3 text-sm font-medium text-slate-800">{job.provider_name}</td>
-                                    <td className="px-4 py-3 text-center">
-                                        <span className={cn(
-                                            "text-xs px-2 py-1 rounded-full",
-                                            job.status === 'completed' && "bg-teal-100 text-teal-700",
-                                            job.status === 'failed' && "bg-rose-100 text-rose-700",
-                                            job.status === 'running' && "bg-amber-100 text-amber-700",
-                                            job.status === 'pending' && "bg-slate-100 text-slate-700"
-                                        )}>
-                                            {job.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-center text-sm text-slate-600">{job.documents_found}</td>
-                                    <td className="px-4 py-3 text-center text-sm text-slate-600">{job.documents_processed}</td>
-                                    <td className="px-4 py-3 text-sm text-rose-600 truncate max-w-xs">{job.error_message || '-'}</td>
-                                    <td className="px-4 py-3 text-right text-xs text-slate-400">
-                                        {job.created_at ? new Date(job.created_at).toLocaleString() : '-'}
-                                    </td>
-                                </tr>
-                            ))}
+                            {syncJobs.map(job => {
+                                const ErrorIcon = ERROR_ICONS[job.error_category] || XCircle;
+                                return (
+                                    <tr
+                                        key={job.id}
+                                        className={cn(
+                                            "hover:bg-slate-50 transition-colors",
+                                            job.error_message && "cursor-pointer"
+                                        )}
+                                        onClick={() => job.error_message && setSelectedJob(job)}
+                                    >
+                                        <td className="px-4 py-3 text-sm text-slate-600">
+                                            <div className="flex items-center gap-1.5">
+                                                <User size={14} className="text-slate-400" />
+                                                <span className="truncate max-w-[120px]" title={job.user_email}>
+                                                    {job.user_email?.split('@')[0] || 'Unknown'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 text-sm font-medium text-slate-800">{job.provider_name}</td>
+                                        <td className="px-4 py-3 text-center">
+                                            <span className={cn(
+                                                "text-xs px-2 py-1 rounded-full",
+                                                job.status === 'completed' && "bg-teal-100 text-teal-700",
+                                                job.status === 'failed' && "bg-rose-100 text-rose-700",
+                                                job.status === 'running' && "bg-amber-100 text-amber-700",
+                                                job.status === 'pending' && "bg-slate-100 text-slate-700"
+                                            )}>
+                                                {job.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-center text-sm text-slate-600">
+                                            {job.documents_processed}/{job.documents_found}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm">
+                                            {job.error_summary ? (
+                                                <div className="flex items-center gap-1.5 text-rose-600">
+                                                    <ErrorIcon size={14} />
+                                                    <span className="truncate max-w-[150px]" title={job.error_summary}>
+                                                        {job.error_summary}
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-slate-300">-</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-right text-xs text-slate-400">
+                                            {job.created_at ? new Date(job.created_at).toLocaleString() : '-'}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                             {syncJobs.length === 0 && (
                                 <tr>
                                     <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
@@ -628,6 +922,11 @@ const Admin = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Error Modal */}
+            {selectedJob && (
+                <ErrorModal job={selectedJob} onClose={() => setSelectedJob(null)} />
+            )}
         </div>
     );
 };

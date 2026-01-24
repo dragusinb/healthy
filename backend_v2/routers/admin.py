@@ -157,6 +157,35 @@ def get_all_users(db: Session = Depends(get_db), admin: User = Depends(require_a
     return result
 
 
+def interpret_sync_error(error_message: str) -> dict:
+    """Interpret sync error message into user-friendly summary."""
+    if not error_message:
+        return {"summary": None, "category": None}
+
+    error_lower = error_message.lower()
+
+    if "password" in error_lower or "credentials" in error_lower or "authentication" in error_lower or "login failed" in error_lower:
+        return {"summary": "Wrong password or username", "category": "auth"}
+    elif "captcha" in error_lower:
+        return {"summary": "CAPTCHA verification required", "category": "captcha"}
+    elif "timeout" in error_lower:
+        return {"summary": "Connection timed out", "category": "timeout"}
+    elif "connection" in error_lower or "network" in error_lower or "unreachable" in error_lower:
+        return {"summary": "Provider site unreachable", "category": "network"}
+    elif "maintenance" in error_lower or "unavailable" in error_lower or "503" in error_lower or "502" in error_lower:
+        return {"summary": "Provider site down for maintenance", "category": "site_down"}
+    elif "session" in error_lower or "expired" in error_lower:
+        return {"summary": "Session expired during sync", "category": "session"}
+    elif "rate limit" in error_lower or "too many" in error_lower:
+        return {"summary": "Too many requests - rate limited", "category": "rate_limit"}
+    elif "element" in error_lower or "selector" in error_lower or "locator" in error_lower:
+        return {"summary": "Provider site layout changed", "category": "scraping"}
+    elif "pdf" in error_lower or "download" in error_lower:
+        return {"summary": "Failed to download documents", "category": "download"}
+    else:
+        return {"summary": "Unexpected error occurred", "category": "unknown"}
+
+
 @router.get("/sync-jobs")
 def get_sync_jobs(
     limit: int = 50,
@@ -164,7 +193,7 @@ def get_sync_jobs(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin)
 ):
-    """Get recent sync jobs."""
+    """Get recent sync jobs with user info and interpreted errors."""
     query = db.query(SyncJob).order_by(SyncJob.created_at.desc())
 
     if status:
@@ -172,19 +201,33 @@ def get_sync_jobs(
 
     jobs = query.limit(limit).all()
 
-    return [{
-        "id": job.id,
-        "user_id": job.user_id,
-        "provider_name": job.provider_name,
-        "status": job.status,
-        "started_at": job.started_at.isoformat() if job.started_at else None,
-        "completed_at": job.completed_at.isoformat() if job.completed_at else None,
-        "documents_found": job.documents_found,
-        "documents_processed": job.documents_processed,
-        "error_message": job.error_message,
-        "retry_count": job.retry_count,
-        "created_at": job.created_at.isoformat() if job.created_at else None
-    } for job in jobs]
+    result = []
+    for job in jobs:
+        # Get user email
+        user = db.query(User).filter(User.id == job.user_id).first()
+        user_email = user.email if user else "Unknown"
+
+        # Interpret error
+        error_info = interpret_sync_error(job.error_message)
+
+        result.append({
+            "id": job.id,
+            "user_id": job.user_id,
+            "user_email": user_email,
+            "provider_name": job.provider_name,
+            "status": job.status,
+            "started_at": job.started_at.isoformat() if job.started_at else None,
+            "completed_at": job.completed_at.isoformat() if job.completed_at else None,
+            "documents_found": job.documents_found,
+            "documents_processed": job.documents_processed,
+            "error_message": job.error_message,
+            "error_summary": error_info["summary"],
+            "error_category": error_info["category"],
+            "retry_count": job.retry_count,
+            "created_at": job.created_at.isoformat() if job.created_at else None
+        })
+
+    return result
 
 
 @router.post("/users/{user_id}/set-admin")
@@ -512,6 +555,122 @@ def restart_server(admin: User = Depends(require_admin)):
         return {"message": "Server restart scheduled in 2 seconds"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/scheduler-status")
+def get_scheduler_status(admin: User = Depends(require_admin)):
+    """Get scheduler job information and next run times."""
+    try:
+        from backend_v2.services.scheduler import scheduler
+    except ImportError:
+        from services.scheduler import scheduler
+
+    if not scheduler or not scheduler.running:
+        return {"status": "not_running", "jobs": []}
+
+    jobs = []
+    for job in scheduler.get_jobs():
+        next_run = job.next_run_time
+        jobs.append({
+            "id": job.id,
+            "name": job.name or job.id,
+            "next_run": next_run.isoformat() if next_run else None,
+            "trigger": str(job.trigger),
+        })
+
+    return {
+        "status": "running",
+        "jobs": jobs
+    }
+
+
+@router.post("/trigger-sync-job")
+def trigger_sync_job(
+    job_type: str = "provider_sync",
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Manually trigger a scheduler job."""
+    from threading import Thread
+
+    try:
+        from backend_v2.services.scheduler import run_all_syncs, process_pending_documents
+    except ImportError:
+        from services.scheduler import run_all_syncs, process_pending_documents
+
+    if job_type == "provider_sync":
+        thread = Thread(target=run_all_syncs, daemon=True)
+        thread.start()
+        return {"message": "Provider sync job triggered", "job_type": job_type}
+    elif job_type == "document_processing":
+        thread = Thread(target=process_pending_documents, daemon=True)
+        thread.start()
+        return {"message": "Document processing job triggered", "job_type": job_type}
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown job type: {job_type}")
+
+
+@router.get("/sync-history")
+def get_sync_history(
+    days: int = 7,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get sync job history for visual schedule display."""
+    from sqlalchemy import func, cast, Date
+
+    cutoff = datetime.utcnow() - timedelta(days=days)
+
+    # Get all sync jobs in the period
+    jobs = db.query(SyncJob).filter(SyncJob.created_at > cutoff).order_by(SyncJob.created_at).all()
+
+    # Group by date
+    history = {}
+    for job in jobs:
+        date_str = job.created_at.strftime("%Y-%m-%d") if job.created_at else None
+        if not date_str:
+            continue
+
+        if date_str not in history:
+            history[date_str] = {"date": date_str, "total": 0, "completed": 0, "failed": 0, "jobs": []}
+
+        history[date_str]["total"] += 1
+        if job.status == "completed":
+            history[date_str]["completed"] += 1
+        elif job.status == "failed":
+            history[date_str]["failed"] += 1
+
+        history[date_str]["jobs"].append({
+            "id": job.id,
+            "provider_name": job.provider_name,
+            "status": job.status,
+            "time": job.created_at.strftime("%H:%M") if job.created_at else None
+        })
+
+    # Convert to list sorted by date
+    result = list(history.values())
+    result.sort(key=lambda x: x["date"])
+
+    # Get next scheduled runs
+    next_runs = []
+    try:
+        from backend_v2.services.scheduler import scheduler
+    except ImportError:
+        from services.scheduler import scheduler
+
+    if scheduler and scheduler.running:
+        for job in scheduler.get_jobs():
+            if job.next_run_time:
+                next_runs.append({
+                    "job_id": job.id,
+                    "next_run": job.next_run_time.isoformat()
+                })
+
+    return {
+        "history": result,
+        "next_runs": next_runs,
+        "days": days
+    }
 
 
 @router.post("/scan-profiles")
