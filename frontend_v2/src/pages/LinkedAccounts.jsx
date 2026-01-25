@@ -351,6 +351,7 @@ const LinkedAccounts = () => {
     const { t } = useTranslation();
     const [accounts, setAccounts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(null);
     const [linking, setLinking] = useState(null);
     const [syncing, setSyncing] = useState(null);
     const [message, setMessage] = useState(null);
@@ -419,8 +420,10 @@ const LinkedAccounts = () => {
         try {
             const res = await api.get('/users/me');
             setAccounts(res.data.linked_accounts || []);
+            setLoadError(null);
         } catch (e) {
-            console.error("Failed", e);
+            console.error("Failed to load accounts", e);
+            setLoadError(e.response?.data?.detail || e.message || t('common.error'));
         } finally {
             setLoading(false);
         }
@@ -478,6 +481,26 @@ const LinkedAccounts = () => {
             setSyncStatus(prev => ({ ...prev, [provider]: null }));
         }
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="animate-spin text-primary-500" size={32} />
+            </div>
+        );
+    }
+
+    if (loadError) {
+        return (
+            <div className="bg-rose-50 border border-rose-200 text-rose-700 p-6 rounded-xl flex items-center gap-3">
+                <AlertCircle size={24} />
+                <div>
+                    <h3 className="font-semibold">{t('common.error')}</h3>
+                    <p>{loadError}</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
