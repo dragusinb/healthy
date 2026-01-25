@@ -60,13 +60,26 @@ When a linked provider account has access to multiple patients (e.g., family mem
 
 ### Biomarkers - Group Same Tests Together
 **Status:** Pending
-**Priority:** Medium
+**Priority:** High
 
-In the Biomarkers section, group identical biomarkers together even if they have slightly different names:
-- [ ] Normalize test names (e.g., "Hemoglobină", "Hemoglobina", "HGB" should be same)
-- [ ] Show history inline when grouped
-- [ ] Handle Romanian/English name variations
-- [ ] AI-based name matching for similar tests
+In the Biomarkers page, biomarkers with the same name appear as separate rows. They should be grouped under one expandable entry.
+
+**Current behavior:** 5 glucose readings = 5 separate "Glucose" rows
+
+**Expected behavior:**
+- [ ] Group biomarkers with identical names into a single collapsible row
+- [ ] Show the most recent value on the collapsed row
+- [ ] Click to expand and see all historical measurements for that biomarker
+- [ ] Maintain existing filter/search functionality
+- [ ] Keep HIGH/LOW status badges visible
+
+**Future enhancement (separate task):**
+- Normalize similar names (e.g., "Hemoglobină", "Hemoglobina", "HGB" → same group)
+
+**Files to check:**
+- `frontend_v2/src/pages/Biomarkers.tsx`
+- `frontend_v2/src/components/` - biomarker components
+- `backend_v2/routers/` - biomarker API endpoints
 
 ### Report History & Comparison
 **Status:** Pending
