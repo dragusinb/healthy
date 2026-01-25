@@ -85,50 +85,6 @@ The sync scheduler section in Admin doesn't clearly show when the next cron jobs
 - [ ] Track when tests were last done
 - [ ] Notifications when screenings are due
 
-### AI Health Reports - Dynamic Specialist Selection from Generalist
-**Status:** Pending
-**Priority:** High
-
-**Problem:** The list of specialists is currently a predefined dict. It should be dynamically determined by the generalist AI analysis.
-
-**New Architecture:**
-1. **Generalist AI call** should analyze all biomarkers and return:
-   - General health assessment
-   - A list of recommended specialists (as structured output)
-   - Reasoning for each specialist recommendation
-
-2. **For each recommended specialist**, make a separate AI call with:
-   - Full biomarker data with dates/timeline clearly marked
-   - Patient profile (age, height, weight, gender, medical history)
-   - Clear instruction that recent results should carry more weight
-   - Context that they should respond as a medical professional
-
-**Prompt Requirements:**
-- [ ] Update generalist prompt to output structured list of specialists needed
-- [ ] Remove hardcoded specialist dict/list
-- [ ] Create dynamic specialist prompt that receives full context
-- [ ] Include timeline awareness in all prompts (dates of each biomarker)
-- [ ] Instruct AI to prioritize recent results over older ones
-- [ ] Pass complete patient profile to each specialist
-- [ ] Specialists should act as medical professionals, not just data analyzers
-
-**Example generalist output:**
-```json
-{
-  "summary": "...",
-  "recommended_specialists": ["cardiologist", "endocrinologist"],
-  "reasoning": {
-    "cardiologist": "Elevated LDL and triglycerides warrant cardiovascular review",
-    "endocrinologist": "HbA1c trending upward over past 6 months"
-  }
-}
-```
-
-**Files to check:**
-- `backend_v2/services/` - AI report generation, specialist definitions
-- Check current specialist dict/enum and remove
-- Update API to handle dynamic specialist list
-
 ### Report History & Comparison
 **Status:** Pending
 **Priority:** Medium
@@ -151,6 +107,7 @@ Gap Analysis / Recommended Screenings should be a separate page/section, not jus
 
 ## Completed
 
+- [x] AI Health Reports - Dynamic Specialist Selection - Generalist now outputs structured referrals with reasoning, specialist prompts enhanced to act as medical professionals, timeline-aware formatting
 - [x] Biomarkers - Fix Incorrect Grouping (AI Matching Accuracy) - Fixed algorithm to prioritize parenthetical abbreviations, use word-boundary matching, sort variants by length
 - [x] Profile - Fix "Scanează din documente" Button & Age Extraction - Smaller button with hidden text on mobile, age_years fallback for birth date extraction
 - [x] AI Reports - Date Awareness & Specialist Triggering - Added infectious_disease specialist, 12-month filter for auto-triggering, generalist context passed to specialists

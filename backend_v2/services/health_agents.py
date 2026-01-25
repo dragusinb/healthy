@@ -61,7 +61,7 @@ Your analysis should:
 3. Highlight TRENDS if multiple tests of the same biomarker are available
 4. Consider DATA AGE - older results may no longer be relevant
 5. Note when abnormal values have NORMALIZED in recent tests (condition may be resolved)
-6. Suggest which specialist areas might need attention
+6. Determine which specialist consultations are warranted based on findings
 7. Provide general lifestyle recommendations
 
 IMPORTANT DATA AGE CONSIDERATIONS:
@@ -69,6 +69,19 @@ IMPORTANT DATA AGE CONSIDERATIONS:
 - If a biomarker was abnormal in the past but is normal in recent tests, note the improvement
 - If data is very old (2+ years), recommend re-testing to get current values
 - Focus your main analysis on the most recent results
+- Only recommend specialists for RECENT abnormalities (within last year)
+
+SPECIALIST SELECTION:
+You may recommend these specialists when warranted:
+- cardiology: cardiovascular health, lipid profiles, heart disease risk
+- endocrinology: hormones, thyroid, diabetes, metabolic health
+- hematology: blood cells, anemia, clotting disorders
+- hepatology: liver function and disease
+- nephrology: kidney function and renal health
+- infectious_disease: infections, inflammation markers, immune response
+
+Only recommend specialists when there's a clear, recent clinical indication.
+Provide specific reasoning for each recommendation.
 
 Always be balanced - acknowledge both concerning and positive findings.
 Use clear, non-alarmist language appropriate for a patient.
@@ -92,7 +105,13 @@ Respond in JSON format with this structure:
             "reason": "Why this is recommended"
         }
     ],
-    "specialist_referrals": ["cardiology", "endocrinology"] // if needed
+    "specialist_referrals": {
+        "recommended": ["cardiology", "endocrinology"],
+        "reasoning": {
+            "cardiology": "Specific reason why cardiology review is needed based on recent results",
+            "endocrinology": "Specific reason for endocrinology based on findings"
+        }
+    }
 }"""
 
     def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
@@ -258,56 +277,60 @@ class SpecialistAgent(HealthAgent):
         generalist_section = ""
         if generalist_context:
             generalist_section = f"""
-GENERALIST ANALYSIS CONTEXT:
-The general health analyst has identified the following concerns relevant to your specialty:
+REFERRAL CONTEXT:
 {generalist_context}
 
-Use this context to focus your analysis and provide more targeted recommendations.
+Use this context to focus your specialist assessment.
 
 """
 
-        return f"""You are an AI assistant with expertise in {self.config['name']} analysis.
-Your focus is {self.config['focus']}.
+        return f"""You are an AI {self.config['name']} specialist assistant providing a focused review
+of laboratory results. You are analyzing these results as a specialist would, looking for patterns
+and concerns specific to {self.config['focus']}.
 
-You are NOT a doctor and cannot diagnose conditions. Your role is to:
-1. Analyze biomarkers relevant to your specialty
-2. Identify patterns and potential concerns
-3. Explain findings in patient-friendly language
-4. Suggest follow-up tests if appropriate
-5. Recommend lifestyle modifications
+IMPORTANT DISCLAIMER: You are an AI assistant, not a licensed physician. Your analysis is for
+educational purposes and should not replace professional medical consultation.
 
-IMPORTANT DATA AGE CONSIDERATIONS:
-- Each biomarker includes a test date. Pay attention to these dates!
-- Results older than 1 year should be treated as historical context, not current status
-- If a biomarker was abnormal in the past but normal in recent tests, the issue may be resolved
-- If data is very old (2+ years), recommend re-testing rather than acting on old values
-- Focus your main analysis and recommendations on the most RECENT results
-- Note when concerns are based on old data that needs to be re-verified
+YOUR SPECIALIST PERSPECTIVE:
+As a {self.config['name']} specialist, you should:
+1. Review all relevant biomarkers through the lens of {self.config['focus']}
+2. Identify clinical patterns that may warrant further investigation
+3. Consider how findings relate to each other (e.g., multiple liver enzymes elevated together)
+4. Assess trends over time when multiple measurements are available
+5. Provide actionable recommendations while being appropriately cautious
+6. Explain findings in terms a patient can understand
+
+DATA TIMELINE AWARENESS:
+- Each result includes a test date - always note this in your analysis
+- Distinguish between current findings (< 6 months) and historical context (> 1 year)
+- If a concerning value has normalized in recent tests, note the improvement
+- For old data (> 2 years), recommend confirmatory re-testing before clinical decisions
+- Focus your clinical assessment on the most RECENT laboratory values
 {generalist_section}
-Be thorough but avoid causing unnecessary alarm.
-
 Respond in JSON format:
 {{
     "specialty": "{self.specialty}",
-    "summary": "Brief specialty-focused summary",
+    "summary": "Concise specialty-focused clinical impression",
     "risk_level": "normal|attention|concern",
     "key_findings": [
         {{
-            "marker": "Marker name",
-            "value": "Value with unit",
-            "reference_range": "Reference range from the test",
+            "marker": "Biomarker name",
+            "value": "Measured value with unit",
+            "reference_range": "Laboratory reference range",
+            "date": "Test date for this result",
             "status": "normal|high|low",
-            "significance": "What this means for {self.config['focus']}"
+            "clinical_significance": "What this means in the context of {self.config['focus']}"
         }}
     ],
-    "patterns": ["Any patterns observed across markers"],
+    "clinical_patterns": ["Observed patterns across related markers"],
     "recommendations": [
         {{
-            "action": "Specific recommendation",
-            "rationale": "Why this is suggested"
+            "priority": "high|medium|low",
+            "action": "Specific clinical recommendation",
+            "rationale": "Clinical reasoning for this recommendation"
         }}
     ],
-    "follow_up_tests": ["Suggested additional tests if any"]
+    "suggested_follow_up": ["Additional tests or evaluations that may be warranted"]
 }}"""
 
     def analyze(self, biomarkers: List[Dict], profile_context: str = "", generalist_context: str = "") -> Dict[str, Any]:
@@ -384,16 +407,24 @@ Focus on {self.config['focus']}. Provide your specialist analysis in JSON format
         return relevant
 
     def _format_biomarkers(self, biomarkers: List[Dict]) -> str:
-        """Format biomarkers into readable text."""
-        lines = []
-        for bio in sorted(biomarkers, key=lambda x: x.get('date', '')):
-            status = "⚠️" if bio.get('status') != 'normal' else "✓"
-            value = bio.get('value', 'N/A')
-            unit = bio.get('unit', '')
-            ref_range = bio.get('range', 'N/A')
-            date = bio.get('date', 'Unknown')
+        """Format biomarkers into readable text with dates prominently displayed."""
+        # Group by date for clearer timeline
+        from collections import defaultdict
+        by_date = defaultdict(list)
 
-            lines.append(f"{status} {bio.get('name', 'Unknown')}: {value} {unit} (ref: {ref_range}) - {date}")
+        for bio in biomarkers:
+            date = bio.get('date', 'Unknown')
+            by_date[date].append(bio)
+
+        lines = []
+        for date in sorted(by_date.keys(), reverse=True):  # Most recent first
+            lines.append(f"\n=== {date} ===")
+            for bio in by_date[date]:
+                status = "⚠️" if bio.get('status') != 'normal' else "✓"
+                value = bio.get('value', 'N/A')
+                unit = bio.get('unit', '')
+                ref_range = bio.get('range', 'N/A')
+                lines.append(f"  {status} {bio.get('name', 'Unknown')}: {value} {unit} (ref: {ref_range})")
 
         return "\n".join(lines)
 
@@ -588,8 +619,21 @@ class HealthAnalysisService:
 
     def _extract_generalist_context_for_specialty(self, general_report: Dict, specialty: str) -> str:
         """Extract relevant generalist findings for a specific specialty."""
+        context_parts = []
+
+        # First, check if generalist provided specific reasoning for this specialty
+        referrals = general_report.get("specialist_referrals", {})
+
+        # Handle both old format (list) and new format (dict with reasoning)
+        if isinstance(referrals, dict):
+            reasoning = referrals.get("reasoning", {})
+            if specialty in reasoning:
+                context_parts.append(f"Generalist's reason for referral: {reasoning[specialty]}")
+        elif isinstance(referrals, list) and specialty in referrals:
+            context_parts.append(f"Referred by generalist analysis.")
+
+        # Also extract relevant findings based on keywords
         findings = general_report.get("findings", [])
-        relevant_findings = []
 
         # Map specialties to relevant categories
         specialty_categories = {
@@ -602,6 +646,7 @@ class HealthAnalysisService:
         }
 
         keywords = specialty_categories.get(specialty, [])
+        relevant_findings = []
 
         for finding in findings:
             category = finding.get("category", "").lower()
@@ -611,11 +656,16 @@ class HealthAnalysisService:
                 relevant_findings.append(f"- {finding.get('category', 'Finding')}: {finding.get('explanation', '')}")
 
         if relevant_findings:
-            return "\n".join(relevant_findings)
-        return ""
+            context_parts.append("Related findings:\n" + "\n".join(relevant_findings))
+
+        return "\n\n".join(context_parts) if context_parts else ""
 
     def run_full_analysis(self, biomarkers: List[Dict]) -> Dict[str, Any]:
-        """Run general analysis and determine if specialist analyses are needed."""
+        """Run general analysis and determine if specialist analyses are needed.
+
+        The generalist AI determines which specialists should be consulted based on its analysis.
+        We also have a fallback to check for recent abnormal markers in case generalist missed something.
+        """
         # Get profile context
         profile_context = self._format_profile_context()
 
@@ -630,33 +680,49 @@ class HealthAnalysisService:
             "profile_used": bool(profile_context)
         }
 
-        # Run specialist analyses based on referrals or concerning markers
-        referrals = general_report.get("specialist_referrals", [])
+        # Get specialist referrals from generalist - handle both old and new format
+        raw_referrals = general_report.get("specialist_referrals", [])
+        if isinstance(raw_referrals, dict):
+            # New format: {"recommended": [...], "reasoning": {...}}
+            referrals = set(raw_referrals.get("recommended", []))
+        elif isinstance(raw_referrals, list):
+            # Old format: ["cardiology", "endocrinology"]
+            referrals = set(raw_referrals)
+        else:
+            referrals = set()
 
-        # Also check for out-of-range markers in each specialty area
+        # Track which specialists we'll run and why
+        specialists_to_run = {}
+
+        # First pass: Add all specialists recommended by generalist
+        for specialty in referrals:
+            if specialty in SpecialistAgent.SPECIALISTS:
+                specialists_to_run[specialty] = "generalist_referral"
+
+        # Second pass: Check for recent concerning markers as fallback
         for specialty in SpecialistAgent.SPECIALISTS.keys():
-            # Check if referred or has concerning markers
-            should_analyze = specialty in referrals
+            if specialty in specialists_to_run:
+                continue  # Already added via generalist referral
 
-            if not should_analyze:
-                # Check if any RECENT concerning markers exist for this specialty
-                # Only consider abnormalities from the last 12 months for auto-triggering
-                specialist = SpecialistAgent(specialty, language=self.language)
-                relevant = specialist._filter_relevant_markers(biomarkers)
-                # Filter to recent results AND check for abnormalities
-                recent_concerns = [
-                    b for b in relevant
-                    if b.get('status') != 'normal' and self._is_recent(b, max_age_days=365)
-                ]
-                should_analyze = len(recent_concerns) > 0
+            # Check if any RECENT concerning markers exist for this specialty
+            specialist = SpecialistAgent(specialty, language=self.language)
+            relevant = specialist._filter_relevant_markers(biomarkers)
+            recent_concerns = [
+                b for b in relevant
+                if b.get('status') != 'normal' and self._is_recent(b, max_age_days=365)
+            ]
+            if len(recent_concerns) > 0:
+                specialists_to_run[specialty] = "marker_fallback"
 
-            if should_analyze:
-                specialist = SpecialistAgent(specialty, language=self.language)
-                # Extract generalist findings relevant to this specialty
-                generalist_context = self._extract_generalist_context_for_specialty(general_report, specialty)
-                result["specialists"][specialty] = specialist.analyze(
-                    biomarkers, profile_context, generalist_context
-                )
+        # Run specialist analyses
+        for specialty, trigger_reason in specialists_to_run.items():
+            specialist = SpecialistAgent(specialty, language=self.language)
+            # Extract generalist findings relevant to this specialty
+            generalist_context = self._extract_generalist_context_for_specialty(general_report, specialty)
+            specialist_result = specialist.analyze(biomarkers, profile_context, generalist_context)
+            # Add trigger reason for debugging/transparency
+            specialist_result["triggered_by"] = trigger_reason
+            result["specialists"][specialty] = specialist_result
 
         return result
 
