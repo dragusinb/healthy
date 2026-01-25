@@ -238,6 +238,12 @@ class SpecialistAgent(HealthAgent):
             "markers": ["creatinine", "bun", "urea", "egfr", "cystatin", "microalbumin",
                        "uric acid", "potassium", "sodium", "phosphorus"],
             "focus": "kidney function and renal health"
+        },
+        "infectious_disease": {
+            "name": "Infectious Disease Specialist",
+            "markers": ["wbc", "leucocite", "neutrofil", "limfocit", "monocit", "procalcitonin",
+                       "crp", "vsh", "esr", "streptococ", "borrelia", "antigen"],
+            "focus": "infections, inflammation markers, and immune response"
         }
     }
 
@@ -248,7 +254,18 @@ class SpecialistAgent(HealthAgent):
         self.specialty = specialty
         self.config = self.SPECIALISTS[specialty]
 
-    def get_system_prompt(self) -> str:
+    def get_system_prompt(self, generalist_context: str = "") -> str:
+        generalist_section = ""
+        if generalist_context:
+            generalist_section = f"""
+GENERALIST ANALYSIS CONTEXT:
+The general health analyst has identified the following concerns relevant to your specialty:
+{generalist_context}
+
+Use this context to focus your analysis and provide more targeted recommendations.
+
+"""
+
         return f"""You are an AI assistant with expertise in {self.config['name']} analysis.
 Your focus is {self.config['focus']}.
 
@@ -259,6 +276,14 @@ You are NOT a doctor and cannot diagnose conditions. Your role is to:
 4. Suggest follow-up tests if appropriate
 5. Recommend lifestyle modifications
 
+IMPORTANT DATA AGE CONSIDERATIONS:
+- Each biomarker includes a test date. Pay attention to these dates!
+- Results older than 1 year should be treated as historical context, not current status
+- If a biomarker was abnormal in the past but normal in recent tests, the issue may be resolved
+- If data is very old (2+ years), recommend re-testing rather than acting on old values
+- Focus your main analysis and recommendations on the most RECENT results
+- Note when concerns are based on old data that needs to be re-verified
+{generalist_section}
 Be thorough but avoid causing unnecessary alarm.
 
 Respond in JSON format:
@@ -285,8 +310,14 @@ Respond in JSON format:
     "follow_up_tests": ["Suggested additional tests if any"]
 }}"""
 
-    def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
-        """Analyze biomarkers relevant to this specialty."""
+    def analyze(self, biomarkers: List[Dict], profile_context: str = "", generalist_context: str = "") -> Dict[str, Any]:
+        """Analyze biomarkers relevant to this specialty.
+
+        Args:
+            biomarkers: List of biomarker dicts with name, value, unit, range, date, status
+            profile_context: Patient profile information
+            generalist_context: Findings from the generalist analysis relevant to this specialty
+        """
         # Filter to relevant markers
         relevant = self._filter_relevant_markers(biomarkers)
 
@@ -319,7 +350,7 @@ Consider the patient's profile when analyzing results. Age, gender, BMI, lifesty
 
 Focus on {self.config['focus']}. Provide your specialist analysis in JSON format."""
 
-        response = self._call_ai(self.get_system_prompt(), user_prompt)
+        response = self._call_ai(self.get_system_prompt(generalist_context), user_prompt)
 
         try:
             json_str = response
@@ -543,6 +574,46 @@ class HealthAnalysisService:
 
         return "\n".join(parts)
 
+    def _is_recent(self, biomarker: Dict, max_age_days: int = 365) -> bool:
+        """Check if a biomarker is from recent data (within max_age_days)."""
+        date_str = biomarker.get('date', '')
+        if not date_str or date_str == 'Unknown':
+            return False  # Treat unknown dates as not recent
+        try:
+            bio_date = datetime.strptime(date_str, '%Y-%m-%d')
+            age_days = (datetime.now() - bio_date).days
+            return age_days <= max_age_days
+        except:
+            return False
+
+    def _extract_generalist_context_for_specialty(self, general_report: Dict, specialty: str) -> str:
+        """Extract relevant generalist findings for a specific specialty."""
+        findings = general_report.get("findings", [])
+        relevant_findings = []
+
+        # Map specialties to relevant categories
+        specialty_categories = {
+            "cardiology": ["cardiovascular", "lipid", "heart", "cardiac", "cholesterol"],
+            "endocrinology": ["diabetes", "metabolic", "thyroid", "hormone", "glucose"],
+            "hematology": ["blood", "anemia", "hematology", "hemoglobin", "cell"],
+            "hepatology": ["liver", "hepatic"],
+            "nephrology": ["kidney", "renal"],
+            "infectious_disease": ["infection", "inflammation", "immune", "bacteria", "virus"]
+        }
+
+        keywords = specialty_categories.get(specialty, [])
+
+        for finding in findings:
+            category = finding.get("category", "").lower()
+            explanation = finding.get("explanation", "").lower()
+            # Check if finding is relevant to this specialty
+            if any(kw in category or kw in explanation for kw in keywords):
+                relevant_findings.append(f"- {finding.get('category', 'Finding')}: {finding.get('explanation', '')}")
+
+        if relevant_findings:
+            return "\n".join(relevant_findings)
+        return ""
+
     def run_full_analysis(self, biomarkers: List[Dict]) -> Dict[str, Any]:
         """Run general analysis and determine if specialist analyses are needed."""
         # Get profile context
@@ -568,23 +639,32 @@ class HealthAnalysisService:
             should_analyze = specialty in referrals
 
             if not should_analyze:
-                # Check if any concerning markers exist for this specialty
+                # Check if any RECENT concerning markers exist for this specialty
+                # Only consider abnormalities from the last 12 months for auto-triggering
                 specialist = SpecialistAgent(specialty, language=self.language)
                 relevant = specialist._filter_relevant_markers(biomarkers)
-                has_concerns = any(b.get('status') != 'normal' for b in relevant)
-                should_analyze = has_concerns
+                # Filter to recent results AND check for abnormalities
+                recent_concerns = [
+                    b for b in relevant
+                    if b.get('status') != 'normal' and self._is_recent(b, max_age_days=365)
+                ]
+                should_analyze = len(recent_concerns) > 0
 
             if should_analyze:
                 specialist = SpecialistAgent(specialty, language=self.language)
-                result["specialists"][specialty] = specialist.analyze(biomarkers, profile_context)
+                # Extract generalist findings relevant to this specialty
+                generalist_context = self._extract_generalist_context_for_specialty(general_report, specialty)
+                result["specialists"][specialty] = specialist.analyze(
+                    biomarkers, profile_context, generalist_context
+                )
 
         return result
 
-    def run_specialist_analysis(self, specialty: str, biomarkers: List[Dict]) -> Dict[str, Any]:
+    def run_specialist_analysis(self, specialty: str, biomarkers: List[Dict], generalist_context: str = "") -> Dict[str, Any]:
         """Run analysis for a specific specialty."""
         profile_context = self._format_profile_context()
         specialist = SpecialistAgent(specialty, language=self.language)
-        return specialist.analyze(biomarkers, profile_context)
+        return specialist.analyze(biomarkers, profile_context, generalist_context)
 
     def run_gap_analysis(self, existing_test_names: List[str]) -> Dict[str, Any]:
         """Run gap analysis to recommend missing tests."""
