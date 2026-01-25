@@ -96,10 +96,10 @@ const Dashboard = () => {
                             </div>
                             <div className="flex-1">
                                 <p className="font-semibold text-rose-800">
-                                    {acc.provider_name}: {getErrorMessage(acc.error_type)}
+                                    {acc.provider_name}: {getErrorMessage(acc.error_type || 'unknown')}
                                 </p>
                                 <p className="text-sm text-rose-600">
-                                    {t('linkedAccounts.errors.' + acc.error_type + 'Desc') || t('linkedAccounts.errors.unknownDesc')}
+                                    {t('linkedAccounts.errors.' + (acc.error_type || 'unknown') + 'Desc')}
                                 </p>
                             </div>
                             <Link

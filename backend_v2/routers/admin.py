@@ -164,7 +164,10 @@ def interpret_sync_error(error_message: str) -> dict:
 
     error_lower = error_message.lower()
 
-    if "password" in error_lower or "credentials" in error_lower or "authentication" in error_lower or "login failed" in error_lower:
+    # Server-side issues (XServer, display) - check FIRST before other categories
+    if any(phrase in error_lower for phrase in ["xserver", "x server", "xvfb", "display", "headed browser", "no display"]):
+        return {"summary": "Server display not available (Xvfb restart needed)", "category": "server"}
+    elif "password" in error_lower or "credentials" in error_lower or "authentication" in error_lower or "login failed" in error_lower:
         return {"summary": "Wrong password or username", "category": "auth"}
     elif "captcha" in error_lower:
         return {"summary": "CAPTCHA verification required", "category": "captcha"}
