@@ -44,7 +44,23 @@
       "Bash(ssh root@62.171.163.23 \"apt update && apt upgrade -y\")",
       "Bash(plink -ssh -pw Healthy123 root@62.171.163.23 \"echo ''Connection test successful'' && uname -a\")",
       "Bash(plink:*)",
-      "Bash(ssh:*)"
+      "Bash(ssh:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" status)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" add frontend_v2/src/components/Layout.jsx frontend_v2/src/pages/Login.jsx)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"$\\(cat <<''EOF''\nAdd language toggle to login page and mobile header\n\n- Globe icon on login page top bar \\(next to server status\\)\n- Globe icon in mobile header for easy language switching\n- Consistent toggle pattern across all views\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" push origin main)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/services/scheduler.py backend_v2/routers/admin.py frontend_v2/src/pages/Admin.jsx)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"$\\(cat <<''EOF''\nAdd continuous document processing scheduler\n\n- New scheduler job runs every 2 minutes to process pending documents\n- MAX_CONCURRENT_DOCUMENT_PROCESSING = 3 to avoid overload\n- Admin endpoint /admin/reprocess-documents to manually trigger\n- Admin endpoint /admin/pending-documents to list stuck docs\n- Admin UI button to reprocess documents with pending count\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/services/health_agents.py backend_v2/routers/health.py backend_v2/routers/admin.py frontend_v2/src/pages/Admin.jsx)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"$\\(cat <<''EOF''\nAdd language support for AI health reports\n\n- Health agents now accept language parameter \\(default: Romanian\\)\n- AI prompts include language instructions to generate localized reports\n- User''s language preference is used when running health analysis\n- Admin endpoint /admin/regenerate-health-reports to regenerate all reports\n- Admin UI button to trigger report regeneration in user''s preferred language\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" add CLAUDE.md)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"$\\(cat <<''EOF''\nAdd hardware awareness guidelines to CLAUDE.md\n\nDocument concurrency limits and best practices for background jobs\nto prevent overloading the server.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/routers/admin.py frontend_v2/src/pages/Admin.jsx)",
+      "Bash(git -C \"C:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"$\\(cat <<''EOF''\nAdd server monitoring and auto-restart with systemd\n\n- Created systemd service with Restart=always for auto-recovery\n- Admin endpoints: /server-logs, /service-status, /restart-server\n- Admin UI shows service status, uptime, memory, recent restart events\n- View server logs with error highlighting\n- Manual restart button with confirmation\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(nslookup:*)",
+      "Bash(scp:*)"
     ]
   }
 }

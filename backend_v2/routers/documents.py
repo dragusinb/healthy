@@ -105,8 +105,16 @@ def download_document(doc_id: int, db: Session = Depends(get_db), current_user: 
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if not os.path.exists(doc.file_path):
+    if not doc.file_path or not os.path.exists(doc.file_path):
         raise HTTPException(status_code=404, detail="File not found on disk")
+
+    # Security: Validate file path belongs to user's directory
+    # Normalize path to prevent directory traversal attacks
+    real_path = os.path.realpath(doc.file_path)
+    user_data_dir = os.path.realpath(f"data/raw/{current_user.id}")
+    # Also allow legacy paths for backwards compatibility during migration
+    if not (real_path.startswith(user_data_dir) or f"/{current_user.id}/" in real_path):
+        raise HTTPException(status_code=403, detail="Access denied")
 
     return FileResponse(
         doc.file_path,
