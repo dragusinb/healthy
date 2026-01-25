@@ -19,10 +19,10 @@ async def run_regina_async(username, password, headless=True, user_id=None):
         username: Regina Maria account username
         password: Regina Maria account password
         headless: If True (default), browser window will be hidden
-        user_id: User ID for status tracking (optional)
+        user_id: User ID for status tracking and file isolation (required for production)
     """
     provider = "Regina Maria"
-    crawler = ReginaMariaCrawler(headless=headless)
+    crawler = ReginaMariaCrawler(headless=headless, user_id=user_id)
 
     # Set up status callback
     if user_id:
@@ -40,7 +40,7 @@ async def run_regina_async(username, password, headless=True, user_id=None):
                     "CAPTCHA detected - opening browser for manual solving...")
 
             # Retry with visible browser
-            crawler = ReginaMariaCrawler(headless=False)
+            crawler = ReginaMariaCrawler(headless=False, user_id=user_id)
             if user_id:
                 crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
 
@@ -66,10 +66,10 @@ async def run_synevo_async(username, password, headless=True, user_id=None):
         username: Synevo account CNP (Romanian ID number)
         password: Synevo account password
         headless: If True (default), browser window will be hidden
-        user_id: User ID for status tracking (optional)
+        user_id: User ID for status tracking and file isolation (required for production)
     """
     provider = "Synevo"
-    crawler = SynevoCrawler(headless=headless)
+    crawler = SynevoCrawler(headless=headless, user_id=user_id)
 
     # Set up status callback
     if user_id:

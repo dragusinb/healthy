@@ -11,10 +11,16 @@ from concurrent.futures import ThreadPoolExecutor
 _executor = ThreadPoolExecutor(max_workers=2)
 
 class BaseCrawler(ABC):
-    def __init__(self, provider_name: str, headless: bool = True):
+    def __init__(self, provider_name: str, headless: bool = True, user_id: int = None):
         self.provider_name = provider_name
         self.headless = headless
-        self.download_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../data/raw/{provider_name}"))
+        self.user_id = user_id
+        # CRITICAL: Use user-specific directory to prevent data mixing between users
+        if user_id:
+            self.download_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../data/raw/{user_id}/{provider_name}"))
+        else:
+            # Fallback for backwards compatibility (should not happen in production)
+            self.download_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../data/raw/_unknown/{provider_name}"))
         os.makedirs(self.download_dir, exist_ok=True)
         self._status_callback = None
 

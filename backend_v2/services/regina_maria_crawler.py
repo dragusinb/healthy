@@ -16,8 +16,8 @@ class CaptchaRequiredError(Exception):
 
 class ReginaMariaCrawler(BaseCrawler):
 
-    def __init__(self, headless: bool = True):  # Headless by default
-        super().__init__("regina_maria", headless)
+    def __init__(self, headless: bool = True, user_id: int = None):  # Headless by default
+        super().__init__("regina_maria", headless, user_id)
         # Main page has the login form
         self.login_url = "https://contulmeu.reginamaria.ro/#/"
         self.dashboard_url = "https://contulmeu.reginamaria.ro/#/Pacient/Dashboard"

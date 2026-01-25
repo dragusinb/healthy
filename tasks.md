@@ -8,6 +8,18 @@
 
 ## Pending
 
+### CRITICAL: Fix File Storage Isolation Bug
+**Status:** Pending
+**Priority:** CRITICAL
+
+Documents are stored in shared folders (`/opt/healthy/data/raw/regina_maria/`) instead of user-specific folders. This caused data mixing between users.
+
+**Fix required:**
+- [ ] Change crawler to save files to `/opt/healthy/data/raw/{user_id}/{provider}/`
+- [ ] Update document paths in database for existing files
+- [ ] Migrate existing files to user-specific folders
+- [ ] Add validation to prevent cross-user file access
+
 ### Admin - Sync Schedule Visualization
 **Status:** Pending
 **Priority:** Medium

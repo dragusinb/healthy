@@ -11,8 +11,8 @@ except ImportError:
 
 
 class SynevoCrawler(BaseCrawler):
-    def __init__(self, headless: bool = True):  # Headless by default
-        super().__init__("synevo", headless)
+    def __init__(self, headless: bool = True, user_id: int = None):  # Headless by default
+        super().__init__("synevo", headless, user_id)
         self.login_url = "https://webresults.synevo.ro/Account/Login?defaultusertype=2"
         self.dashboard_url = "https://webresults.synevo.ro/ro-RO"
 
