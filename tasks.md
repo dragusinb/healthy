@@ -9,20 +9,24 @@
 ## Pending
 
 ### Conturi Conectate - Page Error & Human-Readable Errors
-**Status:** Pending
+**Status:** In Progress
 **Priority:** High
 
 When entering "Conturi conectate" (Connected Accounts) page, an error is displayed.
 
 **Issues:**
-- [ ] Fix the bug causing the error - page should load without errors
-- [ ] Make all error messages human-readable (not technical/stack traces)
-- [ ] Ensure proper error handling with user-friendly messages in RO/EN
+- [x] Add loading spinner and error handling to page
+- [x] Human-readable error messages displayed (not stack traces)
+- [ ] Fix the root cause of the error (need user to check browser console)
 
-**Files to check:**
-- `frontend_v2/src/pages/LinkedAccounts.tsx` (or similar)
-- `backend_v2/routers/` - linked accounts endpoints
-- Check API response handling and error states
+**Progress:**
+- Added loading state with spinner
+- Added proper error catch and display
+- Error messages now show user-friendly text in current language
+
+**Next steps:**
+- Check browser console for specific JavaScript errors when page loads
+- May be a database migration issue if error_type/error_acknowledged columns missing
 
 ### Multi-Patient Account Handling
 **Status:** Pending
