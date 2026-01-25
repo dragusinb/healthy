@@ -279,16 +279,17 @@ Healthy/
 - [x] Cloud deployment - Contabo VPS (62.171.163.23)
 - [x] Nginx reverse proxy configured
 - [x] Systemd services for API and Xvfb
-- [ ] SSL/HTTPS (blocked - needs domain)
-- [ ] Custom domain
+- [x] SSL/HTTPS via Let's Encrypt
+- [x] Custom domain: analize.online
 - [ ] GDPR compliance
 - [ ] Backup and disaster recovery
 - [ ] Monitoring and alerting
 
 ### Deployment Info
+- **Domain:** https://analize.online (SSL via Let's Encrypt)
 - **Server:** Contabo VPS 62.171.163.23
-- **Frontend:** http://62.171.163.23 (Nginx serving static files)
-- **Backend:** http://62.171.163.23:8000 (FastAPI via Uvicorn)
+- **Frontend:** https://analize.online (Nginx serving static files)
+- **Backend:** https://analize.online/api (FastAPI via Uvicorn, port 8000 internal)
 - **Database:** PostgreSQL (local on server)
 - **Git:** Auto-deploy via `git pull` + rebuild
 
@@ -299,8 +300,8 @@ Healthy/
 - SSH to server for deployment: `ssh root@62.171.163.23`
 
 ### Next Steps
-1. Get domain name
-2. Set up SSL/HTTPS with Let's Encrypt
+1. ~~Get domain name~~ DONE: analize.online
+2. ~~Set up SSL/HTTPS with Let's Encrypt~~ DONE
 3. Configure AWS SES for email verification
 4. Implement report comparison feature
 
