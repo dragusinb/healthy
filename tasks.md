@@ -61,6 +61,72 @@ When a linked provider account has access to multiple patients (e.g., family mem
 - [ ] Track when tests were last done
 - [ ] Notifications when screenings are due
 
+### Biomarkers - Fix Incorrect Grouping (AI Matching Accuracy)
+**Status:** Pending
+**Priority:** High
+
+**Bug:** Biomarkers are being incorrectly grouped together based on partial name matches.
+
+**Example of incorrect grouping:**
+- "Concentratia medie a hemoglobinei eritrocitare (MCHC)" is NOT the same as "Hemoglobina (HGB)"
+- These are different biomarkers that share the word "hemoglobin" but measure different things
+
+**Requirements:**
+- [ ] Same biomarkers MUST be grouped together (e.g., "Hemoglobina (HGB)" from different tests)
+- [ ] Different biomarkers MUST NOT be grouped even if they share similar words
+- [ ] AI grouping should be accurate - not too aggressive (wrong matches) and not too conservative (missing valid matches)
+- [ ] Consider using abbreviations in parentheses (MCHC, HGB, etc.) as primary identifiers
+- [ ] Consider using standardized biomarker codes (LOINC) if available
+
+**Files to check:**
+- Backend AI parsing/grouping logic
+- `backend_v2/services/` - biomarker extraction and normalization
+- Check AI prompts for biomarker matching
+
+### AI Health Reports - Dynamic Specialist Selection from Generalist
+**Status:** Pending
+**Priority:** High
+
+**Problem:** The list of specialists is currently a predefined dict. It should be dynamically determined by the generalist AI analysis.
+
+**New Architecture:**
+1. **Generalist AI call** should analyze all biomarkers and return:
+   - General health assessment
+   - A list of recommended specialists (as structured output)
+   - Reasoning for each specialist recommendation
+
+2. **For each recommended specialist**, make a separate AI call with:
+   - Full biomarker data with dates/timeline clearly marked
+   - Patient profile (age, height, weight, gender, medical history)
+   - Clear instruction that recent results should carry more weight
+   - Context that they should respond as a medical professional
+
+**Prompt Requirements:**
+- [ ] Update generalist prompt to output structured list of specialists needed
+- [ ] Remove hardcoded specialist dict/list
+- [ ] Create dynamic specialist prompt that receives full context
+- [ ] Include timeline awareness in all prompts (dates of each biomarker)
+- [ ] Instruct AI to prioritize recent results over older ones
+- [ ] Pass complete patient profile to each specialist
+- [ ] Specialists should act as medical professionals, not just data analyzers
+
+**Example generalist output:**
+```json
+{
+  "summary": "...",
+  "recommended_specialists": ["cardiologist", "endocrinologist"],
+  "reasoning": {
+    "cardiologist": "Elevated LDL and triglycerides warrant cardiovascular review",
+    "endocrinologist": "HbA1c trending upward over past 6 months"
+  }
+}
+```
+
+**Files to check:**
+- `backend_v2/services/` - AI report generation, specialist definitions
+- Check current specialist dict/enum and remove
+- Update API to handle dynamic specialist list
+
 ### AI Health Reports - Date Awareness & Specialist Triggering
 **Status:** Pending
 **Priority:** High
