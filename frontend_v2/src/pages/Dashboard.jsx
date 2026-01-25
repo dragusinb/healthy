@@ -76,6 +76,7 @@ const Dashboard = () => {
             wrong_password: t('linkedAccounts.errors.wrongPassword'),
             captcha_failed: t('linkedAccounts.errors.captchaFailed'),
             site_down: t('linkedAccounts.errors.siteDown'),
+            server_error: t('linkedAccounts.errors.serverError'),
             session_expired: t('linkedAccounts.errors.sessionExpired'),
             timeout: t('linkedAccounts.errors.timeout'),
             unknown: t('linkedAccounts.errors.unknown')

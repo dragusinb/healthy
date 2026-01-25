@@ -72,6 +72,7 @@ When a linked provider account has access to multiple patients (e.g., family mem
 
 ## Completed
 
+- [x] XServer/Xvfb Error Misclassification Fix - Added server_error category for display/browser errors, shows "Server Maintenance" message instead of wrong password
 - [x] Biomarker Name Unification Across Suppliers - Added canonical_name column, normalize at import time, admin endpoints for mapping management and migration
 - [x] Profile - Auto-Save Translation Fix & Age Extraction Improvement - Added missing translation keys (profile.saving, profile.autoSaveFailed) in RO/EN, improved AI prompt to prioritize header section for extracting patient age from Regina Maria documents
 - [x] Profile Page - Button Size & Auto-Save - Removed Save button, implemented 1-second debounced auto-save, consistent button styling, save status indicator

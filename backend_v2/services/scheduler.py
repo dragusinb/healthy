@@ -26,11 +26,21 @@ def classify_sync_error(error_msg: str) -> str:
     - wrong_password: Invalid credentials
     - captcha_failed: CAPTCHA solving failed/required
     - site_down: Provider site unavailable
+    - server_error: Server-side issue (XServer, display, etc.)
     - session_expired: Login session expired
     - timeout: Operation timed out
     - unknown: Other/unknown error
     """
     error_lower = error_msg.lower()
+
+    # Server-side issues (XServer, display, browser problems) - check FIRST
+    # These should NOT be shown as password errors
+    if any(phrase in error_lower for phrase in [
+        "xserver", "x server", "xvfb", "display", "headed browser",
+        "no display", "cannot open display", "browser launch",
+        "playwright", "chromium", "browser error"
+    ]):
+        return "server_error"
 
     # Wrong password / invalid credentials
     if any(phrase in error_lower for phrase in [

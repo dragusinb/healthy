@@ -276,6 +276,8 @@
       "sessionExpiredDesc": "Sesiunea ta de conectare a expirat. Te rugam sa incerci din nou.",
       "timeout": "Conexiune Expirata",
       "timeoutDesc": "Conexiunea catre furnizor a expirat. Te rugam sa incerci mai tarziu.",
+      "serverError": "Mentenanta Server",
+      "serverErrorDesc": "Serviciul de sincronizare este temporar indisponibil. Nu este o problema cu contul tau - te rugam sa incerci din nou in cateva minute.",
       "unknown": "Problema de Conexiune",
       "unknownDesc": "A aparut o problema neasteptata la conectarea cu contul tau de furnizor medical."
     }

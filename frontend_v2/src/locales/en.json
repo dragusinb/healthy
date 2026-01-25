@@ -276,6 +276,8 @@
       "sessionExpiredDesc": "Your login session has expired. Please try syncing again.",
       "timeout": "Connection Timeout",
       "timeoutDesc": "The connection to the provider timed out. Please try again later.",
+      "serverError": "Server Maintenance",
+      "serverErrorDesc": "Our sync service is temporarily unavailable. This is not a problem with your account - please try again in a few minutes.",
       "unknown": "Connection Problem",
       "unknownDesc": "There was an unexpected problem connecting to your medical provider account."
     }

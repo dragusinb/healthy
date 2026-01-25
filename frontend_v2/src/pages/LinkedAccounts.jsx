@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil, X, AlertTriangle, KeyRound, Wifi, Clock } from 'lucide-react';
+import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil, X, AlertTriangle, KeyRound, Wifi, Clock, Server } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 // Error type to icon and color mapping
@@ -23,6 +23,12 @@ const ERROR_TYPES = {
         color: 'slate',
         titleKey: 'linkedAccounts.errors.siteDown',
         descKey: 'linkedAccounts.errors.siteDownDesc'
+    },
+    server_error: {
+        icon: Server,
+        color: 'blue',
+        titleKey: 'linkedAccounts.errors.serverError',
+        descKey: 'linkedAccounts.errors.serverErrorDesc'
     },
     session_expired: {
         icon: Clock,
@@ -51,7 +57,8 @@ const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t })
     const colorClasses = {
         rose: 'bg-rose-100 text-rose-600 border-rose-200',
         amber: 'bg-amber-100 text-amber-600 border-amber-200',
-        slate: 'bg-slate-100 text-slate-600 border-slate-200'
+        slate: 'bg-slate-100 text-slate-600 border-slate-200',
+        blue: 'bg-blue-100 text-blue-600 border-blue-200'
     };
 
     const handleAcknowledge = async () => {
