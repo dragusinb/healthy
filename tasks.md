@@ -2,9 +2,7 @@
 
 ## In Progress
 
-### Admin - Sync Schedule Visualization
-**Status:** In Progress
-**Priority:** Medium
+(None currently)
 
 ---
 
@@ -25,16 +23,6 @@ When entering "Conturi conectate" (Connected Accounts) page, an error is display
 - `frontend_v2/src/pages/LinkedAccounts.tsx` (or similar)
 - `backend_v2/routers/` - linked accounts endpoints
 - Check API response handling and error states
-
-### Admin - Sync Schedule Visualization
-**Status:** Pending
-**Priority:** Medium
-
-The sync schedule section in Admin doesn't show when the next cron jobs will run:
-- [ ] Display next scheduled run time for each sync type
-- [ ] Show countdown or timestamp until next run
-- [ ] Visual timeline/calendar of scheduled syncs
-- [ ] Current schedule intervals (daily, weekly, etc.)
 
 ### Multi-Patient Account Handling
 **Status:** Pending
@@ -61,11 +49,6 @@ When a linked provider account has access to multiple patients (e.g., family mem
 - [ ] Email notification for critical errors
 - [ ] Auto-retry sync after user updates credentials
 
-### Admin Dashboard Enhancements
-**Status:** Pending
-**Priority:** Medium
-- [ ] Server metrics (CPU, RAM, disk)
-- [ ] Error logs viewer
 
 ### Gap Analysis - Future Enhancements
 **Status:** Pending
@@ -73,29 +56,6 @@ When a linked provider account has access to multiple patients (e.g., family mem
 
 - [ ] Track when tests were last done
 - [ ] Notifications when screenings are due
-
-### Biomarkers - Group Same Tests Together
-**Status:** Pending
-**Priority:** High
-
-In the Biomarkers page, biomarkers with the same name appear as separate rows. They should be grouped under one expandable entry.
-
-**Current behavior:** 5 glucose readings = 5 separate "Glucose" rows
-
-**Expected behavior:**
-- [ ] Group biomarkers with identical names into a single collapsible row
-- [ ] Show the most recent value on the collapsed row
-- [ ] Click to expand and see all historical measurements for that biomarker
-- [ ] Maintain existing filter/search functionality
-- [ ] Keep HIGH/LOW status badges visible
-
-**Future enhancement (separate task):**
-- Normalize similar names (e.g., "Hemoglobină", "Hemoglobina", "HGB" → same group)
-
-**Files to check:**
-- `frontend_v2/src/pages/Biomarkers.tsx`
-- `frontend_v2/src/components/` - biomarker components
-- `backend_v2/routers/` - biomarker API endpoints
 
 ### AI Health Reports - Date Awareness & Specialist Triggering
 **Status:** Pending
@@ -158,6 +118,9 @@ Gap Analysis / Recommended Screenings should be a separate page/section, not jus
 
 ## Completed
 
+- [x] Biomarkers - Group Same Tests Together - Normalized names, grouped display with expandable history, trend indicators
+- [x] Admin Dashboard Enhancements - Server metrics (CPU, RAM, disk gauges), Error logs viewer with expandable section
+- [x] Admin - Sync Schedule Visualization - ScheduleVisual component shows 14-day history + 3-day future, Scheduler Jobs shows next run times
 - [x] CRITICAL: Fix File Storage Isolation Bug - user-specific directories, migration, validation
 - [x] Fix server - orphan process blocking port 8000
 - [x] Update login text to "Toate analizele tale intr-un singur loc"

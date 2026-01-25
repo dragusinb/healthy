@@ -145,6 +145,9 @@
     "tests": "teste",
     "issue": "problema",
     "issuesCount": "probleme",
+    "showHistory": "Afiseaza istoricul",
+    "hideHistory": "Ascunde istoricul",
+    "historicalValues": "valori istorice",
     "showingFrom": "Afisare biomarkeri din",
     "categories": {
       "hematology": "Sange & Hematologie",

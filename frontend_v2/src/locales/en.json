@@ -145,6 +145,9 @@
     "tests": "tests",
     "issue": "issue",
     "issuesCount": "issues",
+    "showHistory": "Show history",
+    "hideHistory": "Hide history",
+    "historicalValues": "historical values",
     "showingFrom": "Showing biomarkers from",
     "categories": {
       "hematology": "Blood & Hematology",

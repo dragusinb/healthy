@@ -46,7 +46,9 @@
       "Bash(plink:*)",
       "Bash(ssh:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(git rebase:*)",
+      "Bash(GIT_EDITOR=true git rebase:*)"
     ]
   }
 }

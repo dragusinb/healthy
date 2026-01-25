@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye } from 'lucide-react';
+import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye, History, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 
@@ -96,11 +96,148 @@ const openPdf = async (documentId) => {
     }
 };
 
-const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle, t }) => {
+// Biomarker row with expandable history
+const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory }) => {
+    const latest = group.latest;
+    const historyCount = group.history.length;
+    const isExpanded = expandedHistory.has(group.canonical_name);
+
+    // Calculate trend from history
+    const getTrend = () => {
+        if (historyCount < 2) return null;
+        const recent = group.history[0]?.value;
+        const previous = group.history[1]?.value;
+        if (typeof recent !== 'number' || typeof previous !== 'number') return null;
+        if (recent > previous * 1.05) return 'up';
+        if (recent < previous * 0.95) return 'down';
+        return 'stable';
+    };
+
+    const trend = getTrend();
+
+    return (
+        <>
+            <div
+                className={cn(
+                    "grid grid-cols-12 gap-4 p-3 items-center hover:bg-slate-50/80 transition-all duration-200 group",
+                    isExpanded && "bg-slate-50/50"
+                )}
+            >
+                <div className="col-span-4 pl-2 flex items-center gap-2">
+                    {historyCount > 1 && (
+                        <button
+                            onClick={() => onToggleHistory(group.canonical_name)}
+                            className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors"
+                            title={t('biomarkers.showHistory')}
+                        >
+                            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                        </button>
+                    )}
+                    {historyCount <= 1 && <div className="w-6" />}
+                    <Link
+                        to={`/evolution/${encodeURIComponent(group.canonical_name)}`}
+                        className="font-medium text-slate-800 group-hover:text-primary-600 transition-colors truncate"
+                    >
+                        {group.canonical_name}
+                    </Link>
+                    {historyCount > 1 && (
+                        <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                            {historyCount}x
+                        </span>
+                    )}
+                    {trend && (
+                        <span className={cn(
+                            "p-0.5 rounded",
+                            trend === 'up' && "text-amber-500",
+                            trend === 'down' && "text-blue-500",
+                            trend === 'stable' && "text-slate-400"
+                        )}>
+                            {trend === 'up' && <TrendingUp size={12} />}
+                            {trend === 'down' && <TrendingDown size={12} />}
+                            {trend === 'stable' && <Minus size={12} />}
+                        </span>
+                    )}
+                </div>
+                <div className="col-span-2 font-bold text-slate-800 flex items-baseline gap-1">
+                    {latest.value} <span className="text-slate-400 text-xs font-medium">{latest.unit}</span>
+                </div>
+                <div className="col-span-2 text-xs text-slate-500 font-medium">
+                    {latest.range}
+                </div>
+                <div className="col-span-2 text-xs text-slate-500">
+                    {new Date(latest.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
+                </div>
+                <div className="col-span-1 text-center">
+                    {latest.document_id && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); openPdf(latest.document_id); }}
+                            className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            title={t('documents.viewPdf')}
+                        >
+                            <Eye size={14} />
+                        </button>
+                    )}
+                </div>
+                <div className="col-span-1 text-right pr-2">
+                    {latest.status === 'normal' ? (
+                        <span className="inline-block w-2 h-2 bg-teal-500 rounded-full" title={t('biomarkers.normal')} />
+                    ) : (
+                        <span className="inline-flex items-center text-rose-600" title={latest.status === 'high' ? t('biomarkers.high') : t('biomarkers.low')}>
+                            {latest.status === 'high' ? <ArrowUp size={14} strokeWidth={3} /> : <ArrowDown size={14} strokeWidth={3} />}
+                        </span>
+                    )}
+                </div>
+            </div>
+
+            {/* Expanded history rows */}
+            {isExpanded && group.history.slice(1).map((bio, idx) => (
+                <div
+                    key={bio.id}
+                    className="grid grid-cols-12 gap-4 p-2 pl-6 items-center bg-slate-50/30 border-l-2 border-slate-200 ml-4 text-sm"
+                >
+                    <div className="col-span-4 pl-8 text-slate-500 flex items-center gap-2">
+                        <History size={12} className="text-slate-400" />
+                        <span className="truncate text-xs">{bio.name !== group.canonical_name ? bio.name : ''}</span>
+                    </div>
+                    <div className="col-span-2 text-slate-700 flex items-baseline gap-1">
+                        {bio.value} <span className="text-slate-400 text-xs">{bio.unit}</span>
+                    </div>
+                    <div className="col-span-2 text-xs text-slate-400">
+                        {bio.range}
+                    </div>
+                    <div className="col-span-2 text-xs text-slate-400">
+                        {new Date(bio.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
+                    </div>
+                    <div className="col-span-1 text-center">
+                        {bio.document_id && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); openPdf(bio.document_id); }}
+                                className="inline-flex items-center justify-center p-1 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                            >
+                                <Eye size={12} />
+                            </button>
+                        )}
+                    </div>
+                    <div className="col-span-1 text-right pr-2">
+                        {bio.status === 'normal' ? (
+                            <span className="inline-block w-1.5 h-1.5 bg-teal-400 rounded-full" />
+                        ) : (
+                            <span className={cn("text-xs", bio.status === 'high' ? "text-rose-500" : "text-blue-500")}>
+                                {bio.status === 'high' ? <ArrowUp size={10} /> : <ArrowDown size={10} />}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </>
+    );
+};
+
+const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, expandedHistory, onToggleHistory }) => {
     const category = CATEGORIES[categoryKey];
     const colors = COLOR_CLASSES[category.color];
     const Icon = category.icon;
-    const issueCount = biomarkers.filter(b => b.status !== 'normal').length;
+    const issueCount = biomarkerGroups.filter(g => g.has_issues).length;
 
     return (
         <div className="card overflow-hidden">
@@ -117,7 +254,7 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle, t }) => 
                     </div>
                     <div className="text-left">
                         <h3 className="font-semibold text-slate-800">{t(category.nameKey)}</h3>
-                        <p className="text-xs text-slate-500">{biomarkers.length} {t('biomarkers.tests')}</p>
+                        <p className="text-xs text-slate-500">{biomarkerGroups.length} {t('biomarkers.tests')}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -141,47 +278,14 @@ const CategorySection = ({ categoryKey, biomarkers, expanded, onToggle, t }) => 
                         <div className="col-span-1 text-right pr-2">Status</div>
                     </div>
                     <div className="divide-y divide-slate-50">
-                        {biomarkers.map((bio) => (
-                            <div
-                                key={bio.id}
-                                className="grid grid-cols-12 gap-4 p-3 items-center hover:bg-slate-50/80 transition-all duration-200 group"
-                            >
-                                <Link
-                                    to={`/evolution/${encodeURIComponent(bio.name)}`}
-                                    className="col-span-4 font-medium text-slate-800 pl-2 group-hover:text-primary-600 transition-colors truncate"
-                                >
-                                    {bio.name}
-                                </Link>
-                                <div className="col-span-2 font-bold text-slate-800 flex items-baseline gap-1">
-                                    {bio.value} <span className="text-slate-400 text-xs font-medium">{bio.unit}</span>
-                                </div>
-                                <div className="col-span-2 text-xs text-slate-500 font-medium">
-                                    {bio.range}
-                                </div>
-                                <div className="col-span-2 text-xs text-slate-500">
-                                    {new Date(bio.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
-                                </div>
-                                <div className="col-span-1 text-center">
-                                    {bio.document_id && (
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); openPdf(bio.document_id); }}
-                                            className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                                            title={t('documents.viewPdf')}
-                                        >
-                                            <Eye size={14} />
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="col-span-1 text-right pr-2">
-                                    {bio.status === 'normal' ? (
-                                        <span className="inline-block w-2 h-2 bg-teal-500 rounded-full" title={t('biomarkers.normal')} />
-                                    ) : (
-                                        <span className="inline-flex items-center text-rose-600" title={bio.status === 'high' ? t('biomarkers.high') : t('biomarkers.low')}>
-                                            {bio.status === 'high' ? <ArrowUp size={14} strokeWidth={3} /> : <ArrowDown size={14} strokeWidth={3} />}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
+                        {biomarkerGroups.map((group) => (
+                            <BiomarkerRow
+                                key={group.canonical_name}
+                                group={group}
+                                t={t}
+                                expandedHistory={expandedHistory}
+                                onToggleHistory={onToggleHistory}
+                            />
                         ))}
                     </div>
                 </div>
@@ -195,13 +299,15 @@ const Biomarkers = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const docId = searchParams.get('doc');
 
-    const [biomarkers, setBiomarkers] = useState([]);
+    const [biomarkerGroups, setBiomarkerGroups] = useState([]);
+    const [documentBiomarkers, setDocumentBiomarkers] = useState([]);
     const [documentInfo, setDocumentInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('all');
     const [sortBy, setSortBy] = useState('issues');
     const [expandedCategories, setExpandedCategories] = useState(new Set());
+    const [expandedHistory, setExpandedHistory] = useState(new Set());
 
     useEffect(() => {
         if (docId) {
@@ -215,8 +321,8 @@ const Biomarkers = () => {
         setLoading(true);
         setDocumentInfo(null);
         try {
-            const res = await api.get('/dashboard/biomarkers');
-            setBiomarkers(res.data);
+            const res = await api.get('/dashboard/biomarkers-grouped');
+            setBiomarkerGroups(res.data);
         } catch (e) {
             console.error("Failed to fetch biomarkers", e);
         } finally {
@@ -228,7 +334,28 @@ const Biomarkers = () => {
         setLoading(true);
         try {
             const res = await api.get(`/documents/${id}/biomarkers`);
-            setBiomarkers(res.data.biomarkers);
+            // Convert document biomarkers to grouped format
+            const groups = {};
+            for (const bio of res.data.biomarkers) {
+                const name = bio.name;
+                if (!groups[name]) {
+                    groups[name] = {
+                        canonical_name: name,
+                        latest: null,
+                        history: [],
+                        has_issues: false
+                    };
+                }
+                groups[name].history.push({
+                    ...bio,
+                    date: res.data.document.date || 'Unknown'
+                });
+                if (bio.status !== 'normal') groups[name].has_issues = true;
+                if (!groups[name].latest) {
+                    groups[name].latest = { ...bio, date: res.data.document.date || 'Unknown' };
+                }
+            }
+            setBiomarkerGroups(Object.values(groups));
             setDocumentInfo(res.data.document);
         } catch (e) {
             console.error("Failed to fetch document biomarkers", e);
@@ -253,38 +380,55 @@ const Biomarkers = () => {
         });
     };
 
+    const toggleHistory = (canonicalName) => {
+        setExpandedHistory(prev => {
+            const next = new Set(prev);
+            if (next.has(canonicalName)) {
+                next.delete(canonicalName);
+            } else {
+                next.add(canonicalName);
+            }
+            return next;
+        });
+    };
+
     const expandAll = () => setExpandedCategories(new Set(Object.keys(CATEGORIES)));
     const collapseAll = () => setExpandedCategories(new Set());
 
-    const groupedBiomarkers = useMemo(() => {
-        const filtered = biomarkers.filter(b =>
-            b.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-            (filter === 'all' || (filter === 'out_of_range' && b.status !== 'normal'))
-        );
+    const groupedByCategory = useMemo(() => {
+        // Filter groups based on search and filter
+        const filtered = biomarkerGroups.filter(g => {
+            const matchesSearch = g.canonical_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                g.history.some(h => h.name?.toLowerCase().includes(searchTerm.toLowerCase()));
+            const matchesFilter = filter === 'all' || (filter === 'out_of_range' && g.has_issues);
+            return matchesSearch && matchesFilter;
+        });
 
-        const groups = {};
-        for (const bio of filtered) {
-            const cat = categorize(bio.name);
-            if (!groups[cat]) groups[cat] = [];
-            groups[cat].push(bio);
+        // Group by category
+        const categories = {};
+        for (const group of filtered) {
+            const cat = categorize(group.canonical_name);
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push(group);
         }
 
-        for (const cat in groups) {
-            groups[cat].sort((a, b) => {
+        // Sort each category
+        for (const cat in categories) {
+            categories[cat].sort((a, b) => {
                 if (sortBy === 'issues') {
-                    const aIsIssue = a.status !== 'normal' ? 0 : 1;
-                    const bIsIssue = b.status !== 'normal' ? 0 : 1;
+                    const aIsIssue = a.has_issues ? 0 : 1;
+                    const bIsIssue = b.has_issues ? 0 : 1;
                     if (aIsIssue !== bIsIssue) return aIsIssue - bIsIssue;
                 }
-                return new Date(b.date) - new Date(a.date);
+                return (b.latest_date || '').localeCompare(a.latest_date || '');
             });
         }
 
-        return groups;
-    }, [biomarkers, searchTerm, filter, sortBy]);
+        return categories;
+    }, [biomarkerGroups, searchTerm, filter, sortBy]);
 
-    const totalFiltered = Object.values(groupedBiomarkers).flat().length;
-    const totalIssues = Object.values(groupedBiomarkers).flat().filter(b => b.status !== 'normal').length;
+    const totalFiltered = Object.values(groupedByCategory).flat().length;
+    const totalIssues = Object.values(groupedByCategory).flat().filter(g => g.has_issues).length;
 
     return (
         <div>
@@ -382,17 +526,19 @@ const Biomarkers = () => {
                 /* Category Sections */
                 <div className="space-y-4">
                     {Object.entries(CATEGORIES).map(([key]) => {
-                        const catBiomarkers = groupedBiomarkers[key];
-                        if (!catBiomarkers || catBiomarkers.length === 0) return null;
+                        const catGroups = groupedByCategory[key];
+                        if (!catGroups || catGroups.length === 0) return null;
 
                         return (
                             <CategorySection
                                 key={key}
                                 categoryKey={key}
-                                biomarkers={catBiomarkers}
+                                biomarkerGroups={catGroups}
                                 expanded={expandedCategories.has(key)}
                                 onToggle={() => toggleCategory(key)}
                                 t={t}
+                                expandedHistory={expandedHistory}
+                                onToggleHistory={toggleHistory}
                             />
                         );
                     })}
