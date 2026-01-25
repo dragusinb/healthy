@@ -120,10 +120,13 @@ def update_profile(
         current_user.full_name = profile.full_name
 
     if profile.date_of_birth is not None:
-        try:
-            current_user.date_of_birth = datetime.datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
-        except ValueError:
-            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+        if profile.date_of_birth == "" or profile.date_of_birth is None:
+            current_user.date_of_birth = None
+        else:
+            try:
+                current_user.date_of_birth = datetime.datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
     if profile.gender is not None:
         if profile.gender not in ["male", "female", "other", ""]:
@@ -254,6 +257,7 @@ def scan_profile_from_documents(
             profile_data = result["profile"]
             profile_data["source_document"] = doc.filename
             profile_data["confidence"] = result.get("confidence", "low")
+            profile_data["document_date"] = doc.document_date  # Store document date for age calculation
             extracted_profiles.append(profile_data)
 
             # Track patient name for multi-patient detection
@@ -273,11 +277,15 @@ def scan_profile_from_documents(
 
     # Merge extracted profiles (prefer higher confidence, more recent)
     merged_profile = {}
+    age_document_date = None  # Track document date for age_years calculation
     for profile in reversed(extracted_profiles):  # Oldest first, so newer overwrites
         for key, value in profile.items():
-            if value and key not in ["source_document", "confidence", "source_hints"]:
+            if value and key not in ["source_document", "confidence", "source_hints", "document_date"]:
                 if key not in merged_profile or profile.get("confidence") == "high":
                     merged_profile[key] = value
+                    # Track document date when we get age_years
+                    if key == "age_years" and profile.get("document_date"):
+                        age_document_date = profile["document_date"]
 
     # Apply to user profile (only fill empty fields)
     updates_made = []
@@ -299,8 +307,13 @@ def scan_profile_from_documents(
         elif merged_profile.get("age_years"):
             try:
                 age = int(merged_profile["age_years"])
+                # Use document date for accurate calculation, fallback to today
+                reference_date = age_document_date if age_document_date else datetime.date.today()
+                if hasattr(reference_date, 'year'):
+                    birth_year = reference_date.year - age
+                else:
+                    birth_year = datetime.date.today().year - age
                 # Approximate birth date (use January 1st of birth year)
-                birth_year = datetime.date.today().year - age
                 dob = datetime.datetime(birth_year, 1, 1)
                 current_user.date_of_birth = dob
                 updates_made.append("date_of_birth (estimated from age)")
