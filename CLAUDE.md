@@ -292,6 +292,12 @@ Healthy/
 - **Database:** PostgreSQL (local on server)
 - **Git:** Auto-deploy via `git pull` + rebuild
 
+**IMPORTANT - Environment Differences:**
+- **Local development:** Windows (use Windows paths like `c:\OldD\_Projects\Healthy`)
+- **Production server:** Linux (use Linux paths like `/opt/healthy`)
+- When running bash commands locally, be aware of Windows vs Linux syntax differences
+- SSH to server for deployment: `ssh root@62.171.163.23`
+
 ### Next Steps
 1. Get domain name
 2. Set up SSL/HTTPS with Let's Encrypt
