@@ -5,7 +5,8 @@ import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
     RefreshCw, FileText, TrendingUp, Shield, ChevronDown, X, Eye,
-    ClipboardList, Sparkles, Calendar
+    ClipboardList, Sparkles, Calendar, History, GitCompare, ArrowRight,
+    TrendingDown, Minus, ChevronLeft
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -74,6 +75,11 @@ const HealthReports = () => {
     const [gapAnalysis, setGapAnalysis] = useState(null);
     const [gapLoading, setGapLoading] = useState(false);
     const [showGapSection, setShowGapSection] = useState(false);
+    const [reportHistory, setReportHistory] = useState([]);
+    const [compareMode, setCompareMode] = useState(false);
+    const [selectedForCompare, setSelectedForCompare] = useState([]);
+    const [comparisonData, setComparisonData] = useState(null);
+    const [showHistory, setShowHistory] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -101,17 +107,19 @@ const HealthReports = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [latestRes, reportsRes, specialistsRes, biomarkersRes, gapRes] = await Promise.all([
+            const [latestRes, reportsRes, specialistsRes, biomarkersRes, gapRes, historyRes] = await Promise.all([
                 api.get('/health/latest'),
                 api.get('/health/reports?limit=10'),
                 api.get('/health/specialists'),
                 api.get('/dashboard/biomarkers'),
-                api.get('/health/gap-analysis/latest').catch(() => ({ data: { has_report: false } }))
+                api.get('/health/gap-analysis/latest').catch(() => ({ data: { has_report: false } })),
+                api.get('/health/history?limit=20').catch(() => ({ data: { sessions: [] } }))
             ]);
             setLatestReport(latestRes.data);
             setReports(reportsRes.data);
             setSpecialists(specialistsRes.data);
             setBiomarkers(biomarkersRes.data);
+            setReportHistory(historyRes.data.sessions || []);
 
             // Load saved gap analysis if exists
             if (gapRes.data.has_report) {
@@ -129,6 +137,31 @@ const HealthReports = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSelectForCompare = (session) => {
+        if (selectedForCompare.find(s => s.general.id === session.general.id)) {
+            setSelectedForCompare(prev => prev.filter(s => s.general.id !== session.general.id));
+        } else if (selectedForCompare.length < 2) {
+            setSelectedForCompare(prev => [...prev, session]);
+        }
+    };
+
+    const runComparison = async () => {
+        if (selectedForCompare.length !== 2) return;
+        try {
+            const res = await api.get(`/health/compare/${selectedForCompare[0].general.id}/${selectedForCompare[1].general.id}`);
+            setComparisonData(res.data);
+        } catch (e) {
+            console.error("Comparison failed", e);
+            setError("Failed to compare reports");
+        }
+    };
+
+    const exitCompareMode = () => {
+        setCompareMode(false);
+        setSelectedForCompare([]);
+        setComparisonData(null);
     };
 
     // Find document_id for a biomarker by name (improved matching)
@@ -595,46 +628,204 @@ const HealthReports = () => {
                 )}
             </div>
 
-            {/* Report History */}
-            {reports.length > 0 && (
+            {/* Report History & Comparison */}
+            {reportHistory.length > 0 && (
                 <div className="card overflow-hidden">
-                    <div className="p-6 border-b border-slate-100">
-                        <h2 className="text-lg font-semibold text-slate-800">Report History</h2>
+                    <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-slate-100 rounded-lg">
+                                <History size={20} className="text-slate-600" />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-slate-800">Report History</h2>
+                                <p className="text-sm text-slate-500">{reportHistory.length} analysis sessions</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {compareMode ? (
+                                <>
+                                    <span className="text-sm text-slate-500">
+                                        Select 2 to compare ({selectedForCompare.length}/2)
+                                    </span>
+                                    {selectedForCompare.length === 2 && (
+                                        <button
+                                            onClick={runComparison}
+                                            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                                        >
+                                            <GitCompare size={16} />
+                                            Compare
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={exitCompareMode}
+                                        className="px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => setCompareMode(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                                >
+                                    <GitCompare size={16} />
+                                    Compare Reports
+                                </button>
+                            )}
+                        </div>
                     </div>
 
+                    {/* Comparison View */}
+                    {comparisonData && (
+                        <div className="p-6 bg-gradient-to-r from-blue-50 to-violet-50 border-b border-slate-200">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                                    <GitCompare size={18} />
+                                    Comparison Results
+                                </h3>
+                                <button
+                                    onClick={() => setComparisonData(null)}
+                                    className="p-1 hover:bg-white/50 rounded"
+                                >
+                                    <X size={18} className="text-slate-500" />
+                                </button>
+                            </div>
+
+                            {/* Summary Stats */}
+                            <div className="grid grid-cols-3 gap-4 mb-4">
+                                <div className="bg-white/70 rounded-lg p-3 text-center">
+                                    <p className="text-sm text-slate-500">Time Between</p>
+                                    <p className="text-xl font-bold text-slate-800">
+                                        {comparisonData.comparison.days_between} days
+                                    </p>
+                                </div>
+                                <div className="bg-white/70 rounded-lg p-3 text-center">
+                                    <p className="text-sm text-slate-500">Risk Level Change</p>
+                                    <div className="flex items-center justify-center gap-2">
+                                        {comparisonData.comparison.risk_change === 'improved' ? (
+                                            <TrendingDown size={20} className="text-teal-600" />
+                                        ) : comparisonData.comparison.risk_change === 'worsened' ? (
+                                            <TrendingUp size={20} className="text-rose-600" />
+                                        ) : (
+                                            <Minus size={20} className="text-slate-400" />
+                                        )}
+                                        <span className={cn(
+                                            "text-lg font-bold capitalize",
+                                            comparisonData.comparison.risk_change === 'improved' ? "text-teal-600" :
+                                            comparisonData.comparison.risk_change === 'worsened' ? "text-rose-600" :
+                                            "text-slate-600"
+                                        )}>
+                                            {comparisonData.comparison.risk_change || 'No Change'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="bg-white/70 rounded-lg p-3 text-center">
+                                    <p className="text-sm text-slate-500">Biomarkers Change</p>
+                                    <p className="text-xl font-bold text-slate-800">
+                                        {comparisonData.comparison.biomarkers_change > 0 ? '+' : ''}
+                                        {comparisonData.comparison.biomarkers_change || 0}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Side by Side Reports */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {[comparisonData.report_1, comparisonData.report_2].map((report, idx) => (
+                                    <div key={report.id} className="bg-white rounded-xl p-4 shadow-sm">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-xs bg-slate-100 px-2 py-1 rounded font-medium">
+                                                {idx === 0 ? 'Older' : 'Newer'}
+                                            </span>
+                                            <span className="text-xs text-slate-500">
+                                                {new Date(report.created_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                        <div className={cn(
+                                            "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium mb-2",
+                                            getRiskStyle(report.risk_level).bg,
+                                            getRiskStyle(report.risk_level).text
+                                        )}>
+                                            {report.risk_level}
+                                        </div>
+                                        <p className="text-sm text-slate-700 line-clamp-3">{report.summary}</p>
+                                        <p className="text-xs text-slate-400 mt-2">
+                                            {report.biomarkers_analyzed} biomarkers analyzed
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Session List */}
                     <div className="divide-y divide-slate-50">
-                        {reports.map((report) => {
-                            const Icon = SPECIALTY_ICONS[report.report_type] || FileText;
-                            const style = getRiskStyle(report.risk_level);
+                        {reportHistory.map((session) => {
+                            const style = getRiskStyle(session.general.risk_level);
+                            const isSelected = selectedForCompare.find(s => s.general.id === session.general.id);
 
                             return (
                                 <div
-                                    key={report.id}
-                                    className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
-                                    onClick={() => setSelectedReport(report)}
+                                    key={session.general.id}
+                                    className={cn(
+                                        "p-4 transition-colors",
+                                        compareMode ? "cursor-pointer" : "",
+                                        isSelected ? "bg-primary-50 border-l-4 border-primary-500" : "hover:bg-slate-50"
+                                    )}
+                                    onClick={() => compareMode && handleSelectForCompare(session)}
                                 >
                                     <div className="flex items-center gap-4">
+                                        {compareMode && (
+                                            <div className={cn(
+                                                "w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0",
+                                                isSelected ? "bg-primary-500 border-primary-500" : "border-slate-300"
+                                            )}>
+                                                {isSelected && <CheckCircle size={14} className="text-white" />}
+                                            </div>
+                                        )}
                                         <div className={cn("p-2 rounded-lg", style.bg)}>
-                                            <Icon size={20} className={style.text} />
+                                            <Brain size={20} className={style.text} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-slate-800 truncate">{report.title}</p>
-                                            <p className="text-sm text-slate-500 truncate">{report.summary}</p>
-                                        </div>
-                                        <div className="text-right shrink-0 flex items-center gap-3">
-                                            <div>
+                                            <div className="flex items-center gap-2">
+                                                <p className="font-medium text-slate-800">
+                                                    Analysis - {new Date(session.session_date).toLocaleDateString()}
+                                                </p>
                                                 <span className={cn(
-                                                    "text-xs px-2 py-1 rounded-full",
+                                                    "text-xs px-2 py-0.5 rounded-full",
                                                     style.bg, style.text
                                                 )}>
-                                                    {report.risk_level}
+                                                    {session.general.risk_level}
                                                 </span>
-                                                <p className="text-xs text-slate-400 mt-1">
-                                                    {new Date(report.created_at).toLocaleDateString()}
-                                                </p>
                                             </div>
-                                            <ChevronRight size={18} className="text-slate-300" />
+                                            <p className="text-sm text-slate-500 truncate mt-1">
+                                                {session.general.summary}
+                                            </p>
+                                            <div className="flex items-center gap-3 mt-2">
+                                                <span className="text-xs text-slate-400">
+                                                    {session.general.biomarkers_analyzed} biomarkers
+                                                </span>
+                                                {session.specialists.length > 0 && (
+                                                    <span className="text-xs text-slate-400">
+                                                        {session.specialists.length} specialist reports
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
+                                        {!compareMode && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedReport({
+                                                        ...session.general,
+                                                        title: "Comprehensive Health Analysis",
+                                                        created_at: session.session_date
+                                                    });
+                                                }}
+                                                className="px-3 py-1.5 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                                            >
+                                                View
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             );

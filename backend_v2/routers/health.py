@@ -366,3 +366,120 @@ def get_latest_gap_analysis(
         "recommended_tests": json.loads(report.findings) if report.findings else [],
         "created_at": report.created_at.isoformat() if report.created_at else None
     }
+
+
+@router.get("/history")
+def get_report_history(
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get report history grouped by analysis session.
+
+    Reports created within the same minute are considered part of the same session.
+    Returns sessions with their general report and specialist reports.
+    """
+    from sqlalchemy import func
+    from datetime import timedelta
+
+    # Get all general reports first (they mark analysis sessions)
+    general_reports = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id)\
+        .filter(HealthReport.report_type == "general")\
+        .order_by(desc(HealthReport.created_at))\
+        .limit(limit)\
+        .all()
+
+    sessions = []
+
+    for general in general_reports:
+        # Find specialist reports created within 5 minutes of this general report
+        session_start = general.created_at - timedelta(minutes=1)
+        session_end = general.created_at + timedelta(minutes=5)
+
+        specialist_reports = db.query(HealthReport)\
+            .filter(HealthReport.user_id == current_user.id)\
+            .filter(HealthReport.report_type != "general")\
+            .filter(HealthReport.report_type != "gap_analysis")\
+            .filter(HealthReport.created_at >= session_start)\
+            .filter(HealthReport.created_at <= session_end)\
+            .all()
+
+        sessions.append({
+            "session_date": general.created_at.isoformat(),
+            "general": {
+                "id": general.id,
+                "summary": general.summary,
+                "risk_level": general.risk_level,
+                "biomarkers_analyzed": general.biomarkers_analyzed,
+                "findings": json.loads(general.findings) if general.findings else [],
+                "recommendations": json.loads(general.recommendations) if general.recommendations else []
+            },
+            "specialists": [{
+                "id": r.id,
+                "report_type": r.report_type,
+                "title": r.title,
+                "summary": r.summary,
+                "risk_level": r.risk_level,
+                "findings": json.loads(r.findings) if r.findings else [],
+                "recommendations": json.loads(r.recommendations) if r.recommendations else []
+            } for r in specialist_reports]
+        })
+
+    return {"sessions": sessions, "total": len(sessions)}
+
+
+@router.get("/compare/{report_id_1}/{report_id_2}")
+def compare_reports(
+    report_id_1: int,
+    report_id_2: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Compare two health reports side by side."""
+    report_1 = db.query(HealthReport)\
+        .filter(HealthReport.id == report_id_1)\
+        .filter(HealthReport.user_id == current_user.id)\
+        .first()
+
+    report_2 = db.query(HealthReport)\
+        .filter(HealthReport.id == report_id_2)\
+        .filter(HealthReport.user_id == current_user.id)\
+        .first()
+
+    if not report_1 or not report_2:
+        raise HTTPException(status_code=404, detail="One or both reports not found")
+
+    def format_report(r):
+        return {
+            "id": r.id,
+            "report_type": r.report_type,
+            "title": r.title,
+            "summary": r.summary,
+            "risk_level": r.risk_level,
+            "biomarkers_analyzed": r.biomarkers_analyzed,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "findings": json.loads(r.findings) if r.findings else [],
+            "recommendations": json.loads(r.recommendations) if r.recommendations else []
+        }
+
+    # Determine changes
+    risk_change = None
+    if report_1.risk_level != report_2.risk_level:
+        risk_levels = {"normal": 0, "attention": 1, "concern": 2, "urgent": 3}
+        old_level = risk_levels.get(report_1.risk_level, 0)
+        new_level = risk_levels.get(report_2.risk_level, 0)
+        if new_level > old_level:
+            risk_change = "worsened"
+        elif new_level < old_level:
+            risk_change = "improved"
+
+    return {
+        "report_1": format_report(report_1),
+        "report_2": format_report(report_2),
+        "comparison": {
+            "risk_change": risk_change,
+            "days_between": (report_2.created_at - report_1.created_at).days if report_1.created_at and report_2.created_at else None,
+            "biomarkers_change": report_2.biomarkers_analyzed - report_1.biomarkers_analyzed if report_1.biomarkers_analyzed and report_2.biomarkers_analyzed else None
+        }
+    }
