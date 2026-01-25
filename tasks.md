@@ -10,6 +10,22 @@
 
 ## Pending
 
+### Conturi Conectate - Page Error & Human-Readable Errors
+**Status:** Pending
+**Priority:** High
+
+When entering "Conturi conectate" (Connected Accounts) page, an error is displayed.
+
+**Issues:**
+- [ ] Fix the bug causing the error - page should load without errors
+- [ ] Make all error messages human-readable (not technical/stack traces)
+- [ ] Ensure proper error handling with user-friendly messages in RO/EN
+
+**Files to check:**
+- `frontend_v2/src/pages/LinkedAccounts.tsx` (or similar)
+- `backend_v2/routers/` - linked accounts endpoints
+- Check API response handling and error states
+
 ### Admin - Sync Schedule Visualization
 **Status:** Pending
 **Priority:** Medium
