@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import api from '../api/client';
 import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
-    RefreshCw, FileText, TrendingUp, Shield, ChevronDown, X, Eye,
-    ClipboardList, Sparkles, Calendar, History, GitCompare, ArrowRight,
-    TrendingDown, Minus, ChevronLeft
+    RefreshCw, FileText, TrendingUp, Shield, X, Eye,
+    ClipboardList, History, GitCompare, TrendingDown, Minus
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -73,8 +73,6 @@ const HealthReports = () => {
     const [error, setError] = useState(null);
     const [selectedReport, setSelectedReport] = useState(null);
     const [gapAnalysis, setGapAnalysis] = useState(null);
-    const [gapLoading, setGapLoading] = useState(false);
-    const [showGapSection, setShowGapSection] = useState(false);
     const [reportHistory, setReportHistory] = useState([]);
     const [compareMode, setCompareMode] = useState(false);
     const [selectedForCompare, setSelectedForCompare] = useState([]);
@@ -121,13 +119,11 @@ const HealthReports = () => {
             setBiomarkers(biomarkersRes.data);
             setReportHistory(historyRes.data.sessions || []);
 
-            // Load saved gap analysis if exists
+            // Load saved gap analysis if exists (for showing count in link)
             if (gapRes.data.has_report) {
                 setGapAnalysis({
-                    summary: gapRes.data.summary,
                     recommended_tests: gapRes.data.recommended_tests
                 });
-                setShowGapSection(true);
             }
 
             setError(null);
@@ -211,21 +207,6 @@ const HealthReports = () => {
             setError(e.response?.data?.detail || "Analysis failed. Please try again.");
         } finally {
             setAnalyzing(false);
-        }
-    };
-
-    const runGapAnalysis = async () => {
-        setGapLoading(true);
-        setError(null);
-        try {
-            const res = await api.post('/health/gap-analysis');
-            setGapAnalysis(res.data.analysis);
-            setShowGapSection(true);
-        } catch (e) {
-            console.error("Gap analysis failed", e);
-            setError(e.response?.data?.detail || "Gap analysis failed. Please try again.");
-        } finally {
-            setGapLoading(false);
         }
     };
 
@@ -516,117 +497,31 @@ const HealthReports = () => {
                 </div>
             </div>
 
-            {/* Gap Analysis Section */}
-            <div className="card overflow-hidden">
-                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-violet-100 rounded-lg">
-                            <ClipboardList size={20} className="text-violet-600" />
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.gapAnalysis.title') || 'Recommended Screenings'}</h2>
-                            <p className="text-sm text-slate-500 mt-0.5">{t('healthReports.gapAnalysis.subtitle') || 'AI-recommended tests based on your age and medical history'}</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={runGapAnalysis}
-                        disabled={gapLoading}
-                        className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all text-sm",
-                            gapLoading
-                                ? "bg-violet-100 text-violet-600 cursor-wait"
-                                : "bg-violet-600 text-white hover:bg-violet-700"
-                        )}
-                    >
-                        {gapLoading ? (
-                            <>
-                                <Loader2 className="animate-spin" size={16} />
-                                {t('common.loading') || 'Analyzing...'}
-                            </>
-                        ) : (
-                            <>
-                                <Sparkles size={16} />
-                                {t('healthReports.gapAnalysis.getRecommendations') || 'Get Recommendations'}
-                            </>
-                        )}
-                    </button>
+            {/* Screenings Link Card */}
+            <Link
+                to="/screenings"
+                className="card p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors group"
+            >
+                <div className="p-3 bg-violet-100 rounded-xl group-hover:bg-violet-200 transition-colors">
+                    <ClipboardList size={24} className="text-violet-600" />
                 </div>
-
-                {gapAnalysis ? (
-                    <div className="p-6">
-                        {/* Summary */}
-                        {gapAnalysis.summary && (
-                            <p className="text-slate-700 mb-6 leading-relaxed">{gapAnalysis.summary}</p>
-                        )}
-
-                        {/* Recommended Tests */}
-                        {gapAnalysis.recommended_tests?.length > 0 && (
-                            <div className="space-y-3">
-                                {gapAnalysis.recommended_tests.map((test, i) => (
-                                    <div key={i} className={cn(
-                                        "p-4 rounded-xl border",
-                                        test.priority === 'high' ? "bg-rose-50 border-rose-200" :
-                                        test.priority === 'medium' ? "bg-amber-50 border-amber-200" :
-                                        "bg-slate-50 border-slate-200"
-                                    )}>
-                                        <div className="flex items-start justify-between gap-3 mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-semibold text-slate-800">{test.test_name}</span>
-                                                <span className={cn(
-                                                    "text-xs px-2 py-0.5 rounded-full font-medium",
-                                                    test.priority === 'high' ? "bg-rose-100 text-rose-700" :
-                                                    test.priority === 'medium' ? "bg-amber-100 text-amber-700" :
-                                                    "bg-slate-200 text-slate-600"
-                                                )}>
-                                                    {test.priority === 'high' ? (t('healthReports.gapAnalysis.highPriority') || 'High Priority') :
-                                                     test.priority === 'medium' ? (t('healthReports.gapAnalysis.mediumPriority') || 'Medium Priority') :
-                                                     (t('healthReports.gapAnalysis.lowPriority') || 'Low Priority')}
-                                                </span>
-                                            </div>
-                                            {test.category && (
-                                                <span className="text-xs bg-white px-2 py-1 rounded border border-slate-200 text-slate-500">
-                                                    {test.category}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className="text-sm text-slate-600 mb-2">{test.reason}</p>
-                                        <div className="flex items-center gap-4 text-xs text-slate-500">
-                                            {test.frequency && (
-                                                <span className="flex items-center gap-1">
-                                                    <Calendar size={12} />
-                                                    {test.frequency}
-                                                </span>
-                                            )}
-                                            {test.age_recommendation && (
-                                                <span className="flex items-center gap-1">
-                                                    <Clock size={12} />
-                                                    {test.age_recommendation}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Notes */}
-                        {gapAnalysis.notes && (
-                            <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-700">
-                                <strong>{t('healthReports.gapAnalysis.note') || 'Note'}:</strong> {gapAnalysis.notes}
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <div className="p-8 text-center">
-                        <div className="w-12 h-12 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                            <ClipboardList size={24} className="text-violet-400" />
+                <div className="flex-1">
+                    <h2 className="text-lg font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">
+                        {t('healthReports.screenings.title') || 'Recommended Screenings'}
+                    </h2>
+                    <p className="text-sm text-slate-500 mt-0.5">
+                        {t('healthReports.screenings.subtitle') || 'View personalized health screening recommendations based on your profile'}
+                    </p>
+                    {gapAnalysis && gapAnalysis.recommended_tests?.length > 0 && (
+                        <div className="flex items-center gap-2 mt-2">
+                            <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">
+                                {gapAnalysis.recommended_tests.length} recommendations
+                            </span>
                         </div>
-                        <p className="text-slate-500 text-sm">
-                            {t('healthReports.gapAnalysis.noAnalysisHint') || 'Click "Get Recommendations" to see which health screenings you might be missing based on your age and medical history.'}
-                        </p>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+                <ChevronRight size={20} className="text-slate-400 group-hover:text-violet-600 transition-colors" />
+            </Link>
 
             {/* Report History & Comparison */}
             {reportHistory.length > 0 && (

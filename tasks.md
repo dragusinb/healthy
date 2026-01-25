@@ -61,12 +61,6 @@ When a linked provider account has access to multiple patients (e.g., family mem
 - [ ] Track when tests were last done
 - [ ] Notifications when screenings are due
 
-### Separate Recommended Screenings Page
-**Status:** Pending
-**Priority:** Medium
-
-Gap Analysis / Recommended Screenings should be a separate page/section, not just inside Health Reports.
-
 ### Database Backups
 **Status:** Pending
 **Priority:** Medium
@@ -77,6 +71,7 @@ Gap Analysis / Recommended Screenings should be a separate page/section, not jus
 
 ## Completed
 
+- [x] Separate Recommended Screenings Page - New /screenings route, grouped tests by category, priority stats, profile-aware recommendations
 - [x] Report History & Comparison - Session-based history view, comparison mode to select 2 reports, side-by-side comparison with risk change and stats
 - [x] Admin - Sync Scheduler Visual Improvements - Live countdown timer for next job, color-coded job cards with icons, expanded grid layout, highlighted next job, manual trigger buttons
 - [x] AI Health Reports - Dynamic Specialist Selection - Generalist now outputs structured referrals with reasoning, specialist prompts enhanced to act as medical professionals, timeline-aware formatting
