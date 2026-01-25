@@ -90,6 +90,43 @@ const ErrorModal = ({ job, onClose }) => {
     );
 };
 
+// Countdown Timer Component
+const CountdownTimer = ({ targetTime }) => {
+    const [timeLeft, setTimeLeft] = useState('');
+
+    useEffect(() => {
+        const updateCountdown = () => {
+            if (!targetTime) return;
+            const now = new Date();
+            const target = new Date(targetTime);
+            const diff = target - now;
+
+            if (diff <= 0) {
+                setTimeLeft('Running now...');
+                return;
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            if (hours > 0) {
+                setTimeLeft(`${hours}h ${minutes}m`);
+            } else if (minutes > 0) {
+                setTimeLeft(`${minutes}m ${seconds}s`);
+            } else {
+                setTimeLeft(`${seconds}s`);
+            }
+        };
+
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
+        return () => clearInterval(interval);
+    }, [targetTime]);
+
+    return <span>{timeLeft}</span>;
+};
+
 // Schedule Visual Component
 const ScheduleVisual = ({ history, nextRuns }) => {
     // Generate last 14 days
@@ -695,43 +732,124 @@ const Admin = () => {
                 <ScheduleVisual history={syncHistory.history} nextRuns={syncHistory.next_runs} />
             )}
 
-            {/* Scheduler Info */}
+            {/* Enhanced Scheduler Timeline */}
             {schedulerStatus && schedulerStatus.status === 'running' && (
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                         <Zap size={20} />
-                        Scheduler Jobs
+                        Scheduler Status
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
-                        {schedulerStatus.jobs.map(job => (
-                            <div key={job.id} className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                <p className="font-medium text-slate-800 text-sm">{job.name}</p>
-                                <p className="text-xs text-slate-500 mt-1">{job.trigger}</p>
-                                {job.next_run && (
-                                    <p className="text-xs text-primary-600 mt-1 flex items-center gap-1">
-                                        <Clock size={12} />
-                                        Next: {new Date(job.next_run).toLocaleString()}
-                                    </p>
-                                )}
+
+                    {/* Next Job Highlight */}
+                    {schedulerStatus.jobs.filter(j => j.next_run).sort((a, b) => new Date(a.next_run) - new Date(b.next_run))[0] && (() => {
+                        const nextJob = schedulerStatus.jobs.filter(j => j.next_run).sort((a, b) => new Date(a.next_run) - new Date(b.next_run))[0];
+                        const jobStyles = {
+                            'check_and_sync_providers': { color: 'blue', label: 'Provider Sync', Icon: RefreshCw },
+                            'process_pending_documents': { color: 'teal', label: 'Doc Processing', Icon: FileText },
+                            'cleanup_stuck_syncs': { color: 'amber', label: 'Cleanup', Icon: Trash2 },
+                            'monitor_services': { color: 'violet', label: 'Monitoring', Icon: Activity }
+                        };
+                        const getStyle = (id) => {
+                            for (const [key, style] of Object.entries(jobStyles)) {
+                                if (id.includes(key)) return style;
+                            }
+                            return { color: 'slate', label: 'Unknown', Icon: Clock };
+                        };
+                        const style = getStyle(nextJob.id);
+                        return (
+                            <div className="bg-gradient-to-r from-blue-50 to-violet-50 border-2 border-blue-200 rounded-xl p-4 mb-6">
+                                <div className="flex items-center justify-between flex-wrap gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-3 bg-blue-500 text-white rounded-xl">
+                                            <style.Icon size={24} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-slate-500">Next scheduled job</p>
+                                            <p className="text-lg font-bold text-slate-800">{nextJob.name || style.label}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-3xl font-bold text-blue-600">
+                                            <CountdownTimer targetTime={nextJob.next_run} />
+                                        </div>
+                                        <p className="text-sm text-slate-500">
+                                            {new Date(nextJob.next_run).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                        ))}
+                        );
+                    })()}
+
+                    {/* Upcoming Jobs List */}
+                    <div className="space-y-3 mb-6">
+                        <h3 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                            <Clock size={16} />
+                            All Scheduled Jobs
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {schedulerStatus.jobs.filter(j => j.next_run).sort((a, b) => new Date(a.next_run) - new Date(b.next_run)).map((job, idx) => {
+                                const jobStyles = {
+                                    'check_and_sync_providers': { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', Icon: RefreshCw },
+                                    'process_pending_documents': { bg: 'bg-teal-50', border: 'border-teal-200', text: 'text-teal-700', Icon: FileText },
+                                    'cleanup_stuck_syncs': { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', Icon: Trash2 },
+                                    'monitor_services': { bg: 'bg-violet-50', border: 'border-violet-200', text: 'text-violet-700', Icon: Activity }
+                                };
+                                const getStyle = (id) => {
+                                    for (const [key, style] of Object.entries(jobStyles)) {
+                                        if (id.includes(key)) return style;
+                                    }
+                                    return { bg: 'bg-slate-50', border: 'border-slate-200', text: 'text-slate-700', Icon: Clock };
+                                };
+                                const style = getStyle(job.id);
+                                return (
+                                    <div key={job.id} className={cn(
+                                        "p-4 rounded-xl border-2",
+                                        style.bg, style.border,
+                                        idx === 0 && "ring-2 ring-blue-300 ring-offset-2"
+                                    )}>
+                                        <div className="flex items-start gap-3">
+                                            <div className={cn("p-2 rounded-lg bg-white", style.text)}>
+                                                <style.Icon size={18} />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className={cn("font-semibold text-sm", style.text)}>{job.name}</p>
+                                                <p className="text-xs text-slate-500 mt-0.5">{job.trigger}</p>
+                                                <div className="mt-2 pt-2 border-t border-slate-200/50">
+                                                    <p className="text-xs text-slate-500">Next run:</p>
+                                                    <p className={cn("font-bold", style.text)}>
+                                                        {new Date(job.next_run).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </p>
+                                                    <p className="text-xs text-slate-400">
+                                                        {new Date(job.next_run).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+
+                    {/* Quick Actions */}
+                    <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
+                        <span className="text-sm text-slate-500 self-center mr-2">Run manually:</span>
                         <button
                             onClick={handleTriggerSync}
                             disabled={actionLoading === 'triggersync'}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         >
                             {actionLoading === 'triggersync' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-                            Run Provider Sync Now
+                            Provider Sync
                         </button>
                         <button
                             onClick={handleTriggerDocProcessing}
                             disabled={actionLoading === 'triggerdocs'}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-teal-100 text-teal-700 hover:bg-teal-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         >
                             {actionLoading === 'triggerdocs' ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-                            Run Document Processing Now
+                            Doc Processing
                         </button>
                     </div>
                 </div>

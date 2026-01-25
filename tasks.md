@@ -54,30 +54,6 @@ When a linked provider account has access to multiple patients (e.g., family mem
 - [ ] Auto-retry sync after user updates credentials
 
 
-### Admin - Sync Scheduler Visual Improvements
-**Status:** Pending
-**Priority:** Medium
-
-The sync scheduler section in Admin doesn't clearly show when the next cron jobs will run. Need better visual representation.
-
-**Requirements:**
-- [ ] Show clearly when each cron job will next run (exact time/date)
-- [ ] Visual timeline or countdown for upcoming jobs
-- [ ] Use more screen space - current layout is too compact
-- [ ] Display all scheduled sync types with their next run times
-- [ ] Consider a calendar/timeline view showing upcoming 24-48 hours
-- [ ] Make it easy to see at a glance "what runs next and when"
-
-**Nice to have:**
-- Color coding by job type
-- Click to manually trigger a job
-- History of recent job runs with status (success/fail)
-
-**Files to check:**
-- `frontend_v2/src/pages/Admin.tsx` or similar admin components
-- `backend_v2/routers/` - scheduler/admin endpoints
-- Check what scheduler data is already available from API
-
 ### Gap Analysis - Future Enhancements
 **Status:** Pending
 **Priority:** Low
@@ -107,6 +83,7 @@ Gap Analysis / Recommended Screenings should be a separate page/section, not jus
 
 ## Completed
 
+- [x] Admin - Sync Scheduler Visual Improvements - Live countdown timer for next job, color-coded job cards with icons, expanded grid layout, highlighted next job, manual trigger buttons
 - [x] AI Health Reports - Dynamic Specialist Selection - Generalist now outputs structured referrals with reasoning, specialist prompts enhanced to act as medical professionals, timeline-aware formatting
 - [x] Biomarkers - Fix Incorrect Grouping (AI Matching Accuracy) - Fixed algorithm to prioritize parenthetical abbreviations, use word-boundary matching, sort variants by length
 - [x] Profile - Fix "Scanează din documente" Button & Age Extraction - Smaller button with hidden text on mobile, age_years fallback for birth date extraction
