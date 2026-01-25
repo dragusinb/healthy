@@ -53,7 +53,7 @@
     "passwordsNoMatch": "Parolele nu coincid",
     "invalidCredentials": "Email sau parola invalida",
     "emailRegistered": "Emailul este deja inregistrat",
-    "trackHealthJourney": "Urmareste-ti calatoria spre sanatate",
+    "trackHealthJourney": "Toate analizele tale intr-un singur loc",
     "dataSecure": "Datele tale sunt criptate si securizate",
     "appName": "Healthy",
     "serverOffline": "Serverul este offline. Te rugam sa incerci din nou mai tarziu."
@@ -106,6 +106,7 @@
     "deleting": "Se sterge...",
     "uploadSuccess": "Document incarcat si analizat cu succes! AI a extras biomarkerii din PDF.",
     "deleteSuccess": "Document sters. Rapoartele de sanatate au fost golite - ruleaza o noua analiza cand esti gata.",
+    "allPatients": "Toti Pacientii",
     "processingYourDocument": "Se proceseaza documentul tau",
     "uploadSteps": {
       "uploading": "Se incarca fisierul...",
@@ -114,7 +115,12 @@
       "extracting": "Se extrag rezultatele testelor...",
       "saving": "Se salveaza in baza de date..."
     },
-    "unknown": "Necunoscut"
+    "unknown": "Necunoscut",
+    "rescanPatients": "Scaneaza Pacienti",
+    "rescanning": "Se scaneaza...",
+    "rescanTooltip": "Scaneaza documentele pentru a extrage numele pacientilor",
+    "rescanSuccess": "S-au gasit nume de pacienti in {{count}} documente",
+    "rescanNoUpdates": "Toate documentele au deja nume de pacienti"
   },
   "biomarkers": {
     "title": "Biomarkeri",

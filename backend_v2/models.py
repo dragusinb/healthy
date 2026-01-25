@@ -69,7 +69,8 @@ class Document(Base):
     upload_date = Column(DateTime, default=datetime.datetime.utcnow)
     document_date = Column(DateTime, nullable=True)
     is_processed = Column(Boolean, default=False)
-    
+    patient_name = Column(String, nullable=True)  # Name of patient on the document
+
     user = relationship("User", back_populates="documents")
     results = relationship("TestResult", back_populates="document", cascade="all, delete-orphan")
 

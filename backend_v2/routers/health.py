@@ -322,9 +322,47 @@ def run_gap_analysis(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gap analysis failed: {str(e)}")
 
+    # Save gap analysis to database
+    report = HealthReport(
+        user_id=current_user.id,
+        report_type="gap_analysis",
+        title="Recommended Health Screenings",
+        summary=analysis.get("summary", ""),
+        findings=json.dumps(analysis.get("recommended_tests", [])),
+        recommendations=json.dumps([]),
+        risk_level="normal",
+        biomarkers_analyzed=len(existing_tests)
+    )
+    db.add(report)
+    db.commit()
+
     return {
         "status": "success",
         "existing_tests_count": len(existing_tests),
         "analysis": analysis,
         "analyzed_at": datetime.now().isoformat()
+    }
+
+
+@router.get("/gap-analysis/latest")
+def get_latest_gap_analysis(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the latest gap analysis report."""
+    report = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id)\
+        .filter(HealthReport.report_type == "gap_analysis")\
+        .order_by(desc(HealthReport.created_at))\
+        .first()
+
+    if not report:
+        return {"has_report": False}
+
+    return {
+        "has_report": True,
+        "id": report.id,
+        "summary": report.summary,
+        "recommended_tests": json.loads(report.findings) if report.findings else [],
+        "created_at": report.created_at.isoformat() if report.created_at else None
     }

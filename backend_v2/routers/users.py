@@ -500,6 +500,10 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
                         except:
                             pass  # Keep original date if parsing fails
 
+                    # Extract patient name from document
+                    if "patient_info" in parsed_data and parsed_data["patient_info"].get("full_name"):
+                        new_doc.patient_name = parsed_data["patient_info"]["full_name"]
+
                     new_doc.is_processed = True
                     db.commit()
                     count_processed += 1

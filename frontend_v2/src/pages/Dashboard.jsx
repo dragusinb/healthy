@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { Activity, FileCheck, AlertTriangle, ArrowRight, TrendingUp, Plus, ShieldCheck, Brain } from 'lucide-react';
+import { Activity, FileCheck, AlertTriangle, ArrowRight, TrendingUp, Plus, ShieldCheck, Brain, KeyRound, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => (
@@ -29,20 +29,30 @@ const Dashboard = () => {
     const { t } = useTranslation();
     const [stats, setStats] = useState({ documents_count: 0, biomarkers_count: 0, alerts_count: 0 });
     const [recentBiomarkers, setRecentBiomarkers] = useState([]);
+    const [accountErrors, setAccountErrors] = useState([]);
+    const [dismissedErrors, setDismissedErrors] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statsRes, recentRes, alertsRes] = await Promise.all([
+                const [statsRes, recentRes, alertsRes, userRes] = await Promise.all([
                     api.get('/dashboard/stats'),
                     api.get('/dashboard/recent-biomarkers'),
-                    api.get('/dashboard/alerts-count')
+                    api.get('/dashboard/alerts-count'),
+                    api.get('/users/me')
                 ]);
                 setStats({
                     ...statsRes.data,
                     alerts_count: alertsRes.data.alerts_count
                 });
                 setRecentBiomarkers(recentRes.data);
+
+                // Check for unacknowledged provider errors
+                const accounts = userRes.data.linked_accounts || [];
+                const errors = accounts.filter(acc =>
+                    acc.status === 'ERROR' && !acc.error_acknowledged
+                );
+                setAccountErrors(errors);
             } catch (e) {
                 console.error("Failed to fetch dashboard data", e);
             }
@@ -50,8 +60,65 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
+    const dismissError = async (accountId) => {
+        try {
+            await api.post(`/users/accounts/${accountId}/acknowledge-error`);
+            setDismissedErrors(prev => [...prev, accountId]);
+        } catch (e) {
+            console.error("Failed to dismiss error", e);
+        }
+    };
+
+    const visibleErrors = accountErrors.filter(acc => !dismissedErrors.includes(acc.id));
+
+    const getErrorMessage = (errorType) => {
+        const messages = {
+            wrong_password: t('linkedAccounts.errors.wrongPassword'),
+            captcha_failed: t('linkedAccounts.errors.captchaFailed'),
+            site_down: t('linkedAccounts.errors.siteDown'),
+            session_expired: t('linkedAccounts.errors.sessionExpired'),
+            timeout: t('linkedAccounts.errors.timeout'),
+            unknown: t('linkedAccounts.errors.unknown')
+        };
+        return messages[errorType] || messages.unknown;
+    };
+
     return (
         <div>
+            {/* Provider Error Notifications */}
+            {visibleErrors.length > 0 && (
+                <div className="mb-6 space-y-3">
+                    {visibleErrors.map(acc => (
+                        <div key={acc.id} className="flex items-center gap-4 p-4 bg-rose-50 border border-rose-200 rounded-xl animate-in fade-in slide-in-from-top-4 duration-300">
+                            <div className="p-2 bg-rose-100 rounded-lg">
+                                <KeyRound size={20} className="text-rose-600" />
+                            </div>
+                            <div className="flex-1">
+                                <p className="font-semibold text-rose-800">
+                                    {acc.provider_name}: {getErrorMessage(acc.error_type)}
+                                </p>
+                                <p className="text-sm text-rose-600">
+                                    {t('linkedAccounts.errors.' + acc.error_type + 'Desc') || t('linkedAccounts.errors.unknownDesc')}
+                                </p>
+                            </div>
+                            <Link
+                                to="/linked-accounts"
+                                className="px-4 py-2 bg-rose-600 text-white rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
+                            >
+                                {t('linkedAccounts.updateCredentials') || 'Fix'}
+                            </Link>
+                            <button
+                                onClick={() => dismissError(acc.id)}
+                                className="p-2 hover:bg-rose-100 rounded-lg transition-colors text-rose-400 hover:text-rose-600"
+                                title={t('common.close')}
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Quick Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <StatCard

@@ -101,16 +101,27 @@ const HealthReports = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [latestRes, reportsRes, specialistsRes, biomarkersRes] = await Promise.all([
+            const [latestRes, reportsRes, specialistsRes, biomarkersRes, gapRes] = await Promise.all([
                 api.get('/health/latest'),
                 api.get('/health/reports?limit=10'),
                 api.get('/health/specialists'),
-                api.get('/dashboard/biomarkers')
+                api.get('/dashboard/biomarkers'),
+                api.get('/health/gap-analysis/latest').catch(() => ({ data: { has_report: false } }))
             ]);
             setLatestReport(latestRes.data);
             setReports(reportsRes.data);
             setSpecialists(specialistsRes.data);
             setBiomarkers(biomarkersRes.data);
+
+            // Load saved gap analysis if exists
+            if (gapRes.data.has_report) {
+                setGapAnalysis({
+                    summary: gapRes.data.summary,
+                    recommended_tests: gapRes.data.recommended_tests
+                });
+                setShowGapSection(true);
+            }
+
             setError(null);
         } catch (e) {
             console.error("Failed to fetch health data", e);

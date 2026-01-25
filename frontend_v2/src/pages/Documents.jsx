@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Activity, Eye, Trash2, X, Brain } from 'lucide-react';
+import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Activity, Eye, Trash2, X, Brain, User, RefreshCw } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const Documents = () => {
@@ -15,6 +15,23 @@ const Documents = () => {
     const [success, setSuccess] = useState(null);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const [patientFilter, setPatientFilter] = useState('all');
+    const [rescanning, setRescanning] = useState(false);
+
+    // Get unique patient names for filter
+    const patientNames = useMemo(() => {
+        const names = new Set();
+        documents.forEach(doc => {
+            if (doc.patient_name) names.add(doc.patient_name);
+        });
+        return Array.from(names).sort();
+    }, [documents]);
+
+    // Filter documents by patient
+    const filteredDocuments = useMemo(() => {
+        if (patientFilter === 'all') return documents;
+        return documents.filter(doc => doc.patient_name === patientFilter);
+    }, [documents, patientFilter]);
 
     const UPLOAD_STEPS = [
         { key: 'uploading', label: t('documents.uploadSteps.uploading'), duration: 500 },
@@ -120,11 +137,63 @@ const Documents = () => {
         }
     };
 
+    const handleRescanPatientNames = async () => {
+        setRescanning(true);
+        setError(null);
+        try {
+            const res = await api.post('/documents/rescan-patient-names');
+            if (res.data.updated > 0) {
+                setSuccess(t('documents.rescanSuccess', { count: res.data.updated }));
+                fetchDocuments();
+            } else {
+                setSuccess(t('documents.rescanNoUpdates'));
+            }
+            setTimeout(() => setSuccess(null), 5000);
+        } catch (error) {
+            console.error("Rescan failed", error);
+            setError(t('common.error'));
+        } finally {
+            setRescanning(false);
+        }
+    };
+
     return (
         <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div></div>
+                {/* Patient Filter */}
+                <div className="flex items-center gap-3">
+                    {patientNames.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <User size={16} className="text-slate-400" />
+                            <select
+                                value={patientFilter}
+                                onChange={(e) => setPatientFilter(e.target.value)}
+                                className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            >
+                                <option value="all">{t('documents.allPatients') || 'All Patients'}</option>
+                                {patientNames.map(name => (
+                                    <option key={name} value={name}>{name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                </div>
                 <div className="flex gap-3 w-full md:w-auto">
+                    {/* Rescan button - only show if there are docs without patient names */}
+                    {documents.some(d => !d.patient_name) && (
+                        <button
+                            onClick={handleRescanPatientNames}
+                            disabled={rescanning}
+                            className={cn(
+                                "flex items-center gap-2 px-4 py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-all border border-slate-200",
+                                rescanning && "opacity-70 cursor-not-allowed"
+                            )}
+                            title={t('documents.rescanTooltip')}
+                        >
+                            {rescanning ? <Loader2 className="animate-spin" size={18} /> : <RefreshCw size={18} />}
+                            <span className="hidden sm:inline">{rescanning ? t('documents.rescanning') : t('documents.rescanPatients')}</span>
+                        </button>
+                    )}
                     <div className="relative group">
                         <input
                             type="file"
@@ -210,7 +279,7 @@ const Documents = () => {
                     <div className="h-64 flex justify-center items-center text-slate-400">
                         <Loader2 className="animate-spin text-primary-500" size={32} />
                     </div>
-                ) : documents.length === 0 ? (
+                ) : filteredDocuments.length === 0 ? (
                     <div className="h-64 flex flex-col items-center justify-center text-center p-8">
                         <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-400">
                             <FileText size={32} />
@@ -222,7 +291,7 @@ const Documents = () => {
                     </div>
                 ) : (
                     <div className="divide-y divide-slate-50">
-                        {documents.map((doc) => (
+                        {filteredDocuments.map((doc) => (
                             <div key={doc.id} className="grid grid-cols-12 gap-4 p-5 items-center hover:bg-slate-50/80 transition-all duration-200 group">
                                 <div className="col-span-4 flex items-center gap-4 pl-2">
                                     <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0 border border-primary-100 shadow-sm">
@@ -230,7 +299,15 @@ const Documents = () => {
                                     </div>
                                     <div className="min-w-0">
                                         <p className="font-semibold text-slate-900 truncate text-sm" title={doc.filename}>{doc.filename}</p>
-                                        <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
+                                            {doc.patient_name && (
+                                                <span className="text-xs text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1">
+                                                    <User size={10} />
+                                                    {doc.patient_name}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

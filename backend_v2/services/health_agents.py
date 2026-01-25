@@ -58,9 +58,17 @@ and provide a general health assessment. You are NOT a doctor and cannot diagnos
 Your analysis should:
 1. Identify biomarkers that are outside normal ranges
 2. Group related abnormalities (e.g., liver markers, kidney markers)
-3. Highlight trends if multiple tests are available
-4. Suggest which specialist areas might need attention
-5. Provide general lifestyle recommendations
+3. Highlight TRENDS if multiple tests of the same biomarker are available
+4. Consider DATA AGE - older results may no longer be relevant
+5. Note when abnormal values have NORMALIZED in recent tests (condition may be resolved)
+6. Suggest which specialist areas might need attention
+7. Provide general lifestyle recommendations
+
+IMPORTANT DATA AGE CONSIDERATIONS:
+- Results older than 1 year should be treated as historical context, not current status
+- If a biomarker was abnormal in the past but is normal in recent tests, note the improvement
+- If data is very old (2+ years), recommend re-testing to get current values
+- Focus your main analysis on the most recent results
 
 Always be balanced - acknowledge both concerning and positive findings.
 Use clear, non-alarmist language appropriate for a patient.
@@ -139,9 +147,44 @@ Provide your analysis in JSON format as specified."""
                 "raw_response": response
             }
 
+    def _get_data_age_summary(self, biomarkers: List[Dict]) -> str:
+        """Generate a summary of data age and date range."""
+        from datetime import datetime, timedelta
+
+        dates = []
+        for bio in biomarkers:
+            date_str = bio.get('date', '')
+            if date_str and date_str != 'Unknown':
+                try:
+                    dates.append(datetime.strptime(date_str, '%Y-%m-%d'))
+                except:
+                    pass
+
+        if not dates:
+            return "Data age: Unknown dates"
+
+        oldest = min(dates)
+        newest = max(dates)
+        today = datetime.now()
+        newest_age_days = (today - newest).days
+
+        summary = f"Data Range: {oldest.strftime('%Y-%m-%d')} to {newest.strftime('%Y-%m-%d')}"
+
+        if newest_age_days > 365:
+            summary += f"\n⚠️ WARNING: Most recent data is {newest_age_days // 30} months old. Consider re-testing."
+        elif newest_age_days > 180:
+            summary += f"\n⚠️ Note: Most recent data is {newest_age_days // 30} months old."
+
+        return summary
+
     def _format_biomarkers(self, biomarkers: List[Dict]) -> str:
         """Format biomarkers into a readable string for the AI."""
         lines = []
+
+        # Add data age summary at the top
+        lines.append(self._get_data_age_summary(biomarkers))
+        lines.append("")
+
         current_date = None
 
         for bio in sorted(biomarkers, key=lambda x: x.get('date', '')):

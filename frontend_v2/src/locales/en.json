@@ -53,7 +53,7 @@
     "passwordsNoMatch": "Passwords do not match",
     "invalidCredentials": "Invalid email or password",
     "emailRegistered": "Email already registered",
-    "trackHealthJourney": "Track your health journey",
+    "trackHealthJourney": "All your lab results in one place",
     "dataSecure": "Your health data is encrypted and secure",
     "appName": "Healthy",
     "serverOffline": "Server is offline. Please try again later."
@@ -106,6 +106,7 @@
     "deleting": "Deleting...",
     "uploadSuccess": "Document uploaded and analyzed successfully! AI extracted biomarkers from your PDF.",
     "deleteSuccess": "Document deleted. Health reports have been cleared - run a new analysis when ready.",
+    "allPatients": "All Patients",
     "processingYourDocument": "Processing Your Document",
     "uploadSteps": {
       "uploading": "Uploading file...",
@@ -114,7 +115,12 @@
       "extracting": "Extracting test results...",
       "saving": "Saving to database..."
     },
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "rescanPatients": "Scan Patient Names",
+    "rescanning": "Scanning...",
+    "rescanTooltip": "Scan documents to extract patient names",
+    "rescanSuccess": "Found patient names in {{count}} documents",
+    "rescanNoUpdates": "All documents already have patient names"
   },
   "biomarkers": {
     "title": "Biomarkers",
