@@ -52,6 +52,7 @@ When a linked provider account has access to multiple patients (e.g., family mem
 
 ## Completed
 
+- [x] Admin - Remove Redundant Service Status Section - Removed old Service Status section (was buggy and redundant with Server Stats), cleaned up frontend/backend code
 - [x] Admin - Service Status Fix - Updated endpoint to use correct service name (healthy-api), disabled old duplicate service
 - [x] Auto-retry sync after user updates credentials - When credentials are updated for an ERROR account, automatically trigger sync
 - [x] Conturi Conectate - Page Error Fix - Fixed null error_type handling that caused translation lookup errors
