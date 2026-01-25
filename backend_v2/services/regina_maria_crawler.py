@@ -1,12 +1,17 @@
 import os
 import datetime
+import logging
 from typing import Dict, Any, List
 from playwright.sync_api import Page
 
 try:
     from backend_v2.services.base import BaseCrawler
+    from backend_v2.services.captcha_solver import CaptchaSolver, extract_recaptcha_sitekey, inject_captcha_token
 except ImportError:
     from services.base import BaseCrawler
+    from services.captcha_solver import CaptchaSolver, extract_recaptcha_sitekey, inject_captcha_token
+
+logger = logging.getLogger(__name__)
 
 
 class CaptchaRequiredError(Exception):
@@ -141,10 +146,35 @@ class ReginaMariaCrawler(BaseCrawler):
                 self.log("Login Successful (Authenticated content detected).")
                 return
 
-            # 2. ReCAPTCHA Detection
+            # 2. ReCAPTCHA Detection - try auto-solve first
             if "recaptcha" in content.lower() or "g-recaptcha" in content.lower():
+                self.log("reCAPTCHA detected! Attempting automatic solving...")
+
+                # Try to solve automatically using CAPTCHA service
+                try:
+                    solved = self._solve_recaptcha(page)
+                    if solved:
+                        self.log("reCAPTCHA solved automatically! Continuing login...")
+                        page.wait_for_timeout(2000)
+                        # Check if we're now authenticated
+                        if self._check_authenticated(page):
+                            self.log("Login successful after CAPTCHA solve!")
+                            return
+                        # Try clicking login button again after solving
+                        try:
+                            submit_btn = page.locator("button[type='submit']")
+                            if submit_btn.count() > 0:
+                                submit_btn.first.click(timeout=3000, force=True)
+                                page.wait_for_timeout(3000)
+                        except:
+                            pass
+                        continue  # Continue checking login status
+                except Exception as captcha_error:
+                    self.log(f"Auto CAPTCHA solve failed: {captcha_error}")
+
+                # If auto-solve failed and we're in headless mode, raise error
                 if self.headless:
-                    self.log("reCAPTCHA detected in headless mode - need visible browser")
+                    self.log("reCAPTCHA detected in headless mode - auto-solve failed")
                     raise CaptchaRequiredError("reCAPTCHA detected - visible browser required")
                 if i == 0:  # Only log once
                     self.log("reCAPTCHA detected! Please solve it manually in the browser window.")
@@ -175,6 +205,59 @@ class ReginaMariaCrawler(BaseCrawler):
             self.log(f"Stuck on URL: {page.url}")
             page.screenshot(path=f"{self.download_dir}/login_stuck.png")
             raise Exception(f"Login failed - Could not detect authenticated session. Stuck at {page.url}")
+
+    def _solve_recaptcha(self, page: Page) -> bool:
+        """
+        Attempt to solve reCAPTCHA using external service.
+
+        Returns:
+            True if CAPTCHA was solved and token injected
+        """
+        try:
+            # Extract the site key
+            site_key = extract_recaptcha_sitekey(page)
+            if not site_key:
+                self.log("Could not find reCAPTCHA site key")
+                return False
+
+            self.log(f"Found reCAPTCHA site key: {site_key[:20]}...")
+
+            # Get the current page URL
+            page_url = page.url
+
+            # Initialize solver and solve
+            solver = CaptchaSolver()
+
+            # Check balance first
+            balance = solver.get_balance()
+            self.log(f"CAPTCHA service balance: ${balance:.2f}")
+            if balance < 0.01:
+                self.log("CAPTCHA service balance too low!")
+                return False
+
+            # Solve the CAPTCHA
+            self.log("Sending CAPTCHA to solving service (this may take 20-60 seconds)...")
+            token = solver.solve_recaptcha_v2(page_url, site_key)
+
+            if not token:
+                self.log("CAPTCHA solving returned empty token")
+                return False
+
+            self.log(f"Got CAPTCHA token: {token[:50]}...")
+
+            # Inject the token into the page
+            success = inject_captcha_token(page, token)
+            if success:
+                self.log("CAPTCHA token injected successfully!")
+                return True
+            else:
+                self.log("Failed to inject CAPTCHA token")
+                return False
+
+        except Exception as e:
+            self.log(f"CAPTCHA solving error: {e}")
+            logger.exception("CAPTCHA solving failed")
+            return False
 
     def _check_authenticated(self, page: Page) -> bool:
         """Check if we're actually logged in by looking for authenticated UI elements."""
