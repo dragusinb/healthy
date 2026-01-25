@@ -81,6 +81,33 @@ In the Biomarkers page, biomarkers with the same name appear as separate rows. T
 - `frontend_v2/src/components/` - biomarker components
 - `backend_v2/routers/` - biomarker API endpoints
 
+### AI Health Reports - Date Awareness & Specialist Triggering
+**Status:** Pending
+**Priority:** High
+
+Multiple issues with AI health report generation:
+
+**Bug 1: AI ignores biomarker dates**
+- Report claims active Strep pyogenes infection based on old results
+- Latest analysis shows no infection, but AI doesn't prioritize recent data
+- AI should weigh recent biomarkers more heavily and note when data is old
+
+**Bug 2: Specialist reports don't use generalist findings**
+- Specialist AI agents should receive the generalist analysis as context
+- Generalist identifies concerns → triggers relevant specialists
+- Currently specialists may not be aware of generalist's findings
+
+**Bug 3: Missing Infectious Disease specialist**
+- Generalist recommends "consultă un medic infecționist" (infectious disease doctor)
+- But there's no Infectious Disease AI specialist to generate that report
+- Either add Infectologist specialist or map recommendation to existing specialist
+
+**Files to check:**
+- `backend_v2/services/` - AI report generation logic
+- `backend_v2/routers/` - health report endpoints
+- Check how biomarkers are passed to AI (with dates?)
+- Check specialist triggering logic
+
 ### Profile - Fix "Scanează din documente" Button & Age Extraction
 **Status:** Pending
 **Priority:** Medium
