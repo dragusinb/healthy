@@ -281,13 +281,26 @@ def scan_profile_from_documents(
         current_user.full_name = merged_profile["full_name"]
         updates_made.append("full_name")
 
-    if merged_profile.get("date_of_birth") and not current_user.date_of_birth:
-        try:
-            dob = datetime.datetime.strptime(merged_profile["date_of_birth"], "%Y-%m-%d")
-            current_user.date_of_birth = dob
-            updates_made.append("date_of_birth")
-        except:
-            pass
+    if not current_user.date_of_birth:
+        # Try direct date_of_birth first
+        if merged_profile.get("date_of_birth"):
+            try:
+                dob = datetime.datetime.strptime(merged_profile["date_of_birth"], "%Y-%m-%d")
+                current_user.date_of_birth = dob
+                updates_made.append("date_of_birth")
+            except:
+                pass
+        # Fallback: calculate from age_years if no birth date found
+        elif merged_profile.get("age_years"):
+            try:
+                age = int(merged_profile["age_years"])
+                # Approximate birth date (use January 1st of birth year)
+                birth_year = datetime.date.today().year - age
+                dob = datetime.datetime(birth_year, 1, 1)
+                current_user.date_of_birth = dob
+                updates_made.append("date_of_birth (estimated from age)")
+            except (ValueError, TypeError):
+                pass
 
     if merged_profile.get("gender") and not current_user.gender:
         if merged_profile["gender"] in ["male", "female"]:

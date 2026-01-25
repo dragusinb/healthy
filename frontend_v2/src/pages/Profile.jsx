@@ -186,15 +186,17 @@ const Profile = () => {
                         onClick={handleScanFromDocuments}
                         disabled={scanning}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all",
+                            "flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all",
                             scanning
                                 ? "bg-violet-100 text-violet-600 cursor-wait"
                                 : "bg-violet-100 text-violet-700 hover:bg-violet-200"
                         )}
                         title={t('profile.scanTooltip') || 'Scan your medical documents to auto-fill profile data'}
                     >
-                        {scanning ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                        {scanning ? (t('profile.scanning') || 'Scanning...') : (t('profile.scanFromDocs') || 'Scan from Documents')}
+                        {scanning ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                        <span className="hidden sm:inline">
+                            {scanning ? (t('profile.scanning') || 'Scanning...') : (t('profile.scanFromDocs') || 'Scan from Documents')}
+                        </span>
                     </button>
                     <button
                         onClick={handleSave}

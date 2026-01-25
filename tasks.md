@@ -127,45 +127,6 @@ When a linked provider account has access to multiple patients (e.g., family mem
 - Check current specialist dict/enum and remove
 - Update API to handle dynamic specialist list
 
-### AI Health Reports - Date Awareness & Specialist Triggering
-**Status:** Pending
-**Priority:** High
-
-Multiple issues with AI health report generation:
-
-**Bug 1: AI ignores biomarker dates**
-- Report claims active Strep pyogenes infection based on old results
-- Latest analysis shows no infection, but AI doesn't prioritize recent data
-- AI should weigh recent biomarkers more heavily and note when data is old
-
-**Bug 2: Specialist reports don't use generalist findings**
-- Specialist AI agents should receive the generalist analysis as context
-- Generalist identifies concerns → triggers relevant specialists
-- Currently specialists may not be aware of generalist's findings
-
-**Bug 3: Missing Infectious Disease specialist**
-- Generalist recommends "consultă un medic infecționist" (infectious disease doctor)
-- But there's no Infectious Disease AI specialist to generate that report
-- Either add Infectologist specialist or map recommendation to existing specialist
-
-**Files to check:**
-- `backend_v2/services/` - AI report generation logic
-- `backend_v2/routers/` - health report endpoints
-- Check how biomarkers are passed to AI (with dates?)
-- Check specialist triggering logic
-
-### Profile - Fix "Scanează din documente" Button & Age Extraction
-**Status:** Pending
-**Priority:** Medium
-
-Issues with the profile scan feature:
-- [ ] Button "Scanează din documente" is too big - reduce size to match other UI elements
-- [ ] Age/birth date extraction from documents not working correctly
-
-**Files to check:**
-- `frontend_v2/src/pages/Profile.tsx` - button styling
-- `backend_v2/services/` - AI profile extraction logic
-
 ### Report History & Comparison
 **Status:** Pending
 **Priority:** Medium
@@ -188,6 +149,8 @@ Gap Analysis / Recommended Screenings should be a separate page/section, not jus
 
 ## Completed
 
+- [x] Profile - Fix "Scanează din documente" Button & Age Extraction - Smaller button with hidden text on mobile, age_years fallback for birth date extraction
+- [x] AI Reports - Date Awareness & Specialist Triggering - Added infectious_disease specialist, 12-month filter for auto-triggering, generalist context passed to specialists
 - [x] Biomarkers - Group Same Tests Together - Normalized names, grouped display with expandable history, trend indicators
 - [x] Admin Dashboard Enhancements - Server metrics (CPU, RAM, disk gauges), Error logs viewer with expandable section
 - [x] Admin - Sync Schedule Visualization - ScheduleVisual component shows 14-day history + 3-day future, Scheduler Jobs shows next run times
@@ -202,7 +165,6 @@ Gap Analysis / Recommended Screenings should be a separate page/section, not jus
 - [x] Data Isolation Audit - All endpoints properly filter by user_id
 - [x] Dashboard notification banner for provider errors
 - [x] Gap Analysis persistence - saves to DB, loads on page refresh
-- [x] AI Reports - Data age awareness and trend considerations
 - [x] Page refresh 404 fix - nginx config updated
 - [x] Documents - Patient column and filter with rescan feature
 - [x] Mobile Navigation - Burger menu with sliding drawer
