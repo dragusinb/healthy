@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import {
-    User, Save, Loader2, CheckCircle, AlertCircle,
+    User, Loader2, CheckCircle, AlertCircle,
     Calendar, Ruler, Scale, Droplets, Heart, Pill,
-    Activity, Wine, Cigarette, AlertTriangle, FileSearch, Sparkles
+    Activity, Wine, Cigarette, AlertTriangle, Sparkles
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -22,6 +22,7 @@ const Profile = () => {
     const { t } = useTranslation();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
     const [scanning, setScanning] = useState(false);
     const [message, setMessage] = useState(null);
     const [profile, setProfile] = useState({
@@ -48,6 +49,34 @@ const Profile = () => {
         fetchProfile();
     }, []);
 
+    // Auto-save with debounce
+    useEffect(() => {
+        // Skip auto-save during initial load
+        if (loading) return;
+
+        const timeoutId = setTimeout(() => {
+            autoSave();
+        }, 1000); // 1 second debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [profile]);
+
+    const autoSave = async () => {
+        setSaving(true);
+        setSaved(false);
+        try {
+            await api.put('/users/profile', profile);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+        } catch (e) {
+            console.error('Auto-save failed', e);
+            setMessage({ type: 'error', text: t('profile.autoSaveFailed') || 'Auto-save failed' });
+            setTimeout(() => setMessage(null), 3000);
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const fetchProfile = async () => {
         try {
             const res = await api.get('/users/profile');
@@ -70,21 +99,6 @@ const Profile = () => {
             setMessage({ type: 'error', text: t('common.error') });
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleSave = async () => {
-        setSaving(true);
-        setMessage(null);
-        try {
-            await api.put('/users/profile', profile);
-            setMessage({ type: 'success', text: t('profile.saved') || 'Profile saved successfully' });
-            setTimeout(() => setMessage(null), 3000);
-        } catch (e) {
-            console.error('Failed to save profile', e);
-            setMessage({ type: 'error', text: e.response?.data?.detail || t('common.error') });
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -181,12 +195,26 @@ const Profile = () => {
                         <p className="text-slate-500 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                    {/* Auto-save status */}
+                    <div className="flex items-center gap-1.5 text-sm">
+                        {saving ? (
+                            <>
+                                <Loader2 size={14} className="animate-spin text-slate-400" />
+                                <span className="text-slate-500">{t('profile.saving') || 'Saving...'}</span>
+                            </>
+                        ) : saved ? (
+                            <>
+                                <CheckCircle size={14} className="text-teal-500" />
+                                <span className="text-teal-600">{t('profile.saved') || 'Saved'}</span>
+                            </>
+                        ) : null}
+                    </div>
                     <button
                         onClick={handleScanFromDocuments}
                         disabled={scanning}
                         className={cn(
-                            "flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
                             scanning
                                 ? "bg-violet-100 text-violet-600 cursor-wait"
                                 : "bg-violet-100 text-violet-700 hover:bg-violet-200"
@@ -194,22 +222,7 @@ const Profile = () => {
                         title={t('profile.scanTooltip') || 'Scan your medical documents to auto-fill profile data'}
                     >
                         {scanning ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                        <span className="hidden sm:inline">
-                            {scanning ? (t('profile.scanning') || 'Scanning...') : (t('profile.scanFromDocs') || 'Scan from Documents')}
-                        </span>
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className={cn(
-                            "flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all",
-                            saving
-                                ? "bg-primary-100 text-primary-600 cursor-wait"
-                                : "bg-primary-600 text-white hover:bg-primary-700 shadow-md shadow-primary-500/20"
-                        )}
-                    >
-                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                        {saving ? (t('common.loading') || 'Saving...') : (t('common.save') || 'Save')}
+                        {scanning ? (t('profile.scanning') || 'Scanning...') : (t('profile.scanFromDocs') || 'Scan from Documents')}
                     </button>
                 </div>
             </div>
