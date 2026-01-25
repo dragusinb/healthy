@@ -33,11 +33,12 @@ Remaining feature:
 
 
 ### Gap Analysis - Future Enhancements
-**Status:** Pending
+**Status:** In Progress
 **Priority:** Low
 
-- [ ] Track when tests were last done
-- [ ] Notifications when screenings are due
+- [x] Track when tests were last done - Shows "X months ago" or "Never done" on each screening
+- [x] Highlight overdue tests based on recommended frequency
+- [ ] Notifications when screenings are due (requires push notification infrastructure)
 
 ### Database Backups
 **Status:** Pending
@@ -50,6 +51,7 @@ Remaining feature:
 
 ## Completed
 
+- [x] Screenings - Track When Tests Were Last Done - Shows "X months ago" or "Never done", highlights overdue tests based on frequency
 - [x] Multi-Patient Detection & Warning - Detect multiple patients in documents, warn on profile scan, dashboard endpoint for patient info
 - [x] Admin - Remove Redundant Service Status Section - Removed old Service Status section (was buggy and redundant with Server Stats), cleaned up frontend/backend code
 - [x] Admin - Service Status Fix - Updated endpoint to use correct service name (healthy-api), disabled old duplicate service

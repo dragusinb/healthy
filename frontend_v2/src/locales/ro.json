@@ -216,6 +216,32 @@
       "noAnalysisHint": "Apasa \"Obtine Recomandari\" pentru a vedea ce screeninguri de sanatate iti lipsesc pe baza varstei si istoricului medical."
     }
   },
+  "screenings": {
+    "title": "Screeninguri Recomandate",
+    "subtitle": "Recomandari personalizate de screeninguri bazate pe profilul tau",
+    "refresh": "Reactualizeaza Recomandarile",
+    "basedOnProfile": "Recomandari bazate pe profilul tau",
+    "updateProfile": "Actualizeaza Profil",
+    "totalRecommended": "Teste Recomandate",
+    "highPriority": "Prioritate Mare",
+    "mediumPriority": "Prioritate Medie",
+    "lowPriority": "De Rutina",
+    "summary": "Sumar",
+    "lastUpdated": "Ultima actualizare",
+    "high": "Prioritate Mare",
+    "medium": "Medie",
+    "routine": "Rutina",
+    "noAnalysis": "Nicio Recomandare Inca",
+    "noAnalysisHint": "Obtine recomandari personalizate de screeninguri de sanatate bazate pe varsta, sex si istoricul medical.",
+    "getRecommendations": "Obtine Recomandari",
+    "disclaimer": "Aceste recomandari sunt generate de AI pe baza ghidurilor generale de sanatate si a profilului tau. Nu sunt un substitut pentru sfatul medical profesional. Consulta intotdeauna medicul tau pentru screeningurile potrivite nevoilor tale individuale.",
+    "thisMonth": "Luna aceasta",
+    "oneMonthAgo": "Acum 1 luna",
+    "monthsAgo": "luni in urma",
+    "neverDone": "Niciodata facut",
+    "overdue": "Intarziat",
+    "upToDate": "La zi"
+  },
   "linkedAccounts": {
     "title": "Conturi Conectate",
     "subtitle": "Conecteaza-ti conturile furnizorilor medicali pentru sincronizare automata",

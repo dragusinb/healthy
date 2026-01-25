@@ -236,9 +236,12 @@ const Screenings = () => {
                                 </div>
                                 <div className="divide-y divide-slate-50">
                                     {tests.map((test, i) => (
-                                        <div key={i} className="p-4 hover:bg-slate-50 transition-colors">
+                                        <div key={i} className={cn(
+                                            "p-4 hover:bg-slate-50 transition-colors",
+                                            test.is_overdue && test.last_done_date === null && "bg-rose-50/50"
+                                        )}>
                                             <div className="flex items-start justify-between gap-4 mb-2">
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 flex-wrap">
                                                     <span className="font-semibold text-slate-800">{test.test_name}</span>
                                                     <span className={cn(
                                                         "text-xs px-2 py-0.5 rounded-full font-medium",
@@ -250,6 +253,30 @@ const Screenings = () => {
                                                          test.priority === 'medium' ? (t('screenings.medium') || 'Medium') :
                                                          (t('screenings.routine') || 'Routine')}
                                                     </span>
+                                                </div>
+                                                {/* Last Done Status */}
+                                                <div className="shrink-0">
+                                                    {test.last_done_date ? (
+                                                        <span className={cn(
+                                                            "text-xs px-2 py-1 rounded-lg flex items-center gap-1",
+                                                            test.is_overdue
+                                                                ? "bg-amber-100 text-amber-700 border border-amber-200"
+                                                                : "bg-teal-100 text-teal-700 border border-teal-200"
+                                                        )}>
+                                                            {test.is_overdue ? <AlertTriangle size={12} /> : <CheckCircle size={12} />}
+                                                            {test.months_since_last === 0
+                                                                ? (t('screenings.thisMonth') || 'This month')
+                                                                : test.months_since_last === 1
+                                                                    ? (t('screenings.oneMonthAgo') || '1 month ago')
+                                                                    : `${test.months_since_last} ${t('screenings.monthsAgo') || 'months ago'}`
+                                                            }
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-xs px-2 py-1 rounded-lg bg-rose-100 text-rose-700 border border-rose-200 flex items-center gap-1">
+                                                            <AlertTriangle size={12} />
+                                                            {t('screenings.neverDone') || 'Never done'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <p className="text-sm text-slate-600 mb-3">{test.reason}</p>

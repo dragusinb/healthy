@@ -349,7 +349,7 @@ def get_latest_gap_analysis(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Get the latest gap analysis report."""
+    """Get the latest gap analysis report with 'last done' tracking."""
     report = db.query(HealthReport)\
         .filter(HealthReport.user_id == current_user.id)\
         .filter(HealthReport.report_type == "gap_analysis")\
@@ -359,11 +359,85 @@ def get_latest_gap_analysis(
     if not report:
         return {"has_report": False}
 
+    recommended_tests = json.loads(report.findings) if report.findings else []
+
+    # Get user's test history with dates for matching
+    user_tests = db.query(TestResult.test_name, TestResult.canonical_name, Document.document_date)\
+        .join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .order_by(Document.document_date.desc())\
+        .all()
+
+    # Build a map of test names to their most recent date
+    test_dates = {}
+    for test_name, canonical_name, doc_date in user_tests:
+        # Use canonical name if available, otherwise normalize test name
+        key = (canonical_name or test_name).lower().strip()
+        if key not in test_dates and doc_date:
+            test_dates[key] = doc_date
+
+    # Also build with original names for better matching
+    for test_name, canonical_name, doc_date in user_tests:
+        key = test_name.lower().strip()
+        if key not in test_dates and doc_date:
+            test_dates[key] = doc_date
+
+    # Enhance each recommended test with last_done info
+    for test in recommended_tests:
+        test_name = test.get("test_name", "").lower().strip()
+        last_done = None
+
+        # Try exact match first
+        if test_name in test_dates:
+            last_done = test_dates[test_name]
+        else:
+            # Try partial matching (test name contains or is contained in user's tests)
+            for user_test, date in test_dates.items():
+                # Check if key terms match
+                if (test_name in user_test or
+                    user_test in test_name or
+                    any(word in user_test for word in test_name.split() if len(word) > 3)):
+                    last_done = date
+                    break
+
+        if last_done:
+            test["last_done_date"] = last_done.strftime("%Y-%m-%d")
+            # Calculate months since last done
+            months_ago = (datetime.now() - last_done).days // 30
+            test["months_since_last"] = months_ago
+
+            # Determine if overdue based on frequency
+            frequency = test.get("frequency", "").lower()
+            recommended_months = 12  # Default to annual
+            if "year" in frequency:
+                try:
+                    # Extract number of years (e.g., "every 2 years")
+                    import re
+                    match = re.search(r'(\d+)\s*year', frequency)
+                    if match:
+                        recommended_months = int(match.group(1)) * 12
+                except:
+                    pass
+            elif "6 month" in frequency or "semi" in frequency:
+                recommended_months = 6
+            elif "3 month" in frequency or "quarter" in frequency:
+                recommended_months = 3
+            elif "month" in frequency:
+                recommended_months = 1
+
+            test["is_overdue"] = months_ago > recommended_months
+            test["recommended_interval_months"] = recommended_months
+        else:
+            test["last_done_date"] = None
+            test["months_since_last"] = None
+            test["is_overdue"] = True  # Never done = overdue
+            test["recommended_interval_months"] = 12
+
     return {
         "has_report": True,
         "id": report.id,
         "summary": report.summary,
-        "recommended_tests": json.loads(report.findings) if report.findings else [],
+        "recommended_tests": recommended_tests,
         "created_at": report.created_at.isoformat() if report.created_at else None
     }
 
