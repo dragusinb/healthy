@@ -411,6 +411,9 @@
     "scanning": "Scanning...",
     "scanTooltip": "Scan your medical documents to auto-fill profile data (name, date of birth, gender)",
     "scanSuccess": "Profile data found and updated!",
-    "scanNoNewData": "No new profile data found (fields already filled or no data in documents)"
+    "scanNoNewData": "No new profile data found (fields already filled or no data in documents)",
+    "multiPatientWarning": "Multiple Patients Detected",
+    "multiPatientDesc": "Your documents contain data for different patients. Make sure your profile reflects your own information.",
+    "patientsFound": "Patients found"
   }
 }

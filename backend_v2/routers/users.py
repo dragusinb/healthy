@@ -237,6 +237,7 @@ def scan_profile_from_documents(
     parser = AIParser()
     extracted_profiles = []
     scanned_count = 0
+    patient_names_found = set()  # Track distinct patient names
 
     for doc in documents:
         if not doc.file_path or not os.path.exists(doc.file_path):
@@ -254,6 +255,10 @@ def scan_profile_from_documents(
             profile_data["source_document"] = doc.filename
             profile_data["confidence"] = result.get("confidence", "low")
             extracted_profiles.append(profile_data)
+
+            # Track patient name for multi-patient detection
+            if profile_data.get("full_name"):
+                patient_names_found.add(profile_data["full_name"].strip().upper())
 
         # Stop after finding good data
         if extracted_profiles and extracted_profiles[-1].get("confidence") == "high":
@@ -310,7 +315,32 @@ def scan_profile_from_documents(
     if updates_made:
         db.commit()
 
-    return {
+    # Also check stored patient_names in all user documents for multi-patient detection
+    all_doc_patient_names = db.query(Document.patient_name).filter(
+        Document.user_id == current_user.id,
+        Document.patient_name.isnot(None)
+    ).distinct().all()
+
+    for (name,) in all_doc_patient_names:
+        if name:
+            patient_names_found.add(name.strip().upper())
+
+    # Prepare list of distinct patient names (preserve original casing from extracted)
+    distinct_patients = []
+    seen_normalized = set()
+    for profile in extracted_profiles:
+        name = profile.get("full_name")
+        if name and name.strip().upper() not in seen_normalized:
+            distinct_patients.append(name)
+            seen_normalized.add(name.strip().upper())
+    # Add any from DB not already captured
+    for (name,) in all_doc_patient_names:
+        if name and name.strip().upper() not in seen_normalized:
+            distinct_patients.append(name)
+            seen_normalized.add(name.strip().upper())
+
+    # Build response
+    response = {
         "status": "success" if updates_made else "no_new_data",
         "message": f"Updated {len(updates_made)} fields" if updates_made else "No new profile data to update (fields already filled or no data found)",
         "updates": updates_made,
@@ -318,6 +348,14 @@ def scan_profile_from_documents(
         "documents_scanned": scanned_count,
         "profile": get_profile_data(current_user)
     }
+
+    # Add multi-patient warning if multiple distinct patients detected
+    if len(distinct_patients) > 1:
+        response["multi_patient_warning"] = True
+        response["patients_found"] = distinct_patients
+        response["warning_message"] = f"Found documents for {len(distinct_patients)} different patients: {', '.join(distinct_patients)}. Your profile may contain data from multiple people."
+
+    return response
 
 
 @router.post("/link-account")

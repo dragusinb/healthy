@@ -9,13 +9,14 @@
 ## Pending
 
 ### Multi-Patient Account Handling
-**Status:** Pending
+**Status:** In Progress
 **Priority:** Medium
 
 When a linked provider account has access to multiple patients (e.g., family members), the system should:
-- [ ] Detect when documents belong to different patients (by name/CNP)
-- [ ] Allow user to select whose documents to import
-- [ ] Warn when profile scan finds mismatched patient names
+- [x] Detect when documents belong to different patients (by name/CNP) - Already implemented via patient_name extraction
+- [x] Warn when profile scan finds mismatched patient names - Multi-patient warning added to Profile page
+- [x] Dashboard endpoint to check patient info (/dashboard/patient-info)
+- [ ] Allow user to select whose documents to import (future enhancement)
 
 ### Provider Access Lost - User Notifications
 **Status:** Mostly Done

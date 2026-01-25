@@ -4,7 +4,7 @@ import api from '../api/client';
 import {
     User, Loader2, CheckCircle, AlertCircle,
     Calendar, Ruler, Scale, Droplets, Heart, Pill,
-    Activity, Wine, Cigarette, AlertTriangle, Sparkles
+    Activity, Wine, Cigarette, AlertTriangle, Sparkles, Users
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -25,6 +25,7 @@ const Profile = () => {
     const [saved, setSaved] = useState(false);
     const [scanning, setScanning] = useState(false);
     const [message, setMessage] = useState(null);
+    const [multiPatientWarning, setMultiPatientWarning] = useState(null);
     const [profile, setProfile] = useState({
         full_name: '',
         date_of_birth: '',
@@ -105,8 +106,18 @@ const Profile = () => {
     const handleScanFromDocuments = async () => {
         setScanning(true);
         setMessage(null);
+        setMultiPatientWarning(null);
         try {
             const res = await api.post('/users/scan-profile');
+
+            // Check for multi-patient warning
+            if (res.data.multi_patient_warning) {
+                setMultiPatientWarning({
+                    patients: res.data.patients_found || [],
+                    message: res.data.warning_message
+                });
+            }
+
             if (res.data.status === 'success') {
                 // Update local profile state with new data
                 setProfile(prev => ({
@@ -239,6 +250,45 @@ const Profile = () => {
                      message.type === 'info' ? <Sparkles size={20} /> :
                      <CheckCircle size={20} />}
                     {message.text}
+                </div>
+            )}
+
+            {/* Multi-Patient Warning */}
+            {multiPatientWarning && (
+                <div className="mb-6 p-4 rounded-xl bg-amber-50 border-2 border-amber-300 shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-amber-100 rounded-lg shrink-0">
+                            <Users size={20} className="text-amber-600" />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-semibold text-amber-800 mb-1">
+                                {t('profile.multiPatientWarning') || 'Multiple Patients Detected'}
+                            </h3>
+                            <p className="text-amber-700 text-sm mb-3">
+                                {t('profile.multiPatientDesc') || 'Your documents contain data for different patients. Make sure your profile reflects your own information.'}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                <span className="text-xs text-amber-600 font-medium">
+                                    {t('profile.patientsFound') || 'Patients found'}:
+                                </span>
+                                {multiPatientWarning.patients.map((name, i) => (
+                                    <span
+                                        key={i}
+                                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full text-xs font-medium border border-amber-200"
+                                    >
+                                        <User size={10} />
+                                        {name}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setMultiPatientWarning(null)}
+                            className="p-1 hover:bg-amber-100 rounded-lg text-amber-600 transition-colors"
+                        >
+                            <AlertCircle size={16} />
+                        </button>
+                    </div>
                 </div>
             )}
 

@@ -213,3 +213,40 @@ def get_alerts_count(db: Session = Depends(get_db), current_user: User = Depends
         .filter(TestResult.flags != 'NORMAL')\
         .count()
     return {"alerts_count": count}
+
+
+@router.get("/patient-info")
+def get_patient_info(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Get information about patients found in user's documents."""
+    # Get distinct patient names from documents
+    patient_names = db.query(Document.patient_name).filter(
+        Document.user_id == current_user.id,
+        Document.patient_name.isnot(None)
+    ).distinct().all()
+
+    distinct_patients = [name for (name,) in patient_names if name]
+
+    # Count documents per patient
+    patient_counts = {}
+    for name in distinct_patients:
+        count = db.query(Document).filter(
+            Document.user_id == current_user.id,
+            Document.patient_name == name
+        ).count()
+        patient_counts[name] = count
+
+    # Total documents and documents without patient name
+    total_docs = db.query(Document).filter(Document.user_id == current_user.id).count()
+    unknown_patient_docs = db.query(Document).filter(
+        Document.user_id == current_user.id,
+        Document.patient_name.is_(None)
+    ).count()
+
+    return {
+        "distinct_patients": distinct_patients,
+        "patient_count": len(distinct_patients),
+        "patient_documents": patient_counts,
+        "total_documents": total_docs,
+        "unknown_patient_documents": unknown_patient_docs,
+        "multi_patient": len(distinct_patients) > 1
+    }
