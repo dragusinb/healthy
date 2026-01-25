@@ -81,6 +81,18 @@ In the Biomarkers page, biomarkers with the same name appear as separate rows. T
 - `frontend_v2/src/components/` - biomarker components
 - `backend_v2/routers/` - biomarker API endpoints
 
+### Profile - Fix "Scanează din documente" Button & Age Extraction
+**Status:** Pending
+**Priority:** Medium
+
+Issues with the profile scan feature:
+- [ ] Button "Scanează din documente" is too big - reduce size to match other UI elements
+- [ ] Age/birth date extraction from documents not working correctly
+
+**Files to check:**
+- `frontend_v2/src/pages/Profile.tsx` - button styling
+- `backend_v2/services/` - AI profile extraction logic
+
 ### Report History & Comparison
 **Status:** Pending
 **Priority:** Medium
