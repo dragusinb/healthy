@@ -8,26 +8,6 @@
 
 ## Pending
 
-### Conturi Conectate - Page Error & Human-Readable Errors
-**Status:** In Progress
-**Priority:** High
-
-When entering "Conturi conectate" (Connected Accounts) page, an error is displayed.
-
-**Issues:**
-- [x] Add loading spinner and error handling to page
-- [x] Human-readable error messages displayed (not stack traces)
-- [ ] Fix the root cause of the error (need user to check browser console)
-
-**Progress:**
-- Added loading state with spinner
-- Added proper error catch and display
-- Error messages now show user-friendly text in current language
-
-**Next steps:**
-- Check browser console for specific JavaScript errors when page loads
-- May be a database migration issue if error_type/error_acknowledged columns missing
-
 ### Multi-Patient Account Handling
 **Status:** Pending
 **Priority:** Medium
@@ -72,6 +52,9 @@ When a linked provider account has access to multiple patients (e.g., family mem
 
 ## Completed
 
+- [x] Admin - Service Status Fix - Updated endpoint to use correct service name (healthy-api), disabled old duplicate service
+- [x] Auto-retry sync after user updates credentials - When credentials are updated for an ERROR account, automatically trigger sync
+- [x] Conturi Conectate - Page Error Fix - Fixed null error_type handling that caused translation lookup errors
 - [x] XServer/Xvfb Error Misclassification Fix - Added server_error category for display/browser errors, shows "Server Maintenance" message instead of wrong password
 - [x] Biomarker Name Unification Across Suppliers - Added canonical_name column, normalize at import time, admin endpoints for mapping management and migration
 - [x] Profile - Auto-Save Translation Fix & Age Extraction Improvement - Added missing translation keys (profile.saving, profile.autoSaveFailed) in RO/EN, improved AI prompt to prioritize header section for extracting patient age from Regina Maria documents

@@ -483,9 +483,9 @@ def get_server_logs(lines: int = 100, admin: User = Depends(require_admin)):
 def get_service_status(admin: User = Depends(require_admin)):
     """Get systemd service status and restart history."""
     try:
-        # Get service status
+        # Get service status (use healthy-api, the main service)
         status_result = subprocess.run(
-            ["systemctl", "status", "healthy", "--no-pager"],
+            ["systemctl", "status", "healthy-api", "--no-pager"],
             capture_output=True,
             text=True,
             timeout=10
@@ -493,7 +493,7 @@ def get_service_status(admin: User = Depends(require_admin)):
 
         # Get recent restarts from journal
         journal_result = subprocess.run(
-            ["journalctl", "-u", "healthy", "--no-pager", "-n", "50", "--output=short-iso"],
+            ["journalctl", "-u", "healthy-api", "--no-pager", "-n", "50", "--output=short-iso"],
             capture_output=True,
             text=True,
             timeout=10
@@ -542,7 +542,7 @@ def get_service_status(admin: User = Depends(require_admin)):
 
 @router.post("/restart-server")
 def restart_server(admin: User = Depends(require_admin)):
-    """Restart the healthy service (use with caution)."""
+    """Restart the healthy-api service (use with caution)."""
     try:
         # Schedule restart in background so we can return response first
         import threading
@@ -550,7 +550,7 @@ def restart_server(admin: User = Depends(require_admin)):
         def delayed_restart():
             import time
             time.sleep(2)  # Wait 2 seconds before restarting
-            subprocess.run(["systemctl", "restart", "healthy"], timeout=30)
+            subprocess.run(["systemctl", "restart", "healthy-api"], timeout=30)
 
         thread = threading.Thread(target=delayed_restart, daemon=True)
         thread.start()
