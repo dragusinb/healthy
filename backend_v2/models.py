@@ -79,7 +79,8 @@ class TestResult(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey("documents.id"))
-    test_name = Column(String, index=True)
+    test_name = Column(String, index=True)  # Original name from lab report
+    canonical_name = Column(String, index=True, nullable=True)  # Normalized name for grouping
     value = Column(String) # Store as string to handle "< 5" etc.
     numeric_value = Column(Float, nullable=True) # Parsed for graphing
     unit = Column(String, nullable=True)

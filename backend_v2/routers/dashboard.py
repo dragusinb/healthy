@@ -85,7 +85,11 @@ def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depen
 
     biomarkers = []
     for r in results:
-        canonical_name, display_name = normalize_biomarker_name(r.test_name)
+        # Use stored canonical_name if available, fallback to runtime normalization
+        if r.canonical_name:
+            canonical_name = r.canonical_name
+        else:
+            canonical_name, _ = normalize_biomarker_name(r.test_name)
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,
@@ -123,7 +127,11 @@ def get_grouped_biomarkers(
     # Build flat list first
     biomarkers = []
     for r in results:
-        canonical_name, display_name = normalize_biomarker_name(r.test_name)
+        # Use stored canonical_name if available, fallback to runtime normalization
+        if r.canonical_name:
+            canonical_name = r.canonical_name
+        else:
+            canonical_name, _ = normalize_biomarker_name(r.test_name)
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,

@@ -11,11 +11,13 @@ try:
     from backend_v2.models import User, Document, TestResult, HealthReport
     from backend_v2.routers.auth import oauth2_scheme
     from backend_v2.services.ai_parser import AIParser
+    from backend_v2.services.biomarker_normalizer import get_canonical_name
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
     from routers.auth import oauth2_scheme
     from services.ai_parser import AIParser
+    from services.biomarker_normalizer import get_canonical_name
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -205,9 +207,11 @@ def process_document(doc_id: int, db: Session):
     
     if "results" in result:
         for r in result["results"]:
+             test_name = r.get("test_name")
              tr = TestResult(
                  document_id=doc.id,
-                 test_name=r.get("test_name"),
+                 test_name=test_name,
+                 canonical_name=get_canonical_name(test_name) if test_name else None,
                  value=str(r.get("value")),
                  unit=r.get("unit"),
                  reference_range=r.get("reference_range"),

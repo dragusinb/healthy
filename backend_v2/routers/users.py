@@ -436,9 +436,11 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
         try:
             from backend_v2.models import Document, TestResult
             from backend_v2.services.ai_service import AIService
+            from backend_v2.services.biomarker_normalizer import get_canonical_name
         except ImportError:
             from models import Document, TestResult
             from services.ai_service import AIService
+            from services.biomarker_normalizer import get_canonical_name
 
         try:
             ai_service = AIService()
@@ -492,9 +494,11 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
                             except (TypeError, ValueError):
                                 numeric_val = None
 
+                        test_name = r.get("test_name")
                         tr = TestResult(
                             document_id=new_doc.id,
-                            test_name=r.get("test_name"),
+                            test_name=test_name,
+                            canonical_name=get_canonical_name(test_name) if test_name else None,
                             value=str(r.get("value")),
                             numeric_value=numeric_val,
                             unit=r.get("unit"),

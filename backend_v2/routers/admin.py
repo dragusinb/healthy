@@ -908,3 +908,180 @@ def create_backup(admin: User = Depends(require_admin)):
         return {"status": "error", "message": "Backup timed out"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+# =============================================================================
+# Biomarker Mapping Management
+# =============================================================================
+
+@router.get("/biomarker-mappings")
+def get_biomarker_mappings(admin: User = Depends(require_admin)):
+    """Get all biomarker canonical name mappings."""
+    try:
+        from backend_v2.services.biomarker_normalizer import BIOMARKER_MAPPINGS
+    except ImportError:
+        from services.biomarker_normalizer import BIOMARKER_MAPPINGS
+
+    # Format for frontend display
+    mappings = []
+    for canonical, variants in BIOMARKER_MAPPINGS.items():
+        mappings.append({
+            "canonical_name": canonical,
+            "variants": variants,
+            "variant_count": len(variants)
+        })
+
+    # Sort by canonical name
+    mappings.sort(key=lambda x: x["canonical_name"])
+
+    return {
+        "total": len(mappings),
+        "mappings": mappings
+    }
+
+
+@router.get("/biomarker-stats")
+def get_biomarker_normalization_stats(
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get statistics on biomarker name normalization."""
+    from sqlalchemy import func
+
+    # Count total biomarkers
+    total = db.query(TestResult).count()
+
+    # Count biomarkers with canonical_name set
+    with_canonical = db.query(TestResult).filter(
+        TestResult.canonical_name.isnot(None)
+    ).count()
+
+    # Count without canonical_name (old records)
+    without_canonical = db.query(TestResult).filter(
+        TestResult.canonical_name.is_(None)
+    ).count()
+
+    # Get top 20 canonical names by count
+    top_canonical = db.query(
+        TestResult.canonical_name,
+        func.count(TestResult.id).label('count')
+    ).filter(
+        TestResult.canonical_name.isnot(None)
+    ).group_by(
+        TestResult.canonical_name
+    ).order_by(
+        func.count(TestResult.id).desc()
+    ).limit(20).all()
+
+    # Get unmapped test names (those where canonical_name equals test_name, meaning no mapping found)
+    try:
+        from backend_v2.services.biomarker_normalizer import BIOMARKER_MAPPINGS
+    except ImportError:
+        from services.biomarker_normalizer import BIOMARKER_MAPPINGS
+
+    known_canonicals = set(BIOMARKER_MAPPINGS.keys())
+
+    # Find test names that don't map to any known canonical name
+    unmapped = db.query(
+        TestResult.test_name,
+        TestResult.canonical_name,
+        func.count(TestResult.id).label('count')
+    ).filter(
+        TestResult.canonical_name.isnot(None),
+        ~TestResult.canonical_name.in_(known_canonicals)
+    ).group_by(
+        TestResult.test_name,
+        TestResult.canonical_name
+    ).order_by(
+        func.count(TestResult.id).desc()
+    ).limit(30).all()
+
+    return {
+        "total_biomarkers": total,
+        "with_canonical_name": with_canonical,
+        "without_canonical_name": without_canonical,
+        "top_canonical_names": [
+            {"name": name, "count": count}
+            for name, count in top_canonical
+        ],
+        "unmapped_test_names": [
+            {"test_name": tn, "canonical_name": cn, "count": count}
+            for tn, cn, count in unmapped
+        ]
+    }
+
+
+@router.post("/run-biomarker-migration")
+def run_biomarker_migration(admin: User = Depends(require_admin)):
+    """Run the biomarker canonical name migration for existing records."""
+    from threading import Thread
+    from sqlalchemy import text
+
+    try:
+        from backend_v2.database import SessionLocal
+        from backend_v2.services.biomarker_normalizer import get_canonical_name
+    except ImportError:
+        from database import SessionLocal
+        from services.biomarker_normalizer import get_canonical_name
+
+    def migrate_in_background():
+        db = SessionLocal()
+        try:
+            # Get all test results without canonical_name
+            result = db.execute(text("""
+                SELECT id, test_name FROM test_results
+                WHERE canonical_name IS NULL AND test_name IS NOT NULL
+            """))
+
+            records = result.fetchall()
+            total = len(records)
+
+            if total == 0:
+                print("No records need updating.")
+                return
+
+            print(f"Migrating {total} records...")
+
+            # Update in batches
+            batch_size = 100
+            updated = 0
+
+            for i in range(0, total, batch_size):
+                batch = records[i:i + batch_size]
+
+                for row in batch:
+                    record_id, test_name = row
+                    canonical = get_canonical_name(test_name)
+
+                    db.execute(text("""
+                        UPDATE test_results
+                        SET canonical_name = :canonical
+                        WHERE id = :id
+                    """), {"canonical": canonical, "id": record_id})
+
+                db.commit()
+                updated += len(batch)
+                print(f"  Updated {updated}/{total} records...")
+
+            print(f"Migration complete: {updated} records updated.")
+
+        except Exception as e:
+            print(f"Error during migration: {e}")
+            db.rollback()
+        finally:
+            db.close()
+
+    # Run in background
+    thread = Thread(target=migrate_in_background, daemon=True)
+    thread.start()
+
+    # Return immediately
+    pending = db.query(TestResult).filter(
+        TestResult.canonical_name.is_(None),
+        TestResult.test_name.isnot(None)
+    ).count()
+
+    return {
+        "status": "started",
+        "message": f"Started migration for {pending} records in background"
+    }

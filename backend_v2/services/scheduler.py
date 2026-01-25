@@ -320,10 +320,12 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
         from backend_v2.models import Document, TestResult
         from backend_v2.services.ai_service import AIService
         from backend_v2.services import sync_status
+        from backend_v2.services.biomarker_normalizer import get_canonical_name
     except ImportError:
         from models import Document, TestResult
         from services.ai_service import AIService
         from services import sync_status
+        from services.biomarker_normalizer import get_canonical_name
 
     import datetime as dt
 
@@ -379,9 +381,11 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
                         except (TypeError, ValueError):
                             numeric_val = None
 
+                    test_name = r.get("test_name")
                     tr = TestResult(
                         document_id=new_doc.id,
-                        test_name=r.get("test_name"),
+                        test_name=test_name,
+                        canonical_name=get_canonical_name(test_name) if test_name else None,
                         value=str(r.get("value")),
                         numeric_value=numeric_val,
                         unit=r.get("unit"),
@@ -540,9 +544,11 @@ def process_single_document(db, doc):
     try:
         from backend_v2.models import TestResult
         from backend_v2.services.ai_parser import AIParser
+        from backend_v2.services.biomarker_normalizer import get_canonical_name
     except ImportError:
         from models import TestResult
         from services.ai_parser import AIParser
+        from services.biomarker_normalizer import get_canonical_name
 
     logger.info(f"Processing document {doc.id}: {doc.filename}")
 
@@ -585,9 +591,11 @@ def process_single_document(db, doc):
                 except (TypeError, ValueError):
                     pass
 
+                test_name = r.get("test_name")
                 tr = TestResult(
                     document_id=doc.id,
-                    test_name=r.get("test_name"),
+                    test_name=test_name,
+                    canonical_name=get_canonical_name(test_name) if test_name else None,
                     value=str(r.get("value")),
                     unit=r.get("unit"),
                     reference_range=r.get("reference_range"),
