@@ -321,7 +321,12 @@ def scan_profile_from_documents(
 
 
 @router.post("/link-account")
-def link_account(account: LinkedAccountCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def link_account(
+    account: LinkedAccountCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     # Encrypt the password before storing
     encrypted_pwd = encrypt_password(account.password)
 
@@ -332,10 +337,29 @@ def link_account(account: LinkedAccountCreate, db: Session = Depends(get_db), cu
     ).first()
 
     if existing:
+        was_in_error = existing.status == 'ERROR'
         existing.username = account.username
         existing.encrypted_password = encrypted_pwd
+        # Reset error state when credentials are updated
+        existing.status = 'ACTIVE'
+        existing.error_type = None
+        existing.error_acknowledged = False
+        existing.consecutive_failures = 0
+        existing.last_sync_error = None
         db.commit()
-        return {"message": "Account updated"}
+
+        # Auto-trigger sync if credentials were updated after an error
+        if was_in_error:
+            background_tasks.add_task(
+                run_sync_task,
+                current_user.id,
+                account.provider_name,
+                account.username,
+                encrypted_pwd
+            )
+            return {"message": "Account updated", "sync_triggered": True}
+
+        return {"message": "Account updated", "sync_triggered": False}
 
     new_link = LinkedAccount(
         user_id=current_user.id,
@@ -345,7 +369,7 @@ def link_account(account: LinkedAccountCreate, db: Session = Depends(get_db), cu
     )
     db.add(new_link)
     db.commit()
-    return {"message": "Account linked"}
+    return {"message": "Account linked", "sync_triggered": False}
 
 @router.get("/sync-status/{provider_name}")
 def get_sync_status(provider_name: str, current_user: User = Depends(get_current_user)):

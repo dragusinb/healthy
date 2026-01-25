@@ -459,12 +459,16 @@ const LinkedAccounts = () => {
         setLinking(provider);
         setMessage(null);
         try {
-            await api.post('/users/link-account', {
+            const response = await api.post('/users/link-account', {
                 provider_name: provider,
                 username: creds.username,
                 password: creds.password
             });
-            setMessage({ type: 'success', text: `${t('common.success')}: ${provider}` });
+            if (response.data.sync_triggered) {
+                setMessage({ type: 'success', text: t('linkedAccounts.credentialsUpdatedSyncing') || `${provider}: Credentials updated, sync started automatically` });
+            } else {
+                setMessage({ type: 'success', text: `${t('common.success')}: ${provider}` });
+            }
             fetchAccounts();
         } catch (e) {
             setMessage({ type: 'error', text: `${t('common.error')}: ${e.response?.data?.detail || e.message}` });

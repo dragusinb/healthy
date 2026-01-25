@@ -265,6 +265,7 @@
     },
     "connectionError": "Connection Error",
     "updateCredentials": "Update Password",
+    "credentialsUpdatedSyncing": "Credentials updated, sync started automatically",
     "errors": {
       "wrongPassword": "Invalid Credentials",
       "wrongPasswordDesc": "The username or password you entered is incorrect. Please update your credentials to restore the connection.",

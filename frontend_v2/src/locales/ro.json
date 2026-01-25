@@ -265,6 +265,7 @@
     },
     "connectionError": "Eroare Conexiune",
     "updateCredentials": "Actualizeaza Parola",
+    "credentialsUpdatedSyncing": "Credentiale actualizate, sincronizarea a inceput automat",
     "errors": {
       "wrongPassword": "Credentiale Invalide",
       "wrongPasswordDesc": "Utilizatorul sau parola pe care le-ai introdus sunt incorecte. Te rugam sa actualizezi credentialele pentru a restabili conexiunea.",

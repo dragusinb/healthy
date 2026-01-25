@@ -51,7 +51,7 @@ When a linked provider account has access to multiple patients (e.g., family mem
 
 **Optional Enhancements:**
 - [ ] Email notification for critical errors
-- [ ] Auto-retry sync after user updates credentials
+- [x] Auto-retry sync after user updates credentials
 
 
 ### Gap Analysis - Future Enhancements
