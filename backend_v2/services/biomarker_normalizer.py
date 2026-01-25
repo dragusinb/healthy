@@ -302,23 +302,48 @@ def normalize_biomarker_name(test_name: str) -> Tuple[str, str]:
         return test_name, test_name
 
     original = test_name.strip()
+
+    # STEP 1: Extract abbreviation from parentheses (e.g., "MCHC" from "... (MCHC)")
+    # This is the most reliable identifier
+    abbrev_match = re.search(r'\(([A-Za-z0-9-]+)\)\s*$', original)
+    if abbrev_match:
+        abbreviation = abbrev_match.group(1).lower()
+        # Try to match the abbreviation directly
+        if abbreviation in _VARIANT_TO_CANONICAL:
+            canonical = _VARIANT_TO_CANONICAL[abbreviation]
+            return canonical, canonical
+
     normalized = _normalize_text(original)
 
-    # Try exact match first
+    # STEP 2: Try exact match of full normalized name
     if normalized in _VARIANT_TO_CANONICAL:
         canonical = _VARIANT_TO_CANONICAL[normalized]
         return canonical, canonical
 
-    # Try partial match - check if any variant is contained in the test name
-    for variant, canonical in _VARIANT_TO_CANONICAL.items():
-        if variant in normalized and len(variant) >= 3:
-            # Ensure it's a significant match (not just "a" or "i")
-            return canonical, canonical
+    # STEP 3: Word-boundary matching - match if ALL words of a variant are in the test name
+    # Sort variants by length (longest first) to match more specific names first
+    sorted_variants = sorted(_VARIANT_TO_CANONICAL.items(), key=lambda x: len(x[0]), reverse=True)
 
-    # Try the reverse - check if test name is contained in any variant
-    for variant, canonical in _VARIANT_TO_CANONICAL.items():
-        if normalized in variant and len(normalized) >= 3:
-            return canonical, canonical
+    test_words = set(normalized.split())
+
+    for variant, canonical in sorted_variants:
+        variant_words = set(variant.split())
+        # Only match if it's a short variant (abbreviation-like) and matches exactly as a word
+        # OR if ALL words of the variant appear in the test name
+        if len(variant_words) == 1 and len(variant) <= 4:
+            # Short abbreviations must match as a whole word
+            if variant in test_words:
+                return canonical, canonical
+        elif len(variant_words) >= 2:
+            # Multi-word variants: all words must be present
+            if variant_words.issubset(test_words):
+                return canonical, canonical
+
+    # STEP 4: Try the reverse - check if test name is contained in any variant (for very short inputs)
+    if len(normalized) >= 3 and len(normalized.split()) == 1:
+        for variant, canonical in sorted_variants:
+            if normalized in variant.split():
+                return canonical, canonical
 
     # No match - return original with basic cleanup
     # Capitalize first letter of each word

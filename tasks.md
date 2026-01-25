@@ -85,28 +85,6 @@ The sync scheduler section in Admin doesn't clearly show when the next cron jobs
 - [ ] Track when tests were last done
 - [ ] Notifications when screenings are due
 
-### Biomarkers - Fix Incorrect Grouping (AI Matching Accuracy)
-**Status:** Pending
-**Priority:** High
-
-**Bug:** Biomarkers are being incorrectly grouped together based on partial name matches.
-
-**Example of incorrect grouping:**
-- "Concentratia medie a hemoglobinei eritrocitare (MCHC)" is NOT the same as "Hemoglobina (HGB)"
-- These are different biomarkers that share the word "hemoglobin" but measure different things
-
-**Requirements:**
-- [ ] Same biomarkers MUST be grouped together (e.g., "Hemoglobina (HGB)" from different tests)
-- [ ] Different biomarkers MUST NOT be grouped even if they share similar words
-- [ ] AI grouping should be accurate - not too aggressive (wrong matches) and not too conservative (missing valid matches)
-- [ ] Consider using abbreviations in parentheses (MCHC, HGB, etc.) as primary identifiers
-- [ ] Consider using standardized biomarker codes (LOINC) if available
-
-**Files to check:**
-- Backend AI parsing/grouping logic
-- `backend_v2/services/` - biomarker extraction and normalization
-- Check AI prompts for biomarker matching
-
 ### AI Health Reports - Dynamic Specialist Selection from Generalist
 **Status:** Pending
 **Priority:** High
@@ -173,6 +151,7 @@ Gap Analysis / Recommended Screenings should be a separate page/section, not jus
 
 ## Completed
 
+- [x] Biomarkers - Fix Incorrect Grouping (AI Matching Accuracy) - Fixed algorithm to prioritize parenthetical abbreviations, use word-boundary matching, sort variants by length
 - [x] Profile - Fix "Scanează din documente" Button & Age Extraction - Smaller button with hidden text on mobile, age_years fallback for birth date extraction
 - [x] AI Reports - Date Awareness & Specialist Triggering - Added infectious_disease specialist, 12-month filter for auto-triggering, generalist context passed to specialists
 - [x] Biomarkers - Group Same Tests Together - Normalized names, grouped display with expandable history, trend indicators
