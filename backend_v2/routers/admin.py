@@ -823,3 +823,88 @@ def scan_documents_for_profiles(db: Session = Depends(get_db), admin: User = Dep
         "message": f"Started scanning documents for {user_count} users",
         "users": user_count
     }
+
+
+@router.get("/backups")
+def get_backup_status(admin: User = Depends(require_admin)):
+    """Get database backup status and list of recent backups."""
+    import glob
+    from pathlib import Path
+
+    backup_dir = "/opt/healthy/backups"
+    backup_pattern = f"{backup_dir}/healthy_*.sql.gz"
+
+    backups = []
+    total_size = 0
+
+    try:
+        for filepath in sorted(glob.glob(backup_pattern), reverse=True):
+            path = Path(filepath)
+            stat = path.stat()
+            size_bytes = stat.st_size
+            total_size += size_bytes
+
+            backups.append({
+                "filename": path.name,
+                "size_bytes": size_bytes,
+                "size_human": f"{size_bytes / 1024:.1f} KB" if size_bytes < 1024*1024 else f"{size_bytes / (1024*1024):.1f} MB",
+                "created_at": datetime.fromtimestamp(stat.st_mtime).isoformat()
+            })
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e),
+            "backups": []
+        }
+
+    # Check if cron job is set up
+    cron_active = False
+    try:
+        result = subprocess.run(
+            ["crontab", "-l"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        cron_active = "backup_db.sh" in result.stdout
+    except:
+        pass
+
+    return {
+        "status": "ok",
+        "backup_dir": backup_dir,
+        "total_backups": len(backups),
+        "total_size_bytes": total_size,
+        "total_size_human": f"{total_size / 1024:.1f} KB" if total_size < 1024*1024 else f"{total_size / (1024*1024):.1f} MB",
+        "cron_active": cron_active,
+        "retention_days": 7,
+        "backups": backups[:10]  # Return last 10 backups
+    }
+
+
+@router.post("/backups/create")
+def create_backup(admin: User = Depends(require_admin)):
+    """Manually trigger a database backup."""
+    try:
+        result = subprocess.run(
+            ["/opt/healthy/scripts/backup_db.sh"],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        if result.returncode == 0:
+            return {
+                "status": "success",
+                "message": "Backup created successfully",
+                "output": result.stdout
+            }
+        else:
+            return {
+                "status": "error",
+                "message": "Backup failed",
+                "output": result.stderr or result.stdout
+            }
+    except subprocess.TimeoutExpired:
+        return {"status": "error", "message": "Backup timed out"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

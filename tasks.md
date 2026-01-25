@@ -64,8 +64,27 @@ When a linked provider account has access to multiple patients (e.g., family mem
 ### Database Backups
 **Status:** Pending
 **Priority:** Medium
-- [ ] pg_dump cron job
-- [ ] Cloud backup solution
+- [x] pg_dump cron job (daily at 3 AM, 7-day retention)
+- [ ] Cloud backup solution (AWS S3 or similar)
+- [x] Admin endpoint to view/create backups
+
+### Biomarker Name Unification Across Suppliers
+**Status:** Pending
+**Priority:** High
+
+Different medical providers (Regina Maria, Synevo, etc.) use different names for the same biomarkers. The system should:
+- [ ] Normalize biomarker names at import time (not just display time)
+- [ ] Store a canonical name alongside the original name
+- [ ] Map common variations: Romanian/English, abbreviations, full names
+- [ ] Allow admin to manage the mapping table
+- [ ] Apply normalization to existing data (migration)
+
+**Examples:**
+- "Hemoglobina" = "Hemoglobin" = "HGB" = "Hb"
+- "Glucoza" = "Glucose" = "Glycemia" = "Blood Sugar"
+- "Colesterol Total" = "Total Cholesterol" = "TC"
+
+**Note:** Basic normalization exists in `biomarker_normalizer.py` for display grouping. This task extends it to normalize at import/storage time and create a manageable mapping system.
 
 ---
 
