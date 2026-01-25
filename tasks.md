@@ -8,15 +8,12 @@
 
 ## Pending
 
-### Multi-Patient Account Handling
-**Status:** In Progress
-**Priority:** Medium
+### Multi-Patient Account Handling (Future Enhancement)
+**Status:** Pending
+**Priority:** Low
 
-When a linked provider account has access to multiple patients (e.g., family members), the system should:
-- [x] Detect when documents belong to different patients (by name/CNP) - Already implemented via patient_name extraction
-- [x] Warn when profile scan finds mismatched patient names - Multi-patient warning added to Profile page
-- [x] Dashboard endpoint to check patient info (/dashboard/patient-info)
-- [ ] Allow user to select whose documents to import (future enhancement)
+Remaining feature:
+- [ ] Allow user to select whose documents to import during sync (requires UI for patient selection)
 
 ### Provider Access Lost - User Notifications
 **Status:** Mostly Done
@@ -53,6 +50,7 @@ When a linked provider account has access to multiple patients (e.g., family mem
 
 ## Completed
 
+- [x] Multi-Patient Detection & Warning - Detect multiple patients in documents, warn on profile scan, dashboard endpoint for patient info
 - [x] Admin - Remove Redundant Service Status Section - Removed old Service Status section (was buggy and redundant with Server Stats), cleaned up frontend/backend code
 - [x] Admin - Service Status Fix - Updated endpoint to use correct service name (healthy-api), disabled old duplicate service
 - [x] Auto-retry sync after user updates credentials - When credentials are updated for an ERROR account, automatically trigger sync
