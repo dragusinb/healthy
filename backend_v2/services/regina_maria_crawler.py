@@ -133,6 +133,10 @@ class ReginaMariaCrawler(BaseCrawler):
 
         self.log("Checking login status...")
 
+        # Track CAPTCHA solving attempts to avoid excessive costs
+        captcha_solve_attempts = 0
+        max_captcha_attempts = 3  # Limit to 3 auto-solve attempts
+
         # Check for reCAPTCHA/Error/Success loop
         # Wait up to 3 minutes for manual reCAPTCHA solving (36 * 5s = 180s)
         for i in range(36):
@@ -148,37 +152,82 @@ class ReginaMariaCrawler(BaseCrawler):
 
             # 2. ReCAPTCHA Detection - try auto-solve first
             if "recaptcha" in content.lower() or "g-recaptcha" in content.lower():
-                self.log("reCAPTCHA detected! Attempting automatic solving...")
+                # Only attempt auto-solve a limited number of times
+                if captcha_solve_attempts < max_captcha_attempts:
+                    captcha_solve_attempts += 1
+                    self.log(f"reCAPTCHA detected! Attempting automatic solving (attempt {captcha_solve_attempts}/{max_captcha_attempts})...")
 
-                # Try to solve automatically using CAPTCHA service
-                try:
-                    solved = self._solve_recaptcha(page)
-                    if solved:
-                        self.log("reCAPTCHA solved automatically! Continuing login...")
-                        page.wait_for_timeout(2000)
-                        # Check if we're now authenticated
-                        if self._check_authenticated(page):
-                            self.log("Login successful after CAPTCHA solve!")
-                            return
-                        # Try clicking login button again after solving
-                        try:
-                            submit_btn = page.locator("button[type='submit']")
-                            if submit_btn.count() > 0:
-                                submit_btn.first.click(timeout=3000, force=True)
-                                page.wait_for_timeout(3000)
-                        except:
-                            pass
-                        continue  # Continue checking login status
-                except Exception as captcha_error:
-                    self.log(f"Auto CAPTCHA solve failed: {captcha_error}")
+                    # Try to solve automatically using CAPTCHA service
+                    try:
+                        solved = self._solve_recaptcha(page)
+                        if solved:
+                            self.log("reCAPTCHA solved! Waiting for token processing...")
+                            page.wait_for_timeout(2000)  # Wait for token to be processed
 
-                # If auto-solve failed and we're in headless mode, raise error
-                if self.headless:
-                    self.log("reCAPTCHA detected in headless mode - auto-solve failed")
-                    raise CaptchaRequiredError("reCAPTCHA detected - visible browser required")
-                if i == 0:  # Only log once
-                    self.log("reCAPTCHA detected! Please solve it manually in the browser window.")
-                    self.log("Waiting for manual reCAPTCHA solution...")
+                            # Check if the page auto-submitted after CAPTCHA solve
+                            current_after_captcha = page.url
+                            if current_after_captcha != current_url:
+                                self.log(f"Page navigated after CAPTCHA: {current_after_captcha}")
+
+                            # Check if already authenticated (some sites auto-submit)
+                            if self._check_authenticated(page):
+                                self.log("Login successful after CAPTCHA solve (auto-submit)!")
+                                return
+
+                            # Verify the CAPTCHA was accepted before submitting
+                            captcha_valid = page.evaluate("""
+                                () => {
+                                    const textarea = document.querySelector('#g-recaptcha-response');
+                                    return textarea && textarea.value && textarea.value.length > 0;
+                                }
+                            """)
+                            self.log(f"CAPTCHA token in textarea: {captcha_valid}")
+
+                            # Force submit the form after CAPTCHA solve
+                            self.log("Submitting login form...")
+                            try:
+                                # Method 1: Click submit button
+                                submit_btn = page.locator("button[type='submit']")
+                                if submit_btn.count() > 0:
+                                    # Make sure button is enabled
+                                    is_disabled = submit_btn.first.is_disabled()
+                                    self.log(f"Submit button disabled: {is_disabled}")
+                                    submit_btn.first.click(timeout=5000, force=True)
+                                    self.log("Clicked submit button after CAPTCHA solve")
+                            except Exception as submit_err:
+                                self.log(f"Submit click failed: {submit_err}")
+                                # Method 2: Press Enter
+                                page.keyboard.press("Enter")
+
+                            page.wait_for_timeout(5000)  # Wait for login to process
+                            page.screenshot(path=f"{self.download_dir}/after_captcha_submit.png")
+
+                            # Check if we're now authenticated
+                            if self._check_authenticated(page):
+                                self.log("Login successful after CAPTCHA solve!")
+                                return
+
+                            # Log what we see now
+                            new_content = page.content()
+                            if "recaptcha" in new_content.lower():
+                                self.log("reCAPTCHA still present after submission - token may have expired")
+                            elif "Date de autentificare incorecte" in new_content:
+                                self.log("Invalid credentials message after CAPTCHA")
+                            else:
+                                self.log(f"After CAPTCHA URL: {page.url}")
+
+                            continue  # Continue checking login status
+                    except Exception as captcha_error:
+                        self.log(f"Auto CAPTCHA solve failed: {captcha_error}")
+
+                # If we've exhausted auto-solve attempts or it failed
+                if captcha_solve_attempts >= max_captcha_attempts:
+                    if self.headless:
+                        self.log(f"reCAPTCHA still present after {max_captcha_attempts} auto-solve attempts - need visible browser")
+                        raise CaptchaRequiredError("reCAPTCHA detected - visible browser required")
+                    if captcha_solve_attempts == max_captcha_attempts:  # Only log once
+                        self.log("Auto CAPTCHA solving exhausted. Please solve manually in the browser window.")
+                        self.log("Waiting for manual reCAPTCHA solution...")
 
             # 3. Error Message
             if "Date de autentificare incorecte" in content or "Incercare de autentificare nereusita" in content:
@@ -214,8 +263,45 @@ class ReginaMariaCrawler(BaseCrawler):
             True if CAPTCHA was solved and token injected
         """
         try:
+            # Screenshot before solving
+            page.screenshot(path=f"{self.download_dir}/captcha_before.png")
+
+            # Detect CAPTCHA type (visible vs invisible)
+            captcha_info = page.evaluate("""
+                () => {
+                    const recaptchaDiv = document.querySelector('.g-recaptcha');
+                    const iframe = document.querySelector('iframe[src*="recaptcha"]');
+
+                    let isInvisible = false;
+                    let siteKey = null;
+                    let dataCallback = null;
+
+                    if (recaptchaDiv) {
+                        siteKey = recaptchaDiv.getAttribute('data-sitekey');
+                        dataCallback = recaptchaDiv.getAttribute('data-callback');
+                        isInvisible = recaptchaDiv.getAttribute('data-size') === 'invisible';
+                    }
+
+                    if (iframe && iframe.src) {
+                        const match = iframe.src.match(/[?&]k=([^&]+)/);
+                        if (match && !siteKey) siteKey = match[1];
+                        if (iframe.src.includes('invisible')) isInvisible = true;
+                    }
+
+                    return {
+                        isInvisible: isInvisible,
+                        siteKey: siteKey,
+                        dataCallback: dataCallback,
+                        hasIframe: !!iframe,
+                        iframeSrc: iframe ? iframe.src.substring(0, 100) : null
+                    };
+                }
+            """)
+
+            self.log(f"CAPTCHA info: invisible={captcha_info.get('isInvisible')}, callback={captcha_info.get('dataCallback')}")
+
             # Extract the site key
-            site_key = extract_recaptcha_sitekey(page)
+            site_key = captcha_info.get('siteKey') or extract_recaptcha_sitekey(page)
             if not site_key:
                 self.log("Could not find reCAPTCHA site key")
                 return False
@@ -235,9 +321,10 @@ class ReginaMariaCrawler(BaseCrawler):
                 self.log("CAPTCHA service balance too low!")
                 return False
 
-            # Solve the CAPTCHA
-            self.log("Sending CAPTCHA to solving service (this may take 20-60 seconds)...")
-            token = solver.solve_recaptcha_v2(page_url, site_key)
+            # Solve the CAPTCHA (pass invisible flag)
+            is_invisible = captcha_info.get('isInvisible', False)
+            self.log(f"Sending CAPTCHA to solving service (invisible={is_invisible})...")
+            token = solver.solve_recaptcha_v2(page_url, site_key, invisible=is_invisible)
 
             if not token:
                 self.log("CAPTCHA solving returned empty token")
@@ -247,8 +334,36 @@ class ReginaMariaCrawler(BaseCrawler):
 
             # Inject the token into the page
             success = inject_captcha_token(page, token)
+
+            # Screenshot after injection
+            page.screenshot(path=f"{self.download_dir}/captcha_after_inject.png")
+
             if success:
                 self.log("CAPTCHA token injected successfully!")
+
+                # If there's a callback, try to call it directly
+                if captcha_info.get('dataCallback'):
+                    callback_name = captcha_info['dataCallback']
+                    self.log(f"Trying to call callback: {callback_name}")
+                    try:
+                        page.evaluate(f"""
+                            (token) => {{
+                                if (typeof window['{callback_name}'] === 'function') {{
+                                    window['{callback_name}'](token);
+                                    return true;
+                                }}
+                                // Try Angular scope
+                                const scope = angular && angular.element(document.body).scope();
+                                if (scope && typeof scope['{callback_name}'] === 'function') {{
+                                    scope['{callback_name}'](token);
+                                    return true;
+                                }}
+                                return false;
+                            }}
+                        """, token)
+                    except Exception as cb_err:
+                        self.log(f"Callback call failed: {cb_err}")
+
                 return True
             else:
                 self.log("Failed to inject CAPTCHA token")

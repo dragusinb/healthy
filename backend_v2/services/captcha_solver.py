@@ -241,39 +241,126 @@ def inject_captcha_token(page, token: str) -> bool:
         True if injection was successful
     """
     try:
-        result = page.evaluate(f"""
-            (token) => {{
-                // Set the textarea value
-                const textarea = document.querySelector('#g-recaptcha-response') ||
-                                 document.querySelector('[name="g-recaptcha-response"]');
-                if (textarea) {{
+        result = page.evaluate("""
+            (token) => {
+                let success = false;
+
+                // 1. Find all reCAPTCHA textareas and set value
+                const textareas = document.querySelectorAll('#g-recaptcha-response, [name="g-recaptcha-response"], textarea[id*="g-recaptcha-response"]');
+                textareas.forEach(textarea => {
                     textarea.value = token;
-                    textarea.style.display = 'block';  // Make visible temporarily
-                }}
+                    textarea.innerHTML = token;
+                    textarea.style.display = 'block';
 
-                // Also try to set in any hidden inputs
+                    // Dispatch events to notify frameworks
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    textarea.dispatchEvent(new Event('change', { bubbles: true }));
+                    success = true;
+                });
+
+                // 2. Set in any hidden inputs
                 const hiddenInputs = document.querySelectorAll('input[name="g-recaptcha-response"]');
-                hiddenInputs.forEach(input => {{
+                hiddenInputs.forEach(input => {
                     input.value = token;
-                }});
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                });
 
-                // Try to call the callback if it exists
-                if (window.grecaptcha && window.grecaptcha.getResponse) {{
-                    // grecaptcha is loaded
-                }}
-
-                // Look for callback function in data attribute
+                // 3. Try to find and call the callback
                 const recaptchaDiv = document.querySelector('.g-recaptcha');
-                if (recaptchaDiv) {{
-                    const callback = recaptchaDiv.getAttribute('data-callback');
-                    if (callback && typeof window[callback] === 'function') {{
-                        window[callback](token);
-                        return true;
-                    }}
-                }}
+                if (recaptchaDiv) {
+                    const callbackName = recaptchaDiv.getAttribute('data-callback');
+                    if (callbackName) {
+                        // Try different scopes for the callback
+                        let callback = null;
 
-                return textarea !== null;
-            }}
+                        // Try window scope
+                        if (typeof window[callbackName] === 'function') {
+                            callback = window[callbackName];
+                        }
+                        // Try nested paths (e.g., "app.recaptchaCallback")
+                        else if (callbackName.includes('.')) {
+                            let obj = window;
+                            const parts = callbackName.split('.');
+                            for (const part of parts) {
+                                if (obj && obj[part]) {
+                                    obj = obj[part];
+                                } else {
+                                    obj = null;
+                                    break;
+                                }
+                            }
+                            if (typeof obj === 'function') {
+                                callback = obj;
+                            }
+                        }
+
+                        if (callback) {
+                            console.log('Calling reCAPTCHA callback:', callbackName);
+                            try {
+                                callback(token);
+                                success = true;
+                            } catch (e) {
+                                console.error('Callback error:', e);
+                            }
+                        }
+                    }
+                }
+
+                // 4. Try to trigger grecaptcha callback if available
+                if (window.grecaptcha) {
+                    try {
+                        // Some sites use enterprise version
+                        if (window.grecaptcha.enterprise && window.grecaptcha.enterprise.execute) {
+                            console.log('Enterprise reCAPTCHA detected');
+                        }
+
+                        // Try to find the widget and trigger callback
+                        const widgets = document.querySelectorAll('[data-widget-id]');
+                        widgets.forEach(widget => {
+                            const widgetId = widget.getAttribute('data-widget-id');
+                            if (widgetId && window.grecaptcha.getResponse) {
+                                // Override getResponse to return our token
+                                const originalGetResponse = window.grecaptcha.getResponse;
+                                window.grecaptcha.getResponse = function(id) {
+                                    if (id === parseInt(widgetId) || id === undefined) {
+                                        return token;
+                                    }
+                                    return originalGetResponse.call(this, id);
+                                };
+                            }
+                        });
+                    } catch (e) {
+                        console.error('grecaptcha manipulation error:', e);
+                    }
+                }
+
+                // 5. Look for Angular/React specific patterns
+                try {
+                    // Angular apps often use ng-model or formControl
+                    const angularInputs = document.querySelectorAll('[ng-model*="captcha"], [formcontrolname*="captcha"]');
+                    angularInputs.forEach(input => {
+                        input.value = token;
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                    });
+                } catch (e) {}
+
+                // 6. Try to trigger any onsubmit handlers that might check CAPTCHA
+                const forms = document.querySelectorAll('form');
+                forms.forEach(form => {
+                    // Create/update hidden input with token
+                    let tokenInput = form.querySelector('input[name="g-recaptcha-response"]');
+                    if (!tokenInput) {
+                        tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = 'g-recaptcha-response';
+                        form.appendChild(tokenInput);
+                    }
+                    tokenInput.value = token;
+                });
+
+                return success || textareas.length > 0;
+            }
         """, token)
 
         logger.info(f"CAPTCHA token injected: {result}")
