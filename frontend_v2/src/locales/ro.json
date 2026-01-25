@@ -357,7 +357,9 @@
   "profile": {
     "title": "Profilul Tau",
     "subtitle": "Aceste informatii ajuta AI sa ofere recomandari mai bune",
-    "saved": "Profil salvat cu succes",
+    "saved": "Salvat",
+    "saving": "Se salveaza...",
+    "autoSaveFailed": "Salvarea automata a esuat",
     "basicInfo": "Informatii de Baza",
     "fullName": "Nume Complet",
     "dateOfBirth": "Data Nasterii",

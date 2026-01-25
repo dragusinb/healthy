@@ -357,7 +357,9 @@
   "profile": {
     "title": "Your Profile",
     "subtitle": "This information helps AI provide better health insights",
-    "saved": "Profile saved successfully",
+    "saved": "Saved",
+    "saving": "Saving...",
+    "autoSaveFailed": "Auto-save failed",
     "basicInfo": "Basic Information",
     "fullName": "Full Name",
     "dateOfBirth": "Date of Birth",

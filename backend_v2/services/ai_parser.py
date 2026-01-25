@@ -57,33 +57,42 @@ class AIParser:
         max_chars = 15000
         truncated_text = text[:max_chars]
 
+        # Extract first 50 lines separately for header focus
+        lines = text.split('\n')
+        header_text = '\n'.join(lines[:50])
+
         return f"""
 Analyze this Romanian medical laboratory report and extract the PATIENT INFORMATION from the document header.
 
-IMPORTANT: Focus on the TOP SECTION of the document where patient details are typically listed.
+CRITICAL: Patient info (name, age, gender, birth date) is ALWAYS in the FIRST 10-20 LINES of the document header.
+Look there FIRST and prioritize that information over anything found elsewhere in the document.
+
+=== HEADER SECTION (FIRST 50 LINES - LOOK HERE FIRST) ===
+{header_text}
+=== END HEADER SECTION ===
 
 Common formats in Romanian medical documents:
 
-**Regina Maria format:**
-- "Pacient: NUME PRENUME" or "Nume: PRENUME NUME"
-- "CNP: 1850315..." (first digit: 1=male, 2=female; digits 2-7 = YYMMDD birth date)
-- "Data nasterii: DD.MM.YYYY" or "Nascut: DD.MM.YYYY"
-- "Sex: M/F" or "Masculin/Feminin" or "Barbat/Femeie"
-- "Varsta: XX ani" (age in years)
+**Regina Maria format (in header section):**
+- Patient name: "Pacient: NUME PRENUME", "Nume: PRENUME NUME", or just the name on a line
+- Age: "Varsta: XX ani", "XX ani", "Varsta XX", "Age: XX" - THIS IS THE ACCURATE AGE
+- CNP: "CNP: 1850315..." or "CNP 1850315..."
+- Birth date: "Data nasterii: DD.MM.YYYY", "Nascut: DD.MM.YYYY", "D.N. DD.MM.YYYY"
+- Gender: "Sex: M/F", "Sex: Masculin/Feminin", "Barbat/Femeie"
 
 **Synevo format:**
 - Patient name in header
 - CNP number
 - Birth date
-- Sometimes height/weight for certain tests
 
 **CNP (Cod Numeric Personal) decoding:**
 - First digit: 1,3,5,7 = Male; 2,4,6,8 = Female
-- Digits 2-3: Year (add 1900 or 2000 based on first digit)
+- Digits 2-3: Year (YY - add 1900 if first digit is 1-2, add 2000 if first digit is 5-6)
 - Digits 4-5: Month (01-12)
 - Digits 6-7: Day (01-31)
 
 Example: CNP 1850315... means Male, born 15 March 1985
+Example: CNP 2901020... means Female, born 02 January 1990
 
 Extract and return JSON:
 {{
@@ -99,14 +108,15 @@ Extract and return JSON:
 }}
 
 Rules:
-1. Only include fields you can confidently extract
-2. For names: Use proper capitalization (Title Case)
-3. For dates: Always output in YYYY-MM-DD format
-4. If you find CNP, decode birth date and gender from it
-5. If age is given but not birth date, calculate approximate birth year
-6. Set confidence based on how clear the information was
+1. PRIORITIZE the header section (first 50 lines) for patient info
+2. The "Varsta: XX ani" in the header is the accurate patient age - use it
+3. If CNP is found, decode birth date and gender from it (this gives exact birth date)
+4. If only age is given (no CNP or birth date), use that age to estimate birth year
+5. For names: Use proper capitalization (Title Case)
+6. For dates: Always output in YYYY-MM-DD format
+7. Set confidence to "high" if info comes from header with CNP, "medium" if from header without CNP
 
-Document text:
+Full document text (for context only - prefer header):
 {truncated_text}
 """
     

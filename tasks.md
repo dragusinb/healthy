@@ -90,6 +90,7 @@ Different medical providers (Regina Maria, Synevo, etc.) use different names for
 
 ## Completed
 
+- [x] Profile - Auto-Save Translation Fix & Age Extraction Improvement - Added missing translation keys (profile.saving, profile.autoSaveFailed) in RO/EN, improved AI prompt to prioritize header section for extracting patient age from Regina Maria documents
 - [x] Profile Page - Button Size & Auto-Save - Removed Save button, implemented 1-second debounced auto-save, consistent button styling, save status indicator
 - [x] Separate Recommended Screenings Page - New /screenings route, grouped tests by category, priority stats, profile-aware recommendations
 - [x] Report History & Comparison - Session-based history view, comparison mode to select 2 reports, side-by-side comparison with risk change and stats
