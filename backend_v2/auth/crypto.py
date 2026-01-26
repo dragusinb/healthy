@@ -21,11 +21,22 @@ def _get_fernet():
         # Already a valid Fernet key
         return Fernet(_ENCRYPTION_KEY.encode())
     else:
-        # Derive key from passphrase using PBKDF2
+        # WARNING: Using passphrase-based key derivation is less secure.
+        # Prefer using a proper Fernet key (44-char base64 ending with =).
+        # Generate one with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+        import logging
+        logging.warning(
+            "ENCRYPTION_KEY appears to be a passphrase, not a proper Fernet key. "
+            "For better security, use a randomly generated Fernet key."
+        )
+        # Use deployment-specific salt from env, or fall back to instance ID
+        salt_str = os.getenv("ENCRYPTION_SALT", os.getenv("INSTANCE_ID", "healthy_default_salt"))
+        salt = salt_str.encode()[:16].ljust(16, b'\x00')  # Ensure 16 bytes
+
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
-            salt=b"healthy_salt_v1",  # Fixed salt - acceptable for this use case
+            salt=salt,
             iterations=100000,
         )
         key = base64.urlsafe_b64encode(kdf.derive(_ENCRYPTION_KEY.encode()))

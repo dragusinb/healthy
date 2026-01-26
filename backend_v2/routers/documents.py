@@ -111,11 +111,28 @@ def download_document(doc_id: int, db: Session = Depends(get_db), current_user: 
         raise HTTPException(status_code=404, detail="File not found on disk")
 
     # Security: Validate file path belongs to user's directory
-    # Normalize path to prevent directory traversal attacks
-    real_path = os.path.realpath(doc.file_path)
-    user_data_dir = os.path.realpath(f"data/raw/{current_user.id}")
-    # Also allow legacy paths for backwards compatibility during migration
-    if not (real_path.startswith(user_data_dir) or f"/{current_user.id}/" in real_path):
+    # Use proper path normalization to prevent directory traversal attacks
+    real_path = os.path.normpath(os.path.realpath(doc.file_path))
+    user_data_dir = os.path.normpath(os.path.realpath(f"data/raw/{current_user.id}"))
+
+    # Check 1: Path must start with user's data directory (handles symlinks and case)
+    # Check 2: Use commonpath to verify proper containment
+    try:
+        common = os.path.commonpath([real_path, user_data_dir])
+        is_inside_user_dir = (common == user_data_dir)
+    except ValueError:
+        # commonpath raises ValueError if paths are on different drives (Windows)
+        is_inside_user_dir = False
+
+    # Legacy path check: file_path must contain user ID in a directory component
+    # e.g., /opt/healthy/data/raw/1/filename.pdf or C:\data\raw\1\filename.pdf
+    user_id_str = str(current_user.id)
+    path_parts = real_path.replace('\\', '/').split('/')
+    is_legacy_path = user_id_str in path_parts  # User ID as directory name
+
+    if not (is_inside_user_dir or is_legacy_path):
+        import logging
+        logging.warning(f"Path traversal blocked: user={current_user.id}, path={doc.file_path}")
         raise HTTPException(status_code=403, detail="Access denied")
 
     return FileResponse(
@@ -229,7 +246,9 @@ def process_document(doc_id: int, db: Session):
         if "date" in meta:
             try:
                 doc.document_date = datetime.datetime.strptime(meta["date"], "%Y-%m-%d")
-            except: pass
+            except (ValueError, TypeError) as e:
+                import logging
+                logging.warning(f"Invalid date format in document {doc.id}: {meta['date']} - {e}")
 
         # Extract patient name if found
         patient_info = result.get("patient_info", {})
@@ -239,9 +258,12 @@ def process_document(doc_id: int, db: Session):
         db.commit()
 
 def _safe_float(val):
+    """Safely convert a value to float, returning None on failure."""
+    if val is None:
+        return None
     try:
         return float(val)
-    except:
+    except (ValueError, TypeError):
         return None
 
 

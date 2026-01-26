@@ -113,16 +113,31 @@ async def google_login(token_data: GoogleToken, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 # --- Seeding Utility ---
+# SECURITY: Only run in development/local environments
+import os
+
 def seed_default_user(db: Session):
-    email = "dragusinb@gmail.com"
-    pwd = "J@guar123"
-    
+    """
+    Seeds a default development user. Only runs when ENVIRONMENT is 'development'.
+    In production, users must register through the normal flow.
+    """
+    env = os.environ.get("ENVIRONMENT", "production")
+    if env != "development":
+        return  # Don't seed default user in production
+
+    email = os.environ.get("DEV_USER_EMAIL", "dev@localhost")
+    pwd = os.environ.get("DEV_USER_PASSWORD")
+
+    if not pwd:
+        print("DEV_USER_PASSWORD not set, skipping default user seed.")
+        return
+
     user = db.query(User).filter(User.email == email).first()
     if not user:
-        print(f"Seeding default user: {email}")
+        print(f"[DEV MODE] Seeding default user: {email}")
         hashed = get_password_hash(pwd)
         u = User(email=email, hashed_password=hashed)
         db.add(u)
         db.commit()
     else:
-        print(f"User {email} already exists.")
+        print(f"[DEV MODE] User {email} already exists.")

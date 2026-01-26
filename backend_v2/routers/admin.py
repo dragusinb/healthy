@@ -682,8 +682,8 @@ def scan_documents_for_profiles(db: Session = Depends(get_db), admin: User = Dep
                         from datetime import datetime
                         dob = datetime.strptime(patient_info["date_of_birth"], "%Y-%m-%d")
                         profile_updates["date_of_birth"] = dob
-                    except:
-                        pass
+                    except (ValueError, TypeError):
+                        pass  # Invalid date format - skip
 
                 if patient_info.get("gender") and not profile_updates.get("gender") and not user.gender:
                     profile_updates["gender"] = patient_info["gender"]
@@ -789,8 +789,8 @@ def get_backup_status(admin: User = Depends(require_admin)):
             timeout=5
         )
         cron_active = "backup_db.sh" in result.stdout
-    except:
-        pass
+    except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError, OSError):
+        pass  # crontab not available or failed - not critical
 
     return {
         "status": "ok",

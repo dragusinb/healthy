@@ -9,19 +9,23 @@
 ## Pending
 
 ### Regina Maria CAPTCHA Bypass Improvement
-**Status:** In Progress
-**Priority:** Medium
+**Status:** Working ✓
+**Priority:** Low (maintenance only)
 
-Current behavior: Headless mode triggers reCAPTCHA, now auto-solves using external service.
+Current behavior: Headless mode triggers reCAPTCHA, auto-solves using 2captcha/anti-captcha service.
 
 Implemented:
 - [x] CAPTCHA solving service integration (2captcha, Anti-Captcha)
 - [x] Auto-solve reCAPTCHA v2 during login
+- [x] Fallback between services if one fails
+- [x] Rate limiting (max 3 attempts per sync to control costs)
+- [x] Improved token injection with DOM event dispatching
+- [x] CAPTCHA type detection (visible vs invisible)
+- [x] Diagnostic screenshots for troubleshooting
 
 Potential future improvements:
 - [ ] Better stealth techniques (user-agent, viewport, webdriver flags)
 - [ ] Session/cookie persistence between syncs
-- [ ] Better detection of CAPTCHA vs actual login failure
 
 ### Multi-Patient Account Handling (Future Enhancement)
 **Status:** Pending

@@ -134,10 +134,14 @@ def update_profile(
         current_user.gender = profile.gender if profile.gender else None
 
     if profile.height_cm is not None:
-        current_user.height_cm = profile.height_cm
+        if profile.height_cm < 0 or profile.height_cm > 300:
+            raise HTTPException(status_code=400, detail="Height must be between 0 and 300 cm")
+        current_user.height_cm = profile.height_cm if profile.height_cm > 0 else None
 
     if profile.weight_kg is not None:
-        current_user.weight_kg = profile.weight_kg
+        if profile.weight_kg < 0 or profile.weight_kg > 500:
+            raise HTTPException(status_code=400, detail="Weight must be between 0 and 500 kg")
+        current_user.weight_kg = profile.weight_kg if profile.weight_kg > 0 else None
 
     if profile.blood_type is not None:
         valid_blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", ""]
@@ -301,8 +305,8 @@ def scan_profile_from_documents(
                 dob = datetime.datetime.strptime(merged_profile["date_of_birth"], "%Y-%m-%d")
                 current_user.date_of_birth = dob
                 updates_made.append("date_of_birth")
-            except:
-                pass
+            except (ValueError, TypeError):
+                pass  # Invalid date format - will try age fallback
         # Fallback: calculate from age_years if no birth date found
         elif merged_profile.get("age_years"):
             try:
@@ -589,7 +593,7 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
                                 parsed_data["metadata"]["date"], "%Y-%m-%d"
                             )
                             new_doc.document_date = extracted_date
-                        except:
+                        except (ValueError, TypeError):
                             pass  # Keep original date if parsing fails
 
                     # Extract patient name from document
