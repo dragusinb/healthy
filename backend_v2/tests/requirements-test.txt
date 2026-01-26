@@ -1,0 +1,5 @@
+# Test dependencies for Healthy backend
+pytest>=7.0.0
+pytest-cov>=4.0.0
+httpx>=0.24.0
+requests>=2.31.0
