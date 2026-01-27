@@ -2,11 +2,140 @@
 
 ## In Progress
 
-(None currently)
+### MEGA TASK: Comprehensive App Testing & Bug Cleanup
+**Status:** In Progress
+**Priority:** HIGHEST
+**Started:** 2026-01-26
+
+**Objective:** Identify all user flows, create comprehensive tests, and clean up logical bugs.
+
+#### Phase 1: User Flow Identification
+Document all user journeys through the application:
+
+**Authentication Flows:**
+- [ ] User registration (email/password)
+- [ ] User login (email/password)
+- [ ] Google OAuth login
+- [ ] Password reset flow
+- [ ] Session management (token expiration, refresh)
+
+**Profile Management:**
+- [ ] View profile
+- [ ] Edit profile (name, gender, height, weight, blood type)
+- [ ] Auto-save functionality
+- [ ] Profile scan from documents
+- [ ] Medical history (allergies, conditions, medications)
+
+**Provider Account Flows:**
+- [ ] Add linked account (Regina Maria, Synevo)
+- [ ] Edit linked account credentials
+- [ ] Delete linked account
+- [ ] Manual sync trigger
+- [ ] View sync status/history
+- [ ] Error handling (wrong password, CAPTCHA, site down)
+
+**Document Management:**
+- [ ] View documents list
+- [ ] Filter documents by patient/source/date
+- [ ] Download document
+- [ ] Upload document manually
+- [ ] Delete document
+- [ ] View document biomarkers
+- [ ] Re-process document
+
+**Biomarkers & Health Data:**
+- [ ] View biomarkers list
+- [ ] Search/filter biomarkers
+- [ ] View biomarker evolution (chart)
+- [ ] View out-of-range alerts
+- [ ] Biomarker grouping by category
+
+**AI Health Reports:**
+- [ ] Generate new report
+- [ ] View report history
+- [ ] Compare reports
+- [ ] Specialist referrals
+
+**Screenings/Gap Analysis:**
+- [ ] View recommended screenings
+- [ ] Track overdue tests
+- [ ] Mark tests as completed
+
+**Admin Panel (Admin users only):**
+- [ ] View all users
+- [ ] View sync jobs
+- [ ] Trigger manual syncs
+- [ ] View server stats
+- [ ] View error logs
+- [ ] Manage biomarker mappings
+- [ ] Database backups
+
+#### Phase 2: Test Implementation
+Create automated tests for each flow:
+
+- [ ] Backend unit tests (pytest)
+- [ ] Backend integration tests
+- [ ] API endpoint tests
+- [ ] Frontend component tests
+- [ ] End-to-end tests (Playwright)
+
+#### Phase 3: Bug Identification & Fixes
+Find and fix logical bugs:
+
+- [ ] Data consistency issues
+- [ ] Edge case handling
+- [ ] Error message clarity
+- [ ] UI/UX issues
+- [ ] Performance bottlenecks
+
+#### Progress Notes:
+- 2026-01-26: Initial setup - pytest framework, live API smoke tests created
 
 ---
 
 ## Pending
+
+### Security Hardening (From Bug Sweep)
+**Status:** Partially Complete
+**Priority:** High
+
+**Fixed (2026-01-26):**
+- [x] Remove hardcoded default credentials (only seed in dev mode)
+- [x] Fix path traversal vulnerability in document download
+- [x] Add proper exception handling (remove bare except handlers)
+- [x] Add input validation for height/weight
+- [x] Add email validation in registration (EmailStr)
+- [x] Add password minimum length (6 chars)
+- [x] Improve encryption key derivation (configurable salt)
+
+**Remaining (High Priority):**
+- [ ] Add rate limiting on auth endpoints (prevent brute force)
+- [ ] Implement CSRF protection
+- [ ] Upgrade password hashing to Argon2/bcrypt
+- [ ] Reduce token expiration from 7 days to 1 day
+- [ ] Add file upload size limits
+
+**Remaining (Medium Priority):**
+- [ ] Fix race condition in sync tracking (add proper locking)
+- [ ] Add JSON validation for array fields
+- [ ] Enforce HTTPS in production
+
+### Testing Infrastructure
+**Status:** Initial Setup Complete
+**Priority:** Medium
+
+Implemented:
+- [x] Unit test framework (pytest in backend_v2/tests/)
+- [x] Live API smoke tests (test_live_api.py)
+- [x] Test authentication flows
+- [x] Test protected endpoints require auth
+- [x] Test input validation
+
+Remaining:
+- [ ] Add more comprehensive unit tests
+- [ ] Set up CI/CD pipeline (GitHub Actions)
+- [ ] Add frontend testing (React Testing Library)
+- [ ] Set up staging environment
 
 ### Regina Maria CAPTCHA Bypass Improvement
 **Status:** Working ✓
@@ -70,6 +199,9 @@ Remaining feature:
 
 ## Completed
 
+- [x] Security Bug Sweep & Fixes - Path traversal fix, input validation, email validation, exception handling
+- [x] CAPTCHA Auto-Solve Integration - 2captcha/anti-captcha service integration, rate limiting, improved token injection
+- [x] Testing Infrastructure Setup - pytest tests, live API smoke tests
 - [x] Screenings - Track When Tests Were Last Done - Shows "X months ago" or "Never done", highlights overdue tests based on frequency
 - [x] Multi-Patient Detection & Warning - Detect multiple patients in documents, warn on profile scan, dashboard endpoint for patient info
 - [x] Admin - Remove Redundant Service Status Section - Removed old Service Status section (was buggy and redundant with Server Stats), cleaned up frontend/backend code
@@ -111,4 +243,4 @@ Remaining feature:
 
 ---
 
-*Last updated: 2026-01-25*
+*Last updated: 2026-01-26*
