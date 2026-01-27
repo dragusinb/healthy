@@ -95,6 +95,7 @@ Find and fix logical bugs:
   - Profile management (CRUD, validation, isolation)
   - Document security (access control, download protection)
 - 2026-01-27: Security hardening implemented (rate limiting, bcrypt, file limits)
+- 2026-01-27: **BUG FIX** - Profile auto-save failing (422 error) - empty strings sent as height/weight instead of null
 
 ---
 
