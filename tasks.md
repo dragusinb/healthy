@@ -112,15 +112,6 @@ Find and fix logical bugs:
 
 ## Pending
 
-### UI/Menu Restructuring
-**Status:** Pending
-**Priority:** High
-
-- [ ] Rename "Analiza AI Sanatate" to "Doctor AI" in the navigation menu
-- [ ] Move "Screeninguri recomandate" (Gap Analysis) as a standalone menu item after "Doctor AI"
-  - Currently it's inside "Analiza AI Sanatate" but should be its own section
-  - Update navigation component and routing
-
 ### Security Hardening (From Bug Sweep)
 **Status:** Mostly Complete
 **Priority:** Medium (remaining items)
@@ -225,6 +216,7 @@ Remaining feature:
 
 ## Completed
 
+- [x] UI/Menu Restructuring - Renamed "Analiza AI Sanatate" to "Doctor AI", moved "Screeninguri Recomandate" as standalone menu item with ClipboardList icon
 - [x] Security Bug Sweep & Fixes - Path traversal fix, input validation, email validation, exception handling
 - [x] CAPTCHA Auto-Solve Integration - 2captcha/anti-captcha service integration, rate limiting, improved token injection
 - [x] Testing Infrastructure Setup - pytest tests, live API smoke tests

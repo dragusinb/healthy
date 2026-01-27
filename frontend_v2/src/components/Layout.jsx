@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
@@ -56,7 +56,8 @@ const Layout = ({ children }) => {
         if (path.startsWith('/documents')) return t('nav.documents');
         if (path.startsWith('/biomarkers')) return t('nav.biomarkers');
         if (path.startsWith('/evolution')) return t('evolution.title');
-        if (path.startsWith('/health')) return t('healthReports.title');
+        if (path.startsWith('/health')) return t('nav.doctorAI');
+        if (path.startsWith('/screenings')) return t('nav.screenings');
         if (path.startsWith('/profile')) return t('profile.title');
         if (path.startsWith('/linked-accounts')) return t('linkedAccounts.title');
         if (path.startsWith('/admin')) return t('admin.title');
@@ -80,7 +81,8 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} />
                         <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} />
                         <SidebarItem to="/biomarkers" icon={Activity} label={t('nav.biomarkers')} />
-                        <SidebarItem to="/health" icon={Brain} label={t('healthReports.title')} />
+                        <SidebarItem to="/health" icon={Brain} label={t('nav.doctorAI')} />
+                        <SidebarItem to="/screenings" icon={ClipboardList} label={t('nav.screenings')} />
                         <div className="pt-4 mt-4 border-t border-slate-100"></div>
                         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
@@ -184,7 +186,8 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/biomarkers" icon={Activity} label={t('nav.biomarkers')} onClick={closeMobileMenu} />
-                                    <SidebarItem to="/health" icon={Brain} label={t('healthReports.title')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/health" icon={Brain} label={t('nav.doctorAI')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/screenings" icon={ClipboardList} label={t('nav.screenings')} onClick={closeMobileMenu} />
                                     <div className="pt-4 mt-4 border-t border-slate-100"></div>
                                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />

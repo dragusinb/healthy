@@ -26,6 +26,8 @@
     "dashboard": "Dashboard",
     "documents": "Documents",
     "biomarkers": "Biomarkers",
+    "doctorAI": "Doctor AI",
+    "screenings": "Recommended Screenings",
     "healthReports": "Health Reports",
     "evolution": "Evolution",
     "profile": "Profile",
