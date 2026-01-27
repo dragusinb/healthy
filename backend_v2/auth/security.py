@@ -15,10 +15,29 @@ ACCESS_TOKEN_EXPIRE_DAYS = 1  # Token valid for 1 day (reduced from 7 for securi
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash using bcrypt."""
+    """Verify a password against its hash.
+
+    Supports both bcrypt (current) and legacy PBKDF2 (passlib) formats
+    for backwards compatibility during migration.
+    """
     password_bytes = plain_password.encode('utf-8')
-    hash_bytes = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(password_bytes, hash_bytes)
+
+    # Check if it's a bcrypt hash (starts with $2a$, $2b$, or $2y$)
+    if hashed_password.startswith('$2'):
+        hash_bytes = hashed_password.encode('utf-8')
+        return bcrypt.checkpw(password_bytes, hash_bytes)
+
+    # Legacy passlib PBKDF2 format (starts with $pbkdf2-)
+    if hashed_password.startswith('$pbkdf2-'):
+        try:
+            from passlib.hash import pbkdf2_sha256
+            return pbkdf2_sha256.verify(plain_password, hashed_password)
+        except ImportError:
+            # passlib not installed, can't verify old hashes
+            return False
+
+    # Unknown hash format
+    return False
 
 
 def get_password_hash(password: str) -> str:
