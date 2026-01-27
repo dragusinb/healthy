@@ -13,18 +13,18 @@
 Document all user journeys through the application:
 
 **Authentication Flows:**
-- [ ] User registration (email/password)
-- [ ] User login (email/password)
-- [ ] Google OAuth login
-- [ ] Password reset flow
-- [ ] Session management (token expiration, refresh)
+- [x] User registration (email/password) - tested with validation
+- [x] User login (email/password) - tested with rate limiting
+- [ ] Google OAuth login - needs manual testing
+- [ ] Password reset flow - not implemented
+- [x] Session management (token expiration, refresh) - 1-day expiration
 
 **Profile Management:**
-- [ ] View profile
-- [ ] Edit profile (name, gender, height, weight, blood type)
-- [ ] Auto-save functionality
-- [ ] Profile scan from documents
-- [ ] Medical history (allergies, conditions, medications)
+- [x] View profile - tested
+- [x] Edit profile (name, gender, height, weight, blood type) - tested with validation
+- [ ] Auto-save functionality - needs frontend testing
+- [ ] Profile scan from documents - needs manual testing
+- [x] Medical history (allergies, conditions, medications) - tested
 
 **Provider Account Flows:**
 - [ ] Add linked account (Regina Maria, Synevo)
@@ -35,13 +35,13 @@ Document all user journeys through the application:
 - [ ] Error handling (wrong password, CAPTCHA, site down)
 
 **Document Management:**
-- [ ] View documents list
-- [ ] Filter documents by patient/source/date
-- [ ] Download document
-- [ ] Upload document manually
-- [ ] Delete document
-- [ ] View document biomarkers
-- [ ] Re-process document
+- [x] View documents list - tested (auth required)
+- [ ] Filter documents by patient/source/date - needs frontend testing
+- [x] Download document - tested (security validated)
+- [x] Upload document manually - tested (size limit, PDF only)
+- [x] Delete document - tested (auth required)
+- [x] View document biomarkers - tested (auth required)
+- [ ] Re-process document - needs manual testing
 
 **Biomarkers & Health Data:**
 - [ ] View biomarkers list
@@ -90,14 +90,19 @@ Find and fix logical bugs:
 
 #### Progress Notes:
 - 2026-01-26: Initial setup - pytest framework, live API smoke tests created
+- 2026-01-27: Added comprehensive test suites (84 tests total, all passing)
+  - Authentication flows (registration, login, tokens)
+  - Profile management (CRUD, validation, isolation)
+  - Document security (access control, download protection)
+- 2026-01-27: Security hardening implemented (rate limiting, bcrypt, file limits)
 
 ---
 
 ## Pending
 
 ### Security Hardening (From Bug Sweep)
-**Status:** Partially Complete
-**Priority:** High
+**Status:** Mostly Complete
+**Priority:** Medium (remaining items)
 
 **Fixed (2026-01-26):**
 - [x] Remove hardcoded default credentials (only seed in dev mode)
@@ -108,17 +113,17 @@ Find and fix logical bugs:
 - [x] Add password minimum length (6 chars)
 - [x] Improve encryption key derivation (configurable salt)
 
-**Remaining (High Priority):**
-- [ ] Add rate limiting on auth endpoints (prevent brute force)
-- [ ] Implement CSRF protection
-- [ ] Upgrade password hashing to Argon2/bcrypt
-- [ ] Reduce token expiration from 7 days to 1 day
-- [ ] Add file upload size limits
+**Fixed (2026-01-27):**
+- [x] Add rate limiting on auth endpoints (5 attempts/5min, 15min lockout)
+- [x] Upgrade password hashing to bcrypt
+- [x] Reduce token expiration from 7 days to 1 day
+- [x] Add file upload size limits (20MB max, PDF only)
 
 **Remaining (Medium Priority):**
+- [ ] Implement CSRF protection
 - [ ] Fix race condition in sync tracking (add proper locking)
 - [ ] Add JSON validation for array fields
-- [ ] Enforce HTTPS in production
+- [ ] Enforce HTTPS in production (needs domain + SSL cert)
 
 ### Testing Infrastructure
 **Status:** Initial Setup Complete
