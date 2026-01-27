@@ -96,6 +96,12 @@ Find and fix logical bugs:
   - Document security (access control, download protection)
 - 2026-01-27: Security hardening implemented (rate limiting, bcrypt, file limits)
 - 2026-01-27: **BUG FIX** - Profile auto-save failing (422 error) - empty strings sent as height/weight instead of null
+- 2026-01-27: Extended test suites (119 tests total, all passing)
+  - Added linked accounts tests (provider account management)
+  - Added biomarkers/dashboard tests (stats, filtering, evolution)
+  - Added health reports tests (reports, specialists, gap analysis)
+  - Fixed bcrypt compatibility (passlib → direct bcrypt usage)
+  - Added test mode bypass for rate limiting
 
 ---
 
@@ -249,4 +255,4 @@ Remaining feature:
 
 ---
 
-*Last updated: 2026-01-26*
+*Last updated: 2026-01-27*
