@@ -2,6 +2,7 @@
 Simple in-memory rate limiter for authentication endpoints.
 For production with multiple workers, use Redis-based rate limiting.
 """
+import os
 import time
 from collections import defaultdict
 from threading import Lock
@@ -9,6 +10,9 @@ from fastapi import HTTPException, Request
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Disable rate limiting in test environment
+IS_TEST_ENV = os.environ.get("ENVIRONMENT") == "test"
 
 # Configuration
 MAX_LOGIN_ATTEMPTS = 5  # Max attempts per window
@@ -128,6 +132,8 @@ def check_login_rate_limit(request: Request):
     Rate limit dependency for login endpoint.
     Limits by IP address.
     """
+    if IS_TEST_ENV:
+        return  # Skip rate limiting in tests
     client_ip = get_client_ip(request)
     _rate_limiter.check_rate_limit(
         key=f"login:{client_ip}",
@@ -142,6 +148,8 @@ def check_register_rate_limit(request: Request):
     Rate limit dependency for registration endpoint.
     Limits by IP address.
     """
+    if IS_TEST_ENV:
+        return  # Skip rate limiting in tests
     client_ip = get_client_ip(request)
     _rate_limiter.check_rate_limit(
         key=f"register:{client_ip}",
