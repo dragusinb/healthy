@@ -107,6 +107,24 @@ Find and fix logical bugs:
   - Removed predefined SPECIALISTS dict - specialists created on-the-fly
   - Each specialist recommendation includes: name, focus_area, relevant_markers, reasoning
   - Backwards compatible with old response formats
+- 2026-01-27: UI/Menu restructuring
+  - Renamed "Analiza AI Sanatate" to "Doctor AI"
+  - Added "Screeninguri Recomandate" as standalone menu item with ClipboardList icon
+- 2026-01-27: Doctor AI page improvements
+  - Fixed specialist reports to show only latest session (not all historical)
+  - Added test date display for each biomarker finding in specialist reports
+  - Enhanced Report History with clickable specialist chips per session
+  - Removed screenings link card (now standalone menu item)
+- 2026-01-27: Gap Analysis improvements
+  - POST endpoint now returns enriched data with "last done" status immediately
+  - Tests that have been done show date and status (not just recommended)
+- 2026-01-27: **BUG FIX** - Duplicate documents during sync
+  - Added duplicate detection based on document_date + provider
+  - Double-check after AI extracts date from PDF content
+  - Cleaned up existing duplicates for all users
+- 2026-01-27: **BUG FIX** - Login failing for users with old password hashes
+  - Added backwards compatibility for PBKDF2 hashes during bcrypt migration
+  - Re-hashed affected user passwords
 
 ---
 
