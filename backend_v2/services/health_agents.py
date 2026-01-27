@@ -71,17 +71,25 @@ IMPORTANT DATA AGE CONSIDERATIONS:
 - Focus your main analysis on the most recent results
 - Only recommend specialists for RECENT abnormalities (within last year)
 
-SPECIALIST SELECTION:
-You may recommend these specialists when warranted:
-- cardiology: cardiovascular health, lipid profiles, heart disease risk
-- endocrinology: hormones, thyroid, diabetes, metabolic health
-- hematology: blood cells, anemia, clotting disorders
-- hepatology: liver function and disease
-- nephrology: kidney function and renal health
-- infectious_disease: infections, inflammation markers, immune response
+SPECIALIST REFERRALS:
+Based on the biomarker findings, you should recommend specialist consultations when warranted.
+You can recommend ANY type of medical specialist - common ones include:
+- Cardiologist (heart, lipids, cardiovascular)
+- Endocrinologist (hormones, thyroid, diabetes)
+- Hematologist (blood cells, anemia, clotting)
+- Hepatologist (liver function)
+- Nephrologist (kidney function)
+- Gastroenterologist (digestive system)
+- Immunologist (immune system)
+- Oncologist (cancer markers)
+- Rheumatologist (autoimmune, inflammation)
+- Pulmonologist (lung function)
+- Neurologist (nervous system)
+- Dermatologist (skin-related markers)
+- Infectious Disease Specialist (infections)
 
-Only recommend specialists when there's a clear, recent clinical indication.
-Provide specific reasoning for each recommendation.
+But you are NOT limited to this list - recommend whatever specialist is most appropriate
+for the findings. Only recommend specialists when there's a clear, recent clinical indication.
 
 Always be balanced - acknowledge both concerning and positive findings.
 Use clear, non-alarmist language appropriate for a patient.
@@ -105,13 +113,15 @@ Respond in JSON format with this structure:
             "reason": "Why this is recommended"
         }
     ],
-    "specialist_referrals": {
-        "recommended": ["cardiology", "endocrinology"],
-        "reasoning": {
-            "cardiology": "Specific reason why cardiology review is needed based on recent results",
-            "endocrinology": "Specific reason for endocrinology based on findings"
+    "specialist_referrals": [
+        {
+            "specialty": "cardiology",
+            "specialist_name": "Cardiologist",
+            "focus_area": "cardiovascular health, lipid profiles, and heart disease risk",
+            "relevant_markers": ["cholesterol", "LDL", "HDL", "triglycerides"],
+            "reasoning": "Specific reason why this specialist review is needed based on recent results"
         }
-    }
+    ]
 }"""
 
     def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
@@ -225,53 +235,30 @@ Provide your analysis in JSON format as specified."""
 
 
 class SpecialistAgent(HealthAgent):
-    """Specialist agent for specific medical areas."""
+    """Dynamic specialist agent that can represent any medical specialty.
 
-    SPECIALISTS = {
-        "cardiology": {
-            "name": "Cardiologist",
-            "markers": ["cholesterol", "ldl", "hdl", "triglycerides", "crp", "homocysteine",
-                       "lipoprotein", "apolipoprotein", "bnp", "troponin"],
-            "focus": "cardiovascular health, lipid profiles, and heart disease risk factors"
-        },
-        "endocrinology": {
-            "name": "Endocrinologist",
-            "markers": ["glucose", "hba1c", "insulin", "tsh", "t3", "t4", "ft3", "ft4",
-                       "cortisol", "testosterone", "estrogen", "progesterone", "dhea"],
-            "focus": "hormones, thyroid function, diabetes, and metabolic health"
-        },
-        "hematology": {
-            "name": "Hematologist",
-            "markers": ["hemoglobin", "hematocrit", "rbc", "wbc", "platelets", "mcv", "mch",
-                       "mchc", "rdw", "ferritin", "iron", "tibc", "transferrin", "reticulocytes"],
-            "focus": "blood cells, anemia, clotting disorders, and blood health"
-        },
-        "hepatology": {
-            "name": "Hepatologist",
-            "markers": ["alt", "ast", "alp", "ggt", "bilirubin", "albumin", "protein",
-                       "afp", "ammonia"],
-            "focus": "liver function and liver disease"
-        },
-        "nephrology": {
-            "name": "Nephrologist",
-            "markers": ["creatinine", "bun", "urea", "egfr", "cystatin", "microalbumin",
-                       "uric acid", "potassium", "sodium", "phosphorus"],
-            "focus": "kidney function and renal health"
-        },
-        "infectious_disease": {
-            "name": "Infectious Disease Specialist",
-            "markers": ["wbc", "leucocite", "neutrofil", "limfocit", "monocit", "procalcitonin",
-                       "crp", "vsh", "esr", "streptococ", "borrelia", "antigen"],
-            "focus": "infections, inflammation markers, and immune response"
-        }
-    }
+    The specialist configuration is provided dynamically by the generalist,
+    allowing for flexible specialist recommendations based on the actual findings.
+    """
 
-    def __init__(self, specialty: str, language: str = "en"):
+    def __init__(self, specialty: str, specialist_name: str, focus_area: str,
+                 relevant_markers: List[str] = None, language: str = "en"):
+        """Initialize a dynamic specialist agent.
+
+        Args:
+            specialty: The specialty identifier (e.g., "cardiology")
+            specialist_name: Display name (e.g., "Cardiologist")
+            focus_area: What this specialist focuses on
+            relevant_markers: Optional list of marker keywords to filter biomarkers
+            language: Response language ("en" or "ro")
+        """
         super().__init__(language=language)
-        if specialty not in self.SPECIALISTS:
-            raise ValueError(f"Unknown specialty: {specialty}")
         self.specialty = specialty
-        self.config = self.SPECIALISTS[specialty]
+        self.config = {
+            "name": specialist_name,
+            "focus": focus_area,
+            "markers": relevant_markers or []
+        }
 
     def get_system_prompt(self, generalist_context: str = "") -> str:
         generalist_section = ""
@@ -396,12 +383,20 @@ Focus on {self.config['focus']}. Provide your specialist analysis in JSON format
             }
 
     def _filter_relevant_markers(self, biomarkers: List[Dict]) -> List[Dict]:
-        """Filter biomarkers to those relevant to this specialty."""
+        """Filter biomarkers to those relevant to this specialty.
+
+        If no markers are specified in config, returns all biomarkers
+        (specialist will focus on what's relevant based on their expertise).
+        """
+        # If no specific markers defined, return all biomarkers
+        if not self.config.get('markers'):
+            return biomarkers
+
         relevant = []
         for bio in biomarkers:
             name = bio.get('name', '').lower()
             for marker in self.config['markers']:
-                if marker in name:
+                if marker.lower() in name:
                     relevant.append(bio)
                     break
         return relevant
@@ -663,8 +658,9 @@ class HealthAnalysisService:
     def run_full_analysis(self, biomarkers: List[Dict]) -> Dict[str, Any]:
         """Run general analysis and determine if specialist analyses are needed.
 
-        The generalist AI determines which specialists should be consulted based on its analysis.
-        We also have a fallback to check for recent abnormal markers in case generalist missed something.
+        The generalist AI dynamically determines which specialists should be consulted
+        based on its analysis. Specialists are created on-the-fly based on the
+        generalist's recommendations - there is no predefined specialist list.
         """
         # Get profile context
         profile_context = self._format_profile_context()
@@ -680,56 +676,92 @@ class HealthAnalysisService:
             "profile_used": bool(profile_context)
         }
 
-        # Get specialist referrals from generalist - handle both old and new format
+        # Get specialist referrals from generalist
+        # New format: list of specialist objects with full configuration
         raw_referrals = general_report.get("specialist_referrals", [])
-        if isinstance(raw_referrals, dict):
-            # New format: {"recommended": [...], "reasoning": {...}}
-            referrals = set(raw_referrals.get("recommended", []))
-        elif isinstance(raw_referrals, list):
-            # Old format: ["cardiology", "endocrinology"]
-            referrals = set(raw_referrals)
-        else:
-            referrals = set()
 
-        # Track which specialists we'll run and why
-        specialists_to_run = {}
+        # Handle different response formats for backwards compatibility
+        specialist_configs = []
+        if isinstance(raw_referrals, list):
+            for ref in raw_referrals:
+                if isinstance(ref, dict) and "specialty" in ref:
+                    # New dynamic format with full specialist config
+                    specialist_configs.append(ref)
+                elif isinstance(ref, str):
+                    # Old format: just specialty name - create default config
+                    specialist_configs.append({
+                        "specialty": ref,
+                        "specialist_name": ref.replace("_", " ").title(),
+                        "focus_area": f"{ref} related health concerns",
+                        "relevant_markers": [],
+                        "reasoning": "Recommended by generalist"
+                    })
+        elif isinstance(raw_referrals, dict):
+            # Legacy format: {"recommended": [...], "reasoning": {...}}
+            recommended = raw_referrals.get("recommended", [])
+            reasoning = raw_referrals.get("reasoning", {})
+            for spec in recommended:
+                specialist_configs.append({
+                    "specialty": spec,
+                    "specialist_name": spec.replace("_", " ").title(),
+                    "focus_area": f"{spec} related health concerns",
+                    "relevant_markers": [],
+                    "reasoning": reasoning.get(spec, "Recommended by generalist")
+                })
 
-        # First pass: Add all specialists recommended by generalist
-        for specialty in referrals:
-            if specialty in SpecialistAgent.SPECIALISTS:
-                specialists_to_run[specialty] = "generalist_referral"
+        # Run specialist analyses dynamically
+        for spec_config in specialist_configs:
+            specialty = spec_config.get("specialty", "unknown")
+            specialist_name = spec_config.get("specialist_name", specialty.title())
+            focus_area = spec_config.get("focus_area", "")
+            relevant_markers = spec_config.get("relevant_markers", [])
+            reasoning = spec_config.get("reasoning", "")
 
-        # Second pass: Check for recent concerning markers as fallback
-        for specialty in SpecialistAgent.SPECIALISTS.keys():
-            if specialty in specialists_to_run:
-                continue  # Already added via generalist referral
+            # Create specialist agent with dynamic configuration
+            specialist = SpecialistAgent(
+                specialty=specialty,
+                specialist_name=specialist_name,
+                focus_area=focus_area,
+                relevant_markers=relevant_markers,
+                language=self.language
+            )
 
-            # Check if any RECENT concerning markers exist for this specialty
-            specialist = SpecialistAgent(specialty, language=self.language)
-            relevant = specialist._filter_relevant_markers(biomarkers)
-            recent_concerns = [
-                b for b in relevant
-                if b.get('status') != 'normal' and self._is_recent(b, max_age_days=365)
-            ]
-            if len(recent_concerns) > 0:
-                specialists_to_run[specialty] = "marker_fallback"
+            # Build generalist context for this specialist
+            generalist_context = f"Referral reason: {reasoning}"
+            additional_context = self._extract_generalist_context_for_specialty(general_report, specialty)
+            if additional_context:
+                generalist_context += f"\n\n{additional_context}"
 
-        # Run specialist analyses
-        for specialty, trigger_reason in specialists_to_run.items():
-            specialist = SpecialistAgent(specialty, language=self.language)
-            # Extract generalist findings relevant to this specialty
-            generalist_context = self._extract_generalist_context_for_specialty(general_report, specialty)
+            # Run specialist analysis
             specialist_result = specialist.analyze(biomarkers, profile_context, generalist_context)
-            # Add trigger reason for debugging/transparency
-            specialist_result["triggered_by"] = trigger_reason
+            specialist_result["triggered_by"] = "generalist_referral"
+            specialist_result["referral_reasoning"] = reasoning
             result["specialists"][specialty] = specialist_result
 
         return result
 
-    def run_specialist_analysis(self, specialty: str, biomarkers: List[Dict], generalist_context: str = "") -> Dict[str, Any]:
-        """Run analysis for a specific specialty."""
+    def run_specialist_analysis(self, specialty: str, biomarkers: List[Dict],
+                                specialist_name: str = None, focus_area: str = None,
+                                relevant_markers: List[str] = None,
+                                generalist_context: str = "") -> Dict[str, Any]:
+        """Run analysis for a specific specialty with dynamic configuration.
+
+        Args:
+            specialty: Specialty identifier (e.g., "cardiology")
+            biomarkers: List of biomarker data
+            specialist_name: Display name (defaults to specialty title)
+            focus_area: What this specialist focuses on
+            relevant_markers: Optional marker keywords for filtering
+            generalist_context: Context from generalist analysis
+        """
         profile_context = self._format_profile_context()
-        specialist = SpecialistAgent(specialty, language=self.language)
+        specialist = SpecialistAgent(
+            specialty=specialty,
+            specialist_name=specialist_name or specialty.replace("_", " ").title(),
+            focus_area=focus_area or f"{specialty} related health concerns",
+            relevant_markers=relevant_markers or [],
+            language=self.language
+        )
         return specialist.analyze(biomarkers, profile_context, generalist_context)
 
     def run_gap_analysis(self, existing_test_names: List[str]) -> Dict[str, Any]:

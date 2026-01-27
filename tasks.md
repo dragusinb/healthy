@@ -102,10 +102,24 @@ Find and fix logical bugs:
   - Added health reports tests (reports, specialists, gap analysis)
   - Fixed bcrypt compatibility (passlib → direct bcrypt usage)
   - Added test mode bypass for rate limiting
+- 2026-01-27: Made AI specialists fully dynamic
+  - Generalist AI now determines specialists dynamically (any specialty can be recommended)
+  - Removed predefined SPECIALISTS dict - specialists created on-the-fly
+  - Each specialist recommendation includes: name, focus_area, relevant_markers, reasoning
+  - Backwards compatible with old response formats
 
 ---
 
 ## Pending
+
+### UI/Menu Restructuring
+**Status:** Pending
+**Priority:** High
+
+- [ ] Rename "Analiza AI Sanatate" to "Doctor AI" in the navigation menu
+- [ ] Move "Screeninguri recomandate" (Gap Analysis) as a standalone menu item after "Doctor AI"
+  - Currently it's inside "Analiza AI Sanatate" but should be its own section
+  - Update navigation component and routing
 
 ### Security Hardening (From Bug Sweep)
 **Status:** Mostly Complete

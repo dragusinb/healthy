@@ -2,9 +2,10 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
+from pydantic import BaseModel
 import json
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 try:
     from backend_v2.database import get_db
@@ -244,26 +245,72 @@ def get_latest_report(
 
 @router.get("/specialists")
 def get_available_specialists():
-    """Get list of available specialist analyses."""
-    return {
-        specialty: {
-            "name": config["name"],
-            "focus": config["focus"]
+    """Get information about specialist analyses.
+
+    Note: The system uses DYNAMIC specialist selection - the AI generalist
+    determines which specialists to consult based on your biomarker findings.
+    This endpoint returns common specialist types for reference.
+    """
+    # Common specialists that the AI may recommend (non-exhaustive)
+    common_specialists = {
+        "cardiology": {
+            "name": "Cardiologist",
+            "focus": "cardiovascular health, lipid profiles, and heart disease risk"
+        },
+        "endocrinology": {
+            "name": "Endocrinologist",
+            "focus": "hormones, thyroid function, diabetes, and metabolic health"
+        },
+        "hematology": {
+            "name": "Hematologist",
+            "focus": "blood cells, anemia, clotting disorders, and blood health"
+        },
+        "hepatology": {
+            "name": "Hepatologist",
+            "focus": "liver function and liver disease"
+        },
+        "nephrology": {
+            "name": "Nephrologist",
+            "focus": "kidney function and renal health"
+        },
+        "gastroenterology": {
+            "name": "Gastroenterologist",
+            "focus": "digestive system and gastrointestinal health"
+        },
+        "immunology": {
+            "name": "Immunologist",
+            "focus": "immune system function and autoimmune conditions"
+        },
+        "infectious_disease": {
+            "name": "Infectious Disease Specialist",
+            "focus": "infections, inflammation markers, and immune response"
         }
-        for specialty, config in SpecialistAgent.SPECIALISTS.items()
     }
+    return {
+        "note": "Specialists are selected dynamically by the AI based on your biomarker findings. This list shows common specialist types.",
+        "specialists": common_specialists
+    }
+
+
+class SpecialistRequest(BaseModel):
+    """Request body for manual specialist analysis."""
+    specialist_name: Optional[str] = None
+    focus_area: Optional[str] = None
+    relevant_markers: Optional[List[str]] = None
 
 
 @router.post("/analyze/{specialty}")
 def run_specialist_analysis(
     specialty: str,
+    request: SpecialistRequest = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Run analysis for a specific medical specialty."""
-    if specialty not in SpecialistAgent.SPECIALISTS:
-        raise HTTPException(status_code=400, detail=f"Unknown specialty: {specialty}")
+    """Run analysis for a specific medical specialty.
 
+    The specialist configuration can be customized via the request body,
+    or sensible defaults will be used based on the specialty name.
+    """
     biomarkers = get_user_biomarkers(db, current_user.id)
 
     if not biomarkers:
@@ -275,9 +322,20 @@ def run_specialist_analysis(
     # Get user's profile for context
     user_profile = get_user_profile(current_user)
 
+    # Use request body config or defaults
+    specialist_name = (request.specialist_name if request else None) or specialty.replace("_", " ").title()
+    focus_area = (request.focus_area if request else None) or f"{specialty} related health concerns"
+    relevant_markers = (request.relevant_markers if request else None) or []
+
     try:
         service = HealthAnalysisService(language=user_language, profile=user_profile)
-        analysis = service.run_specialist_analysis(specialty, biomarkers)
+        analysis = service.run_specialist_analysis(
+            specialty=specialty,
+            biomarkers=biomarkers,
+            specialist_name=specialist_name,
+            focus_area=focus_area,
+            relevant_markers=relevant_markers
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
@@ -285,7 +343,7 @@ def run_specialist_analysis(
     report = HealthReport(
         user_id=current_user.id,
         report_type=specialty,
-        title=f"{specialty.title()} Analysis",
+        title=f"{specialist_name} Analysis",
         summary=analysis.get("summary", ""),
         findings=json.dumps(analysis.get("key_findings", [])),
         recommendations=json.dumps(analysis.get("recommendations", [])),
