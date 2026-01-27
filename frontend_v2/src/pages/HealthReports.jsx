@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import api from '../api/client';
 import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
-    RefreshCw, FileText, TrendingUp, Shield, X, Eye,
-    ClipboardList, History, GitCompare, TrendingDown, Minus
+    RefreshCw, TrendingUp, Shield, X, Eye,
+    History, GitCompare, TrendingDown, Minus
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -65,14 +64,12 @@ const HealthReports = () => {
     const { t } = useTranslation();
     const [latestReport, setLatestReport] = useState(null);
     const [reports, setReports] = useState([]);
-    const [specialists, setSpecialists] = useState({});
     const [biomarkers, setBiomarkers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [analyzing, setAnalyzing] = useState(false);
     const [analysisStep, setAnalysisStep] = useState(0);
     const [error, setError] = useState(null);
     const [selectedReport, setSelectedReport] = useState(null);
-    const [gapAnalysis, setGapAnalysis] = useState(null);
     const [reportHistory, setReportHistory] = useState([]);
     const [compareMode, setCompareMode] = useState(false);
     const [selectedForCompare, setSelectedForCompare] = useState([]);
@@ -105,26 +102,16 @@ const HealthReports = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [latestRes, reportsRes, specialistsRes, biomarkersRes, gapRes, historyRes] = await Promise.all([
+            const [latestRes, reportsRes, biomarkersRes, historyRes] = await Promise.all([
                 api.get('/health/latest'),
-                api.get('/health/reports?limit=10'),
-                api.get('/health/specialists'),
+                api.get('/health/reports?limit=20'),
                 api.get('/dashboard/biomarkers'),
-                api.get('/health/gap-analysis/latest').catch(() => ({ data: { has_report: false } })),
                 api.get('/health/history?limit=20').catch(() => ({ data: { sessions: [] } }))
             ]);
             setLatestReport(latestRes.data);
             setReports(reportsRes.data);
-            setSpecialists(specialistsRes.data);
             setBiomarkers(biomarkersRes.data);
             setReportHistory(historyRes.data.sessions || []);
-
-            // Load saved gap analysis if exists (for showing count in link)
-            if (gapRes.data.has_report) {
-                setGapAnalysis({
-                    recommended_tests: gapRes.data.recommended_tests
-                });
-            }
 
             setError(null);
         } catch (e) {
@@ -208,10 +195,6 @@ const HealthReports = () => {
         } finally {
             setAnalyzing(false);
         }
-    };
-
-    const getSpecialistReport = (specialtyKey) => {
-        return reports.find(r => r.report_type === specialtyKey);
     };
 
     const getRiskStyle = (level) => RISK_COLORS[level] || RISK_COLORS.normal;
@@ -443,85 +426,67 @@ const HealthReports = () => {
                 </div>
             )}
 
-            {/* Available Specialists */}
-            <div className="card overflow-hidden">
-                <div className="p-6 border-b border-slate-100">
-                    <h2 className="text-lg font-semibold text-slate-800">Specialist Analyses</h2>
-                    <p className="text-sm text-slate-500 mt-1">Deep-dive analyses by medical specialty</p>
-                </div>
+            {/* Specialist Reports - Shows actually generated specialist analyses */}
+            {(() => {
+                // Get specialist reports from the reports list (exclude 'general' and 'gap_analysis')
+                const specialistReports = reports.filter(r =>
+                    r.report_type !== 'general' && r.report_type !== 'gap_analysis'
+                );
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-                    {Object.entries(specialists).map(([key, spec]) => {
-                        const Icon = SPECIALTY_ICONS[key] || Stethoscope;
-                        const report = getSpecialistReport(key);
-                        const hasReport = !!report;
+                if (specialistReports.length === 0) {
+                    return null; // Don't show section if no specialist reports
+                }
 
-                        return (
-                            <div
-                                key={key}
-                                className={cn(
-                                    "group p-4 rounded-xl border transition-all",
-                                    hasReport
-                                        ? "border-teal-200 bg-teal-50/30 hover:bg-teal-50 cursor-pointer"
-                                        : "border-slate-200 hover:border-slate-300"
-                                )}
-                                onClick={() => hasReport && setSelectedReport(report)}
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className={cn(
-                                        "p-3 rounded-xl transition-colors",
-                                        hasReport ? "bg-teal-100" : "bg-slate-100 group-hover:bg-slate-200"
-                                    )}>
-                                        <Icon size={24} className={hasReport ? "text-teal-600" : "text-slate-600"} />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-slate-800">{spec.name}</h3>
-                                        <p className="text-sm text-slate-500 mt-1">{spec.focus}</p>
-                                        {hasReport ? (
-                                            <button className="inline-flex items-center gap-1 text-xs text-teal-600 mt-2 font-medium hover:text-teal-700">
-                                                <CheckCircle size={12} />
-                                                View Report
-                                                <ChevronRight size={12} />
-                                            </button>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 text-xs text-slate-400 mt-2">
-                                                <Clock size={12} />
-                                                No report yet
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Screenings Link Card */}
-            <Link
-                to="/screenings"
-                className="card p-6 flex items-center gap-4 hover:bg-slate-50 transition-colors group"
-            >
-                <div className="p-3 bg-violet-100 rounded-xl group-hover:bg-violet-200 transition-colors">
-                    <ClipboardList size={24} className="text-violet-600" />
-                </div>
-                <div className="flex-1">
-                    <h2 className="text-lg font-semibold text-slate-800 group-hover:text-violet-700 transition-colors">
-                        {t('healthReports.screenings.title') || 'Recommended Screenings'}
-                    </h2>
-                    <p className="text-sm text-slate-500 mt-0.5">
-                        {t('healthReports.screenings.subtitle') || 'View personalized health screening recommendations based on your profile'}
-                    </p>
-                    {gapAnalysis && gapAnalysis.recommended_tests?.length > 0 && (
-                        <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">
-                                {gapAnalysis.recommended_tests.length} recommendations
-                            </span>
+                return (
+                    <div className="card overflow-hidden">
+                        <div className="p-6 border-b border-slate-100">
+                            <h2 className="text-lg font-semibold text-slate-800">Specialist Analyses</h2>
+                            <p className="text-sm text-slate-500 mt-1">Deep-dive analyses by medical specialty</p>
                         </div>
-                    )}
-                </div>
-                <ChevronRight size={20} className="text-slate-400 group-hover:text-violet-600 transition-colors" />
-            </Link>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                            {specialistReports.map((report) => {
+                                const Icon = SPECIALTY_ICONS[report.report_type] || Stethoscope;
+                                const style = getRiskStyle(report.risk_level);
+
+                                return (
+                                    <div
+                                        key={report.id}
+                                        className="group p-4 rounded-xl border border-teal-200 bg-teal-50/30 hover:bg-teal-50 cursor-pointer transition-all"
+                                        onClick={() => setSelectedReport(report)}
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 rounded-xl bg-teal-100 transition-colors">
+                                                <Icon size={24} className="text-teal-600" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold text-slate-800">{report.title}</h3>
+                                                <p className="text-sm text-slate-500 mt-1 line-clamp-2">{report.summary}</p>
+                                                <div className="flex items-center gap-2 mt-2">
+                                                    <span className={cn(
+                                                        "text-xs px-2 py-0.5 rounded-full",
+                                                        style.bg, style.text
+                                                    )}>
+                                                        {report.risk_level}
+                                                    </span>
+                                                    <span className="text-xs text-slate-400">
+                                                        {new Date(report.created_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <button className="inline-flex items-center gap-1 text-xs text-teal-600 mt-2 font-medium hover:text-teal-700">
+                                                    <CheckCircle size={12} />
+                                                    View Report
+                                                    <ChevronRight size={12} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* Report History & Comparison */}
             {reportHistory.length > 0 && (
