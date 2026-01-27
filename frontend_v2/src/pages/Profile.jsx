@@ -66,7 +66,13 @@ const Profile = () => {
         setSaving(true);
         setSaved(false);
         try {
-            await api.put('/users/profile', profile);
+            // Convert empty strings to null for numeric fields
+            const profileData = {
+                ...profile,
+                height_cm: profile.height_cm === '' ? null : parseFloat(profile.height_cm) || null,
+                weight_kg: profile.weight_kg === '' ? null : parseFloat(profile.weight_kg) || null,
+            };
+            await api.put('/users/profile', profileData);
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
         } catch (e) {
