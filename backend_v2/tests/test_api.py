@@ -94,7 +94,7 @@ class TestProtectedEndpoints:
 
     def test_dashboard_requires_auth(self):
         """Test dashboard requires authentication."""
-        response = client.get("/dashboard")
+        response = client.get("/dashboard/stats")
         assert response.status_code == 401
 
     def test_profile_requires_auth(self):
@@ -140,10 +140,10 @@ class TestAuthenticatedEndpoints:
         if not self.token:
             pytest.skip("Auth setup failed")
 
-        response = client.get("/dashboard", headers=self.headers)
+        response = client.get("/dashboard/stats", headers=self.headers)
         assert response.status_code == 200
         data = response.json()
-        assert "documents_count" in data or "document_count" in data
+        assert "documents_count" in data or "biomarkers_count" in data
 
     def test_get_profile(self):
         """Test getting user profile."""
@@ -235,14 +235,14 @@ class TestSecurityValidation:
 
     def test_invalid_token(self):
         """Test that invalid token is rejected."""
-        response = client.get("/dashboard", headers={
+        response = client.get("/dashboard/stats", headers={
             "Authorization": "Bearer invalid_token_here"
         })
         assert response.status_code == 401
 
     def test_expired_token_format(self):
         """Test that malformed token is rejected."""
-        response = client.get("/dashboard", headers={
+        response = client.get("/dashboard/stats", headers={
             "Authorization": "Bearer"
         })
         assert response.status_code in [401, 422]
