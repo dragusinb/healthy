@@ -426,26 +426,27 @@ const HealthReports = () => {
                 </div>
             )}
 
-            {/* Specialist Reports - Shows actually generated specialist analyses */}
+            {/* Specialist Reports - Shows ONLY latest session's specialist analyses */}
             {(() => {
-                // Get specialist reports from the reports list (exclude 'general' and 'gap_analysis')
-                const specialistReports = reports.filter(r =>
-                    r.report_type !== 'general' && r.report_type !== 'gap_analysis'
-                );
+                // Get specialists from the latest session only
+                const latestSession = reportHistory[0];
+                const latestSpecialists = latestSession?.specialists || [];
 
-                if (specialistReports.length === 0) {
-                    return null; // Don't show section if no specialist reports
+                if (latestSpecialists.length === 0) {
+                    return null; // Don't show section if no specialist reports in latest session
                 }
 
                 return (
                     <div className="card overflow-hidden">
                         <div className="p-6 border-b border-slate-100">
-                            <h2 className="text-lg font-semibold text-slate-800">Specialist Analyses</h2>
-                            <p className="text-sm text-slate-500 mt-1">Deep-dive analyses by medical specialty</p>
+                            <h2 className="text-lg font-semibold text-slate-800">Latest Specialist Analyses</h2>
+                            <p className="text-sm text-slate-500 mt-1">
+                                From analysis on {new Date(latestSession.session_date).toLocaleDateString()}
+                            </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
-                            {specialistReports.map((report) => {
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                            {latestSpecialists.map((report) => {
                                 const Icon = SPECIALTY_ICONS[report.report_type] || Stethoscope;
                                 const style = getRiskStyle(report.risk_level);
 
@@ -468,9 +469,6 @@ const HealthReports = () => {
                                                         style.bg, style.text
                                                     )}>
                                                         {report.risk_level}
-                                                    </span>
-                                                    <span className="text-xs text-slate-400">
-                                                        {new Date(report.created_at).toLocaleDateString()}
                                                     </span>
                                                 </div>
                                                 <button className="inline-flex items-center gap-1 text-xs text-teal-600 mt-2 font-medium hover:text-teal-700">
@@ -618,10 +616,11 @@ const HealthReports = () => {
                     )}
 
                     {/* Session List */}
-                    <div className="divide-y divide-slate-50">
-                        {reportHistory.map((session) => {
+                    <div className="divide-y divide-slate-100">
+                        {reportHistory.map((session, sessionIdx) => {
                             const style = getRiskStyle(session.general.risk_level);
                             const isSelected = selectedForCompare.find(s => s.general.id === session.general.id);
+                            const isLatest = sessionIdx === 0;
 
                             return (
                                 <div
@@ -633,23 +632,28 @@ const HealthReports = () => {
                                     )}
                                     onClick={() => compareMode && handleSelectForCompare(session)}
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-start gap-4">
                                         {compareMode && (
                                             <div className={cn(
-                                                "w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0",
+                                                "w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-1",
                                                 isSelected ? "bg-primary-500 border-primary-500" : "border-slate-300"
                                             )}>
                                                 {isSelected && <CheckCircle size={14} className="text-white" />}
                                             </div>
                                         )}
-                                        <div className={cn("p-2 rounded-lg", style.bg)}>
+                                        <div className={cn("p-2 rounded-lg shrink-0", style.bg)}>
                                             <Brain size={20} className={style.text} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 flex-wrap">
                                                 <p className="font-medium text-slate-800">
-                                                    Analysis - {new Date(session.session_date).toLocaleDateString()}
+                                                    {new Date(session.session_date).toLocaleDateString()}
                                                 </p>
+                                                {isLatest && (
+                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary-100 text-primary-700">
+                                                        Latest
+                                                    </span>
+                                                )}
                                                 <span className={cn(
                                                     "text-xs px-2 py-0.5 rounded-full",
                                                     style.bg, style.text
@@ -657,19 +661,40 @@ const HealthReports = () => {
                                                     {session.general.risk_level}
                                                 </span>
                                             </div>
-                                            <p className="text-sm text-slate-500 truncate mt-1">
+                                            <p className="text-sm text-slate-500 mt-1 line-clamp-2">
                                                 {session.general.summary}
                                             </p>
-                                            <div className="flex items-center gap-3 mt-2">
-                                                <span className="text-xs text-slate-400">
-                                                    {session.general.biomarkers_analyzed} biomarkers
-                                                </span>
-                                                {session.specialists.length > 0 && (
-                                                    <span className="text-xs text-slate-400">
-                                                        {session.specialists.length} specialist reports
-                                                    </span>
-                                                )}
+                                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                                                <span>{session.general.biomarkers_analyzed} biomarkers</span>
                                             </div>
+
+                                            {/* Specialist reports within this session */}
+                                            {session.specialists.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mt-3">
+                                                    {session.specialists.map((spec) => {
+                                                        const specIcon = SPECIALTY_ICONS[spec.report_type] || Stethoscope;
+                                                        const SpecIcon = specIcon;
+                                                        const specStyle = getRiskStyle(spec.risk_level);
+                                                        return (
+                                                            <button
+                                                                key={spec.id}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setSelectedReport(spec);
+                                                                }}
+                                                                className={cn(
+                                                                    "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border",
+                                                                    specStyle.bg, specStyle.text, specStyle.border,
+                                                                    "hover:opacity-80"
+                                                                )}
+                                                            >
+                                                                <SpecIcon size={14} />
+                                                                {spec.title.replace(' Analysis', '')}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
                                         {!compareMode && (
                                             <button
@@ -677,13 +702,13 @@ const HealthReports = () => {
                                                     e.stopPropagation();
                                                     setSelectedReport({
                                                         ...session.general,
-                                                        title: "Comprehensive Health Analysis",
+                                                        title: "General Health Analysis",
                                                         created_at: session.session_date
                                                     });
                                                 }}
-                                                className="px-3 py-1.5 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors"
+                                                className="px-3 py-1.5 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors shrink-0"
                                             >
-                                                View
+                                                View General
                                             </button>
                                         )}
                                     </div>
@@ -743,17 +768,23 @@ const HealthReports = () => {
                                     <div className="space-y-3">
                                         {selectedReport.findings.map((finding, i) => {
                                             const style = getRiskStyle(finding.status);
-                                            // Handle both general report format (category/explanation) and specialist format (marker/significance)
+                                            // Handle both general report format (category/explanation) and specialist format (marker/significance/clinical_significance)
                                             const title = finding.category || finding.marker;
-                                            const description = finding.explanation || finding.significance;
+                                            const description = finding.explanation || finding.significance || finding.clinical_significance;
                                             const value = finding.value;
                                             const refRange = finding.reference_range;
+                                            const testDate = finding.date; // Date from specialist findings
                                             const documentId = findDocumentForMarker(finding.marker);
                                             return (
                                                 <div key={i} className={cn("p-4 rounded-xl border", style.bg, style.border)}>
                                                     <div className="flex items-center justify-between gap-2 mb-2">
                                                         <div className="flex items-center gap-2">
                                                             <span className={cn("font-semibold", style.text)}>{title}</span>
+                                                            {testDate && (
+                                                                <span className="text-xs text-slate-500 bg-white/50 px-2 py-0.5 rounded">
+                                                                    {new Date(testDate).toLocaleDateString()}
+                                                                </span>
+                                                            )}
                                                             {documentId && (
                                                                 <button
                                                                     onClick={() => openPdf(documentId)}

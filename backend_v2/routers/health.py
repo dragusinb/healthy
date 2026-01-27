@@ -356,73 +356,14 @@ def run_specialist_analysis(
     return analysis
 
 
-@router.post("/gap-analysis")
-def run_gap_analysis(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Run gap analysis to recommend missing health screenings."""
-    # Get list of existing test names
-    results = db.query(TestResult.test_name).join(Document)\
-        .filter(Document.user_id == current_user.id)\
-        .distinct()\
-        .all()
-
-    existing_tests = [r[0] for r in results]
-
-    # Get user's language and profile
-    user_language = current_user.language if current_user.language else "ro"
-    user_profile = get_user_profile(current_user)
-
-    try:
-        service = HealthAnalysisService(language=user_language, profile=user_profile)
-        analysis = service.run_gap_analysis(existing_tests)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Gap analysis failed: {str(e)}")
-
-    # Save gap analysis to database
-    report = HealthReport(
-        user_id=current_user.id,
-        report_type="gap_analysis",
-        title="Recommended Health Screenings",
-        summary=analysis.get("summary", ""),
-        findings=json.dumps(analysis.get("recommended_tests", [])),
-        recommendations=json.dumps([]),
-        risk_level="normal",
-        biomarkers_analyzed=len(existing_tests)
-    )
-    db.add(report)
-    db.commit()
-
-    return {
-        "status": "success",
-        "existing_tests_count": len(existing_tests),
-        "analysis": analysis,
-        "analyzed_at": datetime.now().isoformat()
-    }
-
-
-@router.get("/gap-analysis/latest")
-def get_latest_gap_analysis(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """Get the latest gap analysis report with 'last done' tracking."""
-    report = db.query(HealthReport)\
-        .filter(HealthReport.user_id == current_user.id)\
-        .filter(HealthReport.report_type == "gap_analysis")\
-        .order_by(desc(HealthReport.created_at))\
-        .first()
-
-    if not report:
-        return {"has_report": False}
-
-    recommended_tests = json.loads(report.findings) if report.findings else []
+def enrich_recommended_tests_with_history(recommended_tests: list, db: Session, user_id: int) -> list:
+    """Enhance recommended tests with last_done info from user's test history."""
+    import re
 
     # Get user's test history with dates for matching
     user_tests = db.query(TestResult.test_name, TestResult.canonical_name, Document.document_date)\
         .join(Document)\
-        .filter(Document.user_id == current_user.id)\
+        .filter(Document.user_id == user_id)\
         .order_by(Document.document_date.desc())\
         .all()
 
@@ -470,7 +411,6 @@ def get_latest_gap_analysis(
             if "year" in frequency:
                 try:
                     # Extract number of years (e.g., "every 2 years")
-                    import re
                     match = re.search(r'(\d+)\s*year', frequency)
                     if match:
                         recommended_months = int(match.group(1)) * 12
@@ -491,11 +431,85 @@ def get_latest_gap_analysis(
             test["is_overdue"] = True  # Never done = overdue
             test["recommended_interval_months"] = 12
 
+    return recommended_tests
+
+
+@router.post("/gap-analysis")
+def run_gap_analysis(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Run gap analysis to recommend missing health screenings."""
+    # Get list of existing test names
+    results = db.query(TestResult.test_name).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .distinct()\
+        .all()
+
+    existing_tests = [r[0] for r in results]
+
+    # Get user's language and profile
+    user_language = current_user.language if current_user.language else "ro"
+    user_profile = get_user_profile(current_user)
+
+    try:
+        service = HealthAnalysisService(language=user_language, profile=user_profile)
+        analysis = service.run_gap_analysis(existing_tests)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gap analysis failed: {str(e)}")
+
+    # Enrich recommended tests with "last done" info
+    recommended_tests = analysis.get("recommended_tests", [])
+    enriched_tests = enrich_recommended_tests_with_history(recommended_tests, db, current_user.id)
+    analysis["recommended_tests"] = enriched_tests
+
+    # Save gap analysis to database (with enriched data)
+    report = HealthReport(
+        user_id=current_user.id,
+        report_type="gap_analysis",
+        title="Recommended Health Screenings",
+        summary=analysis.get("summary", ""),
+        findings=json.dumps(enriched_tests),
+        recommendations=json.dumps([]),
+        risk_level="normal",
+        biomarkers_analyzed=len(existing_tests)
+    )
+    db.add(report)
+    db.commit()
+
+    return {
+        "status": "success",
+        "existing_tests_count": len(existing_tests),
+        "analysis": analysis,
+        "analyzed_at": datetime.now().isoformat()
+    }
+
+
+@router.get("/gap-analysis/latest")
+def get_latest_gap_analysis(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get the latest gap analysis report with 'last done' tracking."""
+    report = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id)\
+        .filter(HealthReport.report_type == "gap_analysis")\
+        .order_by(desc(HealthReport.created_at))\
+        .first()
+
+    if not report:
+        return {"has_report": False}
+
+    recommended_tests = json.loads(report.findings) if report.findings else []
+
+    # Re-enrich with current test history (may have changed since analysis was run)
+    enriched_tests = enrich_recommended_tests_with_history(recommended_tests, db, current_user.id)
+
     return {
         "has_report": True,
         "id": report.id,
         "summary": report.summary,
-        "recommended_tests": recommended_tests,
+        "recommended_tests": enriched_tests,
         "created_at": report.created_at.isoformat() if report.created_at else None
     }
 
