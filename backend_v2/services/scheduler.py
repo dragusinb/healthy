@@ -351,14 +351,29 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
     for i, doc_info in enumerate(docs):
         sync_status.status_processing(user_id, provider_name, i + 1, total_docs)
 
-        # Check if exists
+        # Check if document with same filename already exists
         existing_doc = db.query(Document).filter(
             Document.user_id == user_id,
             Document.filename == doc_info["filename"]
         ).first()
 
         if existing_doc:
+            logger.debug(f"Skipping duplicate by filename: {doc_info['filename']}")
             continue
+
+        # Check if document with same date from same provider already exists
+        # This prevents re-importing the same lab results across different sync sessions
+        doc_date = doc_info.get("date")
+        if doc_date:
+            existing_by_date = db.query(Document).filter(
+                Document.user_id == user_id,
+                Document.provider == provider_name,
+                Document.document_date == doc_date
+            ).first()
+
+            if existing_by_date:
+                logger.info(f"Skipping duplicate by date: {doc_date} already exists as {existing_by_date.filename}")
+                continue
 
         # Create Document
         try:
@@ -410,6 +425,22 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
                         extracted_date = dt.datetime.strptime(
                             parsed_data["metadata"]["date"], "%Y-%m-%d"
                         )
+                        # Check for duplicate AFTER extracting the real date from PDF
+                        existing_by_extracted_date = db.query(Document).filter(
+                            Document.user_id == user_id,
+                            Document.provider == provider_name,
+                            Document.document_date == extracted_date,
+                            Document.id != new_doc.id  # Exclude current document
+                        ).first()
+
+                        if existing_by_extracted_date:
+                            # This is a duplicate - delete the new document and its biomarkers
+                            logger.info(f"Duplicate detected after AI extraction: {extracted_date} already exists as {existing_by_extracted_date.filename}")
+                            db.query(TestResult).filter(TestResult.document_id == new_doc.id).delete()
+                            db.delete(new_doc)
+                            db.commit()
+                            continue
+
                         new_doc.document_date = extracted_date
                     except:
                         pass
