@@ -175,9 +175,9 @@ class TestEvolutionEndpoints:
         response = client.get("/dashboard/evolution/NonExistentBiomarker", headers=self.headers)
         assert response.status_code == 200
         data = response.json()
-        # Should return empty data array
-        assert "data" in data
-        assert isinstance(data["data"], list)
+        # Should return empty list for non-existent biomarker
+        assert isinstance(data, list)
+        assert len(data) == 0
 
     def test_get_evolution_requires_auth(self):
         """Test evolution endpoint requires authentication."""

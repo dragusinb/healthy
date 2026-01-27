@@ -82,14 +82,19 @@ class TestHealthReportEndpoints:
 
     def test_health_endpoints_require_auth(self):
         """Test health endpoints require authentication."""
+        # Note: /health/specialists is public (no auth required)
         endpoints = [
             "/health/latest",
             "/health/history",
-            "/health/specialists",
         ]
         for endpoint in endpoints:
             response = client.get(endpoint)
             assert response.status_code == 401, f"{endpoint} should require auth"
+
+    def test_specialists_is_public(self):
+        """Test that specialists endpoint is publicly accessible."""
+        response = client.get("/health/specialists")
+        assert response.status_code == 200
 
 
 class TestGapAnalysis:
