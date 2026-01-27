@@ -191,7 +191,7 @@ class TestProfileManagement:
         """Test updating alcohol consumption with valid values."""
         if not self.token:
             pytest.skip("Auth setup failed")
-        for level in ["none", "light", "moderate", "heavy"]:
+        for level in ["none", "occasional", "moderate", "heavy"]:
             response = client.put("/users/profile", headers=self.headers, json={
                 "alcohol_consumption": level
             })
