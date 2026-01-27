@@ -173,14 +173,40 @@ def get_document_biomarkers(doc_id: int, db: Session = Depends(get_db), current_
         } for r in results]
     }
 
+# Maximum file upload size: 20MB
+MAX_UPLOAD_SIZE_MB = 20
+MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024
+
 @router.post("/upload")
 def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Validate file type
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    # Check file size by reading in chunks
+    file_size = 0
+    chunk_size = 1024 * 1024  # 1MB chunks
+
+    # Read and count size first
+    file.file.seek(0, 2)  # Seek to end
+    file_size = file.file.tell()
+    file.file.seek(0)  # Reset to beginning
+
+    if file_size > MAX_UPLOAD_SIZE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File too large. Maximum size is {MAX_UPLOAD_SIZE_MB}MB"
+        )
+
+    if file_size == 0:
+        raise HTTPException(status_code=400, detail="Empty file not allowed")
+
     # Save file
     safe_filename = file.filename
     upload_dir = f"data/uploads/{current_user.id}"
     os.makedirs(upload_dir, exist_ok=True)
     file_path = os.path.join(upload_dir, safe_filename)
-    
+
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         

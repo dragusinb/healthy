@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, field_validator
@@ -9,10 +9,12 @@ try:
     from backend_v2.database import get_db
     from backend_v2.models import User
     from backend_v2.auth.security import verify_password, get_password_hash, create_access_token
+    from backend_v2.auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit
 except ImportError:
     from database import get_db
     from models import User
     from auth.security import verify_password, get_password_hash, create_access_token
+    from auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -37,7 +39,12 @@ class GoogleToken(BaseModel):
     access_token: str
 
 @router.post("/register", response_model=Token)
-def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(
+    user: UserCreate,
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(check_register_rate_limit)
+):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -52,7 +59,12 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/token", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+    _: None = Depends(check_login_rate_limit)
+):
     user = db.query(User).filter(User.email == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -60,6 +72,9 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    # Reset rate limit on successful login
+    reset_login_rate_limit(request)
 
     access_token = create_access_token(data={"sub": user.email})
     return {"access_token": access_token, "token_type": "bearer"}
