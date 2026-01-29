@@ -86,7 +86,7 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
         # Process each PDF
         imported = 0
         failed = 0
-        seen_dates = {}  # Track dates to avoid duplicates: (provider, date) -> doc_id
+        seen_filenames = {}  # Track filenames to avoid duplicates
 
         for i, pdf_info in enumerate(pdf_files):
             print(f"\n[{i+1}/{len(pdf_files)}] Processing: {pdf_info['filename']}")
@@ -135,10 +135,9 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
                     print(f"  WARNING: No date extracted, using file date")
                     doc_date = datetime.datetime.fromtimestamp(os.path.getmtime(pdf_info['path']))
 
-                # Check for duplicate (same provider + date)
-                date_key = (provider, doc_date.strftime("%Y-%m-%d"))
-                if date_key in seen_dates:
-                    print(f"  SKIP: Duplicate date {date_key[1]} for {provider}")
+                # Check for duplicate by filename (not by date - user may have multiple tests same day)
+                if pdf_info['filename'] in seen_filenames:
+                    print(f"  SKIP: Duplicate filename {pdf_info['filename']}")
                     continue
 
                 # Extract CNP prefix (first 7 digits) for patient identification
@@ -163,7 +162,7 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
                 db.add(doc)
                 db.flush()  # Get doc.id
 
-                seen_dates[date_key] = doc.id
+                seen_filenames[pdf_info['filename']] = doc.id
 
                 # Create biomarkers
                 biomarker_count = 0
