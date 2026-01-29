@@ -5,10 +5,15 @@ This script:
 1. Clears all documents and test results for specified users
 2. Scans PDF files on disk
 3. Re-imports each with AI processing to extract correct dates and biomarkers
+
+Deduplication: Uses MD5 hash of file content to detect true duplicates.
+Same file downloaded multiple times = skip (same hash)
+Different tests on same day = import both (different hashes)
 """
 import os
 import sys
 import datetime
+import hashlib
 import pdfplumber
 
 # Add parent directory to path
@@ -87,7 +92,15 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
         imported = 0
         failed = 0
         skipped_duplicates = 0
-        seen_keys = {}  # Track (provider, test_date) to avoid duplicates
+        seen_hashes = {}  # Track file content hashes to detect true duplicates
+
+        # First pass: compute hashes for all files
+        print("\nComputing file hashes...")
+        file_hashes = {}
+        for pdf_info in pdf_files:
+            with open(pdf_info['path'], 'rb') as f:
+                file_hash = hashlib.md5(f.read()).hexdigest()
+            file_hashes[pdf_info['path']] = file_hash
 
         for i, pdf_info in enumerate(pdf_files):
             print(f"\n[{i+1}/{len(pdf_files)}] Processing: {pdf_info['filename']}")
@@ -136,9 +149,12 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
                     print(f"  WARNING: No date extracted, using file date")
                     doc_date = datetime.datetime.fromtimestamp(os.path.getmtime(pdf_info['path']))
 
-                # Check for duplicate by (provider, test_date) - same test downloaded multiple times
-                date_key = (provider, doc_date.strftime("%Y-%m-%d"))
-                if date_key in seen_keys:
+                # Check for duplicate by file content hash
+                # Same file downloaded multiple times = skip
+                # Different tests on same day = import both
+                file_hash = file_hashes[pdf_info['path']]
+                if file_hash in seen_hashes:
+                    print(f"  SKIP: Duplicate content (hash match with {seen_hashes[file_hash]})")
                     skipped_duplicates += 1
                     continue
 
@@ -159,12 +175,13 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
                     upload_date=datetime.datetime.now(),
                     is_processed=True,
                     patient_name=patient_info.get("full_name"),
-                    patient_cnp_prefix=cnp_prefix
+                    patient_cnp_prefix=cnp_prefix,
+                    file_hash=file_hash
                 )
                 db.add(doc)
                 db.flush()  # Get doc.id
 
-                seen_keys[date_key] = doc.id
+                seen_hashes[file_hash] = pdf_info['filename']
 
                 # Create biomarkers
                 biomarker_count = 0

@@ -71,6 +71,7 @@ class Document(Base):
     is_processed = Column(Boolean, default=False)
     patient_name = Column(String, nullable=True)  # Name of patient on the document
     patient_cnp_prefix = Column(String(7), nullable=True)  # First 7 digits of CNP for patient identification (not full CNP for privacy)
+    file_hash = Column(String(32), nullable=True, index=True)  # MD5 hash of file content for duplicate detection
 
     user = relationship("User", back_populates="documents")
     results = relationship("TestResult", back_populates="document", cascade="all, delete-orphan")
