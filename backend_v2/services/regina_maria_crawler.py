@@ -429,6 +429,47 @@ class ReginaMariaCrawler(BaseCrawler):
 
         self.log("Navigated to records list.")
 
+    def get_expected_document_count(self, page: Page) -> int:
+        """
+        Extract the expected document count from the provider page.
+        Looks for text like "Rezultate analize 33" or similar indicators.
+
+        Returns:
+            Expected document count, or -1 if not found
+        """
+        try:
+            content = page.content()
+
+            # Look for "Rezultate analize XX" pattern
+            import re
+            patterns = [
+                r'Rezultate\s+analize[:\s]*(\d+)',
+                r'(\d+)\s+rezultate',
+                r'(\d+)\s+analize',
+                r'Total[:\s]*(\d+)',
+            ]
+
+            for pattern in patterns:
+                match = re.search(pattern, content, re.IGNORECASE)
+                if match:
+                    count = int(match.group(1))
+                    self.log(f"Found expected document count: {count}")
+                    return count
+
+            # Try to count visible document rows/cards
+            doc_elements = page.locator("[class*='result'], [class*='analiz'], [class*='document']").all()
+            if doc_elements:
+                count = len(doc_elements)
+                self.log(f"Counted {count} document elements on page")
+                return count
+
+            self.log("Could not determine expected document count")
+            return -1
+
+        except Exception as e:
+            self.log(f"Error getting expected count: {e}")
+            return -1
+
     def extract_documents_sync(self, page: Page) -> List[Dict[str, Any]]:
         extracted = []
         self.log("Scanning for documents...")

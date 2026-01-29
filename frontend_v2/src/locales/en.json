@@ -122,7 +122,9 @@
     "rescanning": "Scanning...",
     "rescanTooltip": "Scan documents to extract patient names",
     "rescanSuccess": "Found patient names in {{count}} documents",
-    "rescanNoUpdates": "All documents already have patient names"
+    "rescanNoUpdates": "All documents already have patient names",
+    "totalDocuments": "Documents",
+    "totalBiomarkers": "Biomarkers"
   },
   "biomarkers": {
     "title": "Biomarkers",

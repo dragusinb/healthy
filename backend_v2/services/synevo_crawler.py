@@ -113,6 +113,45 @@ class SynevoCrawler(BaseCrawler):
                 page.goto(self.dashboard_url)
             page.wait_for_timeout(3000)
 
+    def get_expected_document_count(self, page: Page) -> int:
+        """
+        Extract the expected document count from the provider page.
+
+        Returns:
+            Expected document count, or -1 if not found
+        """
+        try:
+            import re
+
+            # Count PDF download links directly - this is the most reliable for Synevo
+            pdf_links = page.locator("a[href*='/Orders/ResultsPDF/']").all()
+            if pdf_links:
+                count = len(pdf_links)
+                self.log(f"Found {count} PDF links (expected document count)")
+                return count
+
+            # Fallback: look for count in page content
+            content = page.content()
+            patterns = [
+                r'(\d+)\s+rezultate',
+                r'(\d+)\s+analize',
+                r'Total[:\s]*(\d+)',
+            ]
+
+            for pattern in patterns:
+                match = re.search(pattern, content, re.IGNORECASE)
+                if match:
+                    count = int(match.group(1))
+                    self.log(f"Found expected document count from text: {count}")
+                    return count
+
+            self.log("Could not determine expected document count")
+            return -1
+
+        except Exception as e:
+            self.log(f"Error getting expected count: {e}")
+            return -1
+
     def extract_documents_sync(self, page: Page) -> List[Dict[str, Any]]:
         extracted = []
         self.log("Scanning for documents...")

@@ -285,9 +285,32 @@ class BaseCrawler(ABC):
 
                 self.log("Extracting documents...")
                 self.update_status("scanning", "Scanning for documents...")
+
+                # Get expected count from provider page before downloading
+                expected_count = -1
+                if hasattr(self, 'get_expected_document_count'):
+                    expected_count = self.get_expected_document_count(page)
+
                 documents = self.extract_documents_sync(page)
-                self.log(f"Found {len(documents)} documents.")
-                return documents
+                downloaded_count = len(documents)
+                self.log(f"Downloaded {downloaded_count} documents.")
+
+                # Verification: compare expected vs downloaded
+                if expected_count > 0:
+                    if downloaded_count == expected_count:
+                        self.log(f"✓ Verification PASSED: Downloaded {downloaded_count} = Expected {expected_count}")
+                    elif downloaded_count < expected_count:
+                        self.log(f"⚠ Verification WARNING: Downloaded {downloaded_count} < Expected {expected_count} (missing {expected_count - downloaded_count})")
+                    else:
+                        self.log(f"✓ Downloaded {downloaded_count} >= Expected {expected_count}")
+
+                # Return documents with metadata
+                return {
+                    "documents": documents,
+                    "downloaded_count": downloaded_count,
+                    "expected_count": expected_count,
+                    "verification_status": "ok" if expected_count <= 0 or downloaded_count >= expected_count else "warning"
+                }
 
             except Exception as e:
                 self.log(f"Error: {e}")

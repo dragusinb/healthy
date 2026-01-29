@@ -29,8 +29,23 @@ async def run_regina_async(username, password, headless=True, user_id=None):
         crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
 
     try:
-        docs = await crawler.run({"username": username, "password": password})
-        return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
+        result = await crawler.run({"username": username, "password": password})
+        # Handle new return format with verification
+        if isinstance(result, dict) and "documents" in result:
+            docs = result["documents"]
+            expected = result.get("expected_count", -1)
+            verification = result.get("verification_status", "ok")
+            msg = f"Crawled {len(docs)} documents"
+            if expected > 0:
+                msg += f" (expected: {expected})"
+            if verification == "warning":
+                msg += " - VERIFICATION WARNING"
+            return {"status": "success", "message": msg, "documents": docs,
+                    "expected_count": expected, "verification_status": verification}
+        else:
+            # Backwards compatibility
+            docs = result
+            return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
     except CaptchaRequiredError:
         # CAPTCHA detected in headless mode - retry with visible browser
         if headless:
@@ -45,8 +60,15 @@ async def run_regina_async(username, password, headless=True, user_id=None):
                 crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
 
             try:
-                docs = await crawler.run({"username": username, "password": password})
-                return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
+                result = await crawler.run({"username": username, "password": password})
+                if isinstance(result, dict) and "documents" in result:
+                    docs = result["documents"]
+                    return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs,
+                            "expected_count": result.get("expected_count", -1),
+                            "verification_status": result.get("verification_status", "ok")}
+                else:
+                    docs = result
+                    return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
             except Exception as e:
                 err = traceback.format_exc()
                 print(f"Crawler Error (visible mode): {err}")
@@ -76,8 +98,19 @@ async def run_synevo_async(username, password, headless=True, user_id=None):
         crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
 
     try:
-        docs = await crawler.run({"username": username, "password": password})
-        return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
+        result = await crawler.run({"username": username, "password": password})
+        if isinstance(result, dict) and "documents" in result:
+            docs = result["documents"]
+            expected = result.get("expected_count", -1)
+            verification = result.get("verification_status", "ok")
+            msg = f"Crawled {len(docs)} documents"
+            if expected > 0:
+                msg += f" (expected: {expected})"
+            return {"status": "success", "message": msg, "documents": docs,
+                    "expected_count": expected, "verification_status": verification}
+        else:
+            docs = result
+            return {"status": "success", "message": f"Crawled {len(docs)} documents", "documents": docs}
     except Exception as e:
         err = traceback.format_exc()
         print(f"Crawler Error: {err}")

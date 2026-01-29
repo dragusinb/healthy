@@ -8,6 +8,7 @@ import { cn } from '../lib/utils';
 const Documents = () => {
     const { t } = useTranslation();
     const [documents, setDocuments] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [uploadStep, setUploadStep] = useState(0);
@@ -43,7 +44,17 @@ const Documents = () => {
 
     useEffect(() => {
         fetchDocuments();
+        fetchStats();
     }, []);
+
+    const fetchStats = async () => {
+        try {
+            const res = await api.get('/documents/stats');
+            setStats(res.data);
+        } catch (e) {
+            console.error("Failed to fetch stats", e);
+        }
+    };
 
     useEffect(() => {
         if (!uploading) {
@@ -110,6 +121,7 @@ const Documents = () => {
             });
             setSuccess(t('documents.uploadSuccess'));
             fetchDocuments();
+            fetchStats();
             setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Upload failed", error);
@@ -128,6 +140,7 @@ const Documents = () => {
             setSuccess(t('documents.deleteSuccess'));
             setDeleteConfirm(null);
             fetchDocuments();
+            fetchStats();
             setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Delete failed", error);
@@ -216,6 +229,51 @@ const Documents = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Stats Summary */}
+            {stats && (
+                <div className="mb-6 bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-5">
+                    <div className="flex flex-wrap items-center gap-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary-100 rounded-lg">
+                                <FileText size={20} className="text-primary-600" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-slate-800">{stats.total_documents}</p>
+                                <p className="text-xs text-slate-500 uppercase tracking-wide">{t('documents.totalDocuments') || 'Documents'}</p>
+                            </div>
+                        </div>
+                        <div className="h-10 w-px bg-slate-200 hidden sm:block" />
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-teal-100 rounded-lg">
+                                <Activity size={20} className="text-teal-600" />
+                            </div>
+                            <div>
+                                <p className="text-2xl font-bold text-slate-800">{stats.total_biomarkers}</p>
+                                <p className="text-xs text-slate-500 uppercase tracking-wide">{t('documents.totalBiomarkers') || 'Biomarkers'}</p>
+                            </div>
+                        </div>
+                        {Object.keys(stats.by_provider || {}).length > 0 && (
+                            <>
+                                <div className="h-10 w-px bg-slate-200 hidden sm:block" />
+                                <div className="flex flex-wrap gap-2">
+                                    {Object.entries(stats.by_provider).map(([provider, count]) => (
+                                        <span
+                                            key={provider}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm shadow-sm"
+                                        >
+                                            <Building size={14} className="text-slate-400" />
+                                            <span className="font-medium text-slate-700">{provider}</span>
+                                            <span className="text-slate-400">·</span>
+                                            <span className="font-bold text-primary-600">{count}</span>
+                                        </span>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Upload Progress */}
             {uploading && (

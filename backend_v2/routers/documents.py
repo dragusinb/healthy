@@ -41,6 +41,38 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=401, detail="User not found")
     return user
 
+@router.get("/stats")
+def get_document_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get document statistics by provider."""
+    from sqlalchemy import func
+
+    # Count documents by provider
+    provider_counts = db.query(
+        Document.provider,
+        func.count(Document.id).label('count')
+    ).filter(
+        Document.user_id == current_user.id
+    ).group_by(Document.provider).all()
+
+    # Count total biomarkers
+    total_biomarkers = db.query(func.count(TestResult.id)).join(Document).filter(
+        Document.user_id == current_user.id
+    ).scalar()
+
+    # Build response
+    by_provider = {provider: count for provider, count in provider_counts}
+    total_documents = sum(by_provider.values())
+
+    return {
+        "total_documents": total_documents,
+        "total_biomarkers": total_biomarkers,
+        "by_provider": by_provider
+    }
+
+
 @router.get("/")
 def list_documents(
     limit: int = None,
