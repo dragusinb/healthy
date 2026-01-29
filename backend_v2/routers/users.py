@@ -329,6 +329,14 @@ def scan_profile_from_documents(
             current_user.gender = merged_profile["gender"]
             updates_made.append("gender")
 
+    # Extract blood type (e.g., "A+", "B-", "AB+", "O-")
+    if merged_profile.get("blood_type") and not current_user.blood_type:
+        valid_blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
+        blood_type = merged_profile["blood_type"].upper().strip()
+        if blood_type in valid_blood_types:
+            current_user.blood_type = blood_type
+            updates_made.append("blood_type")
+
     if updates_made:
         db.commit()
 

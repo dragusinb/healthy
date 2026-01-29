@@ -362,37 +362,22 @@ def _safe_float(val):
 @router.post("/rescan-patient-names")
 def rescan_patient_names(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
-    Rescan documents to extract patient names and profile data.
-    - Scans documents without patient_name for names
-    - Scans ALL documents for blood type if user doesn't have one set
+    Rescan all documents to extract and populate patient names.
+    Only rescans documents where patient_name is null.
     """
     import pdfplumber
 
-    # Get documents that need patient name
-    docs_need_name = db.query(Document).filter(
+    # Get all user's documents without patient_name
+    docs = db.query(Document).filter(
         Document.user_id == current_user.id,
         Document.patient_name == None
     ).all()
-
-    # If user doesn't have blood type, scan all documents for it
-    docs_for_blood = []
-    if not current_user.blood_type:
-        docs_for_blood = db.query(Document).filter(
-            Document.user_id == current_user.id
-        ).all()
-
-    # Combine doc lists (unique)
-    docs_to_scan = {doc.id: doc for doc in docs_need_name}
-    for doc in docs_for_blood:
-        docs_to_scan[doc.id] = doc
-    docs = list(docs_to_scan.values())
 
     if not docs:
         return {"status": "success", "message": "No documents need rescanning", "updated": 0}
 
     parser = AIParser()
     updated_count = 0
-    blood_type_found = None
     errors = []
 
     for doc in docs:
@@ -415,40 +400,25 @@ def rescan_patient_names(db: Session = Depends(get_db), current_user: User = Dep
             result = parser.extract_profile(full_text)
             profile = result.get("profile", {})
 
-            # Update patient name if missing
-            if not doc.patient_name and profile.get("full_name"):
+            if profile.get("full_name"):
                 doc.patient_name = profile["full_name"]
                 updated_count += 1
 
-            # Update CNP prefix for patient identification
+            # Also extract CNP prefix for patient identification
             cnp_prefix = profile.get("cnp_prefix")
-            if cnp_prefix and len(cnp_prefix) >= 7 and not doc.patient_cnp_prefix:
+            if cnp_prefix and len(cnp_prefix) >= 7:
                 doc.patient_cnp_prefix = cnp_prefix[:7]
-
-            # Extract blood type and update user profile if found
-            blood_type = profile.get("blood_type")
-            if blood_type and not current_user.blood_type:
-                valid_blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
-                if blood_type in valid_blood_types:
-                    current_user.blood_type = blood_type
-                    blood_type_found = blood_type
 
         except Exception as e:
             errors.append(f"{doc.filename}: {str(e)}")
 
     db.commit()
 
-    # Build result message
-    message = f"Rescanned {len(docs)} documents, updated {updated_count} with patient names"
-    if blood_type_found:
-        message += f", found blood type: {blood_type_found}"
-
     return {
         "status": "success",
-        "message": message,
+        "message": f"Rescanned {len(docs)} documents, updated {updated_count} with patient names",
         "updated": updated_count,
         "total_scanned": len(docs),
-        "blood_type_found": blood_type_found,
         "errors": errors if errors else None
     }
 

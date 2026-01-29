@@ -101,11 +101,16 @@ Extract and return JSON:
         "date_of_birth": "YYYY-MM-DD" or null,
         "gender": "male" or "female" or null,
         "age_years": number or null,
-        "cnp_prefix": "first 7 digits of CNP" or null
+        "cnp_prefix": "first 7 digits of CNP" or null,
+        "blood_type": "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", or "O-" or null
     }},
     "confidence": "high" or "medium" or "low",
     "source_hints": ["list of text snippets that helped identify the info"]
 }}
+
+**Blood Type Detection:**
+Look for: "Grup sanguin", "Grupa sanguina", "Blood type", "Grup sangv.", followed by A/B/AB/O and Rh+/Rh-/pozitiv/negativ
+Also look in biomarker results for "Determinare grup sanguin" or similar tests.
 
 Rules:
 1. PRIORITIZE the header section (first 50 lines) for patient info
