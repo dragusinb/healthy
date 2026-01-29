@@ -86,7 +86,8 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
         # Process each PDF
         imported = 0
         failed = 0
-        seen_filenames = {}  # Track filenames to avoid duplicates
+        skipped_duplicates = 0
+        seen_keys = {}  # Track (provider, test_date) to avoid duplicates
 
         for i, pdf_info in enumerate(pdf_files):
             print(f"\n[{i+1}/{len(pdf_files)}] Processing: {pdf_info['filename']}")
@@ -135,9 +136,10 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
                     print(f"  WARNING: No date extracted, using file date")
                     doc_date = datetime.datetime.fromtimestamp(os.path.getmtime(pdf_info['path']))
 
-                # Check for duplicate by filename (not by date - user may have multiple tests same day)
-                if pdf_info['filename'] in seen_filenames:
-                    print(f"  SKIP: Duplicate filename {pdf_info['filename']}")
+                # Check for duplicate by (provider, test_date) - same test downloaded multiple times
+                date_key = (provider, doc_date.strftime("%Y-%m-%d"))
+                if date_key in seen_keys:
+                    skipped_duplicates += 1
                     continue
 
                 # Extract CNP prefix (first 7 digits) for patient identification
@@ -162,7 +164,7 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
                 db.add(doc)
                 db.flush()  # Get doc.id
 
-                seen_filenames[pdf_info['filename']] = doc.id
+                seen_keys[date_key] = doc.id
 
                 # Create biomarkers
                 biomarker_count = 0
@@ -211,7 +213,7 @@ def reimport_user_documents(user_id: int, dry_run: bool = False):
                 continue
 
         print(f"\n{'='*60}")
-        print(f"COMPLETE: Imported {imported}, Failed {failed}, Skipped duplicates {len(pdf_files) - imported - failed}")
+        print(f"COMPLETE: Imported {imported}, Failed {failed}, Skipped duplicates {skipped_duplicates}")
 
         # Final counts
         final_docs = db.query(Document).filter(Document.user_id == user_id).count()
