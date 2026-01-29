@@ -42,6 +42,7 @@ Document all user journeys through the application:
 - [x] Delete document - tested (auth required)
 - [x] View document biomarkers - tested (auth required)
 - [ ] Re-process document - needs manual testing
+- [ ] Document summary by provider (show count per provider in Documents page)
 
 **Biomarkers & Health Data:**
 - [ ] View biomarkers list
@@ -153,6 +154,12 @@ Find and fix logical bugs:
   - Dashboard patient-info endpoint groups by CNP instead of name
   - Same person with different name formats (e.g., "Dragusin Bogdan" vs "Bogdan Dragusin") now correctly identified as one patient
   - CNP never shown to user, only used internally for grouping
+- 2026-01-29: **CRITICAL FIX** - Document deduplication using file content hash
+  - Added file_hash column (MD5) to documents table for duplicate detection
+  - Same file downloaded multiple times = skip (same hash)
+  - Different tests on same day = import both (different hashes)
+  - Fixed issue where user had 33 Regina Maria docs but only 26 were imported (date-based dedup was wrong)
+  - Final count: 33 Regina Maria + 7 Synevo = 40 documents, 748 biomarkers
 
 ---
 
