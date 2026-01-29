@@ -244,7 +244,6 @@ def scan_profile_from_documents(
     parser = AIParser()
     extracted_profiles = []
     scanned_count = 0
-    patient_names_found = set()  # Track distinct patient names
 
     for doc in documents:
         if not doc.file_path or not os.path.exists(doc.file_path):
@@ -263,10 +262,6 @@ def scan_profile_from_documents(
             profile_data["confidence"] = result.get("confidence", "low")
             profile_data["document_date"] = doc.document_date  # Store document date for age calculation
             extracted_profiles.append(profile_data)
-
-            # Track patient name for multi-patient detection
-            if profile_data.get("full_name"):
-                patient_names_found.add(profile_data["full_name"].strip().upper())
 
         # Stop after finding good data
         if extracted_profiles and extracted_profiles[-1].get("confidence") == "high":
@@ -340,29 +335,40 @@ def scan_profile_from_documents(
     if updates_made:
         db.commit()
 
-    # Also check stored patient_names in all user documents for multi-patient detection
-    all_doc_patient_names = db.query(Document.patient_name).filter(
-        Document.user_id == current_user.id,
-        Document.patient_name.isnot(None)
-    ).distinct().all()
+    # Multi-patient detection using CNP prefix (preferred) or name (fallback)
+    # Query all documents with patient info
+    all_docs_patient_info = db.query(Document.patient_name, Document.patient_cnp_prefix).filter(
+        Document.user_id == current_user.id
+    ).filter(
+        (Document.patient_name.isnot(None)) | (Document.patient_cnp_prefix.isnot(None))
+    ).all()
 
-    for (name,) in all_doc_patient_names:
-        if name:
-            patient_names_found.add(name.strip().upper())
+    # Group patients by CNP prefix when available
+    patient_groups = {}  # key: cnp_prefix or normalized_name, value: display_name
+    for name, cnp_prefix in all_docs_patient_info:
+        if cnp_prefix:
+            # Use CNP as unique identifier
+            if cnp_prefix not in patient_groups:
+                patient_groups[cnp_prefix] = name or "Unknown"
+        elif name:
+            # Fallback to normalized name if no CNP
+            normalized = name.strip().upper()
+            if normalized not in patient_groups:
+                patient_groups[normalized] = name
 
-    # Prepare list of distinct patient names (preserve original casing from extracted)
-    distinct_patients = []
-    seen_normalized = set()
+    # Also add from extracted profiles (with CNP from extraction)
     for profile in extracted_profiles:
+        cnp = profile.get("cnp_prefix")
         name = profile.get("full_name")
-        if name and name.strip().upper() not in seen_normalized:
-            distinct_patients.append(name)
-            seen_normalized.add(name.strip().upper())
-    # Add any from DB not already captured
-    for (name,) in all_doc_patient_names:
-        if name and name.strip().upper() not in seen_normalized:
-            distinct_patients.append(name)
-            seen_normalized.add(name.strip().upper())
+        if cnp:
+            if cnp not in patient_groups:
+                patient_groups[cnp] = name or "Unknown"
+        elif name:
+            normalized = name.strip().upper()
+            if normalized not in patient_groups:
+                patient_groups[normalized] = name
+
+    distinct_patients = list(patient_groups.values())
 
     # Build response
     response = {
