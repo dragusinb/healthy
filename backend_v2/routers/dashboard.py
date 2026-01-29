@@ -51,15 +51,25 @@ def get_evolution(biomarker_name: str, db: Session = Depends(get_db), current_us
         .all()
 
     # Filter to results that match the canonical name
+    # Use strict matching to avoid grouping unrelated biomarkers
     data_points = []
+    search_lower = biomarker_name.lower().strip()
+
     for r in all_results:
         result_canonical = get_canonical_name(r.test_name)
+        test_name_lower = r.test_name.lower().strip()
 
-        # Match if canonical names are the same OR if original name contains the search term
-        if (result_canonical == canonical_name or
-            biomarker_name.lower() in r.test_name.lower() or
-            r.test_name.lower() in biomarker_name.lower()):
+        # Match criteria (strict):
+        # 1. Canonical names match exactly
+        # 2. Original test name matches the search term exactly (case-insensitive)
+        # 3. Stored canonical_name matches the search canonical name
+        is_match = (
+            result_canonical == canonical_name or
+            test_name_lower == search_lower or
+            (r.canonical_name and r.canonical_name.lower() == canonical_name.lower())
+        )
 
+        if is_match:
             date_label = r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown Date"
             data_points.append({
                 "date": date_label,
@@ -217,36 +227,71 @@ def get_alerts_count(db: Session = Depends(get_db), current_user: User = Depends
 
 @router.get("/patient-info")
 def get_patient_info(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    """Get information about patients found in user's documents."""
-    # Get distinct patient names from documents
-    patient_names = db.query(Document.patient_name).filter(
-        Document.user_id == current_user.id,
-        Document.patient_name.isnot(None)
-    ).distinct().all()
+    """Get information about patients found in user's documents.
 
-    distinct_patients = [name for (name,) in patient_names if name]
+    Groups patients by CNP prefix (first 7 digits of Romanian national ID) when available,
+    falling back to name-based grouping. This correctly identifies same patients with
+    different name formats (e.g., "Dragusin Bogdan" vs "Bogdan Dragusin").
+    """
+    # Get all documents with patient info
+    docs_with_patient = db.query(
+        Document.patient_name,
+        Document.patient_cnp_prefix
+    ).filter(
+        Document.user_id == current_user.id
+    ).all()
 
-    # Count documents per patient
-    patient_counts = {}
-    for name in distinct_patients:
-        count = db.query(Document).filter(
-            Document.user_id == current_user.id,
-            Document.patient_name == name
-        ).count()
-        patient_counts[name] = count
+    # Group by CNP prefix (preferred) or name (fallback)
+    # CNP prefix is the unique identifier; names may vary for same person
+    patient_groups = {}  # key: cnp_prefix or name, value: {display_name, count, names_seen}
 
-    # Total documents and documents without patient name
+    for name, cnp_prefix in docs_with_patient:
+        if cnp_prefix:
+            # Group by CNP prefix
+            key = f"cnp:{cnp_prefix}"
+            if key not in patient_groups:
+                patient_groups[key] = {
+                    "display_name": name or "Unknown",
+                    "count": 0,
+                    "names_seen": set(),
+                    "cnp_prefix": cnp_prefix
+                }
+            patient_groups[key]["count"] += 1
+            if name:
+                patient_groups[key]["names_seen"].add(name)
+                # Prefer the most complete/longest name as display name
+                if len(name) > len(patient_groups[key]["display_name"]):
+                    patient_groups[key]["display_name"] = name
+        elif name:
+            # Fall back to name-based grouping (no CNP available)
+            key = f"name:{name.lower().strip()}"
+            if key not in patient_groups:
+                patient_groups[key] = {
+                    "display_name": name,
+                    "count": 0,
+                    "names_seen": {name},
+                    "cnp_prefix": None
+                }
+            patient_groups[key]["count"] += 1
+        # Documents without name or CNP are counted separately
+
+    # Build response - use display names for user-facing list
+    distinct_patients = [g["display_name"] for g in patient_groups.values()]
+    patient_counts = {g["display_name"]: g["count"] for g in patient_groups.values()}
+
+    # Total documents and documents without patient info
     total_docs = db.query(Document).filter(Document.user_id == current_user.id).count()
     unknown_patient_docs = db.query(Document).filter(
         Document.user_id == current_user.id,
-        Document.patient_name.is_(None)
+        Document.patient_name.is_(None),
+        Document.patient_cnp_prefix.is_(None)
     ).count()
 
     return {
         "distinct_patients": distinct_patients,
-        "patient_count": len(distinct_patients),
+        "patient_count": len(patient_groups),
         "patient_documents": patient_counts,
         "total_documents": total_docs,
         "unknown_patient_documents": unknown_patient_docs,
-        "multi_patient": len(distinct_patients) > 1
+        "multi_patient": len(patient_groups) > 1
     }

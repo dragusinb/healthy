@@ -69,7 +69,12 @@ const Dashboard = () => {
         }
     };
 
-    const visibleErrors = accountErrors.filter(acc => !dismissedErrors.includes(acc.id));
+    // Filter out server errors (users can't fix those) and dismissed errors
+    const visibleErrors = accountErrors.filter(acc =>
+        !dismissedErrors.includes(acc.id) &&
+        acc.error_type !== 'server_error' &&
+        acc.error_type !== 'timeout'  // Also hide timeouts - not user-fixable
+    );
 
     const getErrorMessage = (errorType) => {
         const messages = {

@@ -125,6 +125,34 @@ Find and fix logical bugs:
 - 2026-01-27: **BUG FIX** - Login failing for users with old password hashes
   - Added backwards compatibility for PBKDF2 hashes during bcrypt migration
   - Re-hashed affected user passwords
+- 2026-01-28: **BUG FIX** - Continuous duplicate prevention
+  - Added scheduled cleanup job that runs every 6 hours to find and remove duplicate documents
+  - Duplicates detected by (user_id, provider, document_date) combination
+  - Keeps oldest document, removes newer duplicates
+- 2026-01-28: **IMPROVEMENT** - Evolution chart time scaling
+  - Chart X-axis now properly scales by actual time (not equal spacing)
+  - Data point from 2020 and 5 from 2025 will have correct visual spacing
+  - Added timestamp-based axis with proper date formatting
+- 2026-01-28: **FIX** - Stuck sync timeout reduced from 1 hour to 15 minutes
+  - More realistic timeout for crawlers (typical sync takes 2-5 minutes)
+- 2026-01-28: **FIX** - Dashboard no longer shows server_error/timeout errors
+  - These errors are not user-fixable, so hiding "update password" button
+  - Users can still see actual credential errors that need fixing
+- 2026-01-28: **CRITICAL FIX** - Document dates were wrong (import date instead of test date)
+  - Full reimport of ALL documents from PDFs with AI extraction
+  - User 1: 34 documents, 584 biomarkers with correct dates
+  - User 2: 17 documents, 276 biomarkers with correct dates
+  - Old documents now show correct dates (e.g., 2014-11-15 instead of 2026-01-26)
+  - Created reimport script: backend_v2/migrations/reimport_all_documents.py
+- 2026-01-28: **FIX** - HOMA-IR and HOMA-B incorrectly grouped
+  - Separated HOMA-IR and HOMA-B as distinct biomarkers in normalizer
+  - Removed generic "homa" variant that was matching both
+- 2026-01-29: **IMPROVEMENT** - CNP-based patient identification
+  - Added patient_cnp_prefix column to documents table (first 7 digits of Romanian national ID)
+  - AI parser now extracts CNP prefix during document processing
+  - Dashboard patient-info endpoint groups by CNP instead of name
+  - Same person with different name formats (e.g., "Dragusin Bogdan" vs "Bogdan Dragusin") now correctly identified as one patient
+  - CNP never shown to user, only used internally for grouping
 
 ---
 

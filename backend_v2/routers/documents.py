@@ -42,14 +42,34 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 @router.get("/")
-def list_documents(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def list_documents(
+    limit: int = None,
+    offset: int = 0,
+    provider: str = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List user's documents with optional pagination and filtering."""
     # Explicitly filter by user_id to ensure proper isolation
     # Sort by document_date (test date) descending - newest first
     # Fall back to upload_date if document_date is null
-    from sqlalchemy import func, case
-    docs = db.query(Document).filter(Document.user_id == current_user.id).order_by(
-        func.coalesce(Document.document_date, Document.upload_date).desc()
-    ).all()
+    from sqlalchemy import func
+    query = db.query(Document).filter(Document.user_id == current_user.id)
+
+    # Optional provider filter
+    if provider:
+        query = query.filter(Document.provider == provider)
+
+    # Sort by date
+    query = query.order_by(func.coalesce(Document.document_date, Document.upload_date).desc())
+
+    # Apply pagination
+    if offset:
+        query = query.offset(offset)
+    if limit:
+        query = query.limit(limit)
+
+    docs = query.all()
     return [{
         "id": d.id,
         "filename": d.filename,
@@ -276,10 +296,24 @@ def process_document(doc_id: int, db: Session):
                 import logging
                 logging.warning(f"Invalid date format in document {doc.id}: {meta['date']} - {e}")
 
-        # Extract patient name if found
+        # Extract patient info if found
         patient_info = result.get("patient_info", {})
         if patient_info.get("full_name"):
             doc.patient_name = patient_info["full_name"]
+
+        # Extract CNP prefix for unique patient identification
+        cnp_prefix = patient_info.get("cnp_prefix")
+        if cnp_prefix and len(cnp_prefix) >= 7:
+            doc.patient_cnp_prefix = cnp_prefix[:7]
+
+        # Auto-populate user's blood type if found in document and not already set
+        blood_type = patient_info.get("blood_type")
+        if blood_type and not doc.user.blood_type:
+            valid_blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
+            if blood_type in valid_blood_types:
+                user = db.query(User).filter(User.id == doc.user_id).first()
+                if user and not user.blood_type:
+                    user.blood_type = blood_type
 
         db.commit()
 
@@ -337,6 +371,11 @@ def rescan_patient_names(db: Session = Depends(get_db), current_user: User = Dep
             if profile.get("full_name"):
                 doc.patient_name = profile["full_name"]
                 updated_count += 1
+
+            # Also extract CNP prefix for patient identification
+            cnp_prefix = profile.get("cnp_prefix")
+            if cnp_prefix and len(cnp_prefix) >= 7:
+                doc.patient_cnp_prefix = cnp_prefix[:7]
 
         except Exception as e:
             errors.append(f"{doc.filename}: {str(e)}")

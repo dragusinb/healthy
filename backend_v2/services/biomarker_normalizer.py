@@ -144,7 +144,12 @@ BIOMARKER_MAPPINGS = {
         "insulina", "insulin", "insulina serica"
     ],
     "HOMA-IR": [
-        "homa-ir", "homa", "homeostatic model assessment"
+        "homa-ir", "homa ir", "homeostatic model assessment ir",
+        "indice homa", "index homa-ir"
+    ],
+    "HOMA-B": [
+        "homa-b", "homa b", "homeostatic model assessment b",
+        "homa beta", "beta cell function"
     ],
 
     # Thyroid

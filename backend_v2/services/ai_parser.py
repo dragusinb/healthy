@@ -174,7 +174,8 @@ Full document text (for context only - prefer header):
         3. Extract Date: Find date in format DD.MM.YYYY or YYYY-MM-DD (e.g. from "Data cerere", "Data rezultatului", "Data recoltarii"). Convert to YYYY-MM-DD.
         4. For flags: Compare value to reference_range. If outside range, set "HIGH" or "LOW". If within range, set "NORMAL".
         5. Extract patient information if found: name, date of birth (convert to YYYY-MM-DD), gender (male/female), height (in cm), weight (in kg), blood type.
-        6. Output strictly valid JSON with this structure:
+        6. IMPORTANT: Extract CNP (Cod Numeric Personal) if found. This is a 13-digit Romanian national ID. Store only the FIRST 7 DIGITS as "cnp_prefix" (for privacy). The CNP encodes gender and birth date.
+        7. Output strictly valid JSON with this structure:
         {{
             "metadata": {{
                 "provider": "Regina Maria",
@@ -186,7 +187,8 @@ Full document text (for context only - prefer header):
                 "gender": "male",
                 "height_cm": 175,
                 "weight_kg": 80,
-                "blood_type": "A+"
+                "blood_type": "A+",
+                "cnp_prefix": "1850315"
             }},
             "results": [
                 {{

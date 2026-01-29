@@ -70,6 +70,7 @@ class Document(Base):
     document_date = Column(DateTime, nullable=True)
     is_processed = Column(Boolean, default=False)
     patient_name = Column(String, nullable=True)  # Name of patient on the document
+    patient_cnp_prefix = Column(String(7), nullable=True)  # First 7 digits of CNP for patient identification (not full CNP for privacy)
 
     user = relationship("User", back_populates="documents")
     results = relationship("TestResult", back_populates="document", cascade="all, delete-orphan")

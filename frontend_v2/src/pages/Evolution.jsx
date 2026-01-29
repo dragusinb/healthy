@@ -1,10 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
 import { ArrowLeft, Activity, Calendar } from 'lucide-react';
 import { cn } from '../lib/utils';
+
+// Convert date string to timestamp for proper time scaling
+const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    const parsed = new Date(dateStr);
+    return isNaN(parsed.getTime()) ? null : parsed.getTime();
+};
+
+// Format timestamp for display on axis
+const formatAxisDate = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('ro-RO', { month: 'short', year: '2-digit' });
+};
+
+// Format timestamp for tooltip
+const formatTooltipDate = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' });
+};
 
 // Parse reference range string like "12 - 16", "<20", ">5", "70-99"
 const parseRefRange = (refRange) => {
@@ -48,7 +69,7 @@ const CustomTooltip = ({ active, payload, t }) => {
 
     return (
         <div className="bg-white p-3 rounded-lg shadow-lg border border-slate-200 min-w-[160px]">
-            <p className="font-semibold text-slate-800 mb-1">{data.date}</p>
+            <p className="font-semibold text-slate-800 mb-1">{formatTooltipDate(data.timestamp)}</p>
             <p className="text-blue-600 font-bold text-lg">
                 {data.value} <span className="text-sm font-normal text-slate-500">{data.unit || ''}</span>
             </p>
@@ -67,7 +88,7 @@ const Evolution = () => {
     const { t } = useTranslation();
     const { name } = useParams();
     const navigate = useNavigate();
-    const [data, setData] = useState([]);
+    const [rawData, setRawData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refRange, setRefRange] = useState({ min: null, max: null });
 
@@ -81,7 +102,7 @@ const Evolution = () => {
         setLoading(true);
         try {
             const res = await api.get(`/dashboard/evolution/${encodeURIComponent(name)}`);
-            setData(res.data);
+            setRawData(res.data);
 
             if (res.data.length > 0 && res.data[0].ref_range) {
                 setRefRange(parseRefRange(res.data[0].ref_range));
@@ -92,6 +113,27 @@ const Evolution = () => {
             setLoading(false);
         }
     };
+
+    // Process data to add timestamps for proper time scaling
+    const data = useMemo(() => {
+        return rawData
+            .map(item => ({
+                ...item,
+                timestamp: parseDate(item.date)
+            }))
+            .filter(item => item.timestamp !== null)
+            .sort((a, b) => a.timestamp - b.timestamp);
+    }, [rawData]);
+
+    // Calculate time domain for X-axis with some padding
+    const timeDomain = useMemo(() => {
+        if (data.length === 0) return [0, 0];
+        const min = Math.min(...data.map(d => d.timestamp));
+        const max = Math.max(...data.map(d => d.timestamp));
+        // Add 5% padding on each side
+        const range = max - min || 86400000; // Default to 1 day if single point
+        return [min - range * 0.05, max + range * 0.05];
+    }, [data]);
 
     if (loading) return <div className="p-8 text-center text-gray-500">{t('evolution.loadingEvolution')}</div>;
 
@@ -135,14 +177,14 @@ const Evolution = () => {
                         {data[data.length - 1]?.value} <span className="text-lg font-normal text-gray-400">{data[data.length - 1]?.unit}</span>
                     </p>
                     <p className="text-sm text-gray-400 mt-1">
-                        {new Date(data[data.length - 1]?.date).toLocaleDateString()}
+                        {data[data.length - 1]?.timestamp ? formatTooltipDate(data[data.length - 1].timestamp) : ''}
                     </p>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('evolution.referenceRange')}</p>
                     <p className="text-2xl font-semibold text-gray-800 mt-2">
-                        {data[data.length - 1]?.ref_range || 'N/A'}
+                        {data.length > 0 ? (data[data.length - 1]?.ref_range || 'N/A') : 'N/A'}
                     </p>
                     <p className="text-sm text-gray-400 mt-2">{t('evolution.standardRange')}</p>
                 </div>
@@ -186,7 +228,11 @@ const Evolution = () => {
                             )}
 
                             <XAxis
-                                dataKey="date"
+                                dataKey="timestamp"
+                                type="number"
+                                scale="time"
+                                domain={timeDomain}
+                                tickFormatter={formatAxisDate}
                                 tickMargin={10}
                                 axisLine={false}
                                 tickLine={false}

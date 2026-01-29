@@ -101,6 +101,14 @@ def init_scheduler():
                 replace_existing=True
             )
 
+            # Add job to clean up duplicate documents
+            scheduler.add_job(
+                cleanup_duplicate_documents,
+                IntervalTrigger(hours=6),  # Run every 6 hours
+                id="duplicate_cleanup",
+                replace_existing=True
+            )
+
             # Add job to process unprocessed documents
             scheduler.add_job(
                 process_pending_documents,
@@ -109,7 +117,7 @@ def init_scheduler():
                 replace_existing=True
             )
 
-            logger.info("Scheduler initialized with sync checker, cleanup, and document processor")
+            logger.info("Scheduler initialized with sync checker, cleanup, duplicate cleanup, and document processor")
 
     return scheduler
 
@@ -472,7 +480,8 @@ def cleanup_stuck_syncs():
 
     db = SessionLocal()
     try:
-        cutoff = datetime.utcnow() - timedelta(hours=1)
+        # 15 minutes is realistic max time for a sync - includes login, download, processing
+        cutoff = datetime.utcnow() - timedelta(minutes=15)
 
         # Find stuck sync jobs
         stuck_jobs = db.query(SyncJob).filter(
@@ -482,7 +491,7 @@ def cleanup_stuck_syncs():
 
         for job in stuck_jobs:
             job.status = "failed"
-            job.error_message = "Sync timed out (stuck for >1 hour)"
+            job.error_message = "Sync timed out (stuck for >15 minutes)"
             job.completed_at = datetime.utcnow()
 
             # Reset account status
@@ -492,6 +501,7 @@ def cleanup_stuck_syncs():
             if account:
                 account.status = "ERROR"
                 account.last_sync_error = "Sync timed out"
+                account.error_type = "timeout"
                 account.consecutive_failures += 1
 
         if stuck_jobs:
@@ -517,6 +527,70 @@ def cleanup_stuck_syncs():
 
     except Exception as e:
         logger.error(f"Error in cleanup: {e}")
+    finally:
+        db.close()
+
+
+def cleanup_duplicate_documents():
+    """Find and remove duplicate documents based on user_id + provider + document_date."""
+    try:
+        from backend_v2.database import SessionLocal
+        from backend_v2.models import Document, TestResult
+    except ImportError:
+        from database import SessionLocal
+        from models import Document, TestResult
+
+    from sqlalchemy import func
+
+    logger.info("Checking for duplicate documents...")
+
+    db = SessionLocal()
+    try:
+        # Find duplicates: same user_id, provider, and document_date
+        # Group by these fields and find groups with count > 1
+        duplicates = db.query(
+            Document.user_id,
+            Document.provider,
+            Document.document_date,
+            func.count(Document.id).label('count'),
+            func.min(Document.id).label('keep_id')  # Keep the oldest (lowest ID)
+        ).filter(
+            Document.document_date.isnot(None)  # Only consider docs with dates
+        ).group_by(
+            Document.user_id,
+            Document.provider,
+            Document.document_date
+        ).having(
+            func.count(Document.id) > 1
+        ).all()
+
+        total_deleted = 0
+        for dup in duplicates:
+            # Find all documents in this duplicate group except the one to keep
+            docs_to_delete = db.query(Document).filter(
+                Document.user_id == dup.user_id,
+                Document.provider == dup.provider,
+                Document.document_date == dup.document_date,
+                Document.id != dup.keep_id
+            ).all()
+
+            for doc in docs_to_delete:
+                # Delete associated test results first
+                db.query(TestResult).filter(TestResult.document_id == doc.id).delete()
+                # Delete the document
+                db.delete(doc)
+                total_deleted += 1
+                logger.info(f"Deleted duplicate document {doc.id}: {doc.filename} (user={doc.user_id}, date={doc.document_date})")
+
+        if total_deleted > 0:
+            db.commit()
+            logger.info(f"Cleaned up {total_deleted} duplicate documents")
+        else:
+            logger.debug("No duplicate documents found")
+
+    except Exception as e:
+        logger.error(f"Error in duplicate cleanup: {e}")
+        db.rollback()
     finally:
         db.close()
 
