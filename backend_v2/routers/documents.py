@@ -109,7 +109,8 @@ def list_documents(
         "upload_date": d.upload_date.isoformat() if d.upload_date else None,
         "document_date": d.document_date.isoformat() if d.document_date else None,
         "is_processed": d.is_processed,
-        "patient_name": d.patient_name
+        "patient_name": d.patient_name,
+        "patient_cnp_prefix": d.patient_cnp_prefix
     } for d in docs]
 
 

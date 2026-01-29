@@ -19,19 +19,40 @@ const Documents = () => {
     const [patientFilter, setPatientFilter] = useState('all');
     const [rescanning, setRescanning] = useState(false);
 
-    // Get unique patient names for filter
-    const patientNames = useMemo(() => {
-        const names = new Set();
+    // Get unique patients for filter (group by CNP prefix when available)
+    const patients = useMemo(() => {
+        const patientMap = new Map(); // key: cnp_prefix or name, value: { id, displayName }
+
         documents.forEach(doc => {
-            if (doc.patient_name) names.add(doc.patient_name);
+            if (!doc.patient_name && !doc.patient_cnp_prefix) return;
+
+            // Use CNP prefix as primary identifier, fall back to name
+            const key = doc.patient_cnp_prefix || doc.patient_name;
+
+            if (!patientMap.has(key)) {
+                patientMap.set(key, {
+                    id: key,
+                    displayName: doc.patient_name || 'Unknown',
+                    cnpPrefix: doc.patient_cnp_prefix
+                });
+            }
         });
-        return Array.from(names).sort();
+
+        return Array.from(patientMap.values()).sort((a, b) =>
+            a.displayName.localeCompare(b.displayName)
+        );
     }, [documents]);
 
-    // Filter documents by patient
+    // Filter documents by patient (using CNP prefix when available)
     const filteredDocuments = useMemo(() => {
         if (patientFilter === 'all') return documents;
-        return documents.filter(doc => doc.patient_name === patientFilter);
+
+        return documents.filter(doc => {
+            // Match by CNP prefix first, then by name
+            if (doc.patient_cnp_prefix && doc.patient_cnp_prefix === patientFilter) return true;
+            if (!doc.patient_cnp_prefix && doc.patient_name === patientFilter) return true;
+            return false;
+        });
     }, [documents, patientFilter]);
 
     const UPLOAD_STEPS = [
@@ -175,7 +196,7 @@ const Documents = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 {/* Patient Filter */}
                 <div className="flex items-center gap-3">
-                    {patientNames.length > 0 && (
+                    {patients.length > 1 && (
                         <div className="flex items-center gap-2">
                             <User size={16} className="text-slate-400" />
                             <select
@@ -184,8 +205,8 @@ const Documents = () => {
                                 className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                             >
                                 <option value="all">{t('documents.allPatients') || 'All Patients'}</option>
-                                {patientNames.map(name => (
-                                    <option key={name} value={name}>{name}</option>
+                                {patients.map(patient => (
+                                    <option key={patient.id} value={patient.id}>{patient.displayName}</option>
                                 ))}
                             </select>
                         </div>
