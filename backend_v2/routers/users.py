@@ -335,7 +335,14 @@ def scan_profile_from_documents(
     if updates_made:
         db.commit()
 
-    # Multi-patient detection using CNP prefix (preferred) or name (fallback)
+    # Multi-patient detection using CNP prefix (preferred) or normalized name (fallback)
+    def normalize_name(name):
+        """Normalize name by sorting words alphabetically (handles 'Bogdan Dragusin' == 'Dragusin Bogdan')"""
+        if not name:
+            return ""
+        words = name.strip().upper().split()
+        return " ".join(sorted(words))
+
     # Query all documents with patient info
     all_docs_patient_info = db.query(Document.patient_name, Document.patient_cnp_prefix).filter(
         Document.user_id == current_user.id
@@ -343,7 +350,7 @@ def scan_profile_from_documents(
         (Document.patient_name.isnot(None)) | (Document.patient_cnp_prefix.isnot(None))
     ).all()
 
-    # Group patients by CNP prefix when available
+    # Group patients by CNP prefix when available, or normalized name
     patient_groups = {}  # key: cnp_prefix or normalized_name, value: display_name
     for name, cnp_prefix in all_docs_patient_info:
         if cnp_prefix:
@@ -351,8 +358,8 @@ def scan_profile_from_documents(
             if cnp_prefix not in patient_groups:
                 patient_groups[cnp_prefix] = name or "Unknown"
         elif name:
-            # Fallback to normalized name if no CNP
-            normalized = name.strip().upper()
+            # Fallback to normalized name (sorted words) if no CNP
+            normalized = normalize_name(name)
             if normalized not in patient_groups:
                 patient_groups[normalized] = name
 
@@ -364,7 +371,7 @@ def scan_profile_from_documents(
             if cnp not in patient_groups:
                 patient_groups[cnp] = name or "Unknown"
         elif name:
-            normalized = name.strip().upper()
+            normalized = normalize_name(name)
             if normalized not in patient_groups:
                 patient_groups[normalized] = name
 

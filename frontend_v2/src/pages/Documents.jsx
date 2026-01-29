@@ -19,15 +19,21 @@ const Documents = () => {
     const [patientFilter, setPatientFilter] = useState('all');
     const [rescanning, setRescanning] = useState(false);
 
-    // Get unique patients for filter (group by CNP prefix when available)
+    // Normalize name by sorting words (handles "Bogdan Dragusin" == "Dragusin Bogdan")
+    const normalizeName = (name) => {
+        if (!name) return "";
+        return name.trim().toUpperCase().split(/\s+/).sort().join(" ");
+    };
+
+    // Get unique patients for filter (group by CNP prefix when available, or normalized name)
     const patients = useMemo(() => {
-        const patientMap = new Map(); // key: cnp_prefix or name, value: { id, displayName }
+        const patientMap = new Map(); // key: cnp_prefix or normalized_name, value: { id, displayName }
 
         documents.forEach(doc => {
             if (!doc.patient_name && !doc.patient_cnp_prefix) return;
 
-            // Use CNP prefix as primary identifier, fall back to name
-            const key = doc.patient_cnp_prefix || doc.patient_name;
+            // Use CNP prefix as primary identifier, fall back to normalized name
+            const key = doc.patient_cnp_prefix || normalizeName(doc.patient_name);
 
             if (!patientMap.has(key)) {
                 patientMap.set(key, {
@@ -43,14 +49,14 @@ const Documents = () => {
         );
     }, [documents]);
 
-    // Filter documents by patient (using CNP prefix when available)
+    // Filter documents by patient (using CNP prefix when available, or normalized name)
     const filteredDocuments = useMemo(() => {
         if (patientFilter === 'all') return documents;
 
         return documents.filter(doc => {
-            // Match by CNP prefix first, then by name
+            // Match by CNP prefix first, then by normalized name
             if (doc.patient_cnp_prefix && doc.patient_cnp_prefix === patientFilter) return true;
-            if (!doc.patient_cnp_prefix && doc.patient_name === patientFilter) return true;
+            if (!doc.patient_cnp_prefix && normalizeName(doc.patient_name) === patientFilter) return true;
             return false;
         });
     }, [documents, patientFilter]);
