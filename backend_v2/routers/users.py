@@ -217,10 +217,11 @@ def scan_profile_from_documents(
         from services.ai_parser import AIParser
 
     # Get user's processed documents (most recent first)
+    # Scan up to 50 documents to find profile data including blood type in older documents
     documents = db.query(Document).filter(
         Document.user_id == current_user.id,
         Document.is_processed == True
-    ).order_by(Document.document_date.desc()).limit(10).all()
+    ).order_by(Document.document_date.desc()).limit(50).all()
 
     if not documents:
         return {"status": "no_documents", "message": "No processed documents found", "profile": {}}
@@ -244,6 +245,7 @@ def scan_profile_from_documents(
     parser = AIParser()
     extracted_profiles = []
     scanned_count = 0
+    found_blood_type = False
 
     for doc in documents:
         if not doc.file_path or not os.path.exists(doc.file_path):
@@ -263,8 +265,17 @@ def scan_profile_from_documents(
             profile_data["document_date"] = doc.document_date  # Store document date for age calculation
             extracted_profiles.append(profile_data)
 
-        # Stop after finding good data
-        if extracted_profiles and extracted_profiles[-1].get("confidence") == "high":
+            # Track if we found blood type
+            if profile_data.get("blood_type"):
+                found_blood_type = True
+
+        # Stop early only if we have high confidence data AND blood type
+        # Otherwise continue scanning to find blood type in older documents
+        if extracted_profiles and extracted_profiles[-1].get("confidence") == "high" and found_blood_type:
+            break
+
+        # Limit to 15 documents for basic profile, but scan more if still missing blood type
+        if scanned_count >= 15 and found_blood_type:
             break
 
     if not extracted_profiles:
