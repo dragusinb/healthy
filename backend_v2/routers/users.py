@@ -4,6 +4,20 @@ from pydantic import BaseModel
 from typing import Optional, List
 import datetime
 import json
+import hashlib
+import os
+
+
+def calculate_file_hash(file_path: str) -> str:
+    """Calculate MD5 hash of a file for duplicate detection."""
+    hash_md5 = hashlib.md5()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except Exception:
+        return None
 
 try:
     from backend_v2.database import get_db
@@ -545,7 +559,21 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
         for i, doc_info in enumerate(docs):
             sync_status.status_processing(user_id, provider_name, i + 1, total_docs)
 
-            # Check if exists
+            # Calculate file hash for robust duplicate detection
+            file_hash = calculate_file_hash(doc_info["local_path"])
+
+            # Check for duplicate by file hash (most reliable)
+            if file_hash:
+                existing_by_hash = db.query(Document).filter(
+                    Document.user_id == user_id,
+                    Document.file_hash == file_hash
+                ).first()
+
+                if existing_by_hash:
+                    # Same file already imported, skip
+                    continue
+
+            # Fallback: check by filename
             existing_doc = db.query(Document).filter(
                 Document.user_id == user_id,
                 Document.filename == doc_info["filename"]
@@ -554,12 +582,13 @@ def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_pas
             if existing_doc:
                 continue
 
-            # Create Document
+            # Create Document with file_hash
             try:
                 new_doc = Document(
                     user_id=user_id,
                     filename=doc_info["filename"],
                     file_path=doc_info["local_path"],
+                    file_hash=file_hash,
                     provider=provider_name,
                     document_date=doc_info["date"],
                     upload_date=datetime.datetime.now(),

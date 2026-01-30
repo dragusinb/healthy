@@ -6,6 +6,20 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 import threading
 import logging
+import hashlib
+import os
+
+
+def calculate_file_hash(file_path: str) -> str:
+    """Calculate MD5 hash of a file for duplicate detection."""
+    hash_md5 = hashlib.md5()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except Exception:
+        return None
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -359,7 +373,21 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
     for i, doc_info in enumerate(docs):
         sync_status.status_processing(user_id, provider_name, i + 1, total_docs)
 
-        # Check if document with same filename already exists
+        # Calculate file hash for robust duplicate detection
+        file_hash = calculate_file_hash(doc_info["local_path"])
+
+        # Check for duplicate by file hash (most reliable - same content = same document)
+        if file_hash:
+            existing_by_hash = db.query(Document).filter(
+                Document.user_id == user_id,
+                Document.file_hash == file_hash
+            ).first()
+
+            if existing_by_hash:
+                logger.debug(f"Skipping duplicate by hash: {doc_info['filename']} matches {existing_by_hash.filename}")
+                continue
+
+        # Fallback: Check if document with same filename already exists
         existing_doc = db.query(Document).filter(
             Document.user_id == user_id,
             Document.filename == doc_info["filename"]
@@ -369,26 +397,13 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
             logger.debug(f"Skipping duplicate by filename: {doc_info['filename']}")
             continue
 
-        # Check if document with same date from same provider already exists
-        # This prevents re-importing the same lab results across different sync sessions
-        doc_date = doc_info.get("date")
-        if doc_date:
-            existing_by_date = db.query(Document).filter(
-                Document.user_id == user_id,
-                Document.provider == provider_name,
-                Document.document_date == doc_date
-            ).first()
-
-            if existing_by_date:
-                logger.info(f"Skipping duplicate by date: {doc_date} already exists as {existing_by_date.filename}")
-                continue
-
-        # Create Document
+        # Create Document with file_hash
         try:
             new_doc = Document(
                 user_id=user_id,
                 filename=doc_info["filename"],
                 file_path=doc_info["local_path"],
+                file_hash=file_hash,
                 provider=provider_name,
                 document_date=doc_info.get("date"),
                 upload_date=dt.datetime.now(),
@@ -433,22 +448,6 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
                         extracted_date = dt.datetime.strptime(
                             parsed_data["metadata"]["date"], "%Y-%m-%d"
                         )
-                        # Check for duplicate AFTER extracting the real date from PDF
-                        existing_by_extracted_date = db.query(Document).filter(
-                            Document.user_id == user_id,
-                            Document.provider == provider_name,
-                            Document.document_date == extracted_date,
-                            Document.id != new_doc.id  # Exclude current document
-                        ).first()
-
-                        if existing_by_extracted_date:
-                            # This is a duplicate - delete the new document and its biomarkers
-                            logger.info(f"Duplicate detected after AI extraction: {extracted_date} already exists as {existing_by_extracted_date.filename}")
-                            db.query(TestResult).filter(TestResult.document_id == new_doc.id).delete()
-                            db.delete(new_doc)
-                            db.commit()
-                            continue
-
                         new_doc.document_date = extracted_date
                     except:
                         pass
@@ -532,7 +531,7 @@ def cleanup_stuck_syncs():
 
 
 def cleanup_duplicate_documents():
-    """Find and remove duplicate documents based on user_id + provider + document_date."""
+    """Find and remove duplicate documents based on file_hash (same content = duplicate)."""
     try:
         from backend_v2.database import SessionLocal
         from backend_v2.models import Document, TestResult
@@ -542,24 +541,22 @@ def cleanup_duplicate_documents():
 
     from sqlalchemy import func
 
-    logger.info("Checking for duplicate documents...")
+    logger.info("Checking for duplicate documents by file hash...")
 
     db = SessionLocal()
     try:
-        # Find duplicates: same user_id, provider, and document_date
+        # Find duplicates: same user_id and file_hash (same file content)
         # Group by these fields and find groups with count > 1
         duplicates = db.query(
             Document.user_id,
-            Document.provider,
-            Document.document_date,
+            Document.file_hash,
             func.count(Document.id).label('count'),
             func.min(Document.id).label('keep_id')  # Keep the oldest (lowest ID)
         ).filter(
-            Document.document_date.isnot(None)  # Only consider docs with dates
+            Document.file_hash.isnot(None)  # Only consider docs with hash
         ).group_by(
             Document.user_id,
-            Document.provider,
-            Document.document_date
+            Document.file_hash
         ).having(
             func.count(Document.id) > 1
         ).all()
@@ -569,8 +566,7 @@ def cleanup_duplicate_documents():
             # Find all documents in this duplicate group except the one to keep
             docs_to_delete = db.query(Document).filter(
                 Document.user_id == dup.user_id,
-                Document.provider == dup.provider,
-                Document.document_date == dup.document_date,
+                Document.file_hash == dup.file_hash,
                 Document.id != dup.keep_id
             ).all()
 
@@ -580,7 +576,7 @@ def cleanup_duplicate_documents():
                 # Delete the document
                 db.delete(doc)
                 total_deleted += 1
-                logger.info(f"Deleted duplicate document {doc.id}: {doc.filename} (user={doc.user_id}, date={doc.document_date})")
+                logger.info(f"Deleted duplicate document {doc.id}: {doc.filename} (hash={doc.file_hash[:8]}...)")
 
         if total_deleted > 0:
             db.commit()

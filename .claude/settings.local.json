@@ -84,7 +84,10 @@
       "Bash(scp:*)",
       "Bash(python3:*)",
       "Bash(git restore:*)",
-      "Bash(powershell -Command \"cd ''c:\\\\OldD\\\\_Projects\\\\Healthy\\\\frontend_v2''; npm run build 2>&1\")"
+      "Bash(powershell -Command \"cd ''c:\\\\OldD\\\\_Projects\\\\Healthy\\\\frontend_v2''; npm run build 2>&1\")",
+      "Bash(powershell -Command \"Test-Path $PROFILE\")",
+      "Bash(powershell -Command \"Write-Host $PROFILE\")",
+      "Bash(powershell -NoProfile -Command \"[Environment]::GetFolderPath\\(''MyDocuments''\\)\")"
     ]
   }
 }
