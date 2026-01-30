@@ -19,27 +19,18 @@ const Documents = () => {
     const [patientFilter, setPatientFilter] = useState('all');
     const [rescanning, setRescanning] = useState(false);
 
-    // Normalize name by sorting words (handles "Bogdan Dragusin" == "Dragusin Bogdan")
-    const normalizeName = (name) => {
-        if (!name) return "";
-        return name.trim().toUpperCase().split(/\s+/).sort().join(" ");
-    };
-
-    // Get unique patients for filter (group by CNP prefix when available, or normalized name)
+    // Get unique patients for filter (group by CNP prefix only)
     const patients = useMemo(() => {
-        const patientMap = new Map(); // key: cnp_prefix or normalized_name, value: { id, displayName }
+        const patientMap = new Map(); // key: cnp_prefix, value: { id, displayName }
 
         documents.forEach(doc => {
-            if (!doc.patient_name && !doc.patient_cnp_prefix) return;
+            // Only group by CNP prefix - this is the unique patient identifier
+            if (!doc.patient_cnp_prefix) return;
 
-            // Use CNP prefix as primary identifier, fall back to normalized name
-            const key = doc.patient_cnp_prefix || normalizeName(doc.patient_name);
-
-            if (!patientMap.has(key)) {
-                patientMap.set(key, {
-                    id: key,
-                    displayName: doc.patient_name || 'Unknown',
-                    cnpPrefix: doc.patient_cnp_prefix
+            if (!patientMap.has(doc.patient_cnp_prefix)) {
+                patientMap.set(doc.patient_cnp_prefix, {
+                    id: doc.patient_cnp_prefix,
+                    displayName: doc.patient_name || 'Unknown'
                 });
             }
         });
@@ -49,16 +40,10 @@ const Documents = () => {
         );
     }, [documents]);
 
-    // Filter documents by patient (using CNP prefix when available, or normalized name)
+    // Filter documents by patient (using CNP prefix)
     const filteredDocuments = useMemo(() => {
         if (patientFilter === 'all') return documents;
-
-        return documents.filter(doc => {
-            // Match by CNP prefix first, then by normalized name
-            if (doc.patient_cnp_prefix && doc.patient_cnp_prefix === patientFilter) return true;
-            if (!doc.patient_cnp_prefix && normalizeName(doc.patient_name) === patientFilter) return true;
-            return false;
-        });
+        return documents.filter(doc => doc.patient_cnp_prefix === patientFilter);
     }, [documents, patientFilter]);
 
     const UPLOAD_STEPS = [
