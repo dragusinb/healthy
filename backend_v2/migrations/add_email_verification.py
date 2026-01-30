@@ -1,16 +1,32 @@
 """
 Migration: Add email verification and password reset fields to users table.
 
-Run with: python -m backend_v2.migrations.add_email_verification
+Run with: python migrations/add_email_verification.py
 """
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+# Set up paths
+backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+project_dir = os.path.dirname(backend_dir)
+sys.path.insert(0, project_dir)
+
+# Load .env file from backend_v2 directory
+env_file = os.path.join(backend_dir, '.env')
+if os.path.exists(env_file):
+    print(f"Loading environment from {env_file}")
+    with open(env_file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, value = line.split('=', 1)
+                os.environ[key] = value
 
 from sqlalchemy import inspect, text
-from backend_v2.database import engine, SessionLocal
+from backend_v2.database import engine, SessionLocal, DATABASE_URL
 
 def run_migration():
+    print(f"Connecting to database: {DATABASE_URL[:50]}..." if DATABASE_URL else "No DATABASE_URL found!")
     """Add email verification columns to users table."""
     inspector = inspect(engine)
 
