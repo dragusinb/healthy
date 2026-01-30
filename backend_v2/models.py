@@ -18,6 +18,15 @@ class User(Base):
     language = Column(String, default="ro")  # User's preferred language (ro/en)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+    # Email verification
+    email_verified = Column(Boolean, default=False)
+    verification_token = Column(String, nullable=True)
+    verification_token_expires = Column(DateTime, nullable=True)
+
+    # Password reset
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
+
     # Profile fields
     full_name = Column(String, nullable=True)
     date_of_birth = Column(DateTime, nullable=True)

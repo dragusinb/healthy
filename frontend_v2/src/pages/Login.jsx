@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe } from 'lucide-react';
 import api from '../api/client';
 
@@ -230,6 +230,16 @@ const Login = () => {
                             </div>
                             {isRegisterMode && (
                                 <p className="text-xs text-slate-400 mt-1">{t('auth.passwordMinLength')}</p>
+                            )}
+                            {!isRegisterMode && (
+                                <div className="text-right mt-1">
+                                    <Link
+                                        to="/forgot-password"
+                                        className="text-sm text-primary-600 hover:text-primary-700"
+                                    >
+                                        {t('auth.forgotPassword')}
+                                    </Link>
+                                </div>
                             )}
                         </div>
 
