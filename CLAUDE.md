@@ -286,11 +286,12 @@ Healthy/
 - [ ] Monitoring and alerting
 
 ### Deployment Info
-- **Domain:** https://analize.online (SSL via Let's Encrypt)
+- **Domain:** https://analize.online (SSL via Let's Encrypt, expires 2026-04-24)
 - **Server:** Contabo VPS 62.171.163.23
 - **Frontend:** https://analize.online (Nginx serving static files)
 - **Backend:** https://analize.online/api (FastAPI via Uvicorn, port 8000 internal)
 - **Database:** PostgreSQL (local on server)
+- **Email:** AWS SES (eu-central-1, smtp credentials in /opt/healthy/.env)
 - **Git:** Auto-deploy via `git pull` + rebuild
 
 **IMPORTANT - Environment Differences:**
@@ -302,7 +303,8 @@ Healthy/
 ### Next Steps
 1. ~~Get domain name~~ DONE: analize.online
 2. ~~Set up SSL/HTTPS with Let's Encrypt~~ DONE
-3. Configure AWS SES for email verification
-4. Implement report comparison feature
+3. ~~Configure AWS SES credentials~~ DONE (in .env)
+4. Implement email verification for registration
+5. Implement report comparison feature
 
 See **BACKLOG.md** for full list of planned features and technical debt.
