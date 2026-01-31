@@ -443,21 +443,28 @@ Consider standard medical screening guidelines such as:
 
 Be specific about test names and explain why each is recommended.
 
-Respond in JSON format:
+CRITICAL: You MUST provide REAL, SPECIFIC recommendations based on the patient's profile.
+DO NOT use placeholder text like "Test name" or "Brief summary" - write actual medical test names and real explanations.
+
+Respond in JSON format with this structure:
 {
     "recommended_tests": [
         {
-            "test_name": "Test name",
-            "category": "Category (e.g., Cancer Screening, Cardiovascular, Metabolic)",
+            "test_name": "Actual test name like 'Lipid Panel' or 'HbA1c'",
+            "category": "Cardiovascular|Cancer Screening|Metabolic|General|Infectious",
             "priority": "high|medium|low",
-            "reason": "Why this test is recommended",
-            "frequency": "How often this test should be done",
-            "age_recommendation": "Standard age recommendation"
+            "reason": "Specific explanation why this test is important for this patient",
+            "frequency": "e.g., 'Every 1-2 years' or 'Once at age 50'",
+            "age_recommendation": "e.g., 'Recommended starting at age 40'"
         }
     ],
-    "summary": "Brief summary of screening recommendations",
-    "notes": "Any additional notes about the recommendations"
-}"""
+    "summary": "Write 2-3 sentences summarizing the key screening recommendations for this specific patient based on their age, gender, and risk factors",
+    "notes": "Any additional personalized notes or caveats"
+}
+
+EXAMPLE of a GOOD summary: "Based on your age of 39 and male gender, cardiovascular health monitoring becomes increasingly important. A comprehensive lipid panel and fasting glucose test are recommended to establish baseline values before age 40. Consider also a thyroid function test given no recent thyroid markers in your records."
+
+EXAMPLE of a BAD summary (DO NOT DO THIS): "Brief summary of screening recommendations" - this is placeholder text!
 
     def analyze(self, existing_tests: List[str], profile: Dict[str, Any]) -> Dict[str, Any]:
         """Recommend tests based on profile and what tests are already done."""
@@ -475,7 +482,9 @@ Provide your recommendations in JSON format. Focus on:
 1. Age-appropriate screenings they may be missing
 2. Tests relevant to any chronic conditions or risk factors
 3. Standard preventive care tests
-4. Any follow-up tests suggested by their existing results"""
+4. Any follow-up tests suggested by their existing results
+
+IMPORTANT: Write a REAL, personalized summary for this specific patient - do NOT use placeholder text."""
 
         response = self._call_ai(self.SYSTEM_PROMPT, user_prompt)
 
@@ -486,7 +495,29 @@ Provide your recommendations in JSON format. Focus on:
             elif "```" in response:
                 json_str = response.split("```")[1].split("```")[0]
 
-            return json.loads(json_str)
+            result = json.loads(json_str)
+
+            # Validate that summary is not placeholder text
+            summary = result.get("summary", "")
+            placeholder_indicators = [
+                "brief summary",
+                "summary of screening",
+                "placeholder",
+                "test name",
+                "[insert",
+                "example"
+            ]
+            if any(indicator in summary.lower() for indicator in placeholder_indicators):
+                # Summary looks like placeholder - generate a fallback
+                age = profile.get("age", "unknown age")
+                gender = profile.get("gender", "unknown gender")
+                test_count = len(result.get("recommended_tests", []))
+                if self.language == "ro":
+                    result["summary"] = f"Pe baza profilului dumneavoastră ({gender}, {age} ani), am identificat {test_count} teste de screening recomandate. Consultați lista de mai jos pentru detalii și priorități."
+                else:
+                    result["summary"] = f"Based on your profile ({gender}, age {age}), we have identified {test_count} recommended screening tests. See the list below for details and priorities."
+
+            return result
         except json.JSONDecodeError:
             return {
                 "recommended_tests": [],

@@ -34,13 +34,9 @@ const RISK_COLORS = {
 const ANALYSIS_STEPS = [
     { key: 'loading', label: 'Loading your biomarkers...', duration: 800 },
     { key: 'analyzing', label: 'Analyzing health data...', duration: 1500 },
-    { key: 'general', label: 'Running general health assessment...', duration: 3000 },
-    { key: 'cardiology', label: 'Consulting Cardiologist AI...', duration: 2500 },
-    { key: 'endocrinology', label: 'Consulting Endocrinologist AI...', duration: 2500 },
-    { key: 'hematology', label: 'Consulting Hematologist AI...', duration: 2500 },
-    { key: 'hepatology', label: 'Consulting Hepatologist AI...', duration: 2500 },
-    { key: 'nephrology', label: 'Consulting Nephrologist AI...', duration: 2500 },
-    { key: 'compiling', label: 'Compiling final recommendations...', duration: 2000 },
+    { key: 'general', label: 'Running general health assessment...', duration: 4000 },
+    { key: 'specialists', label: 'Consulting specialist AI doctors...', duration: 8000 },
+    { key: 'compiling', label: 'Compiling final recommendations...', duration: 3000 },
     { key: 'finishing', label: 'Finalizing report...', duration: 1500 },
 ];
 
