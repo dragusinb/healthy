@@ -464,7 +464,7 @@ Respond in JSON format with this structure:
 
 EXAMPLE of a GOOD summary: "Based on your age of 39 and male gender, cardiovascular health monitoring becomes increasingly important. A comprehensive lipid panel and fasting glucose test are recommended to establish baseline values before age 40. Consider also a thyroid function test given no recent thyroid markers in your records."
 
-EXAMPLE of a BAD summary (DO NOT DO THIS): "Brief summary of screening recommendations" - this is placeholder text!
+EXAMPLE of a BAD summary (DO NOT DO THIS): "Brief summary of screening recommendations" - this is placeholder text!"""
 
     def analyze(self, existing_tests: List[str], profile: Dict[str, Any]) -> Dict[str, Any]:
         """Recommend tests based on profile and what tests are already done."""
@@ -691,7 +691,7 @@ class HealthAnalysisService:
 
         The generalist AI dynamically determines which specialists should be consulted
         based on its analysis. Specialists are created on-the-fly based on the
-        generalist's recommendations - there is no predefined specialist list.
+        generalist recommendations - there is no predefined specialist list.
         """
         # Get profile context
         profile_context = self._format_profile_context()
