@@ -20,7 +20,10 @@
     "view": "Vizualizeaza",
     "download": "Descarca",
     "refresh": "Reimprospatare",
-    "add": "Adauga"
+    "add": "Adauga",
+    "disclaimer": "Declinare responsabilitate",
+    "analyzing": "Se analizeaza...",
+    "note": "Nota"
   },
   "nav": {
     "dashboard": "Panou Principal",
@@ -211,11 +214,7 @@
       "loading": "Se incarca biomarkerii tai...",
       "analyzing": "Se analizeaza datele de sanatate...",
       "general": "Se ruleaza evaluarea generala de sanatate...",
-      "cardiology": "Consultare AI Cardiolog...",
-      "endocrinology": "Consultare AI Endocrinolog...",
-      "hematology": "Consultare AI Hematolog...",
-      "hepatology": "Consultare AI Hepatolog...",
-      "nephrology": "Consultare AI Nefrolog...",
+      "specialists": "Consultare doctori AI specialisti...",
       "compiling": "Se compileaza recomandarile finale...",
       "finishing": "Se finalizeaza raportul..."
     },
@@ -242,7 +241,23 @@
       "lowPriority": "Prioritate Mica",
       "note": "Nota",
       "noAnalysisHint": "Apasa \"Obtine Recomandari\" pentru a vedea ce screeninguri de sanatate iti lipsesc pe baza varstei si istoricului medical."
-    }
+    },
+    "analysisSessions": "sesiuni de analiza",
+    "selectToCompare": "Selecteaza 2 pentru comparatie",
+    "compare": "Compara",
+    "compareReports": "Compara Rapoarte",
+    "viewGeneral": "Vezi Generala",
+    "comparisonResults": "Rezultate Comparatie",
+    "timeBetween": "Timp Intre",
+    "days": "zile",
+    "riskLevelChange": "Schimbare Nivel Risc",
+    "biomarkersChange": "Schimbare Biomarkeri",
+    "noChange": "Fara Schimbare",
+    "improved": "Imbunatatit",
+    "worsened": "Inrautatit",
+    "older": "Mai Vechi",
+    "newer": "Mai Nou",
+    "latest": "Cel Mai Recent"
   },
   "screenings": {
     "title": "Screeninguri Recomandate",

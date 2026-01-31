@@ -31,13 +31,14 @@ const RISK_COLORS = {
     'slightly low': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Clock },
 };
 
+// Analysis steps - labels will be translated in component
 const ANALYSIS_STEPS = [
-    { key: 'loading', label: 'Loading your biomarkers...', duration: 800 },
-    { key: 'analyzing', label: 'Analyzing health data...', duration: 1500 },
-    { key: 'general', label: 'Running general health assessment...', duration: 4000 },
-    { key: 'specialists', label: 'Consulting specialist AI doctors...', duration: 8000 },
-    { key: 'compiling', label: 'Compiling final recommendations...', duration: 3000 },
-    { key: 'finishing', label: 'Finalizing report...', duration: 1500 },
+    { key: 'loading', duration: 800 },
+    { key: 'analyzing', duration: 1500 },
+    { key: 'general', duration: 4000 },
+    { key: 'specialists', duration: 8000 },
+    { key: 'compiling', duration: 3000 },
+    { key: 'finishing', duration: 1500 },
 ];
 
 const openPdf = async (documentId) => {
@@ -58,6 +59,20 @@ const openPdf = async (documentId) => {
 
 const HealthReports = () => {
     const { t } = useTranslation();
+
+    // Get translated step labels
+    const getStepLabel = (key) => {
+        const labels = {
+            loading: t('healthReports.analysisSteps.loading'),
+            analyzing: t('healthReports.analysisSteps.analyzing'),
+            general: t('healthReports.analysisSteps.general'),
+            specialists: t('healthReports.analysisSteps.specialists') || 'Consultare doctori AI specialisti...',
+            compiling: t('healthReports.analysisSteps.compiling'),
+            finishing: t('healthReports.analysisSteps.finishing'),
+        };
+        return labels[key] || key;
+    };
+
     const [latestReport, setLatestReport] = useState(null);
     const [reports, setReports] = useState([]);
     const [biomarkers, setBiomarkers] = useState([]);
@@ -212,9 +227,9 @@ const HealthReports = () => {
                         <div className="p-2 bg-primary-100 text-primary-600 rounded-xl">
                             <Brain size={24} />
                         </div>
-                        AI Health Analysis
+                        {t('healthReports.title')}
                     </h1>
-                    <p className="text-slate-500 mt-1">AI-powered insights from your biomarkers</p>
+                    <p className="text-slate-500 mt-1">{t('healthReports.subtitle')}</p>
                 </div>
 
                 <button
@@ -230,12 +245,12 @@ const HealthReports = () => {
                     {analyzing ? (
                         <>
                             <Loader2 className="animate-spin" size={20} />
-                            {ANALYSIS_STEPS[analysisStep]?.label || 'Analyzing...'}
+                            {getStepLabel(ANALYSIS_STEPS[analysisStep]?.key) || t('common.loading')}
                         </>
                     ) : (
                         <>
                             <RefreshCw size={20} />
-                            Run New Analysis
+                            {t('healthReports.runNewAnalysis')}
                         </>
                     )}
                 </button>
@@ -249,8 +264,8 @@ const HealthReports = () => {
                             <Brain size={24} className="text-primary-600 animate-pulse" />
                         </div>
                         <div>
-                            <h3 className="font-semibold text-primary-800">AI Analysis in Progress</h3>
-                            <p className="text-sm text-primary-600">{ANALYSIS_STEPS[analysisStep]?.label}</p>
+                            <h3 className="font-semibold text-primary-800">{t('healthReports.analysisInProgress')}</h3>
+                            <p className="text-sm text-primary-600">{getStepLabel(ANALYSIS_STEPS[analysisStep]?.key)}</p>
                         </div>
                     </div>
                     <div className="space-y-2">
@@ -267,7 +282,7 @@ const HealthReports = () => {
                                     "text-sm",
                                     i <= analysisStep ? "text-primary-700" : "text-primary-400"
                                 )}>
-                                    {step.label}
+                                    {getStepLabel(step.key)}
                                 </span>
                             </div>
                         ))}
@@ -287,7 +302,7 @@ const HealthReports = () => {
                 <div className="card overflow-hidden">
                     <div className="p-6 border-b border-slate-100">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-semibold text-slate-800">Latest Analysis</h2>
+                            <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.latestAnalysis')}</h2>
                             <span className="text-sm text-slate-400">
                                 {new Date(latestReport.created_at).toLocaleDateString()}
                             </span>
@@ -311,7 +326,7 @@ const HealthReports = () => {
                                 );
                             })()}
                             <span className="text-slate-500">
-                                {latestReport.biomarkers_analyzed} biomarkers analyzed
+                                {latestReport.biomarkers_analyzed} {t('healthReports.biomarkersAnalyzed')}
                             </span>
                         </div>
 
@@ -324,7 +339,7 @@ const HealthReports = () => {
                         {latestReport.findings?.length > 0 && (
                             <div className="mb-6">
                                 <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                                    Key Findings
+                                    {t('healthReports.keyFindings')}
                                 </h3>
                                 <div className="space-y-3">
                                     {latestReport.findings.map((finding, i) => {
@@ -378,7 +393,7 @@ const HealthReports = () => {
                         {latestReport.recommendations?.length > 0 && (
                             <div>
                                 <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                                    Recommendations
+                                    {t('healthReports.recommendations')}
                                 </h3>
                                 <div className="space-y-2">
                                     {latestReport.recommendations.map((rec, i) => (
@@ -407,9 +422,9 @@ const HealthReports = () => {
                     <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Brain size={32} className="text-slate-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">No Analysis Yet</h3>
+                    <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('healthReports.noAnalysisYet')}</h3>
                     <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                        Run your first AI health analysis to get personalized insights from your biomarkers.
+                        {t('healthReports.noAnalysisHint')}
                     </p>
                     <button
                         onClick={runAnalysis}
@@ -417,7 +432,7 @@ const HealthReports = () => {
                         className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors"
                     >
                         <TrendingUp size={20} />
-                        Run Analysis
+                        {t('healthReports.runAnalysis')}
                     </button>
                 </div>
             )}
@@ -435,7 +450,7 @@ const HealthReports = () => {
                 return (
                     <div className="card overflow-hidden">
                         <div className="p-6 border-b border-slate-100">
-                            <h2 className="text-lg font-semibold text-slate-800">Latest Specialist Analyses</h2>
+                            <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.specialistAnalyses')}</h2>
                             <p className="text-sm text-slate-500 mt-1">
                                 From analysis on {new Date(latestSession.session_date).toLocaleDateString()}
                             </p>
@@ -469,7 +484,7 @@ const HealthReports = () => {
                                                 </div>
                                                 <button className="inline-flex items-center gap-1 text-xs text-teal-600 mt-2 font-medium hover:text-teal-700">
                                                     <CheckCircle size={12} />
-                                                    View Report
+                                                    {t('healthReports.viewReport')}
                                                     <ChevronRight size={12} />
                                                 </button>
                                             </div>
@@ -491,15 +506,15 @@ const HealthReports = () => {
                                 <History size={20} className="text-slate-600" />
                             </div>
                             <div>
-                                <h2 className="text-lg font-semibold text-slate-800">Report History</h2>
-                                <p className="text-sm text-slate-500">{reportHistory.length} analysis sessions</p>
+                                <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.reportHistory')}</h2>
+                                <p className="text-sm text-slate-500">{reportHistory.length} {t('healthReports.analysisSessions') || 'analysis sessions'}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             {compareMode ? (
                                 <>
                                     <span className="text-sm text-slate-500">
-                                        Select 2 to compare ({selectedForCompare.length}/2)
+                                        {t('healthReports.selectToCompare') || 'Select 2 to compare'} ({selectedForCompare.length}/2)
                                     </span>
                                     {selectedForCompare.length === 2 && (
                                         <button
@@ -507,14 +522,14 @@ const HealthReports = () => {
                                             className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors"
                                         >
                                             <GitCompare size={16} />
-                                            Compare
+                                            {t('healthReports.compare') || 'Compare'}
                                         </button>
                                     )}
                                     <button
                                         onClick={exitCompareMode}
                                         className="px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                     >
-                                        Cancel
+                                        {t('common.cancel')}
                                     </button>
                                 </>
                             ) : (
@@ -523,7 +538,7 @@ const HealthReports = () => {
                                     className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-medium hover:bg-slate-200 transition-colors"
                                 >
                                     <GitCompare size={16} />
-                                    Compare Reports
+                                    {t('healthReports.compareReports') || 'Compare Reports'}
                                 </button>
                             )}
                         </div>
@@ -704,7 +719,7 @@ const HealthReports = () => {
                                                 }}
                                                 className="px-3 py-1.5 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors shrink-0"
                                             >
-                                                View General
+                                                {t('healthReports.viewGeneral') || 'View General'}
                                             </button>
                                         )}
                                     </div>
@@ -759,7 +774,7 @@ const HealthReports = () => {
                             {selectedReport.findings?.length > 0 && (
                                 <div className="mb-6">
                                     <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                                        Findings
+                                        {t('healthReports.findings')}
                                     </h3>
                                     <div className="space-y-3">
                                         {selectedReport.findings.map((finding, i) => {
@@ -838,7 +853,7 @@ const HealthReports = () => {
                             {selectedReport.recommendations?.length > 0 && (
                                 <div>
                                     <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                                        Recommendations
+                                        {t('healthReports.recommendations')}
                                     </h3>
                                     <div className="space-y-2">
                                         {selectedReport.recommendations.map((rec, i) => (
@@ -869,8 +884,7 @@ const HealthReports = () => {
             <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-500">
                 <Shield size={20} className="shrink-0 mt-0.5" />
                 <p>
-                    <strong>Disclaimer:</strong> This AI analysis is for informational purposes only and is not a substitute
-                    for professional medical advice. Always consult with a qualified healthcare provider for medical decisions.
+                    <strong>{t('common.disclaimer') || 'Disclaimer'}:</strong> {t('healthReports.disclaimer')}
                 </p>
             </div>
         </div>
