@@ -169,18 +169,27 @@ Full document text (for context only - prefer header):
         truncated_text = text[:max_chars]
 
         return f"""
-        Analyze the following medical laboratory report text and extract ALL biomarker test results.
+        Analyze the following medical laboratory report text and extract ALL test results.
 
         IMPORTANT: Extract EVERY single test result from the document. Do not skip any tests.
+        Include BOTH quantitative tests (numeric values) AND qualitative tests (Pozitiv/Negativ, cultures, etc.)
 
         Rules:
-        1. Extract: Test Name, Value (number), Unit, Reference Range.
-        2. Detect Provider: If text contains "Regina Maria" or "Centrul Medical Unirea", provider="Regina Maria". If "Synevo", provider="Synevo". Else "Unknown".
-        3. Extract Date: Find date in format DD.MM.YYYY or YYYY-MM-DD (e.g. from "Data cerere", "Data rezultatului", "Data recoltarii"). Convert to YYYY-MM-DD.
-        4. For flags: Compare value to reference_range. If outside range, set "HIGH" or "LOW". If within range, set "NORMAL".
-        5. Extract patient information if found: name, date of birth (convert to YYYY-MM-DD), gender (male/female), height (in cm), weight (in kg), blood type.
-        6. IMPORTANT: Extract CNP (Cod Numeric Personal) if found. This is a 13-digit Romanian national ID. Store only the FIRST 7 DIGITS as "cnp_prefix" (for privacy). The CNP encodes gender and birth date.
-        7. Output strictly valid JSON with this structure:
+        1. Extract: Test Name, Value, Unit (if applicable), Reference Range (if applicable).
+        2. Value can be:
+           - Numeric: "14.2", "120", "0.5"
+           - Qualitative: "Pozitiv", "Negativ", "Absent", "Prezent", "Normal", "Anormal"
+           - Culture results: "Streptococcus pyogenes - prezent", "Flora normala", etc.
+           - Descriptive: "Reactive", "Non-reactive", "Detected", "Not detected"
+        3. Detect Provider: If text contains "Regina Maria" or "Centrul Medical Unirea", provider="Regina Maria". If "Synevo", provider="Synevo". Else "Unknown".
+        4. Extract Date: Find date in format DD.MM.YYYY or YYYY-MM-DD (e.g. from "Data cerere", "Data rezultatului", "Data recoltarii"). Convert to YYYY-MM-DD.
+        5. For flags:
+           - Numeric values: Compare to reference_range. If outside range, set "HIGH" or "LOW". If within range, set "NORMAL".
+           - Qualitative tests: "Pozitiv"/"Prezent"/"Detected"/"Reactive" = "ABNORMAL". "Negativ"/"Absent"/"Not detected"/"Non-reactive" = "NORMAL".
+           - Culture with pathogen found = "ABNORMAL". No pathogen/Normal flora = "NORMAL".
+        6. Extract patient information if found: name, date of birth (convert to YYYY-MM-DD), gender (male/female), height (in cm), weight (in kg), blood type.
+        7. IMPORTANT: Extract CNP (Cod Numeric Personal) if found. This is a 13-digit Romanian national ID. Store only the FIRST 7 DIGITS as "cnp_prefix" (for privacy).
+        8. Output strictly valid JSON with this structure:
         {{
             "metadata": {{
                 "provider": "Regina Maria",
@@ -203,6 +212,22 @@ Full document text (for context only - prefer header):
                     "unit": "g/dL",
                     "reference_range": "12 - 16",
                     "flags": "NORMAL"
+                }},
+                {{
+                    "test_name": "Antigen Streptococ grup A",
+                    "value": "Pozitiv",
+                    "numeric_value": null,
+                    "unit": null,
+                    "reference_range": "Negativ",
+                    "flags": "ABNORMAL"
+                }},
+                {{
+                    "test_name": "Cultura exsudat faringian",
+                    "value": "Streptococcus pyogenes - prezent",
+                    "numeric_value": null,
+                    "unit": null,
+                    "reference_range": null,
+                    "flags": "ABNORMAL"
                 }}
             ]
         }}
