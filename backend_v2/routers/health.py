@@ -12,11 +12,54 @@ try:
     from backend_v2.models import User, Document, TestResult, HealthReport
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services.health_agents import HealthAnalysisService, SpecialistAgent
+    from backend_v2.services.vault import vault
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
     from routers.documents import get_current_user
     from services.health_agents import HealthAnalysisService, SpecialistAgent
+    from services.vault import vault
+
+
+def get_report_content(report: HealthReport) -> dict:
+    """Get report content, preferring vault-encrypted if available."""
+    if report.content_enc and vault.is_unlocked:
+        try:
+            content = vault.decrypt_json(report.content_enc)
+            return {
+                "summary": content.get("summary", ""),
+                "findings": content.get("findings", []),
+                "recommendations": content.get("recommendations", [])
+            }
+        except Exception:
+            pass  # Fall back to legacy
+
+    # Fall back to legacy unencrypted fields
+    return {
+        "summary": report.summary or "",
+        "findings": json.loads(report.findings) if report.findings else [],
+        "recommendations": json.loads(report.recommendations) if report.recommendations else []
+    }
+
+
+def save_report_content(report: HealthReport, summary: str, findings: list, recommendations: list):
+    """Save report content, using vault encryption if available."""
+    if vault.is_unlocked:
+        content = {
+            "summary": summary,
+            "findings": findings,
+            "recommendations": recommendations
+        }
+        report.content_enc = vault.encrypt_json(content)
+        # Clear legacy fields
+        report.summary = None
+        report.findings = None
+        report.recommendations = None
+    else:
+        # Fall back to legacy storage
+        report.summary = summary
+        report.findings = json.dumps(findings)
+        report.recommendations = json.dumps(recommendations)
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -30,9 +73,28 @@ def get_user_biomarkers(db: Session, user_id: int) -> list:
 
     biomarkers = []
     for r in results:
+        # Get values, preferring vault-encrypted
+        value = None
+        numeric_value = None
+
+        if vault.is_unlocked:
+            try:
+                if r.value_enc:
+                    value = vault.decrypt_data(r.value_enc)
+                if r.numeric_value_enc:
+                    numeric_value = vault.decrypt_number(r.numeric_value_enc)
+            except Exception:
+                pass
+
+        # Fall back to legacy
+        if value is None:
+            value = r.value
+        if numeric_value is None:
+            numeric_value = r.numeric_value
+
         biomarkers.append({
             "name": r.test_name,
-            "value": r.numeric_value if r.numeric_value is not None else r.value,
+            "value": numeric_value if numeric_value is not None else value,
             "unit": r.unit,
             "range": r.reference_range,
             "date": r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown",
@@ -44,36 +106,96 @@ def get_user_biomarkers(db: Session, user_id: int) -> list:
 
 
 def get_user_profile(user: User) -> dict:
-    """Get user profile data for AI analysis."""
+    """Get user profile data for AI analysis, using vault-encrypted fields when available."""
     from datetime import date
 
     profile = {}
 
-    if user.full_name:
-        profile["full_name"] = user.full_name
+    # Try vault-encrypted fields first
+    full_name = None
+    date_of_birth_str = None
+    gender = None
+    blood_type = None
+    height_cm = None
+    weight_kg = None
+    allergies = None
+    chronic_conditions = None
+    current_medications = None
 
-    if user.date_of_birth:
-        profile["date_of_birth"] = user.date_of_birth.strftime("%Y-%m-%d")
-        # Calculate age
-        today = date.today()
-        age = today.year - user.date_of_birth.year - ((today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day))
-        profile["age"] = age
+    if vault.is_unlocked:
+        try:
+            if user.full_name_enc:
+                full_name = vault.decrypt_data(user.full_name_enc)
+            if user.date_of_birth_enc:
+                date_of_birth_str = vault.decrypt_data(user.date_of_birth_enc)
+            if user.gender_enc:
+                gender = vault.decrypt_data(user.gender_enc)
+            if user.blood_type_enc:
+                blood_type = vault.decrypt_data(user.blood_type_enc)
+            if user.profile_data_enc:
+                profile_data = vault.decrypt_json(user.profile_data_enc)
+                height_cm = profile_data.get("height_cm")
+                weight_kg = profile_data.get("weight_kg")
+            if user.health_context_enc:
+                health_context = vault.decrypt_json(user.health_context_enc)
+                allergies_raw = health_context.get("allergies")
+                chronic_raw = health_context.get("chronic_conditions")
+                meds_raw = health_context.get("current_medications")
+                allergies = json.loads(allergies_raw) if isinstance(allergies_raw, str) else allergies_raw
+                chronic_conditions = json.loads(chronic_raw) if isinstance(chronic_raw, str) else chronic_raw
+                current_medications = json.loads(meds_raw) if isinstance(meds_raw, str) else meds_raw
+        except Exception:
+            pass
 
-    if user.gender:
-        profile["gender"] = user.gender
+    # Fall back to legacy fields
+    if full_name is None:
+        full_name = user.full_name
+    if date_of_birth_str is None and user.date_of_birth:
+        date_of_birth_str = user.date_of_birth.strftime("%Y-%m-%d")
+    if gender is None:
+        gender = user.gender
+    if blood_type is None:
+        blood_type = user.blood_type
+    if height_cm is None:
+        height_cm = user.height_cm
+    if weight_kg is None:
+        weight_kg = user.weight_kg
+    if allergies is None:
+        allergies = json.loads(user.allergies) if user.allergies else None
+    if chronic_conditions is None:
+        chronic_conditions = json.loads(user.chronic_conditions) if user.chronic_conditions else None
+    if current_medications is None:
+        current_medications = json.loads(user.current_medications) if user.current_medications else None
 
-    if user.height_cm:
-        profile["height_cm"] = user.height_cm
+    # Build profile dict
+    if full_name:
+        profile["full_name"] = full_name
 
-    if user.weight_kg:
-        profile["weight_kg"] = user.weight_kg
+    if date_of_birth_str:
+        profile["date_of_birth"] = date_of_birth_str
+        try:
+            dob = datetime.strptime(date_of_birth_str, "%Y-%m-%d").date()
+            today = date.today()
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            profile["age"] = age
+        except Exception:
+            pass
 
-    if user.height_cm and user.weight_kg:
-        height_m = user.height_cm / 100
-        profile["bmi"] = round(user.weight_kg / (height_m * height_m), 1)
+    if gender:
+        profile["gender"] = gender
 
-    if user.blood_type:
-        profile["blood_type"] = user.blood_type
+    if height_cm:
+        profile["height_cm"] = height_cm
+
+    if weight_kg:
+        profile["weight_kg"] = weight_kg
+
+    if height_cm and weight_kg:
+        height_m = height_cm / 100
+        profile["bmi"] = round(weight_kg / (height_m * height_m), 1)
+
+    if blood_type:
+        profile["blood_type"] = blood_type
 
     if user.smoking_status:
         profile["smoking_status"] = user.smoking_status
@@ -84,14 +206,14 @@ def get_user_profile(user: User) -> dict:
     if user.physical_activity:
         profile["physical_activity"] = user.physical_activity
 
-    if user.allergies:
-        profile["allergies"] = json.loads(user.allergies)
+    if allergies:
+        profile["allergies"] = allergies
 
-    if user.chronic_conditions:
-        profile["chronic_conditions"] = json.loads(user.chronic_conditions)
+    if chronic_conditions:
+        profile["chronic_conditions"] = chronic_conditions
 
-    if user.current_medications:
-        profile["current_medications"] = json.loads(user.current_medications)
+    if current_medications:
+        profile["current_medications"] = current_medications
 
     return profile
 
@@ -125,11 +247,14 @@ def run_health_analysis(
         user_id=current_user.id,
         report_type="general",
         title="Comprehensive Health Analysis",
-        summary=general.get("summary", "Analysis complete"),
-        findings=json.dumps(general.get("findings", [])),
-        recommendations=json.dumps(general.get("recommendations", [])),
         risk_level=general.get("risk_level", "normal"),
         biomarkers_analyzed=len(biomarkers)
+    )
+    save_report_content(
+        report,
+        summary=general.get("summary", "Analysis complete"),
+        findings=general.get("findings", []),
+        recommendations=general.get("recommendations", [])
     )
     db.add(report)
 
@@ -139,11 +264,14 @@ def run_health_analysis(
             user_id=current_user.id,
             report_type=specialty,
             title=f"{specialty.title()} Analysis",
-            summary=specialist_data.get("summary", ""),
-            findings=json.dumps(specialist_data.get("key_findings", [])),
-            recommendations=json.dumps(specialist_data.get("recommendations", [])),
             risk_level=specialist_data.get("risk_level", "normal"),
             biomarkers_analyzed=len(specialist_data.get("key_findings", []))
+        )
+        save_report_content(
+            specialist_report,
+            summary=specialist_data.get("summary", ""),
+            findings=specialist_data.get("key_findings", []),
+            recommendations=specialist_data.get("recommendations", [])
         )
         db.add(specialist_report)
 
@@ -174,17 +302,21 @@ def get_reports(
 
     reports = query.limit(limit).all()
 
-    return [{
-        "id": r.id,
-        "report_type": r.report_type,
-        "title": r.title,
-        "summary": r.summary,
-        "risk_level": r.risk_level,
-        "biomarkers_analyzed": r.biomarkers_analyzed,
-        "created_at": r.created_at.isoformat() if r.created_at else None,
-        "findings": json.loads(r.findings) if r.findings else [],
-        "recommendations": json.loads(r.recommendations) if r.recommendations else []
-    } for r in reports]
+    result = []
+    for r in reports:
+        content = get_report_content(r)
+        result.append({
+            "id": r.id,
+            "report_type": r.report_type,
+            "title": r.title,
+            "summary": content["summary"],
+            "risk_level": r.risk_level,
+            "biomarkers_analyzed": r.biomarkers_analyzed,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "findings": content["findings"],
+            "recommendations": content["recommendations"]
+        })
+    return result
 
 
 @router.get("/reports/{report_id}")
@@ -202,16 +334,17 @@ def get_report(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
+    content = get_report_content(report)
     return {
         "id": report.id,
         "report_type": report.report_type,
         "title": report.title,
-        "summary": report.summary,
+        "summary": content["summary"],
         "risk_level": report.risk_level,
         "biomarkers_analyzed": report.biomarkers_analyzed,
         "created_at": report.created_at.isoformat() if report.created_at else None,
-        "findings": json.loads(report.findings) if report.findings else [],
-        "recommendations": json.loads(report.recommendations) if report.recommendations else []
+        "findings": content["findings"],
+        "recommendations": content["recommendations"]
     }
 
 
@@ -230,16 +363,17 @@ def get_latest_report(
     if not report:
         return {"has_report": False, "message": "No health analysis available. Run an analysis first."}
 
+    content = get_report_content(report)
     return {
         "has_report": True,
         "id": report.id,
         "title": report.title,
-        "summary": report.summary,
+        "summary": content["summary"],
         "risk_level": report.risk_level,
         "biomarkers_analyzed": report.biomarkers_analyzed,
         "created_at": report.created_at.isoformat() if report.created_at else None,
-        "findings": json.loads(report.findings) if report.findings else [],
-        "recommendations": json.loads(report.recommendations) if report.recommendations else []
+        "findings": content["findings"],
+        "recommendations": content["recommendations"]
     }
 
 
@@ -344,11 +478,14 @@ def run_specialist_analysis(
         user_id=current_user.id,
         report_type=specialty,
         title=f"{specialist_name} Analysis",
-        summary=analysis.get("summary", ""),
-        findings=json.dumps(analysis.get("key_findings", [])),
-        recommendations=json.dumps(analysis.get("recommendations", [])),
         risk_level=analysis.get("risk_level", "normal"),
         biomarkers_analyzed=len(analysis.get("key_findings", []))
+    )
+    save_report_content(
+        report,
+        summary=analysis.get("summary", ""),
+        findings=analysis.get("key_findings", []),
+        recommendations=analysis.get("recommendations", [])
     )
     db.add(report)
     db.commit()
@@ -468,11 +605,14 @@ def run_gap_analysis(
         user_id=current_user.id,
         report_type="gap_analysis",
         title="Recommended Health Screenings",
-        summary=analysis.get("summary", ""),
-        findings=json.dumps(enriched_tests),
-        recommendations=json.dumps([]),
         risk_level="normal",
         biomarkers_analyzed=len(existing_tests)
+    )
+    save_report_content(
+        report,
+        summary=analysis.get("summary", ""),
+        findings=enriched_tests,
+        recommendations=[]
     )
     db.add(report)
     db.commit()
@@ -500,7 +640,8 @@ def get_latest_gap_analysis(
     if not report:
         return {"has_report": False}
 
-    recommended_tests = json.loads(report.findings) if report.findings else []
+    content = get_report_content(report)
+    recommended_tests = content["findings"]
 
     # Re-enrich with current test history (may have changed since analysis was run)
     enriched_tests = enrich_recommended_tests_with_history(recommended_tests, db, current_user.id)
@@ -508,7 +649,7 @@ def get_latest_gap_analysis(
     return {
         "has_report": True,
         "id": report.id,
-        "summary": report.summary,
+        "summary": content["summary"],
         "recommended_tests": enriched_tests,
         "created_at": report.created_at.isoformat() if report.created_at else None
     }
@@ -551,25 +692,31 @@ def get_report_history(
             .filter(HealthReport.created_at <= session_end)\
             .all()
 
+        general_content = get_report_content(general)
+        specialist_items = []
+        for r in specialist_reports:
+            r_content = get_report_content(r)
+            specialist_items.append({
+                "id": r.id,
+                "report_type": r.report_type,
+                "title": r.title,
+                "summary": r_content["summary"],
+                "risk_level": r.risk_level,
+                "findings": r_content["findings"],
+                "recommendations": r_content["recommendations"]
+            })
+
         sessions.append({
             "session_date": general.created_at.isoformat(),
             "general": {
                 "id": general.id,
-                "summary": general.summary,
+                "summary": general_content["summary"],
                 "risk_level": general.risk_level,
                 "biomarkers_analyzed": general.biomarkers_analyzed,
-                "findings": json.loads(general.findings) if general.findings else [],
-                "recommendations": json.loads(general.recommendations) if general.recommendations else []
+                "findings": general_content["findings"],
+                "recommendations": general_content["recommendations"]
             },
-            "specialists": [{
-                "id": r.id,
-                "report_type": r.report_type,
-                "title": r.title,
-                "summary": r.summary,
-                "risk_level": r.risk_level,
-                "findings": json.loads(r.findings) if r.findings else [],
-                "recommendations": json.loads(r.recommendations) if r.recommendations else []
-            } for r in specialist_reports]
+            "specialists": specialist_items
         })
 
     return {"sessions": sessions, "total": len(sessions)}
@@ -597,16 +744,17 @@ def compare_reports(
         raise HTTPException(status_code=404, detail="One or both reports not found")
 
     def format_report(r):
+        content = get_report_content(r)
         return {
             "id": r.id,
             "report_type": r.report_type,
             "title": r.title,
-            "summary": r.summary,
+            "summary": content["summary"],
             "risk_level": r.risk_level,
             "biomarkers_analyzed": r.biomarkers_analyzed,
             "created_at": r.created_at.isoformat() if r.created_at else None,
-            "findings": json.loads(r.findings) if r.findings else [],
-            "recommendations": json.loads(r.recommendations) if r.recommendations else []
+            "findings": content["findings"],
+            "recommendations": content["recommendations"]
         }
 
     # Determine changes

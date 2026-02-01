@@ -130,23 +130,52 @@
 - GDPR compliant
 - User owns their data
 
-#### CRITICAL: Per-User Encryption Vault (TODO)
-**All sensitive user data must be encrypted with the user's password so that even system administrators cannot access it.**
+#### Encryption Vault (IMPLEMENTED)
+**All sensitive data is encrypted with a master password using AES-256-GCM. Keys are held in memory only - lost on server restart.**
 
-Sensitive data requiring per-user encryption:
+**Encrypted data:**
 - Provider login credentials (Regina Maria, Synevo usernames/passwords)
-- Medical documents (PDFs)
+- Medical documents (PDF files)
 - Biomarker values and test results
-- Health reports
+- Health reports content
+- User profile PII (name, DOB, gender, etc.)
 
-Implementation approach:
-1. Derive an encryption key from user's password using PBKDF2/Argon2
-2. Store a "vault key" encrypted with the derived key
-3. Use vault key to encrypt/decrypt all sensitive data
-4. On login, derive key → decrypt vault key → use for session
-5. Password change requires re-encrypting vault key (not all data)
+**Security model:**
+- Master password required after every server restart
+- PBKDF2 key derivation (600,000 iterations, SHA-256)
+- AES-256-GCM authenticated encryption
+- Unique nonce per encryption operation
+- No keys ever written to disk
 
-**Important:** This is a breaking change that requires data migration. Implement as final security hardening step after all features are stable.
+**Vault Operations:**
+
+```bash
+# Initialize vault (first time only)
+curl -X POST https://analize.online/api/admin/vault/initialize \
+  -H "Content-Type: application/json" \
+  -d '{"master_password": "YOUR-16-CHAR-PASSWORD"}'
+
+# Unlock vault (after every server restart)
+curl -X POST https://analize.online/api/admin/vault/unlock \
+  -H "Content-Type: application/json" \
+  -d '{"master_password": "YOUR-16-CHAR-PASSWORD"}'
+
+# Check vault status
+curl https://analize.online/api/admin/vault/status
+
+# Lock vault (optional - clears keys from memory)
+curl -X POST https://analize.online/api/admin/vault/lock
+```
+
+**When vault is locked:**
+- All encrypted data inaccessible (returns 503 error)
+- Sync jobs skip execution
+- Frontend shows vault unlock prompt
+- Admin panel shows vault status indicator
+
+**Recovery:** There is NO password recovery. If password is forgotten, all encrypted data is permanently lost.
+
+See `VAULT_IMPLEMENTATION.md` for detailed implementation notes.
 
 **Goal:** The system administrator (even with database access) should NOT be able to:
 - Read any user's medical documents

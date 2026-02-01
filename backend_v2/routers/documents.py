@@ -6,18 +6,65 @@ import shutil
 import os
 import datetime
 
+from pathlib import Path
+from io import BytesIO
+
 try:
     from backend_v2.database import get_db
     from backend_v2.models import User, Document, TestResult, HealthReport
     from backend_v2.routers.auth import oauth2_scheme
     from backend_v2.services.ai_parser import AIParser
     from backend_v2.services.biomarker_normalizer import get_canonical_name
+    from backend_v2.services.vault import vault
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
     from routers.auth import oauth2_scheme
     from services.ai_parser import AIParser
     from services.biomarker_normalizer import get_canonical_name
+    from services.vault import vault
+
+
+def get_encrypted_storage_path() -> Path:
+    """Get path to encrypted file storage."""
+    path = Path("data/encrypted")
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def read_document_content(doc: Document) -> bytes:
+    """Read document content, decrypting if necessary."""
+    if doc.is_encrypted and doc.encrypted_path:
+        if not vault.is_unlocked:
+            raise HTTPException(
+                status_code=503,
+                detail="Vault is locked. Please contact administrator to unlock the system."
+            )
+        encrypted_content = Path(doc.encrypted_path).read_bytes()
+        return vault.decrypt_document(encrypted_content)
+    elif doc.file_path and os.path.exists(doc.file_path):
+        return Path(doc.file_path).read_bytes()
+    else:
+        raise HTTPException(status_code=404, detail="File not found")
+
+
+def save_document_encrypted(content: bytes, user_id: int, doc_id: int) -> str:
+    """Save document with vault encryption. Returns encrypted file path."""
+    if not vault.is_unlocked:
+        raise HTTPException(
+            status_code=503,
+            detail="Vault is locked. Cannot save encrypted documents."
+        )
+
+    encrypted_content = vault.encrypt_document(content)
+
+    # Save to encrypted storage
+    user_dir = get_encrypted_storage_path() / str(user_id)
+    user_dir.mkdir(exist_ok=True)
+    encrypted_path = user_dir / f"{doc_id}.enc"
+    encrypted_path.write_bytes(encrypted_content)
+
+    return str(encrypted_path)
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -131,14 +178,21 @@ def download_all_documents(db: Session = Depends(get_db), current_user: User = D
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for doc in docs:
-            if doc.file_path and os.path.exists(doc.file_path):
+            try:
+                # Read content (handles encryption)
+                content = read_document_content(doc)
+
                 # Create a meaningful filename with date
                 date_str = doc.document_date.strftime("%Y-%m-%d") if doc.document_date else "unknown"
                 provider = doc.provider or "Unknown"
                 # Clean filename
                 safe_name = f"{date_str}_{provider}_{doc.filename}"
                 safe_name = "".join(c for c in safe_name if c.isalnum() or c in "._- ")
-                zip_file.write(doc.file_path, safe_name)
+
+                zip_file.writestr(safe_name, content)
+            except Exception as e:
+                # Skip files that can't be read
+                continue
 
     zip_buffer.seek(0)
 
@@ -152,6 +206,8 @@ def download_all_documents(db: Session = Depends(get_db), current_user: User = D
 @router.get("/{doc_id}/download")
 def download_document(doc_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Download/view a document PDF."""
+    from fastapi.responses import StreamingResponse
+
     doc = db.query(Document).filter(
         Document.id == doc_id,
         Document.user_id == current_user.id
@@ -160,28 +216,33 @@ def download_document(doc_id: int, db: Session = Depends(get_db), current_user: 
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
+    # Handle encrypted documents
+    if doc.is_encrypted and doc.encrypted_path:
+        content = read_document_content(doc)
+        return StreamingResponse(
+            BytesIO(content),
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={doc.filename}"}
+        )
+
+    # Handle legacy unencrypted documents
     if not doc.file_path or not os.path.exists(doc.file_path):
         raise HTTPException(status_code=404, detail="File not found on disk")
 
     # Security: Validate file path belongs to user's directory
-    # Use proper path normalization to prevent directory traversal attacks
     real_path = os.path.normpath(os.path.realpath(doc.file_path))
     user_data_dir = os.path.normpath(os.path.realpath(f"data/raw/{current_user.id}"))
 
-    # Check 1: Path must start with user's data directory (handles symlinks and case)
-    # Check 2: Use commonpath to verify proper containment
     try:
         common = os.path.commonpath([real_path, user_data_dir])
         is_inside_user_dir = (common == user_data_dir)
     except ValueError:
-        # commonpath raises ValueError if paths are on different drives (Windows)
         is_inside_user_dir = False
 
-    # Legacy path check: file_path must contain user ID in a directory component
-    # e.g., /opt/healthy/data/raw/1/filename.pdf or C:\data\raw\1\filename.pdf
+    # Legacy path check
     user_id_str = str(current_user.id)
     path_parts = real_path.replace('\\', '/').split('/')
-    is_legacy_path = user_id_str in path_parts  # User ID as directory name
+    is_legacy_path = user_id_str in path_parts
 
     if not (is_inside_user_dir or is_legacy_path):
         import logging
@@ -208,6 +269,37 @@ def get_document_biomarkers(doc_id: int, db: Session = Depends(get_db), current_
 
     results = db.query(TestResult).filter(TestResult.document_id == doc_id).all()
 
+    biomarkers = []
+    for r in results:
+        # Get values, preferring vault-encrypted
+        value = None
+        numeric_value = None
+
+        if vault.is_unlocked:
+            try:
+                if r.value_enc:
+                    value = vault.decrypt_data(r.value_enc)
+                if r.numeric_value_enc:
+                    numeric_value = vault.decrypt_number(r.numeric_value_enc)
+            except Exception:
+                pass
+
+        # Fall back to legacy
+        if value is None:
+            value = r.value
+        if numeric_value is None:
+            numeric_value = r.numeric_value
+
+        biomarkers.append({
+            "id": r.id,
+            "name": r.test_name,
+            "value": numeric_value if numeric_value is not None else value,
+            "unit": r.unit,
+            "range": r.reference_range,
+            "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high"),
+            "flags": r.flags
+        })
+
     return {
         "document": {
             "id": doc.id,
@@ -215,15 +307,7 @@ def get_document_biomarkers(doc_id: int, db: Session = Depends(get_db), current_
             "date": doc.document_date.strftime("%Y-%m-%d") if doc.document_date else None,
             "provider": doc.provider
         },
-        "biomarkers": [{
-            "id": r.id,
-            "name": r.test_name,
-            "value": r.numeric_value if r.numeric_value is not None else r.value,
-            "unit": r.unit,
-            "range": r.reference_range,
-            "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high"),
-            "flags": r.flags
-        } for r in results]
+        "biomarkers": biomarkers
     }
 
 # Maximum file upload size: 20MB
@@ -254,20 +338,14 @@ def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db),
     if file_size == 0:
         raise HTTPException(status_code=400, detail="Empty file not allowed")
 
-    # Save file
+    # Read file content
     safe_filename = file.filename
-    upload_dir = f"data/uploads/{current_user.id}"
-    os.makedirs(upload_dir, exist_ok=True)
-    file_path = os.path.join(upload_dir, safe_filename)
+    content = file.file.read()
 
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        
-    # Create DB Entry
+    # Create DB Entry first to get ID
     doc = Document(
         user_id=current_user.id,
         filename=safe_filename,
-        file_path=file_path,
         provider="Upload",
         upload_date=datetime.datetime.now(),
         is_processed=False
@@ -275,10 +353,28 @@ def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db),
     db.add(doc)
     db.commit()
     db.refresh(doc)
-    
-    # Trigger Async Processing (Synchronous for now)
+
+    # Save file - encrypted if vault is unlocked, otherwise plaintext
+    if vault.is_unlocked:
+        encrypted_path = save_document_encrypted(content, current_user.id, doc.id)
+        doc.encrypted_path = encrypted_path
+        doc.is_encrypted = True
+    else:
+        # Fall back to unencrypted storage
+        upload_dir = f"data/uploads/{current_user.id}"
+        os.makedirs(upload_dir, exist_ok=True)
+        file_path = os.path.join(upload_dir, safe_filename)
+        with open(file_path, "wb") as buffer:
+            buffer.write(content)
+        doc.file_path = file_path
+        doc.is_encrypted = False
+
+    db.commit()
+    db.refresh(doc)
+
+    # Trigger Processing
     process_document(doc.id, db)
-    
+
     return doc
 
 def process_document(doc_id: int, db: Session):
@@ -304,16 +400,28 @@ def process_document(doc_id: int, db: Session):
     if "results" in result:
         for r in result["results"]:
              test_name = r.get("test_name")
+             value_str = str(r.get("value"))
+             numeric_val = _safe_float(r.get("value"))
+
              tr = TestResult(
                  document_id=doc.id,
                  test_name=test_name,
                  canonical_name=get_canonical_name(test_name) if test_name else None,
-                 value=str(r.get("value")),
                  unit=r.get("unit"),
                  reference_range=r.get("reference_range"),
                  flags=r.get("flags", "NORMAL"),
-                 numeric_value= _safe_float(r.get("value"))
              )
+
+             # Encrypt values if vault is unlocked
+             if vault.is_unlocked:
+                 tr.value_enc = vault.encrypt_data(value_str)
+                 if numeric_val is not None:
+                     tr.numeric_value_enc = vault.encrypt_number(numeric_val)
+             else:
+                 # Fall back to unencrypted storage
+                 tr.value = value_str
+                 tr.numeric_value = numeric_val
+
              db.add(tr)
         
         doc.is_processed = True

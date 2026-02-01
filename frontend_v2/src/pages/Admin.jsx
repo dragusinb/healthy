@@ -6,7 +6,8 @@ import {
     RefreshCw, AlertTriangle, CheckCircle, Loader2,
     Trash2, RotateCcw, Play, Brain, Power,
     Clock, XCircle, UserSearch, Calendar,
-    Zap, X, KeyRound, Wifi, Timer, Bug, Download, User
+    Zap, X, KeyRound, Wifi, Timer, Bug, Download, User,
+    Lock, Unlock, ShieldCheck, ShieldOff
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -298,6 +299,7 @@ const Admin = () => {
     const [selectedJob, setSelectedJob] = useState(null); // For error modal
     const [syncHistory, setSyncHistory] = useState(null);
     const [schedulerStatus, setSchedulerStatus] = useState(null);
+    const [vaultStatus, setVaultStatus] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -307,13 +309,14 @@ const Admin = () => {
         setLoading(true);
         setError(null);
         try {
-            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes] = await Promise.all([
+            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes, vaultRes] = await Promise.all([
                 api.get('/admin/stats'),
                 api.get('/admin/server'),
                 api.get('/admin/users'),
                 api.get('/admin/sync-jobs?limit=20'),
                 api.get('/admin/sync-history?days=14'),
-                api.get('/admin/scheduler-status')
+                api.get('/admin/scheduler-status'),
+                api.get('/admin/vault/status')
             ]);
             setStats(statsRes.data);
             setServerStats(serverRes.data);
@@ -321,6 +324,7 @@ const Admin = () => {
             setSyncJobs(jobsRes.data);
             setSyncHistory(historyRes.data);
             setSchedulerStatus(schedulerRes.data);
+            setVaultStatus(vaultRes.data);
         } catch (e) {
             console.error("Failed to fetch admin data", e);
             if (e.response?.status === 403) {
@@ -393,6 +397,22 @@ const Admin = () => {
             fetchData();
         } catch (e) {
             alert(e.response?.data?.detail || "Profile scan failed");
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleLockVault = async () => {
+        if (!confirm(t('vault.lockConfirm') || 'Are you sure you want to lock the vault? All encrypted data will become inaccessible until the vault is unlocked again.')) {
+            return;
+        }
+        setActionLoading('lockvault');
+        try {
+            await api.post('/admin/vault/lock');
+            alert(t('vault.lockedSuccess') || 'Vault locked successfully');
+            fetchData();
+        } catch (e) {
+            alert(e.response?.data?.detail || "Failed to lock vault");
         } finally {
             setActionLoading(null);
         }
@@ -519,6 +539,77 @@ const Admin = () => {
                         value={stats.health_reports.total}
                         color="teal"
                     />
+                </div>
+            )}
+
+            {/* Vault Status */}
+            {vaultStatus && (
+                <div className={cn(
+                    "card p-6 border-2",
+                    vaultStatus.is_unlocked
+                        ? "border-teal-200 bg-gradient-to-r from-teal-50 to-emerald-50"
+                        : "border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50"
+                )}>
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className={cn(
+                                "p-3 rounded-xl",
+                                vaultStatus.is_unlocked
+                                    ? "bg-teal-500 text-white"
+                                    : "bg-amber-500 text-white"
+                            )}>
+                                {vaultStatus.is_unlocked ? <ShieldCheck size={28} /> : <ShieldOff size={28} />}
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                    {t('vault.title') || 'Encryption Vault'}
+                                    <span className={cn(
+                                        "text-xs px-2 py-0.5 rounded-full",
+                                        vaultStatus.is_unlocked
+                                            ? "bg-teal-100 text-teal-700"
+                                            : "bg-amber-100 text-amber-700"
+                                    )}>
+                                        {vaultStatus.is_unlocked
+                                            ? t('vault.unlocked') || 'Unlocked'
+                                            : t('vault.locked') || 'Locked'}
+                                    </span>
+                                </h2>
+                                <p className="text-sm text-slate-500">
+                                    {vaultStatus.is_unlocked
+                                        ? t('vault.unlockedDescription') || 'Encrypted data is accessible'
+                                        : t('vault.lockedDescription') || 'Encrypted data is inaccessible'}
+                                </p>
+                                {!vaultStatus.is_configured && (
+                                    <p className="text-sm text-amber-600 font-medium mt-1">
+                                        {t('vault.notConfigured') || 'Vault not initialized - visit /vault-unlock to set up'}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        {vaultStatus.is_unlocked && vaultStatus.is_configured && (
+                            <button
+                                onClick={handleLockVault}
+                                disabled={actionLoading === 'lockvault'}
+                                className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white hover:bg-amber-600 rounded-lg transition-colors disabled:opacity-50 font-medium"
+                            >
+                                {actionLoading === 'lockvault' ? (
+                                    <Loader2 size={18} className="animate-spin" />
+                                ) : (
+                                    <Lock size={18} />
+                                )}
+                                {t('vault.lockButton') || 'Lock Vault'}
+                            </button>
+                        )}
+                        {!vaultStatus.is_unlocked && vaultStatus.is_configured && (
+                            <a
+                                href="/vault-unlock"
+                                className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white hover:bg-teal-600 rounded-lg transition-colors font-medium"
+                            >
+                                <Unlock size={18} />
+                                {t('vault.unlockButton') || 'Unlock Vault'}
+                            </a>
+                        )}
+                    </div>
                 </div>
             )}
 

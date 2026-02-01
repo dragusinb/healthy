@@ -10,6 +10,7 @@ try:
     from backend_v2.services.biomarker_normalizer import (
         normalize_biomarker_name, get_canonical_name, group_biomarkers
     )
+    from backend_v2.services.vault import vault
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult
@@ -17,6 +18,33 @@ except ImportError:
     from services.biomarker_normalizer import (
         normalize_biomarker_name, get_canonical_name, group_biomarkers
     )
+    from services.vault import vault
+
+
+def get_biomarker_value(result: TestResult) -> tuple:
+    """
+    Get biomarker value and numeric_value, preferring vault-encrypted if available.
+    Returns (value, numeric_value)
+    """
+    value = None
+    numeric_value = None
+
+    if vault.is_unlocked:
+        try:
+            if result.value_enc:
+                value = vault.decrypt_data(result.value_enc)
+            if result.numeric_value_enc:
+                numeric_value = vault.decrypt_number(result.numeric_value_enc)
+        except Exception:
+            pass  # Fall back to legacy
+
+    # Fall back to legacy unencrypted fields
+    if value is None:
+        value = result.value
+    if numeric_value is None:
+        numeric_value = result.numeric_value
+
+    return value, numeric_value
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -71,9 +99,10 @@ def get_evolution(biomarker_name: str, db: Session = Depends(get_db), current_us
 
         if is_match:
             date_label = r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown Date"
+            value, numeric_value = get_biomarker_value(r)
             data_points.append({
                 "date": date_label,
-                "value": r.numeric_value,
+                "value": numeric_value,
                 "unit": r.unit,
                 "ref_range": r.reference_range,
                 "flags": r.flags,
@@ -100,11 +129,12 @@ def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depen
             canonical_name = r.canonical_name
         else:
             canonical_name, _ = normalize_biomarker_name(r.test_name)
+        value, numeric_value = get_biomarker_value(r)
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,
             "normalized_name": canonical_name,
-            "value": r.numeric_value if r.numeric_value is not None else r.value,
+            "value": numeric_value if numeric_value is not None else value,
             "unit": r.unit,
             "range": r.reference_range,
             "date": r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown",
@@ -142,11 +172,12 @@ def get_grouped_biomarkers(
             canonical_name = r.canonical_name
         else:
             canonical_name, _ = normalize_biomarker_name(r.test_name)
+        value, numeric_value = get_biomarker_value(r)
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,
             "normalized_name": canonical_name,
-            "value": r.numeric_value if r.numeric_value is not None else r.value,
+            "value": numeric_value if numeric_value is not None else value,
             "unit": r.unit,
             "range": r.reference_range,
             "date": r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown",
@@ -204,10 +235,12 @@ def get_recent_biomarkers(db: Session = Depends(get_db), current_user: User = De
         canonical_name = get_canonical_name(r.test_name)
         if canonical_name not in seen_normalized and len(recent) < limit:
             seen_normalized.add(canonical_name)
+            value, numeric_value = get_biomarker_value(r)
+            display_value = numeric_value if numeric_value else value
             recent.append({
                 "name": canonical_name,
                 "original_name": r.test_name,
-                "lastValue": f"{r.numeric_value if r.numeric_value else r.value} {r.unit or ''}".strip(),
+                "lastValue": f"{display_value} {r.unit or ''}".strip(),
                 "status": "normal" if r.flags == "NORMAL" else ("low" if r.flags == "LOW" else "high"),
                 "date": r.document.document_date.strftime("%b %d") if r.document.document_date else "Unknown"
             })

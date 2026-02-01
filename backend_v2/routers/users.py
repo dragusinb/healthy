@@ -25,12 +25,37 @@ try:
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services import sync_status
     from backend_v2.auth.crypto import encrypt_password, decrypt_password
+    from backend_v2.services.vault import vault, VaultLockedError
 except ImportError:
     from database import get_db
     from models import User, LinkedAccount
     from routers.documents import get_current_user
     from services import sync_status
     from auth.crypto import encrypt_password, decrypt_password
+    from services.vault import vault, VaultLockedError
+
+
+def get_account_username(account: LinkedAccount) -> str:
+    """Get username from account, preferring vault-encrypted if available."""
+    if account.username_enc and vault.is_unlocked:
+        try:
+            return vault.decrypt_credential(account.username_enc)
+        except Exception:
+            pass
+    return account.username
+
+
+def get_account_password(account: LinkedAccount) -> str:
+    """Get decrypted password from account, preferring vault-encrypted if available."""
+    if account.password_enc and vault.is_unlocked:
+        try:
+            return vault.decrypt_credential(account.password_enc)
+        except Exception:
+            pass
+    # Fall back to legacy Fernet encryption
+    if account.encrypted_password:
+        return decrypt_password(account.encrypted_password)
+    return None
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -60,10 +85,13 @@ def read_users_me(current_user: User = Depends(get_current_user)):
     # Include linked account errors for popup notification
     linked_accounts_data = []
     for acc in current_user.linked_accounts:
+        # Get username from vault if available
+        username = get_account_username(acc) if vault.is_unlocked else "[encrypted]"
+
         acc_data = {
             "id": acc.id,
             "provider_name": acc.provider_name,
-            "username": acc.username,
+            "username": username,
             "status": acc.status,
             "last_sync": acc.last_sync.isoformat() if acc.last_sync else None,
             "last_sync_error": acc.last_sync_error,
@@ -79,24 +107,89 @@ def read_users_me(current_user: User = Depends(get_current_user)):
         "is_admin": current_user.is_admin,
         "language": current_user.language,
         "linked_accounts": linked_accounts_data,
-        "profile": get_profile_data(current_user)
+        "profile": get_profile_data(current_user),
+        "vault_unlocked": vault.is_unlocked
     }
 
 
 def get_profile_data(user: User) -> dict:
-    """Extract profile data from user model."""
+    """Extract profile data from user model, preferring vault-encrypted fields."""
+    # Try vault-encrypted fields first
+    full_name = None
+    date_of_birth = None
+    gender = None
+    blood_type = None
+    height_cm = None
+    weight_kg = None
+    allergies = []
+    chronic_conditions = []
+    current_medications = []
+
+    if vault.is_unlocked:
+        try:
+            if user.full_name_enc:
+                full_name = vault.decrypt_data(user.full_name_enc)
+            if user.date_of_birth_enc:
+                date_of_birth = vault.decrypt_data(user.date_of_birth_enc)
+            if user.gender_enc:
+                gender = vault.decrypt_data(user.gender_enc)
+            if user.blood_type_enc:
+                blood_type = vault.decrypt_data(user.blood_type_enc)
+            if user.profile_data_enc:
+                profile_data = vault.decrypt_json(user.profile_data_enc)
+                height_cm = profile_data.get("height_cm")
+                weight_kg = profile_data.get("weight_kg")
+            if user.health_context_enc:
+                health_context = vault.decrypt_json(user.health_context_enc)
+                allergies = json.loads(health_context.get("allergies", "[]")) if isinstance(health_context.get("allergies"), str) else health_context.get("allergies", [])
+                chronic_conditions = json.loads(health_context.get("chronic_conditions", "[]")) if isinstance(health_context.get("chronic_conditions"), str) else health_context.get("chronic_conditions", [])
+                current_medications = json.loads(health_context.get("current_medications", "[]")) if isinstance(health_context.get("current_medications"), str) else health_context.get("current_medications", [])
+        except Exception:
+            pass  # Fall back to legacy fields
+
+    # Fall back to legacy unencrypted fields
+    if full_name is None:
+        full_name = user.full_name
+    if date_of_birth is None and user.date_of_birth:
+        date_of_birth = user.date_of_birth.strftime("%Y-%m-%d")
+    if gender is None:
+        gender = user.gender
+    if blood_type is None:
+        blood_type = user.blood_type
+    if height_cm is None:
+        height_cm = user.height_cm
+    if weight_kg is None:
+        weight_kg = user.weight_kg
+    if not allergies:
+        allergies = json.loads(user.allergies) if user.allergies else []
+    if not chronic_conditions:
+        chronic_conditions = json.loads(user.chronic_conditions) if user.chronic_conditions else []
+    if not current_medications:
+        current_medications = json.loads(user.current_medications) if user.current_medications else []
+
+    # Parse date_of_birth for age calculation
+    dob_datetime = None
+    if isinstance(date_of_birth, str):
+        try:
+            dob_datetime = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d")
+        except (ValueError, TypeError):
+            pass
+    elif isinstance(date_of_birth, datetime.datetime):
+        dob_datetime = date_of_birth
+        date_of_birth = date_of_birth.strftime("%Y-%m-%d")
+
     return {
-        "full_name": user.full_name,
-        "date_of_birth": user.date_of_birth.strftime("%Y-%m-%d") if user.date_of_birth else None,
-        "age": calculate_age(user.date_of_birth) if user.date_of_birth else None,
-        "gender": user.gender,
-        "height_cm": user.height_cm,
-        "weight_kg": user.weight_kg,
-        "bmi": calculate_bmi(user.height_cm, user.weight_kg) if user.height_cm and user.weight_kg else None,
-        "blood_type": user.blood_type,
-        "allergies": json.loads(user.allergies) if user.allergies else [],
-        "chronic_conditions": json.loads(user.chronic_conditions) if user.chronic_conditions else [],
-        "current_medications": json.loads(user.current_medications) if user.current_medications else [],
+        "full_name": full_name,
+        "date_of_birth": date_of_birth,
+        "age": calculate_age(dob_datetime) if dob_datetime else None,
+        "gender": gender,
+        "height_cm": height_cm,
+        "weight_kg": weight_kg,
+        "bmi": calculate_bmi(height_cm, weight_kg) if height_cm and weight_kg else None,
+        "blood_type": blood_type,
+        "allergies": allergies,
+        "chronic_conditions": chronic_conditions,
+        "current_medications": current_medications,
         "smoking_status": user.smoking_status,
         "alcohol_consumption": user.alcohol_consumption,
         "physical_activity": user.physical_activity
@@ -130,48 +223,112 @@ def update_profile(
     current_user: User = Depends(get_current_user)
 ):
     """Update user's profile data."""
+    # Check vault status for encrypted storage
+    use_vault = vault.is_unlocked
+
     if profile.full_name is not None:
-        current_user.full_name = profile.full_name
+        if use_vault:
+            current_user.full_name_enc = vault.encrypt_data(profile.full_name) if profile.full_name else None
+            current_user.full_name = None  # Clear legacy
+        else:
+            current_user.full_name = profile.full_name
 
     if profile.date_of_birth is not None:
         if profile.date_of_birth == "" or profile.date_of_birth is None:
+            if use_vault:
+                current_user.date_of_birth_enc = None
             current_user.date_of_birth = None
         else:
             try:
-                current_user.date_of_birth = datetime.datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
+                dob = datetime.datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
+                if use_vault:
+                    current_user.date_of_birth_enc = vault.encrypt_data(profile.date_of_birth)
+                    current_user.date_of_birth = None  # Clear legacy
+                else:
+                    current_user.date_of_birth = dob
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
     if profile.gender is not None:
         if profile.gender not in ["male", "female", "other", ""]:
             raise HTTPException(status_code=400, detail="Invalid gender value")
-        current_user.gender = profile.gender if profile.gender else None
-
-    if profile.height_cm is not None:
-        if profile.height_cm < 0 or profile.height_cm > 300:
-            raise HTTPException(status_code=400, detail="Height must be between 0 and 300 cm")
-        current_user.height_cm = profile.height_cm if profile.height_cm > 0 else None
-
-    if profile.weight_kg is not None:
-        if profile.weight_kg < 0 or profile.weight_kg > 500:
-            raise HTTPException(status_code=400, detail="Weight must be between 0 and 500 kg")
-        current_user.weight_kg = profile.weight_kg if profile.weight_kg > 0 else None
+        gender_val = profile.gender if profile.gender else None
+        if use_vault:
+            current_user.gender_enc = vault.encrypt_data(gender_val) if gender_val else None
+            current_user.gender = None  # Clear legacy
+        else:
+            current_user.gender = gender_val
 
     if profile.blood_type is not None:
         valid_blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", ""]
         if profile.blood_type not in valid_blood_types:
             raise HTTPException(status_code=400, detail="Invalid blood type")
-        current_user.blood_type = profile.blood_type if profile.blood_type else None
+        blood_type_val = profile.blood_type if profile.blood_type else None
+        if use_vault:
+            current_user.blood_type_enc = vault.encrypt_data(blood_type_val) if blood_type_val else None
+            current_user.blood_type = None  # Clear legacy
+        else:
+            current_user.blood_type = blood_type_val
 
-    if profile.allergies is not None:
-        current_user.allergies = json.dumps(profile.allergies)
+    # Handle height/weight - store in profile_data_enc if vault is unlocked
+    if profile.height_cm is not None or profile.weight_kg is not None:
+        if profile.height_cm is not None:
+            if profile.height_cm < 0 or profile.height_cm > 300:
+                raise HTTPException(status_code=400, detail="Height must be between 0 and 300 cm")
+        if profile.weight_kg is not None:
+            if profile.weight_kg < 0 or profile.weight_kg > 500:
+                raise HTTPException(status_code=400, detail="Weight must be between 0 and 500 kg")
 
-    if profile.chronic_conditions is not None:
-        current_user.chronic_conditions = json.dumps(profile.chronic_conditions)
+        if use_vault:
+            # Get existing profile data or create new
+            profile_data = {}
+            if current_user.profile_data_enc:
+                try:
+                    profile_data = vault.decrypt_json(current_user.profile_data_enc)
+                except Exception:
+                    pass
+            if profile.height_cm is not None:
+                profile_data["height_cm"] = profile.height_cm if profile.height_cm > 0 else None
+            if profile.weight_kg is not None:
+                profile_data["weight_kg"] = profile.weight_kg if profile.weight_kg > 0 else None
+            current_user.profile_data_enc = vault.encrypt_json(profile_data)
+            current_user.height_cm = None  # Clear legacy
+            current_user.weight_kg = None
+        else:
+            if profile.height_cm is not None:
+                current_user.height_cm = profile.height_cm if profile.height_cm > 0 else None
+            if profile.weight_kg is not None:
+                current_user.weight_kg = profile.weight_kg if profile.weight_kg > 0 else None
 
-    if profile.current_medications is not None:
-        current_user.current_medications = json.dumps(profile.current_medications)
+    # Handle health context (allergies, conditions, medications)
+    if profile.allergies is not None or profile.chronic_conditions is not None or profile.current_medications is not None:
+        if use_vault:
+            health_context = {}
+            if current_user.health_context_enc:
+                try:
+                    health_context = vault.decrypt_json(current_user.health_context_enc)
+                except Exception:
+                    pass
+            if profile.allergies is not None:
+                health_context["allergies"] = json.dumps(profile.allergies)
+            if profile.chronic_conditions is not None:
+                health_context["chronic_conditions"] = json.dumps(profile.chronic_conditions)
+            if profile.current_medications is not None:
+                health_context["current_medications"] = json.dumps(profile.current_medications)
+            current_user.health_context_enc = vault.encrypt_json(health_context)
+            # Clear legacy
+            current_user.allergies = None
+            current_user.chronic_conditions = None
+            current_user.current_medications = None
+        else:
+            if profile.allergies is not None:
+                current_user.allergies = json.dumps(profile.allergies)
+            if profile.chronic_conditions is not None:
+                current_user.chronic_conditions = json.dumps(profile.chronic_conditions)
+            if profile.current_medications is not None:
+                current_user.current_medications = json.dumps(profile.current_medications)
 
+    # Non-sensitive lifestyle fields (not encrypted)
     if profile.smoking_status is not None:
         valid_smoking = ["never", "former", "current", ""]
         if profile.smoking_status not in valid_smoking:
@@ -408,8 +565,16 @@ def link_account(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Encrypt the password before storing
-    encrypted_pwd = encrypt_password(account.password)
+    # Check vault status
+    if not vault.is_unlocked:
+        raise HTTPException(
+            status_code=503,
+            detail="Vault is locked. Please contact administrator to unlock the system."
+        )
+
+    # Encrypt credentials with vault
+    username_enc = vault.encrypt_credential(account.username)
+    password_enc = vault.encrypt_credential(account.password)
 
     # Check if exists
     existing = db.query(LinkedAccount).filter(
@@ -419,8 +584,12 @@ def link_account(
 
     if existing:
         was_in_error = existing.status == 'ERROR'
-        existing.username = account.username
-        existing.encrypted_password = encrypted_pwd
+        # Store vault-encrypted credentials
+        existing.username_enc = username_enc
+        existing.password_enc = password_enc
+        # Clear legacy fields
+        existing.username = None
+        existing.encrypted_password = None
         # Reset error state when credentials are updated
         existing.status = 'ACTIVE'
         existing.error_type = None
@@ -435,8 +604,7 @@ def link_account(
                 run_sync_task,
                 current_user.id,
                 account.provider_name,
-                account.username,
-                encrypted_pwd
+                existing.id
             )
             return {"message": "Account updated", "sync_triggered": True}
 
@@ -445,8 +613,8 @@ def link_account(
     new_link = LinkedAccount(
         user_id=current_user.id,
         provider_name=account.provider_name,
-        username=account.username,
-        encrypted_password=encrypted_pwd
+        username_enc=username_enc,
+        password_enc=password_enc
     )
     db.add(new_link)
     db.commit()
@@ -468,6 +636,13 @@ async def sync_provider(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Check vault status
+    if not vault.is_unlocked:
+        raise HTTPException(
+            status_code=503,
+            detail="Vault is locked. Please contact administrator to unlock the system."
+        )
+
     link = db.query(LinkedAccount).filter(
         LinkedAccount.user_id == current_user.id,
         LinkedAccount.provider_name == provider_name
@@ -488,28 +663,51 @@ async def sync_provider(
         run_sync_task,
         current_user.id,
         provider_name,
-        link.username,
-        link.encrypted_password
+        link.id
     )
 
     return {"status": "started", "message": "Sync started. Check /sync-status for progress."}
 
 
-def run_sync_task(user_id: int, provider_name: str, username: str, encrypted_password: str):
+def run_sync_task(user_id: int, provider_name: str, account_id: int):
     """Background task to run sync with status updates."""
     import asyncio
     try:
         from backend_v2.database import SessionLocal
         from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
+        from backend_v2.services.vault import vault, VaultLockedError
     except ImportError:
         from database import SessionLocal
         from services.crawlers_manager import run_regina_async, run_synevo_async
+        from services.vault import vault, VaultLockedError
 
-    # Decrypt password for use
-    password = decrypt_password(encrypted_password)
+    # Check vault is unlocked
+    if not vault.is_unlocked:
+        sync_status.status_error(user_id, provider_name, "Vault is locked")
+        return
 
     # Create new db session for background task
     db = SessionLocal()
+
+    # Get account and decrypt credentials
+    try:
+        account = db.query(LinkedAccount).filter(LinkedAccount.id == account_id).first()
+        if not account:
+            sync_status.status_error(user_id, provider_name, "Account not found")
+            db.close()
+            return
+
+        username = get_account_username(account)
+        password = get_account_password(account)
+
+        if not username or not password:
+            sync_status.status_error(user_id, provider_name, "Could not decrypt credentials")
+            db.close()
+            return
+    except VaultLockedError:
+        sync_status.status_error(user_id, provider_name, "Vault locked during sync")
+        db.close()
+        return
 
     try:
         sync_status.status_logging_in(user_id, provider_name)

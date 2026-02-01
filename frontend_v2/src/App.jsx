@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VaultUnlock from './pages/VaultUnlock';
 import Dashboard from './pages/Dashboard';
 import Documents from './pages/Documents';
 import Biomarkers from './pages/Biomarkers';
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/vault-unlock" element={<VaultUnlock />} />
           <Route path="/" element={
             <PrivateRoute>
               <Layout>
