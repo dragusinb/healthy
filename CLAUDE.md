@@ -261,7 +261,7 @@ Healthy/
 - [x] Sort biomarkers by issues first or most recent
 - [x] PDF view icons to see source documents
 
-### Phase 2 - NEARLY COMPLETE (95%)
+### Phase 2 - NEARLY COMPLETE (98%)
 - [x] User registration and authentication (email/password)
 - [x] Google OAuth authentication
 - [x] Secure credential storage (Fernet encryption)
@@ -271,7 +271,8 @@ Healthy/
 - [x] Health Reports page in frontend with detailed progress UI
 - [x] Document deletion with cascade delete of biomarkers
 - [x] Edit linked account credentials
-- [ ] Email verification for registration (blocked - needs domain/AWS SES)
+- [x] Full localization (Romanian/English) for all pages
+- [ ] Email verification for registration (AWS SES configured, implementation pending)
 - [ ] Report history and comparison
 
 ### Phase 4 - PARTIAL (Production Deployment)
@@ -304,7 +305,9 @@ Healthy/
 1. ~~Get domain name~~ DONE: analize.online
 2. ~~Set up SSL/HTTPS with Let's Encrypt~~ DONE
 3. ~~Configure AWS SES credentials~~ DONE (in .env)
-4. Implement email verification for registration
-5. Implement report comparison feature
+4. ~~Complete localization~~ DONE (all pages translated)
+5. Implement email verification for registration
+6. Implement report comparison feature
+7. Implement per-user encryption (see `PER_USER_ENCRYPTION_PLAN.md`)
 
 See **BACKLOG.md** for full list of planned features and technical debt.

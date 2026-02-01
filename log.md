@@ -1,5 +1,48 @@
 # Healthy Project - Development Log
 
+## Session: 2026-02-01
+
+### Localization Completed
+All frontend pages are now fully translated with dynamic locale support.
+
+**Files Updated:**
+- `frontend_v2/src/pages/Admin.jsx` - 40+ hardcoded English strings translated
+- `frontend_v2/src/pages/Evolution.jsx` - Dynamic locale for date formatting, translated "Ref:" label
+- `frontend_v2/src/pages/HealthReports.jsx` - Analysis steps and UI text translated
+- `frontend_v2/src/locales/ro.json` - Added admin, evolution, and healthReports translation keys
+- `frontend_v2/src/locales/en.json` - Matching English translations
+
+**Key Changes:**
+- Date formatting now uses user's language setting (ro-RO or en-US)
+- All UI text uses `t()` translation function from i18next
+- Child components receive `t` prop when needed
+
+### Per-User Encryption Plan Created
+Created `PER_USER_ENCRYPTION_PLAN.md` with comprehensive implementation guide:
+- Two-level key hierarchy (Password → PDK → Vault Key → Data)
+- AES-256-GCM encryption with PBKDF2 key derivation
+- Database schema changes for encrypted columns
+- Session management with Redis for vault keys
+- Gradual migration strategy (encrypt on login)
+- Document file encryption
+- 6-week implementation timeline
+
+### Domain Ready
+Domain `analize.online` is available. Next steps:
+1. Configure DNS A record → 62.171.163.23
+2. Set up Nginx server block for domain
+3. Install SSL with Let's Encrypt (certbot)
+
+### Commits
+- `0e1b322` - Complete localization for Admin and Evolution pages, add encryption plan
+- `ba289a6` - Add Romanian translations to HealthReports and fix hardcoded text
+- `7529628` - Fix syntax error in health_agents.py
+- `8af285f` - Fix placeholder text in gap analysis and hardcoded specialists
+- `85b0241` - Include qualitative test results in AI parser
+- `43687c6` - Fix document import to use file_hash for deduplication
+
+---
+
 ## Session: 2026-01-20
 
 ### Project Overview
