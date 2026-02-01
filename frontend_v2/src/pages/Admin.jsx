@@ -25,7 +25,7 @@ const ERROR_ICONS = {
 };
 
 // Error Modal Component
-const ErrorModal = ({ job, onClose }) => {
+const ErrorModal = ({ job, onClose, t }) => {
     if (!job) return null;
 
     const Icon = ERROR_ICONS[job.error_category] || XCircle;
@@ -40,7 +40,7 @@ const ErrorModal = ({ job, onClose }) => {
                                 <Icon size={20} />
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold text-slate-800">Sync Error Details</h2>
+                                <h2 className="text-lg font-bold text-slate-800">{t('admin.syncErrorDetails')}</h2>
                                 <p className="text-sm text-slate-500">{job.provider_name} - {job.user_email}</p>
                             </div>
                         </div>
@@ -52,33 +52,33 @@ const ErrorModal = ({ job, onClose }) => {
                 <div className="p-6 space-y-4 overflow-y-auto max-h-[60vh]">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="bg-slate-50 p-3 rounded-lg">
-                            <span className="text-slate-500">Status</span>
+                            <span className="text-slate-500">{t('admin.status')}</span>
                             <p className="font-medium text-slate-800">{job.status}</p>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-lg">
-                            <span className="text-slate-500">Time</span>
+                            <span className="text-slate-500">{t('admin.time')}</span>
                             <p className="font-medium text-slate-800">{job.created_at ? new Date(job.created_at).toLocaleString() : '-'}</p>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-lg">
-                            <span className="text-slate-500">Docs Found</span>
+                            <span className="text-slate-500">{t('admin.docsFound')}</span>
                             <p className="font-medium text-slate-800">{job.documents_found}</p>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-lg">
-                            <span className="text-slate-500">Docs Processed</span>
+                            <span className="text-slate-500">{t('admin.docsProcessed')}</span>
                             <p className="font-medium text-slate-800">{job.documents_processed}</p>
                         </div>
                     </div>
 
                     {job.error_summary && (
                         <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                            <h4 className="font-semibold text-amber-800 mb-1">Error Summary</h4>
+                            <h4 className="font-semibold text-amber-800 mb-1">{t('admin.errorSummary')}</h4>
                             <p className="text-amber-700">{job.error_summary}</p>
                         </div>
                     )}
 
                     {job.error_message && (
                         <div className="bg-rose-50 border border-rose-200 p-4 rounded-lg">
-                            <h4 className="font-semibold text-rose-800 mb-2">Full Error Message</h4>
+                            <h4 className="font-semibold text-rose-800 mb-2">{t('admin.fullErrorMessage')}</h4>
                             <pre className="text-xs text-rose-700 whitespace-pre-wrap font-mono bg-rose-100 p-3 rounded overflow-x-auto">
                                 {job.error_message}
                             </pre>
@@ -102,7 +102,7 @@ const CountdownTimer = ({ targetTime }) => {
             const diff = target - now;
 
             if (diff <= 0) {
-                setTimeLeft('Running now...');
+                setTimeLeft(t ? t('admin.runningNow') : 'Running now...');
                 return;
             }
 
@@ -128,7 +128,7 @@ const CountdownTimer = ({ targetTime }) => {
 };
 
 // Schedule Visual Component
-const ScheduleVisual = ({ history, nextRuns }) => {
+const ScheduleVisual = ({ history, nextRuns, t }) => {
     // Generate last 14 days
     const days = [];
     for (let i = 13; i >= 0; i--) {
@@ -171,8 +171,8 @@ const ScheduleVisual = ({ history, nextRuns }) => {
     };
 
     const getBoxTooltip = (day) => {
-        if (day.isFuture) return day.hasScheduled ? "Scheduled" : "No runs scheduled";
-        if (!day.total) return "No runs";
+        if (day.isFuture) return day.hasScheduled ? t('admin.scheduled') : t('admin.noRunsScheduled');
+        if (!day.total) return t('admin.noRuns');
         return `${day.completed} completed, ${day.failed} failed`;
     };
 
@@ -180,7 +180,7 @@ const ScheduleVisual = ({ history, nextRuns }) => {
         <div className="card p-6">
             <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                 <Calendar size={20} />
-                Sync Schedule (Last 14 Days + Next 3)
+                {t('admin.syncSchedule')}
             </h2>
             <div className="flex gap-1 flex-wrap">
                 {[...days, ...futureDays].map((day, idx) => (
@@ -211,19 +211,19 @@ const ScheduleVisual = ({ history, nextRuns }) => {
             <div className="flex gap-4 mt-4 text-xs text-slate-500">
                 <div className="flex items-center gap-1.5">
                     <div className="w-3 h-3 rounded bg-teal-100 border border-teal-300"></div>
-                    All successful
+                    {t('admin.allSuccessful')}
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-3 h-3 rounded bg-amber-100 border border-amber-300"></div>
-                    Some errors
+                    {t('admin.someErrors')}
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-3 h-3 rounded bg-rose-100 border border-rose-300"></div>
-                    All failed
+                    {t('admin.allFailed')}
                 </div>
                 <div className="flex items-center gap-1.5">
                     <div className="w-3 h-3 rounded bg-blue-100 border border-blue-300 border-dashed"></div>
-                    Scheduled
+                    {t('admin.scheduled')}
                 </div>
             </div>
         </div>
@@ -471,7 +471,7 @@ const Admin = () => {
                     className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                 >
                     <RefreshCw size={16} />
-                    Refresh
+                    {t('common.refresh')}
                 </button>
             </div>
 
@@ -515,7 +515,7 @@ const Admin = () => {
                     />
                     <StatCard
                         icon={FileText}
-                        label="Health Reports"
+                        label={t('admin.healthReports')}
                         value={stats.health_reports.total}
                         color="teal"
                     />
@@ -557,7 +557,7 @@ const Admin = () => {
 
             {/* Schedule Visual */}
             {syncHistory && (
-                <ScheduleVisual history={syncHistory.history} nextRuns={syncHistory.next_runs} />
+                <ScheduleVisual history={syncHistory.history} nextRuns={syncHistory.next_runs} t={t} />
             )}
 
             {/* Enhanced Scheduler Timeline */}
@@ -565,7 +565,7 @@ const Admin = () => {
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
                         <Zap size={20} />
-                        Scheduler Status
+                        {t('admin.schedulerStatus')}
                     </h2>
 
                     {/* Next Job Highlight */}
@@ -592,7 +592,7 @@ const Admin = () => {
                                             <style.Icon size={24} />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-slate-500">Next scheduled job</p>
+                                            <p className="text-sm text-slate-500">{t('admin.nextScheduledJob')}</p>
                                             <p className="text-lg font-bold text-slate-800">{nextJob.name || style.label}</p>
                                         </div>
                                     </div>
@@ -613,7 +613,7 @@ const Admin = () => {
                     <div className="space-y-3 mb-6">
                         <h3 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
                             <Clock size={16} />
-                            All Scheduled Jobs
+                            {t('admin.allScheduledJobs')}
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {schedulerStatus.jobs.filter(j => j.next_run).sort((a, b) => new Date(a.next_run) - new Date(b.next_run)).map((job, idx) => {
@@ -644,7 +644,7 @@ const Admin = () => {
                                                 <p className={cn("font-semibold text-sm", style.text)}>{job.name}</p>
                                                 <p className="text-xs text-slate-500 mt-0.5">{job.trigger}</p>
                                                 <div className="mt-2 pt-2 border-t border-slate-200/50">
-                                                    <p className="text-xs text-slate-500">Next run:</p>
+                                                    <p className="text-xs text-slate-500">{t('admin.nextRun')}</p>
                                                     <p className={cn("font-bold", style.text)}>
                                                         {new Date(job.next_run).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </p>
@@ -662,14 +662,14 @@ const Admin = () => {
 
                     {/* Quick Actions */}
                     <div className="flex flex-wrap gap-2 pt-4 border-t border-slate-200">
-                        <span className="text-sm text-slate-500 self-center mr-2">Run manually:</span>
+                        <span className="text-sm text-slate-500 self-center mr-2">{t('admin.runManually')}</span>
                         <button
                             onClick={handleTriggerSync}
                             disabled={actionLoading === 'triggersync'}
                             className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         >
                             {actionLoading === 'triggersync' ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-                            Provider Sync
+                            {t('admin.providerSync')}
                         </button>
                         <button
                             onClick={handleTriggerDocProcessing}
@@ -677,7 +677,7 @@ const Admin = () => {
                             className="flex items-center gap-2 px-3 py-1.5 bg-teal-100 text-teal-700 hover:bg-teal-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         >
                             {actionLoading === 'triggerdocs' ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-                            Doc Processing
+                            {t('admin.docProcessing')}
                         </button>
                     </div>
                 </div>
@@ -685,7 +685,7 @@ const Admin = () => {
 
             {/* Actions */}
             <div className="card p-6">
-                <h2 className="text-lg font-semibold text-slate-800 mb-4">Admin Actions</h2>
+                <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('admin.adminActions')}</h2>
                 <div className="flex flex-wrap gap-3">
                     <button
                         onClick={handleCleanupLimbo}
@@ -709,7 +709,7 @@ const Admin = () => {
                         className="flex items-center gap-2 px-4 py-2 bg-teal-100 text-teal-700 hover:bg-teal-200 rounded-lg transition-colors disabled:opacity-50"
                     >
                         {actionLoading === 'reprocess' ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
-                        Reprocess Documents ({stats?.documents?.pending || 0})
+                        {t('admin.reprocessDocuments')} ({stats?.documents?.pending || 0})
                     </button>
                     <button
                         onClick={handleRegenerateReports}
@@ -717,7 +717,7 @@ const Admin = () => {
                         className="flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 hover:bg-violet-200 rounded-lg transition-colors disabled:opacity-50"
                     >
                         {actionLoading === 'regenerate' ? <Loader2 size={16} className="animate-spin" /> : <Brain size={16} />}
-                        Regenerate AI Reports
+                        {t('admin.regenerateReports')}
                     </button>
                     <button
                         onClick={handleScanProfiles}
@@ -725,7 +725,7 @@ const Admin = () => {
                         className="flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 hover:bg-indigo-200 rounded-lg transition-colors disabled:opacity-50"
                     >
                         {actionLoading === 'scanprofiles' ? <Loader2 size={16} className="animate-spin" /> : <UserSearch size={16} />}
-                        Scan Documents for Profiles
+                        {t('admin.scanProfiles')}
                     </button>
                 </div>
             </div>
@@ -742,12 +742,12 @@ const Admin = () => {
                     <table className="w-full">
                         <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                             <tr>
-                                <th className="px-4 py-3 text-left">Email</th>
-                                <th className="px-4 py-3 text-center">Admin</th>
+                                <th className="px-4 py-3 text-left">{t('admin.email')}</th>
+                                <th className="px-4 py-3 text-center">{t('admin.admin')}</th>
                                 <th className="px-4 py-3 text-center">{t('admin.documents')}</th>
                                 <th className="px-4 py-3 text-center">{t('admin.biomarkers')}</th>
-                                <th className="px-4 py-3 text-center">Linked</th>
-                                <th className="px-4 py-3 text-right">Actions</th>
+                                <th className="px-4 py-3 text-center">{t('admin.linked')}</th>
+                                <th className="px-4 py-3 text-right">{t('admin.actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -789,19 +789,19 @@ const Admin = () => {
                 <div className="p-4 border-b border-slate-100">
                     <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                         <RefreshCw size={20} />
-                        Recent Sync Jobs
+                        {t('admin.recentSyncJobs')}
                     </h2>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                             <tr>
-                                <th className="px-4 py-3 text-left">User</th>
-                                <th className="px-4 py-3 text-left">Provider</th>
-                                <th className="px-4 py-3 text-center">Status</th>
-                                <th className="px-4 py-3 text-center">Docs</th>
-                                <th className="px-4 py-3 text-left">Error</th>
-                                <th className="px-4 py-3 text-right">Time</th>
+                                <th className="px-4 py-3 text-left">{t('admin.user')}</th>
+                                <th className="px-4 py-3 text-left">{t('admin.provider')}</th>
+                                <th className="px-4 py-3 text-center">{t('admin.status')}</th>
+                                <th className="px-4 py-3 text-center">{t('admin.docs')}</th>
+                                <th className="px-4 py-3 text-left">{t('admin.errorMessage')}</th>
+                                <th className="px-4 py-3 text-right">{t('admin.time')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -860,7 +860,7 @@ const Admin = () => {
                             {syncJobs.length === 0 && (
                                 <tr>
                                     <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
-                                        No sync jobs yet
+                                        {t('admin.noSyncJobs')}
                                     </td>
                                 </tr>
                             )}
@@ -871,7 +871,7 @@ const Admin = () => {
 
             {/* Error Modal */}
             {selectedJob && (
-                <ErrorModal job={selectedJob} onClose={() => setSelectedJob(null)} />
+                <ErrorModal job={selectedJob} onClose={() => setSelectedJob(null)} t={t} />
             )}
         </div>
     );

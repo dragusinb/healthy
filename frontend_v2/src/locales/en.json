@@ -352,7 +352,8 @@
     "loadingEvolution": "Loading evolution data...",
     "normalLabel": "Normal",
     "outOfRangeLabel": "Out of Range",
-    "normalRangeLabel": "Normal Range"
+    "normalRangeLabel": "Normal Range",
+    "referenceLabel": "Ref:"
   },
   "admin": {
     "title": "Admin Dashboard",

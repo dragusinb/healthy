@@ -13,18 +13,24 @@ const parseDate = (dateStr) => {
     return isNaN(parsed.getTime()) ? null : parsed.getTime();
 };
 
+// Map language code to locale code
+const getLocale = (lang) => {
+    const localeMap = { 'ro': 'ro-RO', 'en': 'en-US' };
+    return localeMap[lang] || 'en-US';
+};
+
 // Format timestamp for display on axis
-const formatAxisDate = (timestamp) => {
+const formatAxisDate = (timestamp, locale) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
-    return date.toLocaleDateString('ro-RO', { month: 'short', year: '2-digit' });
+    return date.toLocaleDateString(locale, { month: 'short', year: '2-digit' });
 };
 
 // Format timestamp for tooltip
-const formatTooltipDate = (timestamp) => {
+const formatTooltipDate = (timestamp, locale) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
-    return date.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
 // Parse reference range string like "12 - 16", "<20", ">5", "70-99"
@@ -55,7 +61,7 @@ const parseRefRange = (refRange) => {
 };
 
 // Custom tooltip component
-const CustomTooltip = ({ active, payload, t }) => {
+const CustomTooltip = ({ active, payload, t, locale }) => {
     if (!active || !payload || payload.length === 0) {
         return null;
     }
@@ -69,11 +75,11 @@ const CustomTooltip = ({ active, payload, t }) => {
 
     return (
         <div className="bg-white p-3 rounded-lg shadow-lg border border-slate-200 min-w-[160px]">
-            <p className="font-semibold text-slate-800 mb-1">{formatTooltipDate(data.timestamp)}</p>
+            <p className="font-semibold text-slate-800 mb-1">{formatTooltipDate(data.timestamp, locale)}</p>
             <p className="text-blue-600 font-bold text-lg">
                 {data.value} <span className="text-sm font-normal text-slate-500">{data.unit || ''}</span>
             </p>
-            <p className="text-xs text-slate-500 mt-1">Ref: {data.ref_range || 'N/A'}</p>
+            <p className="text-xs text-slate-500 mt-1">{t('evolution.referenceLabel')} {data.ref_range || 'N/A'}</p>
             <p className={cn(
                 "text-xs font-semibold mt-1",
                 data.flags === 'NORMAL' ? "text-teal-600" : "text-rose-600"
@@ -85,7 +91,8 @@ const CustomTooltip = ({ active, payload, t }) => {
 };
 
 const Evolution = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const locale = getLocale(i18n.language);
     const { name } = useParams();
     const navigate = useNavigate();
     const [rawData, setRawData] = useState([]);
@@ -177,7 +184,7 @@ const Evolution = () => {
                         {data[data.length - 1]?.value} <span className="text-lg font-normal text-gray-400">{data[data.length - 1]?.unit}</span>
                     </p>
                     <p className="text-sm text-gray-400 mt-1">
-                        {data[data.length - 1]?.timestamp ? formatTooltipDate(data[data.length - 1].timestamp) : ''}
+                        {data[data.length - 1]?.timestamp ? formatTooltipDate(data[data.length - 1].timestamp, locale) : ''}
                     </p>
                 </div>
 
@@ -232,7 +239,7 @@ const Evolution = () => {
                                 type="number"
                                 scale="time"
                                 domain={timeDomain}
-                                tickFormatter={formatAxisDate}
+                                tickFormatter={(timestamp) => formatAxisDate(timestamp, locale)}
                                 tickMargin={10}
                                 axisLine={false}
                                 tickLine={false}
@@ -246,7 +253,7 @@ const Evolution = () => {
                                 fontSize={12}
                                 domain={['auto', 'auto']}
                             />
-                            <Tooltip content={<CustomTooltip t={t} />} />
+                            <Tooltip content={<CustomTooltip t={t} locale={locale} />} />
                             <Line
                                 type="monotone"
                                 dataKey="value"

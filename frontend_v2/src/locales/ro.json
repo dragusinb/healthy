@@ -368,7 +368,8 @@
     "loadingEvolution": "Se incarca datele de evolutie...",
     "normalLabel": "Normal",
     "outOfRangeLabel": "In afara intervalului",
-    "normalRangeLabel": "Interval Normal"
+    "normalRangeLabel": "Interval Normal",
+    "referenceLabel": "Ref:"
   },
   "admin": {
     "title": "Panou Administrare",
@@ -413,7 +414,32 @@
     "docsProcessed": "Procesate",
     "errorMessage": "Eroare",
     "time": "Timp",
-    "noSyncJobs": "Niciun job de sincronizare inca"
+    "noSyncJobs": "Niciun job de sincronizare inca",
+    "syncErrorDetails": "Detalii Eroare Sincronizare",
+    "status": "Status",
+    "errorSummary": "Sumar Eroare",
+    "fullErrorMessage": "Mesaj Eroare Complet",
+    "runningNow": "Ruleaza acum...",
+    "scheduled": "Programat",
+    "noRunsScheduled": "Nicio rulare programata",
+    "noRuns": "Nicio rulare",
+    "syncSchedule": "Program Sincronizare (Ultimele 14 Zile + Urmatoarele 3)",
+    "allSuccessful": "Toate reușite",
+    "someErrors": "Unele erori",
+    "allFailed": "Toate eșuate",
+    "schedulerStatus": "Status Planificator",
+    "nextScheduledJob": "Urmatorul job programat",
+    "allScheduledJobs": "Toate Joburile Programate",
+    "nextRun": "Urmatoarea rulare:",
+    "runManually": "Ruleaza manual:",
+    "providerSync": "Sincronizare Furnizori",
+    "docProcessing": "Procesare Documente",
+    "reprocessDocuments": "Reproceseaza Documente",
+    "regenerateReports": "Regenereaza Rapoarte AI",
+    "scanProfiles": "Scaneaza Documente pentru Profile",
+    "actions": "Actiuni",
+    "user": "Utilizator",
+    "docs": "Doc."
   },
   "settings": {
     "title": "Setari",
