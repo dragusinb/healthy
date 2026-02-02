@@ -13,12 +13,14 @@ try:
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services.health_agents import HealthAnalysisService, SpecialistAgent
     from backend_v2.services.vault import vault
+    from backend_v2.services.notification_service import notify_analysis_complete
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
     from routers.documents import get_current_user
     from services.health_agents import HealthAnalysisService, SpecialistAgent
     from services.vault import vault
+    from services.notification_service import notify_analysis_complete
 
 
 def get_report_content(report: HealthReport) -> dict:
@@ -293,6 +295,19 @@ def run_health_analysis(
         db.add(specialist_report)
 
     db.commit()
+
+    # Send notification about completed analysis
+    try:
+        # Determine worst risk level from all reports
+        risk_levels = ["normal", "attention", "concern", "urgent"]
+        worst_risk = general.get("risk_level", "normal")
+        for specialty, specialist_data in analysis.get("specialists", {}).items():
+            spec_risk = specialist_data.get("risk_level", "normal")
+            if risk_levels.index(spec_risk) > risk_levels.index(worst_risk):
+                worst_risk = spec_risk
+        notify_analysis_complete(db, current_user.id, "general", worst_risk)
+    except Exception as e:
+        pass  # Don't fail the request if notification fails
 
     return {
         "status": "success",

@@ -172,5 +172,51 @@ class SyncJob(Base):
     linked_account = relationship("LinkedAccount")
 
 
+class Notification(Base):
+    """Track notifications sent to users."""
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    notification_type = Column(String)  # new_documents, abnormal_biomarker, analysis_complete, sync_failed, reminder
+    title = Column(String)
+    message = Column(Text)
+    data = Column(Text, nullable=True)  # JSON with additional context
+    is_read = Column(Boolean, default=False)
+    is_sent_email = Column(Boolean, default=False)  # Email already sent
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    sent_at = Column(DateTime, nullable=True)
+
+    user = relationship("User", back_populates="notifications")
+
+
+class NotificationPreference(Base):
+    """User notification preferences."""
+    __tablename__ = "notification_preferences"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+
+    # Email notification toggles
+    email_new_documents = Column(Boolean, default=True)
+    email_abnormal_biomarkers = Column(Boolean, default=True)
+    email_analysis_complete = Column(Boolean, default=True)
+    email_sync_failed = Column(Boolean, default=True)
+    email_reminders = Column(Boolean, default=True)
+
+    # Digest preference: immediate, daily, weekly
+    email_frequency = Column(String, default="immediate")
+
+    # Quiet hours (don't send during these hours)
+    quiet_hours_start = Column(Integer, nullable=True)  # 0-23
+    quiet_hours_end = Column(Integer, nullable=True)  # 0-23
+
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="notification_preferences")
+
+
 # Add relationship to User model
 User.health_reports = relationship("HealthReport", back_populates="user")
+User.notifications = relationship("Notification", back_populates="user")
+User.notification_preferences = relationship("NotificationPreference", back_populates="user", uselist=False)

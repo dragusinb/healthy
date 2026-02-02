@@ -321,8 +321,19 @@ Healthy/
 - **Frontend:** https://analize.online (Nginx serving static files)
 - **Backend:** https://analize.online/api (FastAPI via Uvicorn, port 8000 internal)
 - **Database:** PostgreSQL (local on server)
-- **Email:** AWS SES (eu-central-1, smtp credentials in /opt/healthy/.env)
+- **Email:** AWS SES (eu-central-1)
 - **Git:** Auto-deploy via `git pull` + rebuild
+
+### AWS SES Credentials (NEVER FORGET)
+```
+SMTP_HOST=email-smtp.eu-central-1.amazonaws.com
+SMTP_PORT=587
+SMTP_USER=AKIA2FDNCNUTSNZZEMUJ
+SMTP_PASS=nCKQN5gaKGI2JriUFB2IL4G4S5ioh9obg1r1dP1mBDY=
+SMTP_FROM=noreply@analize.online
+AWS_REGION=eu-central-1
+```
+These credentials are configured in `/opt/healthy/.env` on the production server.
 
 **IMPORTANT - Environment Differences:**
 - **Local development:** Windows (use Windows paths like `c:\OldD\_Projects\Healthy`)

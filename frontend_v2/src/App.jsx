@@ -14,6 +14,7 @@ import LinkedAccounts from './pages/LinkedAccounts';
 import HealthReports from './pages/HealthReports';
 import Screenings from './pages/Screenings';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import Admin from './pages/Admin';
 import Layout from './components/Layout';
 
@@ -96,6 +97,13 @@ const App = () => {
             <PrivateRoute>
               <Layout>
                 <Admin />
+              </Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/settings" element={
+            <PrivateRoute>
+              <Layout>
+                <Settings />
               </Layout>
             </PrivateRoute>
           } />

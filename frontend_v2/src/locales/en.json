@@ -498,5 +498,40 @@
     "status": "Vault Status",
     "lockVault": "Lock Vault",
     "vaultLocked": "Vault is locked. Contact administrator to unlock."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "preferences": "Notification Preferences",
+    "preferencesDesc": "Choose which notifications you want to receive by email",
+    "emailSettings": "Email Settings",
+    "newDocuments": "New documents",
+    "newDocumentsDesc": "Receive email when new lab results are downloaded",
+    "abnormalBiomarkers": "Abnormal biomarkers",
+    "abnormalBiomarkersDesc": "Receive alert when a biomarker is outside normal range",
+    "analysisComplete": "AI analysis complete",
+    "analysisCompleteDesc": "Receive email when AI health analysis is ready",
+    "syncFailed": "Sync failed",
+    "syncFailedDesc": "Receive notification when sync with a provider fails",
+    "reminders": "Reminders",
+    "remindersDesc": "Receive periodic reminders for health checkups",
+    "frequency": "Frequency",
+    "frequencyDesc": "How often you want to receive emails",
+    "immediate": "Immediate",
+    "daily": "Daily digest",
+    "weekly": "Weekly digest",
+    "quietHours": "Quiet hours",
+    "quietHoursDesc": "Don't send emails during this time period",
+    "from": "From",
+    "to": "To",
+    "noNotifications": "No notifications",
+    "markAllRead": "Mark all as read",
+    "unread": "unread",
+    "types": {
+      "new_documents": "New documents",
+      "abnormal_biomarker": "Abnormal biomarker",
+      "analysis_complete": "Analysis complete",
+      "sync_failed": "Sync failed",
+      "reminder": "Reminder"
+    }
   }
 }

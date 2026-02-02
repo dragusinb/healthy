@@ -232,12 +232,14 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
         from backend_v2.auth.crypto import decrypt_password
         from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
         from backend_v2.services import sync_status
+        from backend_v2.services.notification_service import notify_new_documents, notify_sync_failed
     except ImportError:
         from database import SessionLocal
         from models import LinkedAccount, SyncJob
         from auth.crypto import decrypt_password
         from services.crawlers_manager import run_regina_async, run_synevo_async
         from services import sync_status
+        from services.notification_service import notify_new_documents, notify_sync_failed
 
     db = SessionLocal()
 
@@ -295,6 +297,11 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
             db.commit()
             sync_status.status_error(user_id, provider_name, error_msg, error_type)
             logger.error(f"Sync failed for {provider_name}: {error_msg} (type: {error_type})")
+            # Send failure notification
+            try:
+                notify_sync_failed(db, user_id, provider_name, error_type, error_msg)
+            except Exception as ne:
+                logger.error(f"Failed to send sync failure notification: {ne}")
             return
 
         # Process documents (similar to users.py run_sync_task)
@@ -316,6 +323,25 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
 
         sync_status.status_complete(user_id, provider_name, sync_job.documents_processed)
         logger.info(f"Sync completed for {provider_name}: {sync_job.documents_processed} documents")
+
+        # Send notification if new documents were found
+        if sync_job.documents_processed > 0:
+            try:
+                # Count biomarkers from new documents
+                from backend_v2.models import Document, TestResult
+                recent_docs = db.query(Document).filter(
+                    Document.user_id == user_id,
+                    Document.provider == provider_name,
+                    Document.upload_date >= sync_job.started_at
+                ).all()
+                doc_ids = [d.id for d in recent_docs]
+                biomarker_count = db.query(TestResult).filter(
+                    TestResult.document_id.in_(doc_ids)
+                ).count() if doc_ids else 0
+
+                notify_new_documents(db, user_id, provider_name, sync_job.documents_processed, biomarker_count)
+            except Exception as ne:
+                logger.error(f"Failed to send new documents notification: {ne}")
 
     except Exception as e:
         logger.error(f"Scheduled sync error: {e}")
@@ -353,11 +379,13 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
         from backend_v2.services.ai_service import AIService
         from backend_v2.services import sync_status
         from backend_v2.services.biomarker_normalizer import get_canonical_name
+        from backend_v2.services.notification_service import notify_abnormal_biomarker
     except ImportError:
         from models import Document, TestResult
         from services.ai_service import AIService
         from services import sync_status
         from services.biomarker_normalizer import get_canonical_name
+        from services.notification_service import notify_abnormal_biomarker
 
     import datetime as dt
 
@@ -430,6 +458,7 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
                             numeric_val = None
 
                     test_name = r.get("test_name")
+                    flags = r.get("flags", "NORMAL")
                     tr = TestResult(
                         document_id=new_doc.id,
                         test_name=test_name,
@@ -438,9 +467,20 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
                         numeric_value=numeric_val,
                         unit=r.get("unit"),
                         reference_range=r.get("reference_range"),
-                        flags=r.get("flags", "NORMAL")
+                        flags=flags
                     )
                     db.add(tr)
+
+                    # Notify about abnormal biomarkers
+                    if flags in ("HIGH", "LOW") and test_name:
+                        try:
+                            notify_abnormal_biomarker(
+                                db, user_id, test_name,
+                                str(r.get("value")), r.get("unit", ""),
+                                flags, r.get("reference_range", "")
+                            )
+                        except Exception as ne:
+                            logger.error(f"Failed to send abnormal biomarker notification: {ne}")
 
                 # Update document date from metadata
                 if "metadata" in parsed_data and parsed_data["metadata"].get("date"):

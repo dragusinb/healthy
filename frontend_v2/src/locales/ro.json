@@ -574,5 +574,40 @@
     "status": "Status Seif",
     "lockVault": "Blocheaza Seiful",
     "vaultLocked": "Seiful este blocat. Contacteaza administratorul pentru deblocare."
+  },
+  "notifications": {
+    "title": "Notificari",
+    "preferences": "Preferinte Notificari",
+    "preferencesDesc": "Alege ce notificari vrei sa primesti pe email",
+    "emailSettings": "Setari Email",
+    "newDocuments": "Documente noi",
+    "newDocumentsDesc": "Primeste email cand se descarca rezultate noi de la laboratoare",
+    "abnormalBiomarkers": "Biomarkeri anormali",
+    "abnormalBiomarkersDesc": "Primeste alerta cand un biomarker este in afara intervalului normal",
+    "analysisComplete": "Analiza AI completa",
+    "analysisCompleteDesc": "Primeste email cand analiza de sanatate AI este gata",
+    "syncFailed": "Sincronizare esuata",
+    "syncFailedDesc": "Primeste notificare cand sincronizarea cu un furnizor a esuat",
+    "reminders": "Memento-uri",
+    "remindersDesc": "Primeste memento-uri periodice pentru controale medicale",
+    "frequency": "Frecventa",
+    "frequencyDesc": "Cat de des vrei sa primesti email-uri",
+    "immediate": "Imediat",
+    "daily": "Rezumat zilnic",
+    "weekly": "Rezumat saptamanal",
+    "quietHours": "Ore linistite",
+    "quietHoursDesc": "Nu trimite email-uri in acest interval orar",
+    "from": "De la",
+    "to": "Pana la",
+    "noNotifications": "Nu ai notificari",
+    "markAllRead": "Marcheaza toate ca citite",
+    "unread": "necitite",
+    "types": {
+      "new_documents": "Documente noi",
+      "abnormal_biomarker": "Biomarker anormal",
+      "analysis_complete": "Analiza completa",
+      "sync_failed": "Sincronizare esuata",
+      "reminder": "Memento"
+    }
   }
 }
