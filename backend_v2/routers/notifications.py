@@ -9,12 +9,12 @@ from datetime import datetime
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.auth.jwt import get_current_user
+    from backend_v2.routers.documents import get_current_user
     from backend_v2.models import User, Notification, NotificationPreference
     from backend_v2.services.notification_service import NotificationService
 except ImportError:
     from database import get_db
-    from auth.jwt import get_current_user
+    from routers.documents import get_current_user
     from models import User, Notification, NotificationPreference
     from services.notification_service import NotificationService
 
