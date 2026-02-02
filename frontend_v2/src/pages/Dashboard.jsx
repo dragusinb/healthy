@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { Activity, FileCheck, AlertTriangle, ArrowRight, TrendingUp, Plus, ShieldCheck, Brain, KeyRound, X } from 'lucide-react';
+import {
+    Activity, FileCheck, AlertTriangle, ArrowRight, TrendingUp, Plus, ShieldCheck, Brain, KeyRound, X,
+    User, Calendar, Clock, Heart, Droplets, Bell, CheckCircle2, AlertCircle, Sparkles
+} from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => (
@@ -31,21 +34,24 @@ const Dashboard = () => {
     const [recentBiomarkers, setRecentBiomarkers] = useState([]);
     const [accountErrors, setAccountErrors] = useState([]);
     const [dismissedErrors, setDismissedErrors] = useState([]);
+    const [healthOverview, setHealthOverview] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [statsRes, recentRes, alertsRes, userRes] = await Promise.all([
+                const [statsRes, recentRes, alertsRes, userRes, overviewRes] = await Promise.all([
                     api.get('/dashboard/stats'),
                     api.get('/dashboard/recent-biomarkers'),
                     api.get('/dashboard/alerts-count'),
-                    api.get('/users/me')
+                    api.get('/users/me'),
+                    api.get('/dashboard/health-overview')
                 ]);
                 setStats({
                     ...statsRes.data,
                     alerts_count: alertsRes.data.alerts_count
                 });
                 setRecentBiomarkers(recentRes.data);
+                setHealthOverview(overviewRes.data);
 
                 // Check for unacknowledged provider errors
                 const accounts = userRes.data.linked_accounts || [];
@@ -122,6 +128,222 @@ const Dashboard = () => {
                             </button>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Health Overview Section */}
+            {healthOverview && (
+                <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="card p-6">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <span className="p-1.5 bg-primary-50 text-primary-600 rounded-lg"><Heart size={18} /></span>
+                                {t('dashboard.healthOverview') || 'Health Overview'}
+                            </h2>
+                            {!healthOverview.profile_complete && (
+                                <Link to="/profile" className="text-sm text-amber-600 hover:text-amber-700 flex items-center gap-1">
+                                    <AlertCircle size={14} />
+                                    {t('dashboard.completeProfile') || 'Complete your profile'}
+                                </Link>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Patient Identity */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                                        {healthOverview.profile?.full_name?.charAt(0)?.toUpperCase() || <User size={24} />}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-slate-800 text-lg">
+                                            {healthOverview.profile?.full_name || t('dashboard.unknownPatient') || 'Unknown Patient'}
+                                        </h3>
+                                        <div className="flex items-center gap-3 text-sm text-slate-500">
+                                            {healthOverview.profile?.age && (
+                                                <span className="flex items-center gap-1">
+                                                    <Calendar size={12} />
+                                                    {healthOverview.profile.age} {t('dashboard.yearsOld') || 'years'}
+                                                </span>
+                                            )}
+                                            {healthOverview.profile?.gender && (
+                                                <span className="capitalize">{t(`profile.${healthOverview.profile.gender}`) || healthOverview.profile.gender}</span>
+                                            )}
+                                            {healthOverview.profile?.blood_type && (
+                                                <span className="flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-xs font-semibold">
+                                                    <Droplets size={10} />
+                                                    {healthOverview.profile.blood_type}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Tracking Timeline */}
+                                <div className="p-3 bg-slate-50 rounded-xl space-y-2">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500 flex items-center gap-1.5">
+                                            <Clock size={14} />
+                                            {t('dashboard.trackingSince') || 'Tracking since'}
+                                        </span>
+                                        <span className="font-medium text-slate-700">
+                                            {healthOverview.timeline?.first_record_date
+                                                ? new Date(healthOverview.timeline.first_record_date).toLocaleDateString()
+                                                : '-'}
+                                        </span>
+                                    </div>
+                                    {healthOverview.timeline?.tracking_duration && (
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="text-slate-500">{t('dashboard.duration') || 'Duration'}</span>
+                                            <span className="font-medium text-primary-600">{healthOverview.timeline.tracking_duration}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500">{t('dashboard.totalRecords') || 'Total records'}</span>
+                                        <span className="font-medium text-slate-700">{healthOverview.timeline?.total_documents || 0}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Health Status */}
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
+                                    {t('dashboard.healthStatus') || 'Health Status'}
+                                </h4>
+
+                                {/* Analysis Status */}
+                                {healthOverview.health_status?.has_analysis ? (
+                                    <div className="p-3 bg-teal-50 border border-teal-100 rounded-xl">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <CheckCircle2 size={16} className="text-teal-600" />
+                                            <span className="font-medium text-teal-800">{t('dashboard.analysisComplete') || 'Analysis Complete'}</span>
+                                        </div>
+                                        <p className="text-xs text-teal-600">
+                                            {t('dashboard.lastAnalysis') || 'Last analysis'}:{' '}
+                                            {healthOverview.health_status.last_analysis_date
+                                                ? new Date(healthOverview.health_status.last_analysis_date).toLocaleDateString()
+                                                : '-'}
+                                            {healthOverview.health_status.days_since_analysis > 30 && (
+                                                <span className="ml-2 text-amber-600">
+                                                    ({healthOverview.health_status.days_since_analysis} {t('dashboard.daysAgo') || 'days ago'})
+                                                </span>
+                                            )}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <Link to="/health" className="block p-3 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Sparkles size={16} className="text-amber-600" />
+                                            <span className="font-medium text-amber-800">{t('dashboard.noAnalysisYet') || 'No analysis yet'}</span>
+                                        </div>
+                                        <p className="text-xs text-amber-600">
+                                            {t('dashboard.runFirstAnalysis') || 'Run your first AI health analysis'}
+                                        </p>
+                                    </Link>
+                                )}
+
+                                {/* Quick Stats */}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="p-2 bg-slate-50 rounded-lg text-center">
+                                        <p className="text-2xl font-bold text-slate-700">{healthOverview.health_status?.biomarkers_tracked || 0}</p>
+                                        <p className="text-xs text-slate-500">{t('dashboard.biomarkersTracked') || 'Biomarkers'}</p>
+                                    </div>
+                                    <div className={cn(
+                                        "p-2 rounded-lg text-center",
+                                        healthOverview.health_status?.alerts_count > 0 ? "bg-rose-50" : "bg-teal-50"
+                                    )}>
+                                        <p className={cn(
+                                            "text-2xl font-bold",
+                                            healthOverview.health_status?.alerts_count > 0 ? "text-rose-600" : "text-teal-600"
+                                        )}>
+                                            {healthOverview.health_status?.alerts_count || 0}
+                                        </p>
+                                        <p className={cn(
+                                            "text-xs",
+                                            healthOverview.health_status?.alerts_count > 0 ? "text-rose-500" : "text-teal-500"
+                                        )}>
+                                            {t('dashboard.alertsLabel') || 'Alerts'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Reminders & Warnings */}
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
+                                    {t('dashboard.reminders') || 'Reminders'}
+                                </h4>
+
+                                {/* Overdue Screenings */}
+                                {healthOverview.reminders_count > 0 ? (
+                                    <Link to="/screenings" className="block p-3 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Bell size={16} className="text-amber-600" />
+                                            <span className="font-medium text-amber-800">
+                                                {healthOverview.reminders_count} {t('dashboard.overdueScreenings') || 'overdue screenings'}
+                                            </span>
+                                        </div>
+                                        <div className="space-y-1">
+                                            {healthOverview.reminders?.slice(0, 2).map((r, i) => (
+                                                <p key={i} className="text-xs text-amber-700 truncate">
+                                                    • {r.test_name}
+                                                </p>
+                                            ))}
+                                            {healthOverview.reminders_count > 2 && (
+                                                <p className="text-xs text-amber-600">
+                                                    +{healthOverview.reminders_count - 2} {t('dashboard.more') || 'more'}...
+                                                </p>
+                                            )}
+                                        </div>
+                                    </Link>
+                                ) : healthOverview.missing_essential_tests?.length > 0 ? (
+                                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <AlertCircle size={16} className="text-blue-600" />
+                                            <span className="font-medium text-blue-800">
+                                                {t('dashboard.missingTests') || 'Consider adding'}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {healthOverview.missing_essential_tests.map((test, i) => (
+                                                <span key={i} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                                                    {test}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="p-3 bg-teal-50 border border-teal-100 rounded-xl">
+                                        <div className="flex items-center gap-2">
+                                            <CheckCircle2 size={16} className="text-teal-600" />
+                                            <span className="font-medium text-teal-800">
+                                                {t('dashboard.allUpToDate') || 'All up to date!'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-teal-600 mt-1">
+                                            {t('dashboard.noOverdueScreenings') || 'No overdue screenings'}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Analysis reminder if old */}
+                                {healthOverview.health_status?.has_analysis && healthOverview.health_status?.days_since_analysis > 90 && (
+                                    <Link to="/health" className="block p-3 bg-violet-50 border border-violet-200 rounded-xl hover:bg-violet-100 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <Brain size={16} className="text-violet-600" />
+                                            <span className="text-sm font-medium text-violet-800">
+                                                {t('dashboard.rerunAnalysis') || 'Time for a new analysis'}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-violet-600 mt-1">
+                                            {t('dashboard.lastAnalysisWas') || 'Your last analysis was'} {healthOverview.health_status.days_since_analysis} {t('dashboard.daysAgo') || 'days ago'}
+                                        </p>
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 

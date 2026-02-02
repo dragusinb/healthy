@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional
+from datetime import datetime, date
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.models import User, Document, TestResult
+    from backend_v2.models import User, Document, TestResult, HealthReport
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services.biomarker_normalizer import (
         normalize_biomarker_name, get_canonical_name, group_biomarkers
@@ -13,7 +14,7 @@ try:
     from backend_v2.services.vault import vault
 except ImportError:
     from database import get_db
-    from models import User, Document, TestResult
+    from models import User, Document, TestResult, HealthReport
     from routers.documents import get_current_user
     from services.biomarker_normalizer import (
         normalize_biomarker_name, get_canonical_name, group_biomarkers
@@ -336,4 +337,192 @@ def get_patient_info(db: Session = Depends(get_db), current_user: User = Depends
         "total_documents": total_docs,
         "unknown_patient_documents": unknown_patient_docs,
         "multi_patient": len(patient_groups) > 1
+    }
+
+
+@router.get("/health-overview")
+def get_health_overview(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """
+    Get a comprehensive health overview for the dashboard.
+    Includes patient identity, tracking timeline, health status, and screening reminders.
+    """
+    # --- Patient Identity ---
+    profile = {}
+    try:
+        # Try to get encrypted profile data first
+        if vault.is_unlocked:
+            if current_user.full_name_enc:
+                profile["full_name"] = vault.decrypt_data(current_user.full_name_enc)
+            if current_user.date_of_birth_enc:
+                dob_str = vault.decrypt_data(current_user.date_of_birth_enc)
+                if dob_str:
+                    try:
+                        dob = datetime.fromisoformat(dob_str.replace('Z', '+00:00'))
+                        profile["date_of_birth"] = dob.date().isoformat()
+                        # Calculate age
+                        today = date.today()
+                        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                        profile["age"] = age
+                    except:
+                        profile["date_of_birth"] = dob_str
+            if current_user.gender_enc:
+                profile["gender"] = vault.decrypt_data(current_user.gender_enc)
+            if current_user.blood_type_enc:
+                profile["blood_type"] = vault.decrypt_data(current_user.blood_type_enc)
+
+        # Fallback to legacy unencrypted fields
+        if not profile.get("full_name") and current_user.full_name:
+            profile["full_name"] = current_user.full_name
+        if not profile.get("date_of_birth") and current_user.date_of_birth:
+            profile["date_of_birth"] = current_user.date_of_birth.isoformat() if hasattr(current_user.date_of_birth, 'isoformat') else str(current_user.date_of_birth)
+            if not profile.get("age"):
+                try:
+                    dob = current_user.date_of_birth
+                    if isinstance(dob, str):
+                        dob = datetime.fromisoformat(dob.replace('Z', '+00:00')).date()
+                    today = date.today()
+                    profile["age"] = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                except:
+                    pass
+    except Exception as e:
+        pass  # Continue with partial data
+
+    # --- Tracking Timeline ---
+    timeline = {}
+
+    # Get first and last document dates
+    first_doc = db.query(Document.document_date)\
+        .filter(Document.user_id == current_user.id, Document.document_date.isnot(None))\
+        .order_by(Document.document_date.asc())\
+        .first()
+
+    last_doc = db.query(Document.document_date)\
+        .filter(Document.user_id == current_user.id, Document.document_date.isnot(None))\
+        .order_by(Document.document_date.desc())\
+        .first()
+
+    if first_doc and first_doc[0]:
+        timeline["first_record_date"] = first_doc[0].isoformat()
+        # Calculate tracking duration
+        first_date = first_doc[0]
+        if isinstance(first_date, datetime):
+            first_date = first_date.date()
+        days_tracking = (date.today() - first_date).days
+        timeline["days_tracking"] = days_tracking
+        if days_tracking >= 365:
+            timeline["tracking_duration"] = f"{days_tracking // 365} years, {(days_tracking % 365) // 30} months"
+        elif days_tracking >= 30:
+            timeline["tracking_duration"] = f"{days_tracking // 30} months"
+        else:
+            timeline["tracking_duration"] = f"{days_tracking} days"
+
+    if last_doc and last_doc[0]:
+        timeline["last_record_date"] = last_doc[0].isoformat()
+
+    # Last sync from linked accounts
+    last_sync = None
+    for acc in current_user.linked_accounts:
+        if acc.last_sync:
+            if last_sync is None or acc.last_sync > last_sync:
+                last_sync = acc.last_sync
+    if last_sync:
+        timeline["last_sync"] = last_sync.isoformat()
+
+    # Document count
+    timeline["total_documents"] = db.query(Document).filter(Document.user_id == current_user.id).count()
+
+    # --- Health Status ---
+    health_status = {}
+
+    # Get latest health report
+    latest_report = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id, HealthReport.report_type == "general")\
+        .order_by(HealthReport.created_at.desc())\
+        .first()
+
+    if latest_report:
+        health_status["has_analysis"] = True
+        health_status["last_analysis_date"] = latest_report.created_at.isoformat()
+
+        # Decrypt report content for risk level
+        if vault.is_unlocked and latest_report.content_enc:
+            try:
+                import json
+                content = json.loads(vault.decrypt_data(latest_report.content_enc))
+                health_status["risk_level"] = content.get("risk_level", "unknown")
+            except:
+                health_status["risk_level"] = "unknown"
+        else:
+            health_status["risk_level"] = "unknown"
+
+        # Days since last analysis
+        last_analysis = latest_report.created_at
+        if isinstance(last_analysis, datetime):
+            days_since = (datetime.now() - last_analysis).days
+            health_status["days_since_analysis"] = days_since
+    else:
+        health_status["has_analysis"] = False
+
+    # Alerts count (out of range biomarkers)
+    alerts_count = db.query(TestResult).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .filter(TestResult.flags != 'NORMAL')\
+        .count()
+    health_status["alerts_count"] = alerts_count
+
+    # Unique biomarkers count
+    results = db.query(TestResult).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .all()
+    unique_biomarkers = set()
+    for r in results:
+        if r.canonical_name:
+            unique_biomarkers.add(r.canonical_name)
+        else:
+            canonical, _ = normalize_biomarker_name(r.test_name)
+            unique_biomarkers.add(canonical)
+    health_status["biomarkers_tracked"] = len(unique_biomarkers)
+
+    # --- Screening Reminders ---
+    reminders = []
+
+    # Get latest gap analysis
+    gap_analysis = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id, HealthReport.report_type == "gap_analysis")\
+        .order_by(HealthReport.created_at.desc())\
+        .first()
+
+    if gap_analysis and vault.is_unlocked and gap_analysis.content_enc:
+        try:
+            import json
+            content = json.loads(vault.decrypt_data(gap_analysis.content_enc))
+            recommended = content.get("recommended_tests", [])
+            for test in recommended:
+                if test.get("is_overdue"):
+                    reminders.append({
+                        "test_name": test.get("test_name"),
+                        "priority": test.get("priority", "medium"),
+                        "months_overdue": test.get("months_since_last", 0) - test.get("recommended_interval_months", 12),
+                        "reason": test.get("reason", "")
+                    })
+        except:
+            pass
+
+    # --- Missing Tests Warning ---
+    # Check for common essential tests that are missing
+    essential_tests = ["hemoglobina", "glicemie", "colesterol", "creatinina", "alt", "ast"]
+    tracked_lower = {b.lower() for b in unique_biomarkers}
+    missing_essential = []
+    for test in essential_tests:
+        if not any(test in t for t in tracked_lower):
+            missing_essential.append(test.upper())
+
+    return {
+        "profile": profile,
+        "timeline": timeline,
+        "health_status": health_status,
+        "reminders": reminders[:5],  # Top 5 overdue
+        "reminders_count": len(reminders),
+        "missing_essential_tests": missing_essential[:3],  # Top 3 missing
+        "profile_complete": bool(profile.get("full_name") and profile.get("date_of_birth") and profile.get("gender"))
     }
