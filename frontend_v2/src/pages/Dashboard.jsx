@@ -260,30 +260,6 @@ const Dashboard = () => {
                                     </Link>
                                 )}
 
-                                {/* Quick Stats */}
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div className="p-2 bg-slate-50 rounded-lg text-center">
-                                        <p className="text-2xl font-bold text-slate-700">{healthOverview.health_status?.biomarkers_tracked || 0}</p>
-                                        <p className="text-xs text-slate-500">{t('dashboard.biomarkersTracked') || 'Biomarkers'}</p>
-                                    </div>
-                                    <div className={cn(
-                                        "p-2 rounded-lg text-center",
-                                        healthOverview.health_status?.alerts_count > 0 ? "bg-rose-50" : "bg-teal-50"
-                                    )}>
-                                        <p className={cn(
-                                            "text-2xl font-bold",
-                                            healthOverview.health_status?.alerts_count > 0 ? "text-rose-600" : "text-teal-600"
-                                        )}>
-                                            {healthOverview.health_status?.alerts_count || 0}
-                                        </p>
-                                        <p className={cn(
-                                            "text-xs",
-                                            healthOverview.health_status?.alerts_count > 0 ? "text-rose-500" : "text-teal-500"
-                                        )}>
-                                            {t('dashboard.alertsLabel') || 'Alerts'}
-                                        </p>
-                                    </div>
-                                </div>
                             </div>
 
                             {/* Reminders & Warnings */}
