@@ -7,10 +7,16 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 
-from backend_v2.database import get_db
-from backend_v2.auth.jwt import get_current_user
-from backend_v2.models import User, Notification, NotificationPreference
-from backend_v2.services.notification_service import NotificationService
+try:
+    from backend_v2.database import get_db
+    from backend_v2.auth.jwt import get_current_user
+    from backend_v2.models import User, Notification, NotificationPreference
+    from backend_v2.services.notification_service import NotificationService
+except ImportError:
+    from database import get_db
+    from auth.jwt import get_current_user
+    from models import User, Notification, NotificationPreference
+    from services.notification_service import NotificationService
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 

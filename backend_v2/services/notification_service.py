@@ -25,7 +25,10 @@ class NotificationService:
     @property
     def email_service(self):
         if self._email_service is None:
-            from backend_v2.services.email_service import get_email_service
+            try:
+                from backend_v2.services.email_service import get_email_service
+            except ImportError:
+                from services.email_service import get_email_service
             self._email_service = get_email_service()
         return self._email_service
 
