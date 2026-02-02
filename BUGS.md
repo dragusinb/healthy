@@ -23,21 +23,17 @@ This is intentional design:
 
 ### BUG-002: Doctor AI Not Working
 **Reported:** 2026-02-02
-**Status:** Investigating
+**Status:** FIXED
 **Severity:** High
 
 **Description:**
 Doctor AI feature does not work.
 
-**Possible Causes:**
-1. Vault is locked on server - biomarker decryption fails
-2. OpenAI API key issue
-3. HTTP error during API call
+**Root Cause:**
+The vault was locked on the production server. After the API service restart, the vault needs to be manually unlocked with the master password. When the vault is locked, biomarker decryption fails, causing the AI analysis to fail.
 
-**Investigation Needed:**
-- Check server logs for errors on POST /health/analyze
-- Verify vault is unlocked
-- Test OpenAI API key is valid
+**Fix Applied:**
+Unlocked the vault on production server. This is a recurring maintenance task - the vault must be unlocked after every server restart.
 
 ---
 
@@ -75,6 +71,7 @@ Updated `scan_profile_from_documents()` in `users.py` to use vault encryption wh
 
 ## Resolved Bugs
 
+### BUG-002: Doctor AI Not Working - RESOLVED 2026-02-02
 ### BUG-003: Screenings Page Has No History - RESOLVED 2026-02-02
 ### BUG-004: Profile Save Fails - RESOLVED 2026-02-02
 
@@ -82,6 +79,14 @@ Updated `scan_profile_from_documents()` in `users.py` to use vault encryption wh
 
 ## Deployment Notes
 
-Fixes need to be deployed to production server:
+All fixes deployed to production server on 2026-02-02:
 1. `backend_v2/routers/users.py` - scan_profile vault encryption
 2. `backend_v2/routers/health.py` - JSON string parsing for encrypted reports
+3. Vault unlocked after server restart
+
+**IMPORTANT**: After every server restart (systemctl restart healthy-api), the vault must be manually unlocked:
+```bash
+curl -X POST http://localhost:8000/admin/vault/unlock \
+  -H "Content-Type: application/json" \
+  -d '{"master_password": "YOUR_MASTER_PASSWORD"}'
+```
