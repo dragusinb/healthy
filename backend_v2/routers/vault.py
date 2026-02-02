@@ -10,9 +10,15 @@ These endpoints allow administrators to:
 
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
-from services.vault import vault, VaultError, VaultNotInitializedError, VaultLockedError
-from routers.auth import get_current_user
-from models import User
+
+try:
+    from backend_v2.services.vault import vault, VaultError, VaultNotInitializedError, VaultLockedError
+    from backend_v2.routers.documents import get_current_user
+    from backend_v2.models import User
+except ImportError:
+    from services.vault import vault, VaultError, VaultNotInitializedError, VaultLockedError
+    from routers.documents import get_current_user
+    from models import User
 
 router = APIRouter(prefix="/admin/vault", tags=["vault"])
 
