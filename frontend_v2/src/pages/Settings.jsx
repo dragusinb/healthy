@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Bell, Mail, Clock, Check, AlertCircle } from 'lucide-react';
-import api from '../api';
+import api from '../api/client';
 
 export default function Settings() {
   const { t } = useTranslation();
