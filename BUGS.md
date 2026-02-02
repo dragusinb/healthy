@@ -75,6 +75,12 @@ Updated `scan_profile_from_documents()` in `users.py` to use vault encryption wh
 
 ---
 
+## Auto-Detected Bugs
+
+(No auto-detected bugs yet)
+
+---
+
 ## Deployment Notes
 
 All fixes deployed to production server on 2026-02-02:
