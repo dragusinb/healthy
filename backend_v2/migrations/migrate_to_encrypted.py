@@ -20,9 +20,9 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from backend_v2.database import SessionLocal
-from backend_v2.models import LinkedAccount, TestResult, HealthReport, User, Document
-from backend_v2.services.vault import vault, VaultLockedError
+from database import SessionLocal
+from models import LinkedAccount, TestResult, HealthReport, User, Document
+from services.vault import vault, VaultLockedError
 from cryptography.fernet import Fernet
 
 

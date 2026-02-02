@@ -16,7 +16,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from sqlalchemy import text, inspect
-from backend_v2.database import engine, SessionLocal
+from database import engine, SessionLocal
 
 
 def column_exists(inspector, table_name: str, column_name: str) -> bool:

@@ -84,8 +84,8 @@ class Vault:
     @property
     def is_configured(self) -> bool:
         """Check if vault has been initialized (has master password hash in DB)."""
-        from backend_v2.database import SessionLocal
-        from backend_v2.models import VaultConfig
+        from database import SessionLocal
+        from models import VaultConfig
 
         db = SessionLocal()
         try:
@@ -133,8 +133,8 @@ class Vault:
         master_key_hash = self._hash_password(master_password, salt)
 
         # Store in database
-        from backend_v2.database import SessionLocal
-        from backend_v2.models import VaultConfig
+        from database import SessionLocal
+        from models import VaultConfig
 
         db = SessionLocal()
         try:
@@ -165,8 +165,8 @@ class Vault:
         Returns:
             True if unlock successful, False if password incorrect
         """
-        from backend_v2.database import SessionLocal
-        from backend_v2.models import VaultConfig
+        from database import SessionLocal
+        from models import VaultConfig
 
         db = SessionLocal()
         try:
