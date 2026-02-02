@@ -84,12 +84,19 @@ const Profile = () => {
         }
     };
 
+    // Helper to extract date in YYYY-MM-DD format from ISO datetime
+    const formatDateForInput = (dateStr) => {
+        if (!dateStr) return '';
+        // Handle ISO datetime format "1984-09-27T00:00:00" or just "1984-09-27"
+        return dateStr.split('T')[0];
+    };
+
     const fetchProfile = async () => {
         try {
             const res = await api.get('/users/profile');
             setProfile({
                 full_name: res.data.full_name || '',
-                date_of_birth: res.data.date_of_birth || '',
+                date_of_birth: formatDateForInput(res.data.date_of_birth),
                 gender: res.data.gender || '',
                 height_cm: res.data.height_cm || '',
                 weight_kg: res.data.weight_kg || '',
@@ -129,7 +136,7 @@ const Profile = () => {
                 setProfile(prev => ({
                     ...prev,
                     full_name: res.data.profile.full_name || prev.full_name,
-                    date_of_birth: res.data.profile.date_of_birth || prev.date_of_birth,
+                    date_of_birth: formatDateForInput(res.data.profile.date_of_birth) || prev.date_of_birth,
                     gender: res.data.profile.gender || prev.gender,
                 }));
                 setMessage({
