@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../api/client';
 import UsageStats from '../components/UsageStats';
+import FamilyManagement from '../components/FamilyManagement';
 import { useSubscription } from '../context/SubscriptionContext';
 
 export default function Billing() {
@@ -293,44 +294,14 @@ export default function Billing() {
         </div>
       )}
 
-      {/* Family Management (for family plan users) */}
-      {tier === 'family' && familyInfo?.has_family && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
-          <div className="p-6 border-b border-slate-100">
-            <div className="flex items-center gap-3">
-              <Users className="w-6 h-6 text-purple-500" />
-              <h3 className="text-lg font-semibold text-slate-800">{t('billing.familyGroup')}</h3>
-            </div>
-          </div>
-
-          <div className="p-6">
-            {familyInfo.is_owner ? (
-              <>
-                <p className="text-slate-600 mb-4">
-                  {t('billing.inviteCode')}: <code className="bg-slate-100 px-2 py-1 rounded">{familyInfo.invite_code}</code>
-                </p>
-                <p className="text-sm text-slate-500 mb-4">
-                  {t('billing.membersCount', { current: familyInfo.members?.length || 1, max: familyInfo.max_members })}
-                </p>
-                <div className="space-y-2">
-                  {familyInfo.members?.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-slate-800">{member.email}</p>
-                        <p className="text-sm text-slate-500">{member.role}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="text-slate-600">
-                {t('billing.memberOf', { name: familyInfo.name })}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Family Management */}
+      <div className="mb-6">
+        <FamilyManagement
+          familyInfo={familyInfo}
+          tier={tier}
+          onRefresh={fetchData}
+        />
+      </div>
 
       {/* Payment Info */}
       <div className="mt-6 p-4 bg-slate-50 rounded-xl">
