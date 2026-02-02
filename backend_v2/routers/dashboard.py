@@ -508,29 +508,18 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
         except:
             pass
 
-    # --- Latest AI Findings ---
-    latest_findings = []
+    # --- Latest AI Summary ---
+    ai_summary = None
     if latest_report and vault.is_unlocked and latest_report.content_enc:
         try:
             import json
             content = json.loads(vault.decrypt_data(latest_report.content_enc))
-            findings = content.get("findings", [])
-            # Get top 3 findings, prioritizing those with severity
-            for finding in findings[:5]:
-                if isinstance(finding, dict):
-                    latest_findings.append({
-                        "text": finding.get("finding", finding.get("text", "")),
-                        "severity": finding.get("severity", "info"),
-                        "category": finding.get("category", "")
-                    })
-                elif isinstance(finding, str):
-                    latest_findings.append({
-                        "text": finding,
-                        "severity": "info",
-                        "category": ""
-                    })
+            ai_summary = content.get("summary", "")
         except:
             pass
+    # Fallback to legacy unencrypted field
+    if not ai_summary and latest_report and latest_report.summary:
+        ai_summary = latest_report.summary
 
     return {
         "profile": profile,
@@ -538,6 +527,6 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
         "health_status": health_status,
         "reminders": reminders[:5],  # Top 5 overdue
         "reminders_count": len(reminders),
-        "latest_findings": latest_findings[:3],  # Top 3 AI findings
+        "ai_summary": ai_summary,  # Full AI doctor summary
         "profile_complete": bool(profile.get("full_name") and profile.get("date_of_birth") and profile.get("gender"))
     }

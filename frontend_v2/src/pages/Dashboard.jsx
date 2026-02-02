@@ -416,68 +416,31 @@ const Dashboard = () => {
                 </Link>
             </div>
 
-            {/* Latest AI Findings */}
+            {/* AI Doctor Summary */}
             <div className="card p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <span className="p-1.5 bg-violet-50 text-violet-600 rounded-lg"><Brain size={18} /></span>
-                        {t('dashboard.latestFindings') || 'Latest AI Findings'}
+                        {t('dashboard.aiDoctorSummary') || 'AI Doctor Summary'}
                     </h3>
                     <Link to="/health" className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
                         {t('dashboard.viewFullReport') || 'View Full Report'} <ArrowRight size={14} />
                     </Link>
                 </div>
 
-                <div className="space-y-3">
-                    {healthOverview?.latest_findings?.length > 0 ? (
-                        healthOverview.latest_findings.map((finding, i) => (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "p-4 rounded-xl border",
-                                    finding.severity === 'warning' || finding.severity === 'high'
-                                        ? "bg-amber-50 border-amber-200"
-                                        : finding.severity === 'critical' || finding.severity === 'urgent'
-                                        ? "bg-rose-50 border-rose-200"
-                                        : "bg-slate-50 border-slate-200"
-                                )}
-                            >
-                                <div className="flex items-start gap-3">
-                                    <div className={cn(
-                                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-                                        finding.severity === 'warning' || finding.severity === 'high'
-                                            ? "bg-amber-100 text-amber-600"
-                                            : finding.severity === 'critical' || finding.severity === 'urgent'
-                                            ? "bg-rose-100 text-rose-600"
-                                            : "bg-slate-200 text-slate-600"
-                                    )}>
-                                        {finding.severity === 'critical' || finding.severity === 'urgent' ? (
-                                            <AlertTriangle size={16} />
-                                        ) : finding.severity === 'warning' || finding.severity === 'high' ? (
-                                            <AlertCircle size={16} />
-                                        ) : (
-                                            <CheckCircle2 size={16} />
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm text-slate-700 leading-relaxed">{finding.text}</p>
-                                        {finding.category && (
-                                            <span className="inline-block mt-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-xs font-medium">
-                                                {finding.category}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <Link to="/health" className="block text-center py-12 text-slate-400 hover:bg-slate-50 rounded-xl transition-colors">
-                            <Brain size={40} className="mx-auto mb-3 opacity-50" />
-                            <p className="text-lg font-medium">{t('dashboard.noFindingsYet') || 'No AI analysis yet'}</p>
-                            <p className="text-sm mt-1">{t('dashboard.runAnalysisHint') || 'Run your first AI health analysis to see findings'}</p>
-                        </Link>
-                    )}
-                </div>
+                {healthOverview?.ai_summary ? (
+                    <div className="prose prose-sm prose-slate max-w-none">
+                        <p className="text-slate-600 leading-relaxed whitespace-pre-line">
+                            {healthOverview.ai_summary}
+                        </p>
+                    </div>
+                ) : (
+                    <Link to="/health" className="block text-center py-12 text-slate-400 hover:bg-slate-50 rounded-xl transition-colors">
+                        <Brain size={40} className="mx-auto mb-3 opacity-50" />
+                        <p className="text-lg font-medium">{t('dashboard.noFindingsYet') || 'No AI analysis yet'}</p>
+                        <p className="text-sm mt-1">{t('dashboard.runAnalysisHint') || 'Run your first AI health analysis to see findings'}</p>
+                    </Link>
+                )}
             </div>
         </div>
     );
