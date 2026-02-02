@@ -26,10 +26,27 @@ def get_report_content(report: HealthReport) -> dict:
     if report.content_enc and vault.is_unlocked:
         try:
             content = vault.decrypt_json(report.content_enc)
+            summary = content.get("summary", "")
+            findings = content.get("findings", [])
+            recommendations = content.get("recommendations", [])
+
+            # Handle case where findings/recommendations were stored as JSON strings
+            # (from migration) instead of parsed lists
+            if isinstance(findings, str):
+                try:
+                    findings = json.loads(findings)
+                except (json.JSONDecodeError, TypeError):
+                    findings = []
+            if isinstance(recommendations, str):
+                try:
+                    recommendations = json.loads(recommendations)
+                except (json.JSONDecodeError, TypeError):
+                    recommendations = []
+
             return {
-                "summary": content.get("summary", ""),
-                "findings": content.get("findings", []),
-                "recommendations": content.get("recommendations", [])
+                "summary": summary,
+                "findings": findings if isinstance(findings, list) else [],
+                "recommendations": recommendations if isinstance(recommendations, list) else []
             }
         except Exception:
             pass  # Fall back to legacy

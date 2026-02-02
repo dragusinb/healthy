@@ -469,18 +469,54 @@ def scan_profile_from_documents(
                         age_document_date = profile["document_date"]
 
     # Apply to user profile (only fill empty fields)
+    # Use vault encryption when available
+    use_vault = vault.is_unlocked
     updates_made = []
 
-    if merged_profile.get("full_name") and not current_user.full_name:
-        current_user.full_name = merged_profile["full_name"]
+    # Check current profile data (prefer encrypted, fall back to legacy)
+    current_full_name = None
+    current_dob = None
+    current_gender = None
+    current_blood_type = None
+
+    if use_vault:
+        try:
+            if current_user.full_name_enc:
+                current_full_name = vault.decrypt_data(current_user.full_name_enc)
+            if current_user.date_of_birth_enc:
+                current_dob = vault.decrypt_data(current_user.date_of_birth_enc)
+            if current_user.gender_enc:
+                current_gender = vault.decrypt_data(current_user.gender_enc)
+            if current_user.blood_type_enc:
+                current_blood_type = vault.decrypt_data(current_user.blood_type_enc)
+        except Exception:
+            pass
+
+    # Fall back to legacy fields
+    if current_full_name is None:
+        current_full_name = current_user.full_name
+    if current_dob is None and current_user.date_of_birth:
+        current_dob = current_user.date_of_birth.strftime("%Y-%m-%d")
+    if current_gender is None:
+        current_gender = current_user.gender
+    if current_blood_type is None:
+        current_blood_type = current_user.blood_type
+
+    if merged_profile.get("full_name") and not current_full_name:
+        if use_vault:
+            current_user.full_name_enc = vault.encrypt_data(merged_profile["full_name"])
+            current_user.full_name = None  # Clear legacy
+        else:
+            current_user.full_name = merged_profile["full_name"]
         updates_made.append("full_name")
 
-    if not current_user.date_of_birth:
+    if not current_dob:
+        dob_str = None
         # Try direct date_of_birth first
         if merged_profile.get("date_of_birth"):
             try:
                 dob = datetime.datetime.strptime(merged_profile["date_of_birth"], "%Y-%m-%d")
-                current_user.date_of_birth = dob
+                dob_str = merged_profile["date_of_birth"]
                 updates_made.append("date_of_birth")
             except (ValueError, TypeError):
                 pass  # Invalid date format - will try age fallback
@@ -495,23 +531,37 @@ def scan_profile_from_documents(
                 else:
                     birth_year = datetime.date.today().year - age
                 # Approximate birth date (use January 1st of birth year)
-                dob = datetime.datetime(birth_year, 1, 1)
-                current_user.date_of_birth = dob
+                dob_str = f"{birth_year}-01-01"
                 updates_made.append("date_of_birth (estimated from age)")
             except (ValueError, TypeError):
                 pass
 
-    if merged_profile.get("gender") and not current_user.gender:
+        if dob_str:
+            if use_vault:
+                current_user.date_of_birth_enc = vault.encrypt_data(dob_str)
+                current_user.date_of_birth = None  # Clear legacy
+            else:
+                current_user.date_of_birth = datetime.datetime.strptime(dob_str, "%Y-%m-%d")
+
+    if merged_profile.get("gender") and not current_gender:
         if merged_profile["gender"] in ["male", "female"]:
-            current_user.gender = merged_profile["gender"]
+            if use_vault:
+                current_user.gender_enc = vault.encrypt_data(merged_profile["gender"])
+                current_user.gender = None  # Clear legacy
+            else:
+                current_user.gender = merged_profile["gender"]
             updates_made.append("gender")
 
     # Extract blood type (e.g., "A+", "B-", "AB+", "O-")
-    if merged_profile.get("blood_type") and not current_user.blood_type:
+    if merged_profile.get("blood_type") and not current_blood_type:
         valid_blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
         blood_type = merged_profile["blood_type"].upper().strip()
         if blood_type in valid_blood_types:
-            current_user.blood_type = blood_type
+            if use_vault:
+                current_user.blood_type_enc = vault.encrypt_data(blood_type)
+                current_user.blood_type = None  # Clear legacy
+            else:
+                current_user.blood_type = blood_type
             updates_made.append("blood_type")
 
     if updates_made:
