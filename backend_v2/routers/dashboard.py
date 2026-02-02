@@ -51,16 +51,25 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 @router.get("/stats")
 def get_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     doc_count = len(current_user.documents)
-    
-    # Count biomarkers
-    biomarker_count = 0
-    for d in current_user.documents:
-        biomarker_count += len(d.results)
-        
+
+    # Count unique biomarkers by canonical name (not total records)
+    # This matches what's shown on the Biomarkers page
+    results = db.query(TestResult).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .all()
+
+    unique_biomarkers = set()
+    for r in results:
+        # Use stored canonical_name if available, fallback to runtime normalization
+        if r.canonical_name:
+            unique_biomarkers.add(r.canonical_name)
+        else:
+            canonical, _ = normalize_biomarker_name(r.test_name)
+            unique_biomarkers.add(canonical)
+
     return {
         "documents_count": doc_count,
-        "biomarkers_count": biomarker_count,
-        # "alerts_count": ...
+        "biomarkers_count": len(unique_biomarkers),
     }
 
 @router.get("/evolution/{biomarker_name}")
