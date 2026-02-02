@@ -2,22 +2,19 @@
 
 ## Active Bugs
 
-### BUG-001: Biomarker Count Mismatch (NOT A BUG - By Design)
+### BUG-001: Biomarker Count Mismatch
 **Reported:** 2026-02-02
-**Status:** Clarified - Working as Intended
+**Status:** FIXED
 **Severity:** Low (Cosmetic/UX)
 
 **Description:**
 Dashboard (Panou principal) shows 731 biomarkers, but Biomarkers page shows only 231.
 
 **Root Cause:**
-This is intentional design:
-- Dashboard shows **total biomarker records** (731 individual test results across all documents)
-- Biomarkers page shows **unique biomarker types** (231 grouped by canonical name)
+Dashboard was counting total test records instead of unique biomarker types.
 
-**Example:** If you have 10 cholesterol tests over time, Dashboard counts 10, Biomarkers page counts 1 (grouped).
-
-**Recommendation:** Consider adding clarifying text like "731 total test results" vs "231 unique biomarkers tracked".
+**Fix Applied:**
+Updated `/dashboard/stats` endpoint to count unique biomarkers by canonical name, matching the Biomarkers page grouping.
 
 ---
 
@@ -71,6 +68,7 @@ Updated `scan_profile_from_documents()` in `users.py` to use vault encryption wh
 
 ## Resolved Bugs
 
+### BUG-001: Biomarker Count Mismatch - RESOLVED 2026-02-02
 ### BUG-002: Doctor AI Not Working - RESOLVED 2026-02-02
 ### BUG-003: Screenings Page Has No History - RESOLVED 2026-02-02
 ### BUG-004: Profile Save Fails - RESOLVED 2026-02-02
