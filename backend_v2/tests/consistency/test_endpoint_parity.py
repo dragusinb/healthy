@@ -156,7 +156,9 @@ class TestDocumentEndpointParity:
         if doc_biomarkers_response.status_code != 200:
             pytest.skip("Document biomarkers endpoint not available")
 
-        doc_biomarkers = doc_biomarkers_response.json()
+        doc_response = doc_biomarkers_response.json()
+        # Handle nested response structure: {document: {...}, biomarkers: [...]}
+        doc_biomarkers = doc_response.get("biomarkers", doc_response) if isinstance(doc_response, dict) else doc_response
 
         # Get all biomarkers and filter by document_id
         all_response = authenticated_live_client.get("/dashboard/biomarkers")
