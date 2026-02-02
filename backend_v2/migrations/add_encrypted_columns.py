@@ -41,7 +41,7 @@ def run_migration():
             print("Creating vault_config table...")
             conn.execute(text("""
                 CREATE TABLE vault_config (
-                    id INTEGER PRIMARY KEY,
+                    id SERIAL PRIMARY KEY,
                     salt VARCHAR NOT NULL,
                     master_key_hash VARCHAR NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
