@@ -530,6 +530,13 @@
     "scanTooltip": "Scaneaza documentele medicale pentru a completa automat profilul (nume, data nasterii, sex)",
     "scanSuccess": "Date de profil gasite si actualizate!",
     "scanNoNewData": "Nu s-au gasit date de profil noi (campurile sunt deja completate sau nu exista date in documente)",
+    "scanStages": {
+      "loading": "Se incarca documentele...",
+      "reading": "Se citeste continutul PDF...",
+      "analyzing": "AI analizeaza datele...",
+      "extracting": "Se extrag datele de profil...",
+      "matching": "Se potrivesc datele pacientului..."
+    },
     "multiPatientWarning": "Pacienti Multipli Detectati",
     "multiPatientDesc": "Documentele tale contin date pentru pacienti diferiti. Asigura-te ca profilul tau reflecta informatiile tale personale.",
     "patientsFound": "Pacienti gasiti"

@@ -24,8 +24,18 @@ const Profile = () => {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [scanning, setScanning] = useState(false);
+    const [scanStage, setScanStage] = useState(0);
     const [message, setMessage] = useState(null);
     const [multiPatientWarning, setMultiPatientWarning] = useState(null);
+
+    // Scan progress stages for user feedback
+    const scanStages = [
+        t('profile.scanStages.loading') || 'Loading documents...',
+        t('profile.scanStages.reading') || 'Reading PDF content...',
+        t('profile.scanStages.analyzing') || 'AI analyzing data...',
+        t('profile.scanStages.extracting') || 'Extracting profile info...',
+        t('profile.scanStages.matching') || 'Matching patient data...',
+    ];
     const [profile, setProfile] = useState({
         full_name: '',
         date_of_birth: '',
@@ -118,10 +128,18 @@ const Profile = () => {
 
     const handleScanFromDocuments = async () => {
         setScanning(true);
+        setScanStage(0);
         setMessage(null);
         setMultiPatientWarning(null);
+
+        // Cycle through stages to show progress
+        const stageInterval = setInterval(() => {
+            setScanStage(prev => (prev + 1) % scanStages.length);
+        }, 2500); // Change stage every 2.5 seconds
+
         try {
             const res = await api.post('/users/scan-profile');
+            clearInterval(stageInterval);
 
             // Check for multi-patient warning
             if (res.data.multi_patient_warning) {
@@ -156,10 +174,12 @@ const Profile = () => {
             }
             setTimeout(() => setMessage(null), 5000);
         } catch (e) {
+            clearInterval(stageInterval);
             console.error('Failed to scan profile', e);
             setMessage({ type: 'error', text: e.response?.data?.detail || t('common.error') });
         } finally {
             setScanning(false);
+            setScanStage(0);
         }
     };
 
@@ -238,7 +258,7 @@ const Profile = () => {
                         onClick={handleScanFromDocuments}
                         disabled={scanning}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all min-w-[200px]",
                             scanning
                                 ? "bg-violet-100 text-violet-600 cursor-wait"
                                 : "bg-violet-100 text-violet-700 hover:bg-violet-200"
@@ -246,7 +266,9 @@ const Profile = () => {
                         title={t('profile.scanTooltip') || 'Scan your medical documents to auto-fill profile data'}
                     >
                         {scanning ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                        {scanning ? (t('profile.scanning') || 'Scanning...') : (t('profile.scanFromDocs') || 'Scan from Documents')}
+                        <span className={scanning ? "animate-pulse" : ""}>
+                            {scanning ? scanStages[scanStage] : (t('profile.scanFromDocs') || 'Scan from Documents')}
+                        </span>
                     </button>
                 </div>
             </div>
