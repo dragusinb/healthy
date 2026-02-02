@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe } from 'lucide-react';
+import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe, CheckSquare, Square } from 'lucide-react';
 import api from '../api/client';
 
 const Login = () => {
@@ -13,6 +13,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isRegisterMode, setIsRegisterMode] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
     const { login, register, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
@@ -57,8 +58,13 @@ const Login = () => {
                 setLoading(false);
                 return;
             }
+            if (!acceptedTerms) {
+                setError(t('auth.mustAcceptTerms'));
+                setLoading(false);
+                return;
+            }
             try {
-                await register(email, password);
+                await register(email, password, acceptedTerms);
                 navigate('/');
             } catch (err) {
                 setError(err.response?.data?.detail || t('auth.emailRegistered'));
@@ -99,6 +105,7 @@ const Login = () => {
         setIsRegisterMode(!isRegisterMode);
         setError('');
         setConfirmPassword('');
+        setAcceptedTerms(false);
     };
 
     const toggleLanguage = () => {
@@ -267,6 +274,44 @@ const Login = () => {
                             </div>
                         )}
 
+                        {/* Terms & Privacy Consent */}
+                        {isRegisterMode && (
+                            <div className="flex items-start gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setAcceptedTerms(!acceptedTerms)}
+                                    className={`mt-0.5 flex-shrink-0 ${acceptedTerms ? 'text-primary-600' : 'text-slate-400'}`}
+                                >
+                                    {acceptedTerms ? <CheckSquare size={20} /> : <Square size={20} />}
+                                </button>
+                                <label className="text-sm text-slate-600 leading-relaxed">
+                                    {i18n.language === 'ro' ? (
+                                        <>
+                                            Accept{' '}
+                                            <Link to="/terms" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                                Termenii și Condițiile
+                                            </Link>
+                                            {' '}și{' '}
+                                            <Link to="/privacy" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                                Politica de Confidențialitate
+                                            </Link>
+                                        </>
+                                    ) : (
+                                        <>
+                                            I accept the{' '}
+                                            <Link to="/terms" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                                Terms and Conditions
+                                            </Link>
+                                            {' '}and{' '}
+                                            <Link to="/privacy" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                                Privacy Policy
+                                            </Link>
+                                        </>
+                                    )}
+                                </label>
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             disabled={loading || serverStatus === 'offline'}
@@ -298,9 +343,18 @@ const Login = () => {
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-sm text-slate-400 mt-6">
-                    {t('auth.dataSecure')}
-                </p>
+                <div className="text-center text-sm text-slate-400 mt-6">
+                    <p>{t('auth.dataSecure')}</p>
+                    <div className="mt-2 space-x-3">
+                        <Link to="/terms" className="text-primary-600 hover:underline">
+                            {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
+                        </Link>
+                        <span>•</span>
+                        <Link to="/privacy" className="text-primary-600 hover:underline">
+                            {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     );

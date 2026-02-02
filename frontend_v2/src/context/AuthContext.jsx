@@ -64,8 +64,14 @@ export const AuthProvider = ({ children }) => {
         await checkUser();
     };
 
-    const register = async (email, password) => {
-        const res = await api.post('/auth/register', { email, password });
+    const register = async (email, password, acceptedTerms = false) => {
+        const res = await api.post('/auth/register', {
+            email,
+            password,
+            accepted_terms: acceptedTerms,
+            terms_version: '1.0',
+            privacy_version: '1.0'
+        });
         localStorage.setItem('token', res.data.access_token);
         await checkUser();
     };

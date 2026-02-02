@@ -83,7 +83,8 @@
     "setNewPassword": "Set new password",
     "setNewPasswordDesc": "Enter your new password below.",
     "newPassword": "New password",
-    "resetPassword": "Reset password"
+    "resetPassword": "Reset password",
+    "mustAcceptTerms": "You must accept the Terms and Conditions and Privacy Policy"
   },
   "dashboard": {
     "title": "Dashboard",

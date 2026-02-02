@@ -126,6 +126,16 @@ const Layout = ({ children }) => {
                             {t('nav.logout')}
                         </button>
                     </div>
+                    {/* Legal Links */}
+                    <div className="mt-3 pt-3 border-t border-slate-100 flex justify-center gap-3 text-xs text-slate-400">
+                        <a href="/terms" target="_blank" className="hover:text-primary-600 transition-colors">
+                            {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
+                        </a>
+                        <span>•</span>
+                        <a href="/privacy" target="_blank" className="hover:text-primary-600 transition-colors">
+                            {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
+                        </a>
+                    </div>
                 </div>
             </aside>
 
@@ -232,6 +242,16 @@ const Layout = ({ children }) => {
                                         <LogOut size={16} />
                                         {t('nav.logout')}
                                     </button>
+                                </div>
+                                {/* Legal Links */}
+                                <div className="mt-3 pt-3 border-t border-slate-100 flex justify-center gap-3 text-xs text-slate-400">
+                                    <a href="/terms" target="_blank" className="hover:text-primary-600 transition-colors">
+                                        {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
+                                    </a>
+                                    <span>•</span>
+                                    <a href="/privacy" target="_blank" className="hover:text-primary-600 transition-colors">
+                                        {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
+                                    </a>
                                 </div>
                             </div>
                         </aside>

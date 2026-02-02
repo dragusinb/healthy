@@ -19,6 +19,8 @@ import Settings from './pages/Settings';
 import Admin from './pages/Admin';
 import Pricing from './pages/Pricing';
 import Billing from './pages/Billing';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }) => {
@@ -42,6 +44,8 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/vault-unlock" element={<VaultUnlock />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
           <Route path="/" element={
             <PrivateRoute>
               <Layout>

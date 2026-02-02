@@ -30,6 +30,9 @@ class Token(BaseModel):
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
+    accepted_terms: bool = False
+    terms_version: str = None
+    privacy_version: str = None
 
     @field_validator('password')
     @classmethod
@@ -82,12 +85,20 @@ def register(
     token_expires = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
 
     hashed_pw = get_password_hash(user.password)
+
+    # Set consent timestamps if accepted
+    consent_time = datetime.datetime.utcnow() if user.accepted_terms else None
+
     new_user = User(
         email=user.email,
         hashed_password=hashed_pw,
         email_verified=False,
         verification_token=verification_token,
-        verification_token_expires=token_expires
+        verification_token_expires=token_expires,
+        terms_accepted_at=consent_time,
+        privacy_accepted_at=consent_time,
+        terms_version=user.terms_version if user.accepted_terms else None,
+        privacy_version=user.privacy_version if user.accepted_terms else None
     )
     db.add(new_user)
     db.commit()
@@ -177,9 +188,19 @@ async def google_login(token_data: GoogleToken, db: Session = Depends(get_db)):
     if not user:
         # Create new user with random password (they'll use Google to login)
         # Google-authenticated users are automatically verified
+        # They accept terms implicitly by using the service
         random_password = secrets.token_urlsafe(32)
         hashed_pw = get_password_hash(random_password)
-        user = User(email=email, hashed_password=hashed_pw, email_verified=True)
+        consent_time = datetime.datetime.utcnow()
+        user = User(
+            email=email,
+            hashed_password=hashed_pw,
+            email_verified=True,
+            terms_accepted_at=consent_time,
+            privacy_accepted_at=consent_time,
+            terms_version='1.0',
+            privacy_version='1.0'
+        )
         db.add(user)
         db.commit()
         db.refresh(user)

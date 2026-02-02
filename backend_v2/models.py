@@ -38,6 +38,12 @@ class User(Base):
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime, nullable=True)
 
+    # Legal consent tracking
+    terms_accepted_at = Column(DateTime, nullable=True)  # When user accepted Terms & Conditions
+    privacy_accepted_at = Column(DateTime, nullable=True)  # When user accepted Privacy Policy
+    terms_version = Column(String, nullable=True)  # Version of T&C accepted (e.g., "1.0")
+    privacy_version = Column(String, nullable=True)  # Version of Privacy Policy accepted
+
     # Profile fields (legacy - will be removed after migration)
     full_name = Column(String, nullable=True)
     date_of_birth = Column(DateTime, nullable=True)

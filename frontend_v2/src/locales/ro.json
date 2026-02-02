@@ -87,7 +87,8 @@
     "setNewPassword": "Seteaza parola noua",
     "setNewPasswordDesc": "Introdu noua parola mai jos.",
     "newPassword": "Parola noua",
-    "resetPassword": "Reseteaza parola"
+    "resetPassword": "Reseteaza parola",
+    "mustAcceptTerms": "Trebuie sa accepti Termenii si Conditiile si Politica de Confidentialitate"
   },
   "dashboard": {
     "title": "Panou Principal",
