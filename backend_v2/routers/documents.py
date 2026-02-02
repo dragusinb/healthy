@@ -16,6 +16,7 @@ try:
     from backend_v2.services.ai_parser import AIParser
     from backend_v2.services.biomarker_normalizer import get_canonical_name
     from backend_v2.services.vault import vault
+    from backend_v2.services.subscription_service import SubscriptionService
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
@@ -23,6 +24,7 @@ except ImportError:
     from services.ai_parser import AIParser
     from services.biomarker_normalizer import get_canonical_name
     from services.vault import vault
+    from services.subscription_service import SubscriptionService
 
 
 def get_encrypted_storage_path() -> Path:
@@ -316,6 +318,12 @@ MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024
 
 @router.post("/upload")
 def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Check subscription quota
+    subscription_service = SubscriptionService(db)
+    can_upload, message = subscription_service.check_can_upload_document(current_user.id)
+    if not can_upload:
+        raise HTTPException(status_code=403, detail=message)
+
     # Validate file type
     if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")

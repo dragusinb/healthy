@@ -14,6 +14,7 @@ try:
     from backend_v2.services.health_agents import HealthAnalysisService, SpecialistAgent
     from backend_v2.services.vault import vault
     from backend_v2.services.notification_service import notify_analysis_complete
+    from backend_v2.services.subscription_service import SubscriptionService
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
@@ -21,6 +22,7 @@ except ImportError:
     from services.health_agents import HealthAnalysisService, SpecialistAgent
     from services.vault import vault
     from services.notification_service import notify_analysis_complete
+    from services.subscription_service import SubscriptionService
 
 
 def get_report_content(report: HealthReport) -> dict:
@@ -243,6 +245,12 @@ def run_health_analysis(
     current_user: User = Depends(get_current_user)
 ):
     """Run a full health analysis and save the report."""
+    # Check subscription quota for AI analyses
+    subscription_service = SubscriptionService(db)
+    can_analyze, message = subscription_service.check_can_run_analysis(current_user.id, "general")
+    if not can_analyze:
+        raise HTTPException(status_code=403, detail=message)
+
     biomarkers = get_user_biomarkers(db, current_user.id)
 
     if not biomarkers:
@@ -295,6 +303,9 @@ def run_health_analysis(
         db.add(specialist_report)
 
     db.commit()
+
+    # Increment AI usage counter
+    subscription_service.increment_ai_usage(current_user.id)
 
     # Send notification about completed analysis
     try:
@@ -477,6 +488,12 @@ def run_specialist_analysis(
     The specialist configuration can be customized via the request body,
     or sensible defaults will be used based on the specialty name.
     """
+    # Check subscription quota for specialist AI analyses
+    subscription_service = SubscriptionService(db)
+    can_analyze, message = subscription_service.check_can_run_analysis(current_user.id, specialty)
+    if not can_analyze:
+        raise HTTPException(status_code=403, detail=message)
+
     biomarkers = get_user_biomarkers(db, current_user.id)
 
     if not biomarkers:
@@ -521,6 +538,9 @@ def run_specialist_analysis(
     )
     db.add(report)
     db.commit()
+
+    # Increment AI usage counter
+    subscription_service.increment_ai_usage(current_user.id)
 
     return analysis
 
@@ -609,6 +629,12 @@ def run_gap_analysis(
     current_user: User = Depends(get_current_user)
 ):
     """Run gap analysis to recommend missing health screenings."""
+    # Check subscription quota for AI analyses
+    subscription_service = SubscriptionService(db)
+    can_analyze, message = subscription_service.check_can_run_analysis(current_user.id, "general")
+    if not can_analyze:
+        raise HTTPException(status_code=403, detail=message)
+
     # Get list of existing test names
     results = db.query(TestResult.test_name).join(Document)\
         .filter(Document.user_id == current_user.id)\
@@ -648,6 +674,9 @@ def run_gap_analysis(
     )
     db.add(report)
     db.commit()
+
+    # Increment AI usage counter
+    subscription_service.increment_ai_usage(current_user.id)
 
     return {
         "status": "success",

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
@@ -61,6 +61,7 @@ const Layout = ({ children }) => {
         if (path.startsWith('/profile')) return t('profile.title');
         if (path.startsWith('/linked-accounts')) return t('linkedAccounts.title');
         if (path.startsWith('/settings')) return t('notifications.preferences');
+        if (path.startsWith('/billing')) return t('billing.title');
         if (path.startsWith('/admin')) return t('admin.title');
         return '';
     }
@@ -89,6 +90,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
                         <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} />
+                        <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} />
                         {user?.is_admin && (
                             <SidebarItem to="/admin" icon={Shield} label={t('nav.admin')} />
                         )}
@@ -195,6 +197,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} onClick={closeMobileMenu} />
                                     {user?.is_admin && (
                                         <SidebarItem to="/admin" icon={Shield} label={t('nav.admin')} onClick={closeMobileMenu} />
                                     )}

@@ -216,7 +216,90 @@ class NotificationPreference(Base):
     user = relationship("User", back_populates="notification_preferences")
 
 
+# =============================================================================
+# Subscription & Monetization Models
+# =============================================================================
+
+class Subscription(Base):
+    """User subscription for freemium model."""
+    __tablename__ = "subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+    tier = Column(String, default="free")  # free, premium, family
+
+    # Stripe integration
+    stripe_customer_id = Column(String, nullable=True)
+    stripe_subscription_id = Column(String, nullable=True)
+    stripe_price_id = Column(String, nullable=True)
+
+    # Billing cycle
+    billing_cycle = Column(String, default="monthly")  # monthly, yearly
+    current_period_start = Column(DateTime, nullable=True)
+    current_period_end = Column(DateTime, nullable=True)
+
+    # Status
+    status = Column(String, default="active")  # active, cancelled, past_due, trialing
+    cancel_at_period_end = Column(Boolean, default=False)
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="subscription")
+
+
+class UsageTracker(Base):
+    """Track user's usage against tier limits."""
+    __tablename__ = "usage_trackers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+
+    # Monthly counters (reset on billing cycle)
+    ai_analyses_this_month = Column(Integer, default=0)
+    month_start = Column(DateTime, default=datetime.datetime.utcnow)
+
+    # Lifetime stats
+    total_ai_analyses = Column(Integer, default=0)
+    total_documents_uploaded = Column(Integer, default=0)
+
+    user = relationship("User", back_populates="usage_tracker")
+
+
+class FamilyGroup(Base):
+    """Family group for family subscription plan."""
+    __tablename__ = "family_groups"
+
+    id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    name = Column(String, default="My Family")
+    invite_code = Column(String, unique=True, nullable=True)  # For invite links
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    owner = relationship("User", foreign_keys=[owner_id], back_populates="owned_family")
+    members = relationship("FamilyMember", back_populates="family", cascade="all, delete-orphan")
+
+
+class FamilyMember(Base):
+    """Family group membership."""
+    __tablename__ = "family_members"
+
+    id = Column(Integer, primary_key=True, index=True)
+    family_id = Column(Integer, ForeignKey("family_groups.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    role = Column(String, default="member")  # owner, admin, member
+    joined_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    family = relationship("FamilyGroup", back_populates="members")
+    user = relationship("User", back_populates="family_membership")
+
+
 # Add relationship to User model
 User.health_reports = relationship("HealthReport", back_populates="user")
 User.notifications = relationship("Notification", back_populates="user")
 User.notification_preferences = relationship("NotificationPreference", back_populates="user", uselist=False)
+User.subscription = relationship("Subscription", back_populates="user", uselist=False)
+User.usage_tracker = relationship("UsageTracker", back_populates="user", uselist=False)
+User.owned_family = relationship("FamilyGroup", back_populates="owner", foreign_keys="FamilyGroup.owner_id", uselist=False)
+User.family_membership = relationship("FamilyMember", back_populates="user", uselist=False)

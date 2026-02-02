@@ -26,6 +26,7 @@ try:
     from backend_v2.services import sync_status
     from backend_v2.auth.crypto import encrypt_password, decrypt_password
     from backend_v2.services.vault import vault, VaultLockedError
+    from backend_v2.services.subscription_service import SubscriptionService
 except ImportError:
     from database import get_db
     from models import User, LinkedAccount
@@ -33,6 +34,7 @@ except ImportError:
     from services import sync_status
     from auth.crypto import encrypt_password, decrypt_password
     from services.vault import vault, VaultLockedError
+    from services.subscription_service import SubscriptionService
 
 
 def get_account_username(account: LinkedAccount) -> str:
@@ -622,15 +624,22 @@ def link_account(
             detail="Vault is locked. Please contact administrator to unlock the system."
         )
 
-    # Encrypt credentials with vault
-    username_enc = vault.encrypt_credential(account.username)
-    password_enc = vault.encrypt_credential(account.password)
-
-    # Check if exists
+    # Check if this is a new account (not updating existing)
     existing = db.query(LinkedAccount).filter(
         LinkedAccount.user_id == current_user.id,
         LinkedAccount.provider_name == account.provider_name
     ).first()
+
+    # Only check quota for NEW accounts
+    if not existing:
+        subscription_service = SubscriptionService(db)
+        can_add, message = subscription_service.check_can_add_provider(current_user.id)
+        if not can_add:
+            raise HTTPException(status_code=403, detail=message)
+
+    # Encrypt credentials with vault
+    username_enc = vault.encrypt_credential(account.username)
+    password_enc = vault.encrypt_credential(account.password)
 
     if existing:
         was_in_error = existing.status == 'ERROR'

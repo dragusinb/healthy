@@ -14,12 +14,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Support both local development (backend_v2.X) and production (X) imports
 try:
-    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications
+    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment
     from backend_v2.database import Base, engine, SessionLocal
     from backend_v2.routers.auth import seed_default_user
     from backend_v2.services.scheduler import init_scheduler, shutdown_scheduler
 except ImportError:
-    from routers import auth, users, dashboard, documents, health, admin, vault, notifications
+    from routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment
     from database import Base, engine, SessionLocal
     from routers.auth import seed_default_user
     from services.scheduler import init_scheduler, shutdown_scheduler
@@ -62,6 +62,8 @@ app.include_router(health.router)
 app.include_router(admin.router)
 app.include_router(vault.router)
 app.include_router(notifications.router)
+app.include_router(subscription.router)
+app.include_router(payment.router)
 
 
 # Initialize scheduler on startup

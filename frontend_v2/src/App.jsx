@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SubscriptionProvider } from './context/SubscriptionContext';
 import Login from './pages/Login';
 import VerifyEmail from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword';
@@ -16,6 +17,8 @@ import Screenings from './pages/Screenings';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Admin from './pages/Admin';
+import Pricing from './pages/Pricing';
+import Billing from './pages/Billing';
 import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }) => {
@@ -30,13 +33,15 @@ const PrivateRoute = ({ children }) => {
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/vault-unlock" element={<VaultUnlock />} />
+      <SubscriptionProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/vault-unlock" element={<VaultUnlock />} />
+            <Route path="/pricing" element={<Pricing />} />
           <Route path="/" element={
             <PrivateRoute>
               <Layout>
@@ -107,8 +112,16 @@ const App = () => {
               </Layout>
             </PrivateRoute>
           } />
+          <Route path="/billing" element={
+            <PrivateRoute>
+              <Layout>
+                <Billing />
+              </Layout>
+            </PrivateRoute>
+          } />
         </Routes>
-      </Router>
+        </Router>
+      </SubscriptionProvider>
     </AuthProvider>
   );
 };
