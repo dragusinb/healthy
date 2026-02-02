@@ -26,7 +26,7 @@ os.environ["ENVIRONMENT"] = "test"
 # Configuration
 # ============================================================================
 
-LIVE_API_URL = os.getenv("LIVE_API_URL", "https://analize.online/api")
+LIVE_API_URL = os.getenv("LIVE_API_URL", "https://analize.online")
 LOCAL_API_URL = os.getenv("LOCAL_API_URL", "http://localhost:8000")
 TEST_USER_EMAIL = os.getenv("TEST_USER_EMAIL", "test@example.com")
 TEST_USER_PASSWORD = os.getenv("TEST_USER_PASSWORD", "testpassword123")
