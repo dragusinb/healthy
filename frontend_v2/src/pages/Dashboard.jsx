@@ -8,25 +8,42 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay }) => (
-    <div className={cn("group card p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards", delay)}>
-        <div className="relative z-10 flex flex-col justify-between h-full">
-            <div className="flex justify-between items-start mb-4">
-                <div className={cn("p-3 rounded-2xl shadow-sm transition-colors", colorClass)}>
-                    <Icon size={24} className="text-white" />
+const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to }) => {
+    const content = (
+        <>
+            <div className="relative z-10 flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start mb-4">
+                    <div className={cn("p-3 rounded-2xl shadow-sm transition-colors", colorClass)}>
+                        <Icon size={24} className="text-white" />
+                    </div>
+                    {to && <ArrowRight size={18} className="text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />}
+                </div>
+
+                <div>
+                    <h3 className="text-4xl font-bold text-slate-800 tracking-tight">{value}</h3>
+                    <p className="text-slate-500 font-medium text-sm mt-1">{title}</p>
+                    {subtitle && <p className="text-xs text-slate-400 mt-2 font-medium">{subtitle}</p>}
                 </div>
             </div>
+            {/* Decorative background circle */}
+            <div className={cn("absolute -right-6 -top-6 w-28 h-28 rounded-full opacity-5 transition-transform group-hover:scale-125", colorClass)} />
+        </>
+    );
 
-            <div>
-                <h3 className="text-4xl font-bold text-slate-800 tracking-tight">{value}</h3>
-                <p className="text-slate-500 font-medium text-sm mt-1">{title}</p>
-                {subtitle && <p className="text-xs text-slate-400 mt-2 font-medium">{subtitle}</p>}
-            </div>
+    if (to) {
+        return (
+            <Link to={to} className={cn("group card p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards hover:ring-2 hover:ring-primary-500/20 hover:shadow-md transition-all cursor-pointer", delay)}>
+                {content}
+            </Link>
+        );
+    }
+
+    return (
+        <div className={cn("group card p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards", delay)}>
+            {content}
         </div>
-        {/* Decorative background circle */}
-        <div className={cn("absolute -right-6 -top-6 w-28 h-28 rounded-full opacity-5 transition-transform group-hover:scale-125", colorClass)} />
-    </div>
-);
+    );
+};
 
 const Dashboard = () => {
     const { t } = useTranslation();
@@ -297,22 +314,6 @@ const Dashboard = () => {
                                             )}
                                         </div>
                                     </Link>
-                                ) : healthOverview.missing_essential_tests?.length > 0 ? (
-                                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <AlertCircle size={16} className="text-blue-600" />
-                                            <span className="font-medium text-blue-800">
-                                                {t('dashboard.missingTests') || 'Consider adding'}
-                                            </span>
-                                        </div>
-                                        <div className="flex flex-wrap gap-1">
-                                            {healthOverview.missing_essential_tests.map((test, i) => (
-                                                <span key={i} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
-                                                    {test}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
                                 ) : (
                                     <div className="p-3 bg-teal-50 border border-teal-100 rounded-xl">
                                         <div className="flex items-center gap-2">
@@ -355,6 +356,7 @@ const Dashboard = () => {
                     icon={FileCheck}
                     colorClass="bg-primary-500"
                     delay="delay-0"
+                    to="/documents"
                 />
                 <StatCard
                     title={t('dashboard.biomarkersCount')}
@@ -362,6 +364,7 @@ const Dashboard = () => {
                     icon={Activity}
                     colorClass="bg-teal-500"
                     delay="delay-100"
+                    to="/biomarkers"
                 />
                 <StatCard
                     title={t('dashboard.alertsCount')}
@@ -370,6 +373,7 @@ const Dashboard = () => {
                     icon={stats.alerts_count > 0 ? AlertTriangle : ShieldCheck}
                     colorClass={stats.alerts_count > 0 ? "bg-rose-500" : "bg-indigo-500"}
                     delay="delay-200"
+                    to="/biomarkers?filter=issues"
                 />
             </div>
 
@@ -412,55 +416,66 @@ const Dashboard = () => {
                 </Link>
             </div>
 
-            {/* Recent Biomarkers */}
+            {/* Latest AI Findings */}
             <div className="card p-6">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <span className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><TrendingUp size={18} /></span>
-                        {t('dashboard.recentBiomarkers')}
+                        <span className="p-1.5 bg-violet-50 text-violet-600 rounded-lg"><Brain size={18} /></span>
+                        {t('dashboard.latestFindings') || 'Latest AI Findings'}
                     </h3>
-                    <Link to="/biomarkers" className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
-                        {t('dashboard.viewAll')} <ArrowRight size={14} />
+                    <Link to="/health" className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 transition-colors">
+                        {t('dashboard.viewFullReport') || 'View Full Report'} <ArrowRight size={14} />
                     </Link>
                 </div>
 
                 <div className="space-y-3">
-                    {recentBiomarkers.length === 0 ? (
-                        <div className="text-center py-12 text-slate-400">
-                            <Activity size={40} className="mx-auto mb-3 opacity-50" />
-                            <p className="text-lg font-medium">{t('dashboard.noRecentBiomarkers')}</p>
-                            <p className="text-sm mt-1">{t('dashboard.noBiomarkersHint')}</p>
-                        </div>
-                    ) : (
-                        recentBiomarkers.map((bio, i) => (
-                            <Link
+                    {healthOverview?.latest_findings?.length > 0 ? (
+                        healthOverview.latest_findings.map((finding, i) => (
+                            <div
                                 key={i}
-                                to={`/evolution/${encodeURIComponent(bio.name)}`}
-                                className="group flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-primary-200 hover:bg-primary-50/30 transition-all duration-200"
+                                className={cn(
+                                    "p-4 rounded-xl border",
+                                    finding.severity === 'warning' || finding.severity === 'high'
+                                        ? "bg-amber-50 border-amber-200"
+                                        : finding.severity === 'critical' || finding.severity === 'urgent'
+                                        ? "bg-rose-50 border-rose-200"
+                                        : "bg-slate-50 border-slate-200"
+                                )}
                             >
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-start gap-3">
                                     <div className={cn(
-                                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 border-white shadow-sm",
-                                        bio.status === 'normal' ? 'bg-teal-50 text-teal-600' : 'bg-rose-50 text-rose-600'
+                                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
+                                        finding.severity === 'warning' || finding.severity === 'high'
+                                            ? "bg-amber-100 text-amber-600"
+                                            : finding.severity === 'critical' || finding.severity === 'urgent'
+                                            ? "bg-rose-100 text-rose-600"
+                                            : "bg-slate-200 text-slate-600"
                                     )}>
-                                        {bio.name.charAt(0)}
+                                        {finding.severity === 'critical' || finding.severity === 'urgent' ? (
+                                            <AlertTriangle size={16} />
+                                        ) : finding.severity === 'warning' || finding.severity === 'high' ? (
+                                            <AlertCircle size={16} />
+                                        ) : (
+                                            <CheckCircle2 size={16} />
+                                        )}
                                     </div>
-                                    <div>
-                                        <p className="font-semibold text-slate-800 group-hover:text-primary-700 transition-colors">{bio.name}</p>
-                                        <p className="text-xs text-slate-400">{bio.date}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm text-slate-700 leading-relaxed">{finding.text}</p>
+                                        {finding.category && (
+                                            <span className="inline-block mt-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded text-xs font-medium">
+                                                {finding.category}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="text-right">
-                                        <p className="font-bold text-slate-700">{bio.lastValue}</p>
-                                        <p className={cn("text-xs font-semibold uppercase tracking-wider", bio.status === 'normal' ? "text-teal-500" : "text-rose-500")}>
-                                            {bio.status === 'normal' ? t('dashboard.normal') : t('dashboard.attention')}
-                                        </p>
-                                    </div>
-                                    <ArrowRight size={18} className="text-slate-300 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
-                                </div>
-                            </Link>
+                            </div>
                         ))
+                    ) : (
+                        <Link to="/health" className="block text-center py-12 text-slate-400 hover:bg-slate-50 rounded-xl transition-colors">
+                            <Brain size={40} className="mx-auto mb-3 opacity-50" />
+                            <p className="text-lg font-medium">{t('dashboard.noFindingsYet') || 'No AI analysis yet'}</p>
+                            <p className="text-sm mt-1">{t('dashboard.runAnalysisHint') || 'Run your first AI health analysis to see findings'}</p>
+                        </Link>
                     )}
                 </div>
             </div>

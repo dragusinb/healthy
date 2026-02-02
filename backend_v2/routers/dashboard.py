@@ -508,14 +508,29 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
         except:
             pass
 
-    # --- Missing Tests Warning ---
-    # Check for common essential tests that are missing
-    essential_tests = ["hemoglobina", "glicemie", "colesterol", "creatinina", "alt", "ast"]
-    tracked_lower = {b.lower() for b in unique_biomarkers}
-    missing_essential = []
-    for test in essential_tests:
-        if not any(test in t for t in tracked_lower):
-            missing_essential.append(test.upper())
+    # --- Latest AI Findings ---
+    latest_findings = []
+    if latest_report and vault.is_unlocked and latest_report.content_enc:
+        try:
+            import json
+            content = json.loads(vault.decrypt_data(latest_report.content_enc))
+            findings = content.get("findings", [])
+            # Get top 3 findings, prioritizing those with severity
+            for finding in findings[:5]:
+                if isinstance(finding, dict):
+                    latest_findings.append({
+                        "text": finding.get("finding", finding.get("text", "")),
+                        "severity": finding.get("severity", "info"),
+                        "category": finding.get("category", "")
+                    })
+                elif isinstance(finding, str):
+                    latest_findings.append({
+                        "text": finding,
+                        "severity": "info",
+                        "category": ""
+                    })
+        except:
+            pass
 
     return {
         "profile": profile,
@@ -523,6 +538,6 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
         "health_status": health_status,
         "reminders": reminders[:5],  # Top 5 overdue
         "reminders_count": len(reminders),
-        "missing_essential_tests": missing_essential[:3],  # Top 3 missing
+        "latest_findings": latest_findings[:3],  # Top 3 AI findings
         "profile_complete": bool(profile.get("full_name") and profile.get("date_of_birth") and profile.get("gender"))
     }

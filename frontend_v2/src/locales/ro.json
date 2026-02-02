@@ -134,7 +134,11 @@
     "allUpToDate": "Totul la zi!",
     "noOverdueScreenings": "Niciun screening intarziat",
     "rerunAnalysis": "E timpul pentru o noua analiza",
-    "lastAnalysisWas": "Ultima analiza a fost acum"
+    "lastAnalysisWas": "Ultima analiza a fost acum",
+    "latestFindings": "Ultimele Constatari AI",
+    "viewFullReport": "Vezi Raportul Complet",
+    "noFindingsYet": "Nicio analiza AI inca",
+    "runAnalysisHint": "Ruleaza prima ta analiza AI pentru a vedea constatarile"
   },
   "documents": {
     "title": "Documente",
