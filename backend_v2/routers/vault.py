@@ -72,15 +72,16 @@ async def get_vault_status():
 
 
 @router.post("/initialize", response_model=VaultInitResponse)
-async def initialize_vault(
-    request: VaultPasswordRequest,
-    current_user: User = Depends(require_admin)
-):
+async def initialize_vault(request: VaultPasswordRequest):
     """
     Initialize the vault with a master password (first-time setup).
 
     This can only be done once. The master password must be at least 16 characters.
     After initialization, the vault is automatically unlocked.
+
+    NOTE: This endpoint is intentionally public when vault is not configured,
+    since authentication cannot work without the vault being initialized.
+    Once configured, this endpoint will reject further initialization attempts.
 
     WARNING: If you forget the master password, all encrypted data becomes
     permanently inaccessible. There is no recovery mechanism.
