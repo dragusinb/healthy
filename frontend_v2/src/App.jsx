@@ -22,6 +22,7 @@ import Billing from './pages/Billing';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import JoinFamily from './pages/JoinFamily';
+import Home from './pages/Home';
 import Layout from './components/Layout';
 
 const PrivateRoute = ({ children }) => {
@@ -46,6 +47,23 @@ const OptionalLayoutRoute = ({ children }) => {
   return children;
 };
 
+// Home page for guests, Dashboard for logged-in users
+const HomeOrDashboard = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div>Loading...</div>;
+
+  if (user) {
+    return (
+      <Layout>
+        <Dashboard />
+      </Layout>
+    );
+  }
+
+  return <Home />;
+};
+
 const App = () => {
   return (
     <AuthProvider>
@@ -59,13 +77,7 @@ const App = () => {
             <Route path="/vault-unlock" element={<VaultUnlock />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/join-family" element={<JoinFamily />} />
-          <Route path="/" element={
-            <PrivateRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </PrivateRoute>
-          } />
+          <Route path="/" element={<HomeOrDashboard />} />
           <Route path="/documents" element={
             <PrivateRoute>
               <Layout>
