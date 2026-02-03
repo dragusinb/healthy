@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, Text, LargeBinary
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, Text, LargeBinary, Index
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -70,6 +70,10 @@ class User(Base):
     smoking_status = Column(String, nullable=True)  # never, former, current
     alcohol_consumption = Column(String, nullable=True)  # none, occasional, moderate, heavy
     physical_activity = Column(String, nullable=True)  # sedentary, light, moderate, active, very_active
+
+    # Per-user encryption vault
+    vault_data = Column(Text, nullable=True)  # JSON with encrypted vault key, salts, recovery key hash
+    vault_setup_at = Column(DateTime, nullable=True)  # When user set up their vault
 
     linked_accounts = relationship("LinkedAccount", back_populates="user")
     documents = relationship("Document", back_populates="user")
@@ -301,7 +305,121 @@ class FamilyMember(Base):
     user = relationship("User", back_populates="family_membership")
 
 
-# Add relationship to User model
+# =============================================================================
+# Audit Logging & Abuse Detection Models
+# =============================================================================
+
+class AuditLog(Base):
+    """Audit log for tracking user actions."""
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # Nullable for anonymous actions
+    action = Column(String, index=True)  # login, logout, upload, delete, analyze, etc.
+    resource_type = Column(String, nullable=True)  # document, linked_account, report, etc.
+    resource_id = Column(Integer, nullable=True)
+    details = Column(Text, nullable=True)  # JSON with additional context
+    ip_address = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
+    status = Column(String, default="success")  # success, failed, blocked
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+    user = relationship("User", back_populates="audit_logs")
+
+
+class UserSession(Base):
+    """Track user sessions for security monitoring."""
+    __tablename__ = "user_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    session_token = Column(String, unique=True, index=True)  # JWT token hash or session ID
+    ip_address = Column(String)
+    user_agent = Column(String, nullable=True)
+    device_fingerprint = Column(String, nullable=True)  # Browser fingerprint
+    location = Column(String, nullable=True)  # Geo-location from IP
+    started_at = Column(DateTime, default=datetime.datetime.utcnow)
+    last_activity = Column(DateTime, default=datetime.datetime.utcnow)
+    ended_at = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True)
+
+    user = relationship("User", back_populates="sessions")
+
+
+class AbuseFlag(Base):
+    """Track potential abuse incidents."""
+    __tablename__ = "abuse_flags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    ip_address = Column(String, nullable=True, index=True)
+    flag_type = Column(String, index=True)  # rate_limit, failed_login, suspicious_activity, account_sharing, scraping
+    severity = Column(String, default="low")  # low, medium, high, critical
+    description = Column(Text)
+    details = Column(Text, nullable=True)  # JSON with additional context
+    is_resolved = Column(Boolean, default=False)
+    resolved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    resolved_at = Column(DateTime, nullable=True)
+    resolution_notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+    user = relationship("User", foreign_keys=[user_id], back_populates="abuse_flags")
+
+
+class RateLimitCounter(Base):
+    """Track rate limiting counters."""
+    __tablename__ = "rate_limit_counters"
+
+    id = Column(Integer, primary_key=True, index=True)
+    identifier = Column(String, index=True)  # user_id, ip_address, or combination
+    action = Column(String, index=True)  # api_call, login, upload, analyze, etc.
+    count = Column(Integer, default=0)
+    window_start = Column(DateTime, default=datetime.datetime.utcnow)
+    window_minutes = Column(Integer, default=60)  # Window size in minutes
+
+    __table_args__ = (
+        # Composite index for fast lookups
+        Index('ix_rate_limit_identifier_action', 'identifier', 'action'),
+    )
+
+
+class UsageMetrics(Base):
+    """Daily usage metrics for analytics."""
+    __tablename__ = "usage_metrics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    date = Column(DateTime, index=True)  # Date (day granularity)
+
+    # API usage
+    api_calls = Column(Integer, default=0)
+
+    # Feature usage
+    documents_uploaded = Column(Integer, default=0)
+    documents_viewed = Column(Integer, default=0)
+    documents_deleted = Column(Integer, default=0)
+    ai_analyses_run = Column(Integer, default=0)
+    biomarkers_viewed = Column(Integer, default=0)
+    reports_generated = Column(Integer, default=0)
+    reports_exported = Column(Integer, default=0)
+
+    # Session metrics
+    sessions_count = Column(Integer, default=0)
+    total_session_minutes = Column(Integer, default=0)
+
+    # Sync metrics
+    syncs_triggered = Column(Integer, default=0)
+    syncs_completed = Column(Integer, default=0)
+    syncs_failed = Column(Integer, default=0)
+
+    user = relationship("User", back_populates="usage_metrics")
+
+    __table_args__ = (
+        Index('ix_usage_metrics_user_date', 'user_id', 'date'),
+    )
+
+
+# Add relationships to User model
 User.health_reports = relationship("HealthReport", back_populates="user")
 User.notifications = relationship("Notification", back_populates="user")
 User.notification_preferences = relationship("NotificationPreference", back_populates="user", uselist=False)
@@ -309,3 +427,7 @@ User.subscription = relationship("Subscription", back_populates="user", uselist=
 User.usage_tracker = relationship("UsageTracker", back_populates="user", uselist=False)
 User.owned_family = relationship("FamilyGroup", back_populates="owner", foreign_keys="FamilyGroup.owner_id", uselist=False)
 User.family_membership = relationship("FamilyMember", back_populates="user", uselist=False)
+User.audit_logs = relationship("AuditLog", back_populates="user")
+User.sessions = relationship("UserSession", back_populates="user")
+User.abuse_flags = relationship("AbuseFlag", foreign_keys="AbuseFlag.user_id", back_populates="user")
+User.usage_metrics = relationship("UsageMetrics", back_populates="user")

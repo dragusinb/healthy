@@ -11,6 +11,9 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [googleLoaded, setGoogleLoaded] = useState(false);
 
+    // Google OAuth flow state
+    const [pendingGoogleSetup, setPendingGoogleSetup] = useState(null); // {needs_password_setup, needs_vault_unlock}
+
     useEffect(() => {
         checkUser();
         loadGoogleScript();
@@ -74,6 +77,8 @@ export const AuthProvider = ({ children }) => {
         });
         localStorage.setItem('token', res.data.access_token);
         await checkUser();
+        // Return the response so caller can access recovery_key
+        return res.data;
     };
 
     const loginWithGoogle = useCallback(() => {
@@ -104,8 +109,23 @@ export const AuthProvider = ({ children }) => {
                                 access_token: response.access_token
                             });
                             localStorage.setItem('token', res.data.access_token);
-                            await checkUser();
-                            resolve();
+
+                            // Check if user needs to complete setup or unlock data
+                            if (res.data.needs_password_setup) {
+                                // New Google user - needs to set password
+                                setPendingGoogleSetup({ type: 'setup_password' });
+                                await checkUser();
+                                resolve({ needsSetup: true });
+                            } else if (res.data.needs_vault_unlock) {
+                                // Returning Google user - needs to unlock data
+                                setPendingGoogleSetup({ type: 'unlock_data' });
+                                await checkUser();
+                                resolve({ needsUnlock: true });
+                            } else {
+                                // No encryption setup (shouldn't happen with new flow)
+                                await checkUser();
+                                resolve({});
+                            }
                         } catch (err) {
                             reject(new Error(err.response?.data?.detail || 'Google authentication failed'));
                         }
@@ -119,13 +139,40 @@ export const AuthProvider = ({ children }) => {
         });
     }, [googleLoaded]);
 
+    const setupPassword = async (password) => {
+        const res = await api.post('/auth/setup-password', { password });
+        setPendingGoogleSetup(null);
+        return res.data; // Contains recovery_key
+    };
+
+    const unlockData = async (password) => {
+        await api.post('/auth/unlock-data', { password });
+        setPendingGoogleSetup(null);
+    };
+
+    const clearPendingSetup = () => {
+        setPendingGoogleSetup(null);
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, loginWithGoogle, logout, loading }}>
+        <AuthContext.Provider value={{
+            user,
+            login,
+            register,
+            loginWithGoogle,
+            logout,
+            loading,
+            // Google OAuth flow
+            pendingGoogleSetup,
+            setupPassword,
+            unlockData,
+            clearPendingSetup
+        }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -16,7 +16,9 @@ try:
     from backend_v2.services.ai_parser import AIParser
     from backend_v2.services.biomarker_normalizer import get_canonical_name
     from backend_v2.services.vault import vault
+    from backend_v2.services.vault_helper import get_vault_helper
     from backend_v2.services.subscription_service import SubscriptionService
+    from backend_v2.services.audit_service import AuditService
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
@@ -24,7 +26,9 @@ except ImportError:
     from services.ai_parser import AIParser
     from services.biomarker_normalizer import get_canonical_name
     from services.vault import vault
+    from services.vault_helper import get_vault_helper
     from services.subscription_service import SubscriptionService
+    from services.audit_service import AuditService
 
 
 def get_encrypted_storage_path() -> Path:
@@ -34,9 +38,22 @@ def get_encrypted_storage_path() -> Path:
     return path
 
 
-def read_document_content(doc: Document) -> bytes:
-    """Read document content, decrypting if necessary."""
+def read_document_content(doc: Document, user_id: int = None) -> bytes:
+    """Read document content, decrypting if necessary.
+
+    Args:
+        doc: Document object
+        user_id: User ID for per-user vault (optional, uses global vault if not provided)
+    """
     if doc.is_encrypted and doc.encrypted_path:
+        # Try per-user vault first, then global vault
+        if user_id:
+            vault_helper = get_vault_helper(user_id)
+            if vault_helper.is_available:
+                encrypted_content = Path(doc.encrypted_path).read_bytes()
+                return vault_helper.decrypt_document(encrypted_content)
+
+        # Fall back to global vault
         if not vault.is_unlocked:
             raise HTTPException(
                 status_code=503,
@@ -51,14 +68,22 @@ def read_document_content(doc: Document) -> bytes:
 
 
 def save_document_encrypted(content: bytes, user_id: int, doc_id: int) -> str:
-    """Save document with vault encryption. Returns encrypted file path."""
-    if not vault.is_unlocked:
+    """Save document with vault encryption. Returns encrypted file path.
+
+    Uses per-user vault if available, otherwise falls back to global vault.
+    """
+    # Try per-user vault first
+    vault_helper = get_vault_helper(user_id)
+    if vault_helper.is_available:
+        encrypted_content = vault_helper.encrypt_document(content)
+    elif vault.is_unlocked:
+        # Fall back to global vault
+        encrypted_content = vault.encrypt_document(content)
+    else:
         raise HTTPException(
             status_code=503,
             detail="Vault is locked. Cannot save encrypted documents."
         )
-
-    encrypted_content = vault.encrypt_document(content)
 
     # Save to encrypted storage
     user_dir = get_encrypted_storage_path() / str(user_id)
@@ -182,7 +207,7 @@ def download_all_documents(db: Session = Depends(get_db), current_user: User = D
         for doc in docs:
             try:
                 # Read content (handles encryption)
-                content = read_document_content(doc)
+                content = read_document_content(doc, current_user.id)
 
                 # Create a meaningful filename with date
                 date_str = doc.document_date.strftime("%Y-%m-%d") if doc.document_date else "unknown"
@@ -220,7 +245,7 @@ def download_document(doc_id: int, db: Session = Depends(get_db), current_user: 
 
     # Handle encrypted documents
     if doc.is_encrypted and doc.encrypted_path:
-        content = read_document_content(doc)
+        content = read_document_content(doc, current_user.id)
         return StreamingResponse(
             BytesIO(content),
             media_type="application/pdf",
@@ -317,11 +342,29 @@ MAX_UPLOAD_SIZE_MB = 20
 MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024
 
 @router.post("/upload")
-def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def upload_document(
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    audit = AuditService(db)
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
     # Check subscription quota
     subscription_service = SubscriptionService(db)
     can_upload, message = subscription_service.check_can_upload_document(current_user.id)
     if not can_upload:
+        audit.log_action(
+            user_id=current_user.id,
+            action="document_upload",
+            resource_type="document",
+            details={"filename": file.filename, "reason": "quota_exceeded"},
+            ip_address=ip_address,
+            user_agent=user_agent,
+            status="blocked"
+        )
         raise HTTPException(status_code=403, detail=message)
 
     # Validate file type
@@ -379,6 +422,21 @@ def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db),
 
     db.commit()
     db.refresh(doc)
+
+    # Log successful upload
+    audit.log_action(
+        user_id=current_user.id,
+        action="document_upload",
+        resource_type="document",
+        resource_id=doc.id,
+        details={"filename": safe_filename, "size_bytes": file_size},
+        ip_address=ip_address,
+        user_agent=user_agent,
+        status="success"
+    )
+
+    # Track usage
+    audit.track_usage(current_user.id, "documents_uploaded", 1)
 
     # Trigger Processing
     process_document(doc.id, db)
@@ -543,11 +601,16 @@ def rescan_patient_names(db: Session = Depends(get_db), current_user: User = Dep
 @router.delete("/{doc_id}")
 def delete_document(
     doc_id: int,
+    request: Request,
     regenerate_reports: bool = True,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Delete a document and its associated biomarkers. Optionally regenerate health reports."""
+    audit = AuditService(db)
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
     doc = db.query(Document).filter(
         Document.id == doc_id,
         Document.user_id == current_user.id
@@ -555,6 +618,9 @@ def delete_document(
 
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
+
+    # Store document info for audit log before deletion
+    doc_filename = doc.filename
 
     # Delete associated test results
     db.query(TestResult).filter(TestResult.document_id == doc_id).delete()
@@ -566,6 +632,13 @@ def delete_document(
         except Exception as e:
             print(f"Warning: Could not delete file {doc.file_path}: {e}")
 
+    # Delete encrypted file if exists
+    if doc.encrypted_path and os.path.exists(doc.encrypted_path):
+        try:
+            os.remove(doc.encrypted_path)
+        except Exception as e:
+            print(f"Warning: Could not delete encrypted file {doc.encrypted_path}: {e}")
+
     # Delete the document record
     db.delete(doc)
 
@@ -574,6 +647,18 @@ def delete_document(
         db.query(HealthReport).filter(HealthReport.user_id == current_user.id).delete()
 
     db.commit()
+
+    # Log document deletion
+    audit.log_action(
+        user_id=current_user.id,
+        action="document_delete",
+        resource_type="document",
+        resource_id=doc_id,
+        details={"filename": doc_filename, "reports_cleared": regenerate_reports},
+        ip_address=ip_address,
+        user_agent=user_agent,
+        status="success"
+    )
 
     return {
         "status": "success",
