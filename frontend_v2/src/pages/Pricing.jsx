@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Check, X, Crown, Users, Sparkles, HeartPulse, ArrowRight, FileText, Brain, Share2, History, Zap, Shield } from 'lucide-react';
+import {
+  Check, X, Crown, Users, Sparkles, HeartPulse, ArrowRight, FileText,
+  Brain, Share2, History, Zap, Shield, Stethoscope, TrendingUp, Download,
+  Clock, Heart, Activity, ChevronDown, ChevronUp
+} from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
@@ -13,6 +17,7 @@ export default function Pricing() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
     fetchPlans();
@@ -44,6 +49,107 @@ export default function Pricing() {
 
   const activePremium = selectedPeriod === 'yearly' ? premiumYearly : premiumMonthly;
 
+  // Premium benefits with detailed descriptions
+  const premiumBenefits = [
+    {
+      icon: Brain,
+      title: isRomanian ? '5 Specialisti AI' : '5 AI Specialists',
+      description: isRomanian
+        ? 'Cardiolog, Endocrinolog, Hematolog, Hepatolog si Nefrolog - analize detaliate pentru fiecare sistem'
+        : 'Cardiologist, Endocrinologist, Hematologist, Hepatologist and Nephrologist - detailed analysis for each system',
+      color: 'text-violet-600',
+      bg: 'bg-violet-50',
+    },
+    {
+      icon: TrendingUp,
+      title: isRomanian ? '30 Analize AI / luna' : '30 AI Analyses / month',
+      description: isRomanian
+        ? 'Ruleaza analize AI de cate ori ai nevoie - vezi cum evolueaza sanatatea ta in timp'
+        : 'Run AI analyses as often as you need - see how your health evolves over time',
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      icon: Stethoscope,
+      title: isRomanian ? 'Analiza lacunelor in screening' : 'Screening Gap Analysis',
+      description: isRomanian
+        ? 'Afla ce analize medicale ar trebui sa faci bazat pe varsta, sex si istoricul tau medical'
+        : 'Find out what medical tests you should do based on your age, gender and medical history',
+      color: 'text-teal-600',
+      bg: 'bg-teal-50',
+    },
+    {
+      icon: History,
+      title: isRomanian ? 'Comparatii istorice' : 'Historical Comparisons',
+      description: isRomanian
+        ? 'Compara analizele de acum cu cele de acum 6 luni sau 1 an - vezi tendintele'
+        : 'Compare current tests with those from 6 months or 1 year ago - see trends',
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+    },
+    {
+      icon: Download,
+      title: isRomanian ? 'Export PDF' : 'PDF Export',
+      description: isRomanian
+        ? 'Descarca rapoartele AI in format PDF pentru a le arata medicului tau'
+        : 'Download AI reports in PDF format to show your doctor',
+      color: 'text-rose-600',
+      bg: 'bg-rose-50',
+    },
+    {
+      icon: Shield,
+      title: isRomanian ? 'Conturi medicale nelimitate' : 'Unlimited Medical Accounts',
+      description: isRomanian
+        ? 'Conecteaza Regina Maria, Synevo, Medlife si orice alt provider - toate intr-un singur loc'
+        : 'Connect Regina Maria, Synevo, Medlife and any other provider - all in one place',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+    },
+    {
+      icon: Zap,
+      title: isRomanian ? 'Sincronizare prioritara' : 'Priority Sync',
+      description: isRomanian
+        ? 'Analizele tale sunt sincronizate cu prioritate - primesti rezultatele mai repede'
+        : 'Your tests are synced with priority - you get results faster',
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+    },
+    {
+      icon: FileText,
+      title: isRomanian ? '500 Documente' : '500 Documents',
+      description: isRomanian
+        ? 'Stocheaza pana la 500 de documente medicale - 10x mai mult decat planul gratuit'
+        : 'Store up to 500 medical documents - 10x more than the free plan',
+      color: 'text-slate-600',
+      bg: 'bg-slate-50',
+    },
+  ];
+
+  // Family additional benefits
+  const familyBenefits = [
+    {
+      icon: Users,
+      title: isRomanian ? 'Pana la 5 membri' : 'Up to 5 members',
+      description: isRomanian
+        ? 'Adauga sotul/sotia, copiii sau parintii - fiecare cu cont propriu'
+        : 'Add spouse, children or parents - each with their own account',
+    },
+    {
+      icon: Shield,
+      title: isRomanian ? 'Date complet separate' : 'Completely separate data',
+      description: isRomanian
+        ? 'Fiecare membru are propriile analize, rapoarte si istoric - 100% privat'
+        : 'Each member has their own tests, reports and history - 100% private',
+    },
+    {
+      icon: Heart,
+      title: isRomanian ? 'Economisesti 15 RON/luna' : 'Save 15 RON/month',
+      description: isRomanian
+        ? 'La 5 membri, fiecare plateste doar 2 RON/luna in loc de 5 RON'
+        : 'With 5 members, each pays only 2 RON/month instead of 5 RON',
+    },
+  ];
+
   // Feature comparison data
   const features = [
     {
@@ -60,7 +166,7 @@ export default function Pricing() {
           name: isRomanian ? 'Conturi medicale conectate' : 'Connected medical accounts',
           free: '2',
           premium: isRomanian ? 'Nelimitat' : 'Unlimited',
-          family: isRomanian ? 'Nelimitat / membru' : 'Unlimited / member',
+          family: isRomanian ? 'Nelimitat' : 'Unlimited',
           icon: Shield,
         },
         {
@@ -90,18 +196,46 @@ export default function Pricing() {
           icon: HeartPulse,
         },
         {
-          name: isRomanian ? 'Specialisti AI (Cardiologie, Endocrinologie, etc.)' : 'AI Specialists (Cardiology, Endocrinology, etc.)',
+          name: isRomanian ? 'Cardiolog AI' : 'AI Cardiologist',
           free: false,
           premium: true,
           family: true,
-          icon: Brain,
+          icon: Heart,
+        },
+        {
+          name: isRomanian ? 'Endocrinolog AI' : 'AI Endocrinologist',
+          free: false,
+          premium: true,
+          family: true,
+          icon: Activity,
+        },
+        {
+          name: isRomanian ? 'Hematolog AI' : 'AI Hematologist',
+          free: false,
+          premium: true,
+          family: true,
+          icon: Activity,
+        },
+        {
+          name: isRomanian ? 'Hepatolog AI' : 'AI Hepatologist',
+          free: false,
+          premium: true,
+          family: true,
+          icon: Activity,
+        },
+        {
+          name: isRomanian ? 'Nefrolog AI' : 'AI Nephrologist',
+          free: false,
+          premium: true,
+          family: true,
+          icon: Activity,
         },
         {
           name: isRomanian ? 'Analiza lacunelor in screening' : 'Screening gap analysis',
           free: false,
           premium: true,
           family: true,
-          icon: Brain,
+          icon: Stethoscope,
         },
       ],
     },
@@ -113,7 +247,7 @@ export default function Pricing() {
           free: false,
           premium: true,
           family: true,
-          icon: FileText,
+          icon: Download,
         },
         {
           name: isRomanian ? 'Partajare cu medicii' : 'Share with doctors',
@@ -146,7 +280,7 @@ export default function Pricing() {
           free: false,
           premium: false,
           family: true,
-          icon: Users,
+          icon: Shield,
         },
       ],
     },
@@ -168,7 +302,7 @@ export default function Pricing() {
       <header className="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center gap-2 text-cyan-600">
           <HeartPulse size={28} />
-          <span className="text-xl font-bold text-slate-800">Healthy.ai</span>
+          <span className="text-xl font-bold text-slate-800">Analize.Online</span>
         </div>
         {user ? (
           <button
@@ -194,8 +328,8 @@ export default function Pricing() {
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
           {isRomanian
-            ? 'Toate planurile includ acces la sincronizarea automata a analizelor medicale si monitorizarea biomarkerilor.'
-            : 'All plans include access to automatic medical test sync and biomarker monitoring.'}
+            ? 'Toate planurile includ sincronizare automata cu Regina Maria, Synevo si alti provideri medicali.'
+            : 'All plans include automatic sync with Regina Maria, Synevo and other medical providers.'}
         </p>
       </div>
 
@@ -229,7 +363,7 @@ export default function Pricing() {
       </div>
 
       {/* Plan Cards */}
-      <div className="max-w-6xl mx-auto px-6 pb-8">
+      <div className="max-w-6xl mx-auto px-6 pb-12">
         <div className="grid md:grid-cols-3 gap-6">
           {/* Free Plan */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col">
@@ -261,7 +395,7 @@ export default function Pricing() {
               </div>
               <div className="flex items-center gap-2 text-slate-600">
                 <Check className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                <span>{isRomanian ? 'Analiza generala' : 'General analysis'}</span>
+                <span>{isRomanian ? 'Doar analiza generala' : 'General analysis only'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-400">
                 <X className="w-5 h-5 flex-shrink-0" />
@@ -287,7 +421,7 @@ export default function Pricing() {
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
                 <Sparkles size={12} />
-                {isRomanian ? 'Popular' : 'Popular'}
+                {isRomanian ? 'Recomandat' : 'Recommended'}
               </span>
             </div>
 
@@ -305,48 +439,57 @@ export default function Pricing() {
                 </span>
               </div>
               {selectedPeriod === 'yearly' && (
-                <p className="text-green-600 text-sm mt-1">
+                <p className="text-green-600 text-sm mt-1 font-medium">
                   {isRomanian ? 'Economisesti 20 RON pe an' : 'Save 20 RON per year'}
                 </p>
               )}
-              <p className="text-slate-500 mt-2 text-sm">
-                {isRomanian
-                  ? 'Acces complet la toate functiile premium'
-                  : 'Full access to all premium features'}
-              </p>
+              {selectedPeriod === 'monthly' && (
+                <p className="text-slate-500 text-sm mt-1">
+                  {isRomanian ? 'Mai putin decat o cafea' : 'Less than a coffee'}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-3 mb-6 flex-grow">
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
+            {/* Key Benefits Summary */}
+            <div className="bg-amber-100/50 rounded-xl p-4 mb-4">
+              <p className="text-sm font-semibold text-amber-800 mb-2">
+                {isRomanian ? 'Ce primesti:' : 'What you get:'}
+              </p>
+              <ul className="space-y-1.5 text-sm text-amber-900">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span><strong>5</strong> {isRomanian ? 'doctori AI specialisti' : 'AI specialist doctors'}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span><strong>30</strong> {isRomanian ? 'analize AI pe luna' : 'AI analyses per month'}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>{isRomanian ? 'Analiza lacunelor in screening' : 'Screening gap analysis'}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  <span>{isRomanian ? 'Export PDF + Partajare cu medicii' : 'PDF export + Share with doctors'}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2 mb-6 flex-grow text-sm">
+              <div className="flex items-center gap-2 text-slate-700">
+                <Check className="w-4 h-4 text-amber-500 flex-shrink-0" />
                 <span>500 {isRomanian ? 'documente' : 'documents'}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-slate-700">
+                <Check className="w-4 h-4 text-amber-500 flex-shrink-0" />
                 <span>{isRomanian ? 'Conturi medicale nelimitate' : 'Unlimited medical accounts'}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                <span>30 {isRomanian ? 'analize AI/luna' : 'AI analyses/month'}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                <span>{isRomanian ? 'Toti specialistii AI' : 'All AI specialists'}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                <span>{isRomanian ? 'Export PDF rapoarte' : 'PDF report export'}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                <span>{isRomanian ? 'Partajare cu medicii' : 'Share with doctors'}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-slate-700">
+                <Check className="w-4 h-4 text-amber-500 flex-shrink-0" />
                 <span>{isRomanian ? 'Comparatii istorice' : 'Historical comparisons'}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-700 font-medium">
-                <Check className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <div className="flex items-center gap-2 text-slate-700">
+                <Check className="w-4 h-4 text-amber-500 flex-shrink-0" />
                 <span>{isRomanian ? 'Sincronizare prioritara' : 'Priority sync'}</span>
               </div>
             </div>
@@ -373,41 +516,53 @@ export default function Pricing() {
                 </span>
                 <span className="text-slate-500">RON / {isRomanian ? 'luna' : 'month'}</span>
               </div>
-              <p className="text-slate-500 mt-2 text-sm">
+              <p className="text-purple-600 text-sm mt-1 font-medium">
                 {isRomanian
-                  ? 'Premium pentru toata familia ta'
-                  : 'Premium for your whole family'}
+                  ? '= 2 RON/persoana la 5 membri'
+                  : '= 2 RON/person with 5 members'}
               </p>
             </div>
 
-            <div className="space-y-3 mb-6 flex-grow">
-              <div className="flex items-center gap-2 text-purple-700 font-semibold">
-                <Users className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                <span>{isRomanian ? 'Pana la 5 membri' : 'Up to 5 members'}</span>
-              </div>
-              <div className="border-t border-slate-100 my-2"></div>
+            {/* Key Benefits Summary */}
+            <div className="bg-purple-50 rounded-xl p-4 mb-4">
+              <p className="text-sm font-semibold text-purple-800 mb-2">
+                {isRomanian ? 'Ce primesti:' : 'What you get:'}
+              </p>
+              <ul className="space-y-1.5 text-sm text-purple-900">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                  <span><strong>{isRomanian ? 'Pana la 5 membri' : 'Up to 5 members'}</strong></span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                  <span>{isRomanian ? 'Fiecare cu cont propriu si date private' : 'Each with own account and private data'}</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                  <span>{isRomanian ? 'Toate beneficiile Premium' : 'All Premium benefits'}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2 mb-6 flex-grow text-sm">
               <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">
                 {isRomanian ? 'Fiecare membru primeste:' : 'Each member gets:'}
               </div>
               <div className="flex items-center gap-2 text-slate-700">
-                <Check className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                <span>500 {isRomanian ? 'documente' : 'documents'}</span>
+                <Check className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                <span>5 {isRomanian ? 'specialisti AI' : 'AI specialists'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700">
-                <Check className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                <span>{isRomanian ? 'Conturi medicale nelimitate' : 'Unlimited medical accounts'}</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-700">
-                <Check className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                <Check className="w-4 h-4 text-purple-500 flex-shrink-0" />
                 <span>30 {isRomanian ? 'analize AI/luna' : 'AI analyses/month'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700">
-                <Check className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                <span>{isRomanian ? 'Toate functiile Premium' : 'All Premium features'}</span>
+                <Check className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                <span>500 {isRomanian ? 'documente' : 'documents'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700">
-                <Check className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                <span>{isRomanian ? 'Conturi separate, date private' : 'Separate accounts, private data'}</span>
+                <Check className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                <span>{isRomanian ? 'Toate functiile Premium' : 'All Premium features'}</span>
               </div>
             </div>
 
@@ -422,47 +577,136 @@ export default function Pricing() {
         </div>
       </div>
 
-      {/* Feature Comparison Table */}
-      <div className="max-w-6xl mx-auto px-6 pb-20">
-        <h2 className="text-2xl font-bold text-slate-800 text-center mb-8">
-          {isRomanian ? 'Comparatie detaliata' : 'Detailed comparison'}
-        </h2>
-
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50 border-b border-slate-200 font-medium text-slate-600">
-            <div>{isRomanian ? 'Functionalitate' : 'Feature'}</div>
-            <div className="text-center">Free</div>
-            <div className="text-center text-amber-600">Premium</div>
-            <div className="text-center text-purple-600">Family</div>
+      {/* Premium Benefits Detail Section */}
+      <div className="max-w-6xl mx-auto px-6 pb-12">
+        <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 rounded-3xl p-8 border border-amber-200">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+              <Crown size={16} />
+              Premium
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+              {isRomanian ? 'Ce primesti cu Premium?' : 'What do you get with Premium?'}
+            </h2>
+            <p className="text-slate-600">
+              {isRomanian
+                ? 'Acces complet la toate instrumentele pentru a-ti intelege sanatatea'
+                : 'Full access to all tools to understand your health'}
+            </p>
           </div>
 
-          {/* Table Body */}
-          {features.map((category, catIndex) => (
-            <div key={catIndex}>
-              {/* Category Header */}
-              <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50/50 border-b border-slate-100">
-                <div className="col-span-4 font-semibold text-slate-800">{category.category}</div>
-              </div>
-
-              {/* Category Items */}
-              {category.items.map((item, itemIndex) => (
-                <div
-                  key={itemIndex}
-                  className="grid grid-cols-4 gap-4 p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50"
-                >
-                  <div className="flex items-center gap-2 text-slate-700">
-                    <item.icon className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="text-sm">{item.name}</span>
-                  </div>
-                  <div className="text-center text-sm">{renderFeatureValue(item.free)}</div>
-                  <div className="text-center text-sm">{renderFeatureValue(item.premium)}</div>
-                  <div className="text-center text-sm">{renderFeatureValue(item.family)}</div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {premiumBenefits.map((benefit, index) => (
+              <div key={index} className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div className={`w-10 h-10 rounded-lg ${benefit.bg} flex items-center justify-center mb-3`}>
+                  <benefit.icon className={`w-5 h-5 ${benefit.color}`} />
                 </div>
-              ))}
-            </div>
-          ))}
+                <h3 className="font-semibold text-slate-800 mb-1">{benefit.title}</h3>
+                <p className="text-sm text-slate-500">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+
+      {/* Family Benefits Section */}
+      <div className="max-w-6xl mx-auto px-6 pb-12">
+        <div className="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 rounded-3xl p-8 border border-purple-200">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-purple-500 text-white px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+              <Users size={16} />
+              Family
+            </div>
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+              {isRomanian ? 'De ce Family?' : 'Why Family?'}
+            </h2>
+            <p className="text-slate-600">
+              {isRomanian
+                ? 'Cel mai bun pret pentru familii - toate beneficiile Premium pentru toti membrii'
+                : 'Best price for families - all Premium benefits for all members'}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {familyBenefits.map((benefit, index) => (
+              <div key={index} className="bg-white rounded-xl p-5 shadow-sm text-center">
+                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                  <benefit.icon className="w-6 h-6 text-purple-600" />
+                </div>
+                <h3 className="font-semibold text-slate-800 mb-2">{benefit.title}</h3>
+                <p className="text-sm text-slate-500">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 bg-white rounded-xl p-6 border border-purple-100">
+            <h3 className="font-semibold text-slate-800 mb-4 text-center">
+              {isRomanian ? 'Exemplu: Familie cu 5 membri' : 'Example: Family with 5 members'}
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="text-center p-4 bg-slate-50 rounded-lg">
+                <p className="text-sm text-slate-500 mb-1">{isRomanian ? 'Cu 5 planuri Premium separate' : 'With 5 separate Premium plans'}</p>
+                <p className="text-2xl font-bold text-slate-800">5 x 5 = <span className="text-rose-500">25 RON</span>/luna</p>
+              </div>
+              <div className="text-center p-4 bg-purple-100 rounded-lg">
+                <p className="text-sm text-purple-600 mb-1">{isRomanian ? 'Cu Family Plan' : 'With Family Plan'}</p>
+                <p className="text-2xl font-bold text-purple-700">10 RON/luna</p>
+                <p className="text-sm text-purple-600 font-medium">{isRomanian ? 'Economisesti 15 RON!' : 'Save 15 RON!'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Feature Comparison Table - Collapsible */}
+      <div className="max-w-6xl mx-auto px-6 pb-20">
+        <button
+          onClick={() => setShowComparison(!showComparison)}
+          className="w-full flex items-center justify-center gap-2 py-4 text-slate-600 hover:text-slate-800 transition-colors"
+        >
+          <span className="font-medium">
+            {isRomanian ? 'Vezi comparatia completa' : 'See full comparison'}
+          </span>
+          {showComparison ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+        </button>
+
+        {showComparison && (
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden animate-in slide-in-from-top-4 duration-300">
+            {/* Table Header */}
+            <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50 border-b border-slate-200 font-medium text-slate-600">
+              <div>{isRomanian ? 'Functionalitate' : 'Feature'}</div>
+              <div className="text-center">Free</div>
+              <div className="text-center text-amber-600">Premium</div>
+              <div className="text-center text-purple-600">Family</div>
+            </div>
+
+            {/* Table Body */}
+            {features.map((category, catIndex) => (
+              <div key={catIndex}>
+                {/* Category Header */}
+                <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50/50 border-b border-slate-100">
+                  <div className="col-span-4 font-semibold text-slate-800">{category.category}</div>
+                </div>
+
+                {/* Category Items */}
+                {category.items.map((item, itemIndex) => (
+                  <div
+                    key={itemIndex}
+                    className="grid grid-cols-4 gap-4 p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50"
+                  >
+                    <div className="flex items-center gap-2 text-slate-700">
+                      <item.icon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <span className="text-sm">{item.name}</span>
+                    </div>
+                    <div className="text-center text-sm">{renderFeatureValue(item.free)}</div>
+                    <div className="text-center text-sm">{renderFeatureValue(item.premium)}</div>
+                    <div className="text-center text-sm">{renderFeatureValue(item.family)}</div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* FAQ or Info */}
