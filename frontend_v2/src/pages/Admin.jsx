@@ -7,7 +7,7 @@ import {
     Trash2, RotateCcw, Play, Brain, Power,
     Clock, XCircle, UserSearch, Calendar,
     Zap, X, KeyRound, Wifi, Timer, Bug, Download, User,
-    Lock, Unlock, ShieldCheck, ShieldOff
+    Lock, Unlock, ShieldCheck, ShieldOff, Crown, Star, Users2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -453,6 +453,15 @@ const Admin = () => {
         }
     };
 
+    const handleSetSubscription = async (userId, tier) => {
+        try {
+            await api.post(`/admin/users/${userId}/set-subscription?tier=${tier}`);
+            fetchData();
+        } catch (e) {
+            alert(e.response?.data?.detail || "Failed to update subscription");
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -834,6 +843,7 @@ const Admin = () => {
                         <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                             <tr>
                                 <th className="px-4 py-3 text-left">{t('admin.email')}</th>
+                                <th className="px-4 py-3 text-center">{t('admin.subscription') || 'Subscription'}</th>
                                 <th className="px-4 py-3 text-center">{t('admin.admin')}</th>
                                 <th className="px-4 py-3 text-center">{t('admin.documents')}</th>
                                 <th className="px-4 py-3 text-center">{t('admin.biomarkers')}</th>
@@ -845,6 +855,29 @@ const Admin = () => {
                             {users.map(user => (
                                 <tr key={user.id} className="hover:bg-slate-50">
                                     <td className="px-4 py-3 text-sm font-medium text-slate-800">{user.email}</td>
+                                    <td className="px-4 py-3 text-center">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <span className={cn(
+                                                "inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium",
+                                                user.subscription_tier === 'free' && "bg-slate-100 text-slate-600",
+                                                user.subscription_tier === 'premium' && "bg-amber-100 text-amber-700",
+                                                user.subscription_tier === 'family' && "bg-violet-100 text-violet-700"
+                                            )}>
+                                                {user.subscription_tier === 'premium' && <Star size={12} />}
+                                                {user.subscription_tier === 'family' && <Users2 size={12} />}
+                                                {user.subscription_tier || 'free'}
+                                            </span>
+                                            <select
+                                                value={user.subscription_tier || 'free'}
+                                                onChange={(e) => handleSetSubscription(user.id, e.target.value)}
+                                                className="text-xs border border-slate-200 rounded px-1 py-0.5 bg-white hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                            >
+                                                <option value="free">Free</option>
+                                                <option value="premium">Premium</option>
+                                                <option value="family">Family</option>
+                                            </select>
+                                        </div>
+                                    </td>
                                     <td className="px-4 py-3 text-center">
                                         {user.is_admin ? (
                                             <CheckCircle size={16} className="inline text-teal-500" />

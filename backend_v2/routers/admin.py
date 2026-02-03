@@ -137,12 +137,25 @@ def get_server_stats(admin: User = Depends(require_admin)):
 @router.get("/users")
 def get_all_users(db: Session = Depends(get_db), admin: User = Depends(require_admin)):
     """Get all users with their stats."""
+    try:
+        from backend_v2.models import Subscription
+        from backend_v2.services.subscription_service import SubscriptionService
+    except ImportError:
+        from models import Subscription
+        from services.subscription_service import SubscriptionService
+
     users = db.query(User).all()
+    service = SubscriptionService(db)
     result = []
+
     for user in users:
         doc_count = db.query(Document).filter(Document.user_id == user.id).count()
         biomarker_count = db.query(TestResult).join(Document).filter(Document.user_id == user.id).count()
         linked_count = db.query(LinkedAccount).filter(LinkedAccount.user_id == user.id).count()
+
+        # Get subscription info
+        subscription = db.query(Subscription).filter(Subscription.user_id == user.id).first()
+        tier = service.get_user_tier(user.id)
 
         result.append({
             "id": user.id,
@@ -153,7 +166,10 @@ def get_all_users(db: Session = Depends(get_db), admin: User = Depends(require_a
             "created_at": user.created_at.isoformat() if user.created_at else None,
             "documents": doc_count,
             "biomarkers": biomarker_count,
-            "linked_accounts": linked_count
+            "linked_accounts": linked_count,
+            "subscription_tier": tier,
+            "subscription_status": subscription.status if subscription else "free",
+            "subscription_end": subscription.current_period_end.isoformat() if subscription and subscription.current_period_end else None
         })
 
     return result
@@ -1304,3 +1320,43 @@ def enable_user(
     )
 
     return {"status": "success", "message": f"User {user.email} enabled"}
+
+
+@router.post("/users/{user_id}/set-subscription")
+def set_user_subscription(
+    user_id: int,
+    tier: str,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Set user subscription tier (admin override)."""
+    try:
+        from backend_v2.services.subscription_service import SubscriptionService, TIER_LIMITS
+    except ImportError:
+        from services.subscription_service import SubscriptionService, TIER_LIMITS
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    valid_tiers = list(TIER_LIMITS.keys())
+    if tier not in valid_tiers:
+        raise HTTPException(status_code=400, detail=f"Invalid tier. Must be one of: {valid_tiers}")
+
+    service = SubscriptionService(db)
+
+    if tier == "free":
+        service.downgrade_to_free(user_id)
+    else:
+        # Admin-granted subscriptions get a long period (1 year)
+        service.upgrade_to_tier(user_id, tier, billing_cycle="admin_granted")
+
+    # Log the action
+    audit_service = AuditService(db)
+    audit_service.log_action(
+        action="admin_action",
+        user_id=admin.id,
+        details={"action": "set_subscription", "target_user_id": user_id, "tier": tier}
+    )
+
+    return {"status": "success", "message": f"User {user.email} subscription set to {tier}"}
