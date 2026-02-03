@@ -904,11 +904,11 @@ const Login = () => {
                 <div className="text-center text-sm text-slate-400 mt-6">
                     <p>{t('auth.dataSecure')}</p>
                     <div className="mt-2 space-x-3">
-                        <Link to="/terms" className="text-primary-600 hover:underline">
+                        <Link to="/terms" target="_blank" className="text-primary-600 hover:underline">
                             {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                         </Link>
                         <span>•</span>
-                        <Link to="/privacy" className="text-primary-600 hover:underline">
+                        <Link to="/privacy" target="_blank" className="text-primary-600 hover:underline">
                             {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
                         </Link>
                     </div>
