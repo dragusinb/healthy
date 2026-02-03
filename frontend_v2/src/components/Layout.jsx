@@ -75,7 +75,7 @@ const Layout = ({ children }) => {
                         <div className="p-2.5 bg-primary-100 rounded-xl">
                             <HeartPulse size={28} className="text-primary-600" />
                         </div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Healthy<span className="text-primary-500">.ai</span></h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Analize<span className="text-primary-500">.online</span></h1>
                     </div>
 
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">Menu</div>
@@ -153,7 +153,7 @@ const Layout = ({ children }) => {
                         <div className="p-2 bg-primary-50 rounded-lg">
                             <HeartPulse size={20} className="text-primary-600" />
                         </div>
-                        <span className="font-bold text-slate-800">Healthy.ai</span>
+                        <span className="font-bold text-slate-800">Analize.online</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
@@ -185,7 +185,7 @@ const Layout = ({ children }) => {
                                         <div className="p-2.5 bg-primary-100 rounded-xl">
                                             <HeartPulse size={28} className="text-primary-600" />
                                         </div>
-                                        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Healthy<span className="text-primary-500">.ai</span></h1>
+                                        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Analize<span className="text-primary-500">.online</span></h1>
                                     </div>
                                     <button
                                         onClick={closeMobileMenu}
