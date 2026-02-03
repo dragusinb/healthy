@@ -1,5 +1,5 @@
 """Health Reports API router."""
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from pydantic import BaseModel
@@ -15,6 +15,7 @@ try:
     from backend_v2.services.vault import vault
     from backend_v2.services.notification_service import notify_analysis_complete
     from backend_v2.services.subscription_service import SubscriptionService
+    from backend_v2.services.audit_service import AuditService
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
@@ -23,6 +24,7 @@ except ImportError:
     from services.vault import vault
     from services.notification_service import notify_analysis_complete
     from services.subscription_service import SubscriptionService
+    from services.audit_service import AuditService
 
 
 def get_report_content(report: HealthReport) -> dict:
@@ -241,14 +243,28 @@ def get_user_profile(user: User) -> dict:
 
 @router.post("/analyze")
 def run_health_analysis(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """Run a full health analysis and save the report."""
+    audit = AuditService(db)
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
     # Check subscription quota for AI analyses
     subscription_service = SubscriptionService(db)
     can_analyze, message = subscription_service.check_can_run_analysis(current_user.id, "general")
     if not can_analyze:
+        audit.log_action(
+            user_id=current_user.id,
+            action="analyze_health",
+            resource_type="report",
+            details={"reason": "quota_exceeded"},
+            ip_address=ip_address,
+            user_agent=user_agent,
+            status="blocked"
+        )
         raise HTTPException(status_code=403, detail=message)
 
     biomarkers = get_user_biomarkers(db, current_user.id)
@@ -306,6 +322,26 @@ def run_health_analysis(
 
     # Increment AI usage counter
     subscription_service.increment_ai_usage(current_user.id)
+
+    # Log successful analysis
+    audit.log_action(
+        user_id=current_user.id,
+        action="analyze_health",
+        resource_type="report",
+        resource_id=report.id,
+        details={
+            "biomarkers_analyzed": len(biomarkers),
+            "risk_level": general.get("risk_level", "normal"),
+            "specialists_count": len(analysis.get("specialists", {}))
+        },
+        ip_address=ip_address,
+        user_agent=user_agent,
+        status="success"
+    )
+
+    # Track usage metrics
+    audit.track_usage(current_user.id, "ai_analyses_run", 1)
+    audit.track_usage(current_user.id, "reports_generated", 1 + len(analysis.get("specialists", {})))
 
     # Send notification about completed analysis
     try:
@@ -479,6 +515,7 @@ class SpecialistRequest(BaseModel):
 @router.post("/analyze/{specialty}")
 def run_specialist_analysis(
     specialty: str,
+    http_request: Request,
     request: SpecialistRequest = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -488,10 +525,23 @@ def run_specialist_analysis(
     The specialist configuration can be customized via the request body,
     or sensible defaults will be used based on the specialty name.
     """
+    audit = AuditService(db)
+    ip_address = http_request.client.host if http_request.client else None
+    user_agent = http_request.headers.get("user-agent")
+
     # Check subscription quota for specialist AI analyses
     subscription_service = SubscriptionService(db)
     can_analyze, message = subscription_service.check_can_run_analysis(current_user.id, specialty)
     if not can_analyze:
+        audit.log_action(
+            user_id=current_user.id,
+            action="analyze_specialist",
+            resource_type="report",
+            details={"specialty": specialty, "reason": "quota_exceeded"},
+            ip_address=ip_address,
+            user_agent=user_agent,
+            status="blocked"
+        )
         raise HTTPException(status_code=403, detail=message)
 
     biomarkers = get_user_biomarkers(db, current_user.id)
@@ -541,6 +591,25 @@ def run_specialist_analysis(
 
     # Increment AI usage counter
     subscription_service.increment_ai_usage(current_user.id)
+
+    # Log successful specialist analysis
+    audit.log_action(
+        user_id=current_user.id,
+        action="analyze_specialist",
+        resource_type="report",
+        resource_id=report.id,
+        details={
+            "specialty": specialty,
+            "risk_level": analysis.get("risk_level", "normal")
+        },
+        ip_address=ip_address,
+        user_agent=user_agent,
+        status="success"
+    )
+
+    # Track usage
+    audit.track_usage(current_user.id, "ai_analyses_run", 1)
+    audit.track_usage(current_user.id, "reports_generated", 1)
 
     return analysis
 

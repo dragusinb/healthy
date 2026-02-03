@@ -87,7 +87,26 @@
       "Bash(powershell -Command \"cd ''c:\\\\OldD\\\\_Projects\\\\Healthy\\\\frontend_v2''; npm run build 2>&1\")",
       "Bash(powershell -Command \"Test-Path $PROFILE\")",
       "Bash(powershell -Command \"Write-Host $PROFILE\")",
-      "Bash(powershell -NoProfile -Command \"[Environment]::GetFolderPath\\(''MyDocuments''\\)\")"
+      "Bash(powershell -NoProfile -Command \"[Environment]::GetFolderPath\\(''MyDocuments''\\)\")",
+      "Bash(dir:*)",
+      "Bash(for port in 2222 2200 22222 8022)",
+      "Bash(do echo \"Testing port $port...\")",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(sshpass -p 'Healthy123' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@62.171.163.23 \"cd /home/healthy/healthy && git pull && systemctl restart healthy-api && echo ''Deploy successful''\")",
+      "WebSearch",
+      "Bash(wc:*)",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/routers/notifications.py backend_v2/services/notification_service.py frontend_v2/src/pages/Settings.jsx backend_v2/main.py backend_v2/models.py backend_v2/routers/health.py backend_v2/services/scheduler.py frontend_v2/src/App.jsx frontend_v2/src/components/Layout.jsx frontend_v2/src/locales/en.json frontend_v2/src/locales/ro.json CLAUDE.md)",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"$\\(cat <<''EOF''\nAdd email notification system for new results and health alerts\n\n- Add Notification and NotificationPreference models\n- Create notification_service.py with email templates \\(RO/EN\\)\n- Integrate notifications with sync scheduler:\n  - Email when new documents downloaded\n  - Email for each abnormal biomarker \\(HIGH/LOW\\)\n  - Email when sync fails\n- Integrate with health analysis \\(email when AI analysis completes\\)\n- Add /notifications API endpoints for preferences management\n- Add Settings page for notification preferences\n- Add navigation link to sidebar\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" add frontend_v2/src/pages/Settings.jsx)",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"Fix api import path in Settings.jsx\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\")",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/routers/notifications.py backend_v2/services/notification_service.py)",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"Fix import paths for production environment\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\")",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/routers/notifications.py)",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"Fix get_current_user import path\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\")",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/tests/conftest.py)",
+      "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"Fix test API URL \\(remove /api prefix\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\")",
+      "Bash(git reset:*)"
     ]
   }
 }

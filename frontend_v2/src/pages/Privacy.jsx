@@ -172,13 +172,45 @@ export default function Privacy() {
               <section>
                 <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
                   <Lock className="w-5 h-5 text-primary-600" />
-                  5. Securitatea Datelor
+                  5. Securitatea și Criptarea Datelor
                 </h2>
+
+                {/* Encryption Highlight Box */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Lock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-blue-800 mb-2">
+                        Criptare End-to-End pentru Datele Medicale
+                      </h3>
+                      <p className="text-blue-700 text-sm">
+                        Toate datele dumneavoastră medicale și personale sunt criptate cu algoritm AES-256-GCM.
+                        Documentele, rezultatele analizelor, biomarkerii și rapoartele de sănătate sunt stocate
+                        exclusiv în formă criptată. Platforma nu are acces la datele dumneavoastră în clar.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-4 text-slate-600 leading-relaxed">
-                  <p><strong>5.1.</strong> Datele sensibile (credențiale, rezultate medicale) sunt criptate folosind algoritmi puternici de criptare.</p>
-                  <p><strong>5.2.</strong> Folosim conexiuni HTTPS pentru toate comunicațiile.</p>
-                  <p><strong>5.3.</strong> Accesul la baza de date este restricționat și monitorizat.</p>
-                  <p><strong>5.4.</strong> Cu toate acestea, nicio metodă de transmitere prin internet sau stocare electronică nu este 100% sigură. Nu putem garanta securitate absolută.</p>
+                  <p><strong>5.1. Date criptate:</strong></p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Documente medicale (PDF-uri) - criptate AES-256-GCM</li>
+                    <li>Rezultate și valori biomarkeri - criptate AES-256-GCM</li>
+                    <li>Rapoarte de sănătate AI - criptate AES-256-GCM</li>
+                    <li>Credențiale furnizori medicali - criptate AES-256-GCM</li>
+                    <li>Date de profil personal (nume, data nașterii, etc.) - criptate AES-256-GCM</li>
+                  </ul>
+
+                  <p><strong>5.2. Chei de criptare:</strong> Cheile de criptare sunt derivate folosind PBKDF2 cu 600.000 de iterații, conform recomandărilor OWASP. Cheile nu sunt niciodată stocate în clar pe disc.</p>
+
+                  <p><strong>5.3. Transmisie securizată:</strong> Folosim exclusiv conexiuni HTTPS/TLS pentru toate comunicațiile între browser și servere.</p>
+
+                  <p><strong>5.4. Acces restricționat:</strong> Accesul la baza de date și la sistemele de stocare este strict restricționat și monitorizat prin audit logging.</p>
+
+                  <p><strong>5.5. Protecție suplimentară:</strong> Implementăm rate limiting, detecție abuz și monitorizare sesiuni pentru a preveni accesul neautorizat.</p>
+
+                  <p><strong>5.6. Limitări:</strong> Nicio metodă de transmitere prin internet sau stocare electronică nu este 100% sigură. Deși folosim cele mai bune practici de securitate, nu putem garanta securitate absolută.</p>
                 </div>
               </section>
 
@@ -368,13 +400,45 @@ export default function Privacy() {
               <section>
                 <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
                   <Lock className="w-5 h-5 text-primary-600" />
-                  5. Data Security
+                  5. Data Security and Encryption
                 </h2>
+
+                {/* Encryption Highlight Box */}
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Lock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-blue-800 mb-2">
+                        End-to-End Encryption for Medical Data
+                      </h3>
+                      <p className="text-blue-700 text-sm">
+                        All your medical and personal data is encrypted using AES-256-GCM algorithm.
+                        Documents, test results, biomarkers, and health reports are stored
+                        exclusively in encrypted form. The platform does not have access to your unencrypted data.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-4 text-slate-600 leading-relaxed">
-                  <p><strong>5.1.</strong> Sensitive data (credentials, medical results) is encrypted using strong encryption algorithms.</p>
-                  <p><strong>5.2.</strong> We use HTTPS connections for all communications.</p>
-                  <p><strong>5.3.</strong> Database access is restricted and monitored.</p>
-                  <p><strong>5.4.</strong> However, no method of transmission over the internet or electronic storage is 100% secure. We cannot guarantee absolute security.</p>
+                  <p><strong>5.1. Encrypted data:</strong></p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Medical documents (PDFs) - AES-256-GCM encrypted</li>
+                    <li>Test results and biomarker values - AES-256-GCM encrypted</li>
+                    <li>AI health reports - AES-256-GCM encrypted</li>
+                    <li>Medical provider credentials - AES-256-GCM encrypted</li>
+                    <li>Personal profile data (name, date of birth, etc.) - AES-256-GCM encrypted</li>
+                  </ul>
+
+                  <p><strong>5.2. Encryption keys:</strong> Encryption keys are derived using PBKDF2 with 600,000 iterations, following OWASP recommendations. Keys are never stored in plaintext on disk.</p>
+
+                  <p><strong>5.3. Secure transmission:</strong> We exclusively use HTTPS/TLS connections for all communications between browser and servers.</p>
+
+                  <p><strong>5.4. Restricted access:</strong> Access to the database and storage systems is strictly restricted and monitored through audit logging.</p>
+
+                  <p><strong>5.5. Additional protection:</strong> We implement rate limiting, abuse detection, and session monitoring to prevent unauthorized access.</p>
+
+                  <p><strong>5.6. Limitations:</strong> No method of transmission over the internet or electronic storage is 100% secure. While we use best security practices, we cannot guarantee absolute security.</p>
                 </div>
               </section>
 

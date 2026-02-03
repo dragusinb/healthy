@@ -384,6 +384,11 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
                     profile["age"] = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
                 except:
                     pass
+        # Fallback for gender and blood_type
+        if not profile.get("gender") and current_user.gender:
+            profile["gender"] = current_user.gender
+        if not profile.get("blood_type") and current_user.blood_type:
+            profile["blood_type"] = current_user.blood_type
     except Exception as e:
         pass  # Continue with partial data
 

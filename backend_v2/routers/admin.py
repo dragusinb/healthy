@@ -9,12 +9,14 @@ from datetime import datetime, timedelta
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob
+    from backend_v2.models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics
     from backend_v2.routers.documents import get_current_user
+    from backend_v2.services.audit_service import AuditService
 except ImportError:
     from database import get_db
-    from models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob
+    from models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics
     from routers.documents import get_current_user
+    from services.audit_service import AuditService
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -1007,3 +1009,298 @@ def run_biomarker_migration(admin: User = Depends(require_admin)):
         "status": "started",
         "message": f"Started migration for {pending} records in background"
     }
+
+
+# =============================================================================
+# Audit Logging & Abuse Detection
+# =============================================================================
+
+@router.get("/audit-logs")
+def get_audit_logs(
+    limit: int = 100,
+    offset: int = 0,
+    user_id: int = None,
+    action: str = None,
+    status: str = None,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get audit logs with filtering."""
+    audit_service = AuditService(db)
+    logs = audit_service.get_recent_activity(
+        limit=limit,
+        user_id=user_id,
+        action_filter=action
+    )
+
+    # Get total count
+    query = db.query(func.count(AuditLog.id))
+    if user_id:
+        query = query.filter(AuditLog.user_id == user_id)
+    if action:
+        query = query.filter(AuditLog.action == action)
+    if status:
+        query = query.filter(AuditLog.status == status)
+    total = query.scalar()
+
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "logs": logs
+    }
+
+
+@router.get("/audit-logs/actions")
+def get_audit_action_types(
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get list of unique action types for filtering."""
+    actions = db.query(AuditLog.action).distinct().all()
+    return {
+        "actions": [a[0] for a in actions if a[0]]
+    }
+
+
+@router.get("/audit-logs/user/{user_id}")
+def get_user_audit_logs(
+    user_id: int,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get audit logs for a specific user."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    audit_service = AuditService(db)
+    logs = audit_service.get_user_audit_logs(user_id, limit=limit)
+
+    return {
+        "user_id": user_id,
+        "user_email": user.email,
+        "logs": [
+            {
+                "id": log.id,
+                "action": log.action,
+                "resource_type": log.resource_type,
+                "resource_id": log.resource_id,
+                "ip_address": log.ip_address,
+                "status": log.status,
+                "created_at": log.created_at.isoformat(),
+            }
+            for log in logs
+        ]
+    }
+
+
+@router.get("/abuse-flags")
+def get_abuse_flags(
+    unresolved_only: bool = True,
+    severity: str = None,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get abuse flags for review."""
+    audit_service = AuditService(db)
+    flags = audit_service.get_abuse_flags(
+        unresolved_only=unresolved_only,
+        severity=severity,
+        limit=limit
+    )
+
+    # Get counts by severity
+    severity_counts = db.query(
+        AbuseFlag.severity,
+        func.count(AbuseFlag.id)
+    ).filter(
+        AbuseFlag.is_resolved == False
+    ).group_by(AbuseFlag.severity).all()
+
+    return {
+        "total_unresolved": sum(c for _, c in severity_counts),
+        "by_severity": {s: c for s, c in severity_counts},
+        "flags": flags
+    }
+
+
+@router.post("/abuse-flags/{flag_id}/resolve")
+def resolve_abuse_flag(
+    flag_id: int,
+    notes: str = None,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Resolve an abuse flag."""
+    audit_service = AuditService(db)
+    audit_service.resolve_abuse_flag(flag_id, admin.id, notes)
+
+    # Log the action
+    audit_service.log_action(
+        action="admin_action",
+        user_id=admin.id,
+        details={"action": "resolve_abuse_flag", "flag_id": flag_id, "notes": notes}
+    )
+
+    return {"status": "success", "message": "Abuse flag resolved"}
+
+
+@router.get("/usage-metrics")
+def get_system_usage_metrics(
+    days: int = 7,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get system-wide usage metrics."""
+    audit_service = AuditService(db)
+    return audit_service.get_system_metrics(days)
+
+
+@router.get("/usage-metrics/user/{user_id}")
+def get_user_usage_metrics(
+    user_id: int,
+    days: int = 30,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get usage metrics for a specific user."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    audit_service = AuditService(db)
+    metrics = audit_service.get_user_metrics(user_id, days)
+
+    return {
+        "user_id": user_id,
+        "user_email": user.email,
+        "period_days": days,
+        "metrics": metrics
+    }
+
+
+@router.get("/active-sessions")
+def get_all_active_sessions(
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get all active user sessions."""
+    from sqlalchemy import func
+
+    try:
+        from backend_v2.models import UserSession
+    except ImportError:
+        from models import UserSession
+
+    # Get active sessions grouped by user
+    sessions = db.query(UserSession).filter(
+        UserSession.is_active == True
+    ).order_by(UserSession.last_activity.desc()).limit(100).all()
+
+    # Group by user
+    user_sessions = {}
+    for session in sessions:
+        uid = session.user_id
+        if uid not in user_sessions:
+            user = db.query(User).filter(User.id == uid).first()
+            user_sessions[uid] = {
+                "user_id": uid,
+                "user_email": user.email if user else "Unknown",
+                "sessions": []
+            }
+        user_sessions[uid]["sessions"].append({
+            "id": session.id,
+            "ip_address": session.ip_address,
+            "user_agent": session.user_agent[:100] if session.user_agent else None,
+            "started_at": session.started_at.isoformat() if session.started_at else None,
+            "last_activity": session.last_activity.isoformat() if session.last_activity else None,
+        })
+
+    return {
+        "total_active_sessions": len(sessions),
+        "unique_users": len(user_sessions),
+        "users": list(user_sessions.values())
+    }
+
+
+@router.post("/users/{user_id}/end-all-sessions")
+def end_user_sessions(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """End all sessions for a user (force logout)."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    audit_service = AuditService(db)
+    audit_service.end_all_sessions(user_id)
+
+    # Log the admin action
+    audit_service.log_action(
+        action="admin_action",
+        user_id=admin.id,
+        details={"action": "end_all_sessions", "target_user_id": user_id}
+    )
+
+    return {"status": "success", "message": f"All sessions ended for user {user.email}"}
+
+
+@router.post("/users/{user_id}/disable")
+def disable_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Disable a user account."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.is_admin:
+        raise HTTPException(status_code=400, detail="Cannot disable admin accounts")
+
+    user.is_active = False
+    db.commit()
+
+    # End all sessions
+    audit_service = AuditService(db)
+    audit_service.end_all_sessions(user_id)
+
+    # Log the action
+    audit_service.log_action(
+        action="admin_action",
+        user_id=admin.id,
+        details={"action": "disable_user", "target_user_id": user_id}
+    )
+
+    return {"status": "success", "message": f"User {user.email} disabled"}
+
+
+@router.post("/users/{user_id}/enable")
+def enable_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Re-enable a disabled user account."""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.is_active = True
+    db.commit()
+
+    # Log the action
+    audit_service = AuditService(db)
+    audit_service.log_action(
+        action="admin_action",
+        user_id=admin.id,
+        details={"action": "enable_user", "target_user_id": user_id}
+    )
+
+    return {"status": "success", "message": f"User {user.email} enabled"}
