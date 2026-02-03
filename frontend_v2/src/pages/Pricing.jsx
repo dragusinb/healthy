@@ -15,20 +15,25 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [plans, setPlans] = useState([]);
+  const [specialists, setSpecialists] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
   const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
-    fetchPlans();
+    fetchData();
   }, []);
 
-  const fetchPlans = async () => {
+  const fetchData = async () => {
     try {
-      const response = await api.get('/subscription/plans');
-      setPlans(response.data.plans);
+      const [plansRes, specialistsRes] = await Promise.all([
+        api.get('/subscription/plans'),
+        api.get('/health/specialists').catch(() => ({ data: { specialists: {} } }))
+      ]);
+      setPlans(plansRes.data.plans);
+      setSpecialists(specialistsRes.data.specialists || {});
     } catch (err) {
-      console.error('Failed to fetch plans:', err);
+      console.error('Failed to fetch data:', err);
     } finally {
       setLoading(false);
     }
@@ -49,14 +54,19 @@ export default function Pricing() {
 
   const activePremium = selectedPeriod === 'yearly' ? premiumYearly : premiumMonthly;
 
+  // Get specialist names dynamically
+  const specialistNames = Object.values(specialists).map(s => s.name).join(', ') ||
+    (isRomanian ? 'Cardiolog, Endocrinolog, Hematolog și alții' : 'Cardiologist, Endocrinologist, Hematologist and more');
+  const specialistCount = Object.keys(specialists).length || 8;
+
   // Premium benefits with detailed descriptions
   const premiumBenefits = [
     {
       icon: Brain,
-      title: isRomanian ? '5 Specialisti AI' : '5 AI Specialists',
+      title: isRomanian ? `${specialistCount}+ Specialiști AI` : `${specialistCount}+ AI Specialists`,
       description: isRomanian
-        ? 'Cardiolog, Endocrinolog, Hematolog, Hepatolog si Nefrolog - analize detaliate pentru fiecare sistem'
-        : 'Cardiologist, Endocrinologist, Hematologist, Hepatologist and Nephrologist - detailed analysis for each system',
+        ? `${specialistNames} - selectați automat de AI pe baza analizelor tale`
+        : `${specialistNames} - automatically selected by AI based on your tests`,
       color: 'text-violet-600',
       bg: 'bg-violet-50',
     },
@@ -196,39 +206,13 @@ export default function Pricing() {
           icon: HeartPulse,
         },
         {
-          name: isRomanian ? 'Cardiolog AI' : 'AI Cardiologist',
+          name: isRomanian
+            ? `Specialiști AI (${specialistCount}+ tipuri)`
+            : `AI Specialists (${specialistCount}+ types)`,
           free: false,
           premium: true,
           family: true,
-          icon: Heart,
-        },
-        {
-          name: isRomanian ? 'Endocrinolog AI' : 'AI Endocrinologist',
-          free: false,
-          premium: true,
-          family: true,
-          icon: Activity,
-        },
-        {
-          name: isRomanian ? 'Hematolog AI' : 'AI Hematologist',
-          free: false,
-          premium: true,
-          family: true,
-          icon: Activity,
-        },
-        {
-          name: isRomanian ? 'Hepatolog AI' : 'AI Hepatologist',
-          free: false,
-          premium: true,
-          family: true,
-          icon: Activity,
-        },
-        {
-          name: isRomanian ? 'Nefrolog AI' : 'AI Nephrologist',
-          free: false,
-          premium: true,
-          family: true,
-          icon: Activity,
+          icon: Stethoscope,
         },
         {
           name: isRomanian ? 'Analiza lacunelor in screening' : 'Screening gap analysis',
@@ -458,7 +442,7 @@ export default function Pricing() {
               <ul className="space-y-1.5 text-sm text-amber-900">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />
-                  <span><strong>5</strong> {isRomanian ? 'doctori AI specialisti' : 'AI specialist doctors'}</span>
+                  <span><strong>{specialistCount}+</strong> {isRomanian ? 'specialiști AI (selectați automat)' : 'AI specialists (auto-selected)'}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-amber-600 flex-shrink-0" />
@@ -550,7 +534,7 @@ export default function Pricing() {
               </div>
               <div className="flex items-center gap-2 text-slate-700">
                 <Check className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                <span>5 {isRomanian ? 'specialisti AI' : 'AI specialists'}</span>
+                <span>{specialistCount}+ {isRomanian ? 'specialiști AI' : 'AI specialists'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-700">
                 <Check className="w-4 h-4 text-purple-500 flex-shrink-0" />

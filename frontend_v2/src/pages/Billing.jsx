@@ -12,7 +12,8 @@ import FamilyManagement from '../components/FamilyManagement';
 import { useSubscription } from '../context/SubscriptionContext';
 
 export default function Billing() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRomanian = i18n.language === 'ro';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { subscription, refreshSubscription, tier } = useSubscription();
@@ -23,6 +24,7 @@ export default function Billing() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [familyInfo, setFamilyInfo] = useState(null);
+  const [specialists, setSpecialists] = useState({});
 
   // Check for payment completion
   const paymentStatus = searchParams.get('payment');
@@ -40,12 +42,14 @@ export default function Billing() {
 
   const fetchData = async () => {
     try {
-      const [plansRes, familyRes] = await Promise.all([
+      const [plansRes, familyRes, specialistsRes] = await Promise.all([
         api.get('/subscription/plans'),
-        api.get('/subscription/family').catch(() => ({ data: { has_family: false } }))
+        api.get('/subscription/family').catch(() => ({ data: { has_family: false } })),
+        api.get('/health/specialists').catch(() => ({ data: { specialists: {} } }))
       ]);
       setPlans(plansRes.data.plans);
       setFamilyInfo(familyRes.data);
+      setSpecialists(specialistsRes.data.specialists || {});
     } catch (err) {
       setError(t('common.error'));
     } finally {
@@ -255,8 +259,14 @@ export default function Billing() {
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
                 <Brain className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-800">{t('billing.benefit1Title', '5 Specialiști AI')}</p>
-                  <p className="text-xs text-slate-500">{t('billing.benefit1Desc', 'Cardiolog, Endocrinolog, Hematolog, Hepatolog, Nefrolog')}</p>
+                  <p className="font-medium text-slate-800">
+                    {isRomanian ? 'Specialiști AI dinamici' : 'Dynamic AI Specialists'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {Object.keys(specialists).length > 0
+                      ? Object.values(specialists).map(s => s.name).join(', ')
+                      : (isRomanian ? 'Cardiolog, Endocrinolog, Hematolog și alții' : 'Cardiologist, Endocrinologist, Hematologist and more')}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
