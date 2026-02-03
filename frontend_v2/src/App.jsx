@@ -33,6 +33,19 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
+// Wrapper that shows Layout for logged-in users, standalone for guests
+const OptionalLayoutRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div>Loading...</div>;
+
+  if (user) {
+    return <Layout>{children}</Layout>;
+  }
+
+  return children;
+};
+
 const App = () => {
   return (
     <AuthProvider>
@@ -124,18 +137,14 @@ const App = () => {
             </PrivateRoute>
           } />
           <Route path="/terms" element={
-            <PrivateRoute>
-              <Layout>
-                <Terms />
-              </Layout>
-            </PrivateRoute>
+            <OptionalLayoutRoute>
+              <Terms />
+            </OptionalLayoutRoute>
           } />
           <Route path="/privacy" element={
-            <PrivateRoute>
-              <Layout>
-                <Privacy />
-              </Layout>
-            </PrivateRoute>
+            <OptionalLayoutRoute>
+              <Privacy />
+            </OptionalLayoutRoute>
           } />
         </Routes>
         </Router>

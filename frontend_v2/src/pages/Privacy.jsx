@@ -2,15 +2,17 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Shield, Database, Lock, UserCheck, Trash2, Mail, Globe } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Privacy() {
   const { i18n } = useTranslation();
+  const { user } = useAuth();
   const isRomanian = i18n.language === 'ro';
 
   const lastUpdated = '2 Februarie 2026';
   const version = '1.0';
 
-  return (
+  const content = (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
@@ -516,6 +518,18 @@ export default function Privacy() {
           </Link>
         </div>
       </div>
+    </div>
+  );
+
+  // For logged-in users, content is already wrapped by Layout via OptionalLayoutRoute
+  // For non-logged-in users, wrap in a standalone page layout
+  if (user) {
+    return content;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+      {content}
     </div>
   );
 }
