@@ -21,8 +21,13 @@ export default function Pricing() {
   const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
+    // Redirect logged-in users to billing page
+    if (user) {
+      navigate('/billing');
+      return;
+    }
     fetchData();
-  }, []);
+  }, [user, navigate]);
 
   const fetchData = async () => {
     try {
