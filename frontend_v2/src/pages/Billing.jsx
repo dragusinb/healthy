@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Crown, CreditCard, Calendar, CheckCircle, AlertCircle,
-  ArrowLeft, ExternalLink, Users, Sparkles, XCircle
+  ArrowLeft, ExternalLink, Users, Sparkles, XCircle, Check,
+  Brain, Stethoscope, Download, History, Shield, Zap, ChevronDown, ChevronUp
 } from 'lucide-react';
 import api from '../api/client';
 import UsageStats from '../components/UsageStats';
@@ -232,63 +233,161 @@ export default function Billing() {
 
       {/* Upgrade Options (for free users) */}
       {!isPremium && (
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-6 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Crown className="w-6 h-6 text-amber-500" />
-            <h3 className="text-lg font-semibold text-slate-800">{t('billing.upgradeTitle')}</h3>
+        <div className="mb-6 space-y-6">
+          {/* What you get with Premium */}
+          <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 rounded-2xl border border-amber-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-amber-500 rounded-lg">
+                <Crown className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">
+                  {t('billing.whatYouGet', 'Ce primești cu Premium')}
+                </h3>
+                <p className="text-sm text-slate-600">
+                  {t('billing.fullAccess', 'Acces complet la toate funcționalitățile')}
+                </p>
+              </div>
+            </div>
+
+            {/* Benefits Grid */}
+            <div className="grid md:grid-cols-2 gap-3 mb-6">
+              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
+                <Brain className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-slate-800">{t('billing.benefit1Title', '5 Specialiști AI')}</p>
+                  <p className="text-xs text-slate-500">{t('billing.benefit1Desc', 'Cardiolog, Endocrinolog, Hematolog, Hepatolog, Nefrolog')}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
+                <Stethoscope className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-slate-800">{t('billing.benefit2Title', 'Analiza lacunelor în screening')}</p>
+                  <p className="text-xs text-slate-500">{t('billing.benefit2Desc', 'Ce analize ar trebui să faci, bazat pe profilul tău')}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
+                <Download className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-slate-800">{t('billing.benefit3Title', 'Export PDF')}</p>
+                  <p className="text-xs text-slate-500">{t('billing.benefit3Desc', 'Descarcă rapoartele pentru a le arăta medicului')}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
+                <History className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-slate-800">{t('billing.benefit4Title', 'Comparații istorice')}</p>
+                  <p className="text-xs text-slate-500">{t('billing.benefit4Desc', 'Compară analizele de acum cu cele din trecut')}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
+                <Shield className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-slate-800">{t('billing.benefit5Title', 'Conturi medicale nelimitate')}</p>
+                  <p className="text-xs text-slate-500">{t('billing.benefit5Desc', 'Conectează Regina Maria, Synevo, Medlife, etc.')}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
+                <Zap className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-slate-800">{t('billing.benefit6Title', '30 analize AI / lună')}</p>
+                  <p className="text-xs text-slate-500">{t('billing.benefit6Desc', 'De 10x mai multe decât planul gratuit')}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Options */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Premium Monthly */}
+              <div className="bg-white rounded-xl p-4 border-2 border-amber-300 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-slate-600">{t('billing.monthly', 'Lunar')}</span>
+                </div>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-3xl font-bold text-slate-800">5</span>
+                  <span className="text-slate-500">RON / lună</span>
+                </div>
+                <p className="text-xs text-slate-500 mb-4">{t('billing.lessThanCoffee', 'Mai puțin decât o cafea')}</p>
+                <button
+                  onClick={() => handleCheckout('premium_monthly')}
+                  disabled={checkoutLoading}
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg font-medium hover:from-amber-600 hover:to-orange-600 transition-colors disabled:opacity-50"
+                >
+                  {checkoutLoading ? t('common.loading') : t('billing.getPremium', 'Obține Premium')}
+                </button>
+              </div>
+
+              {/* Premium Yearly */}
+              <div className="bg-white rounded-xl p-4 border-2 border-green-400 shadow-sm relative">
+                <span className="absolute -top-2 right-4 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {t('billing.save33', '-33%')}
+                </span>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium text-slate-600">{t('billing.yearly', 'Anual')}</span>
+                  <span className="text-xs text-green-600 font-medium">{t('billing.bestValue', 'Cea mai bună valoare')}</span>
+                </div>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-3xl font-bold text-slate-800">40</span>
+                  <span className="text-slate-500">RON / an</span>
+                </div>
+                <p className="text-xs text-green-600 mb-4">{t('billing.save20', 'Economisești 20 RON pe an')}</p>
+                <button
+                  onClick={() => handleCheckout('premium_yearly')}
+                  disabled={checkoutLoading}
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-colors disabled:opacity-50"
+                >
+                  {checkoutLoading ? t('common.loading') : t('billing.getPremiumYearly', 'Obține Premium Anual')}
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            {/* Premium Monthly */}
-            <div className="bg-white rounded-xl p-4 border border-amber-200">
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-2xl font-bold text-slate-800">5 RON</span>
-                <span className="text-slate-500">/ {t('pricing.monthShort')}</span>
+          {/* Family Plan */}
+          <div className="bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 rounded-2xl border border-purple-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-purple-500 rounded-lg">
+                <Users className="w-5 h-5 text-white" />
               </div>
-              <p className="text-sm text-slate-600 mb-4">{t('billing.premiumMonthlyDesc')}</p>
-              <button
-                onClick={() => handleCheckout('premium_monthly')}
-                disabled={checkoutLoading}
-                className="w-full py-2 px-4 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition-colors disabled:opacity-50"
-              >
-                {checkoutLoading ? t('common.loading') : t('billing.subscribe')}
-              </button>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-slate-800">Family Plan</h3>
+                <p className="text-sm text-slate-600">{t('billing.familySubtitle', 'Premium pentru toată familia')}</p>
+              </div>
+              <div className="text-right">
+                <span className="text-2xl font-bold text-slate-800">10</span>
+                <span className="text-slate-500"> RON / lună</span>
+              </div>
             </div>
 
-            {/* Premium Yearly */}
-            <div className="bg-white rounded-xl p-4 border border-amber-200 relative">
-              <span className="absolute -top-2 right-4 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
-                -33%
-              </span>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-2xl font-bold text-slate-800">40 RON</span>
-                <span className="text-slate-500">/ {t('pricing.year')}</span>
+            <div className="grid md:grid-cols-3 gap-3 mb-4">
+              <div className="bg-white/70 rounded-lg p-3 text-center">
+                <Users className="w-6 h-6 text-purple-600 mx-auto mb-1" />
+                <p className="font-medium text-slate-800">{t('billing.upTo5', 'Până la 5 membri')}</p>
+                <p className="text-xs text-slate-500">{t('billing.familyMembers', 'Soț/soție, copii, părinți')}</p>
               </div>
-              <p className="text-sm text-slate-600 mb-4">{t('billing.premiumYearlyDesc')}</p>
-              <button
-                onClick={() => handleCheckout('premium_yearly')}
-                disabled={checkoutLoading}
-                className="w-full py-2 px-4 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600 transition-colors disabled:opacity-50"
-              >
-                {checkoutLoading ? t('common.loading') : t('billing.subscribe')}
-              </button>
+              <div className="bg-white/70 rounded-lg p-3 text-center">
+                <Shield className="w-6 h-6 text-purple-600 mx-auto mb-1" />
+                <p className="font-medium text-slate-800">{t('billing.separateData', 'Date separate')}</p>
+                <p className="text-xs text-slate-500">{t('billing.privateAccounts', 'Fiecare cu contul său privat')}</p>
+              </div>
+              <div className="bg-white/70 rounded-lg p-3 text-center">
+                <Sparkles className="w-6 h-6 text-purple-600 mx-auto mb-1" />
+                <p className="font-medium text-slate-800">{t('billing.allPremium', 'Toate funcțiile Premium')}</p>
+                <p className="text-xs text-slate-500">{t('billing.forEachMember', 'Pentru fiecare membru')}</p>
+              </div>
             </div>
-          </div>
 
-          {/* Family Option */}
-          <div className="mt-4 p-4 bg-white rounded-xl border border-purple-200">
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="w-5 h-5 text-purple-500" />
-              <span className="font-medium text-slate-800">Family Plan</span>
-              <span className="text-lg font-bold text-slate-800">10 RON / {t('pricing.monthShort')}</span>
+            <div className="bg-white/50 rounded-lg p-3 mb-4 text-center">
+              <p className="text-sm text-purple-700">
+                <span className="font-semibold">{t('billing.savingExample', 'Exemplu:')}</span> {t('billing.savingCalc', 'La 5 membri = 2 RON/persoană în loc de 5 RON')}
+              </p>
             </div>
-            <p className="text-sm text-slate-600 mb-3">{t('billing.familyDesc')}</p>
+
             <button
               onClick={() => handleCheckout('family_monthly')}
               disabled={checkoutLoading}
-              className="px-4 py-2 border-2 border-purple-500 text-purple-600 rounded-lg font-medium hover:bg-purple-50 transition-colors disabled:opacity-50"
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-violet-600 transition-colors disabled:opacity-50"
             >
-              {checkoutLoading ? t('common.loading') : t('billing.getFamily')}
+              {checkoutLoading ? t('common.loading') : t('billing.getFamily', 'Obține Family')}
             </button>
           </div>
         </div>

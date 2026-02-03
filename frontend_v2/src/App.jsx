@@ -45,8 +45,6 @@ const App = () => {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/vault-unlock" element={<VaultUnlock />} />
             <Route path="/pricing" element={<Pricing />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
             <Route path="/join-family" element={<JoinFamily />} />
           <Route path="/" element={
             <PrivateRoute>
@@ -122,6 +120,20 @@ const App = () => {
             <PrivateRoute>
               <Layout>
                 <Billing />
+              </Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/terms" element={
+            <PrivateRoute>
+              <Layout>
+                <Terms />
+              </Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/privacy" element={
+            <PrivateRoute>
+              <Layout>
+                <Privacy />
               </Layout>
             </PrivateRoute>
           } />

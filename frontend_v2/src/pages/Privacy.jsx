@@ -1,52 +1,33 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, Database, Lock, UserCheck, Trash2, Mail, Globe } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
+import { Shield, Database, Lock, UserCheck, Trash2, Mail, Globe } from 'lucide-react';
 
 export default function Privacy() {
-  const { t, i18n } = useTranslation();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { i18n } = useTranslation();
   const isRomanian = i18n.language === 'ro';
 
   const lastUpdated = '2 Februarie 2026';
   const version = '1.0';
 
-  const handleBack = () => {
-    if (user) {
-      navigate('/');
-    } else {
-      navigate(-1);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={handleBack}
-            className="inline-flex items-center gap-2 text-slate-600 hover:text-primary-600 mb-4"
-          >
-            <ArrowLeft size={18} />
-            {isRomanian ? 'Înapoi' : 'Back'}
-          </button>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-primary-100 rounded-xl">
-              <Shield className="w-8 h-8 text-primary-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800">
-                {isRomanian ? 'Politica de Confidențialitate' : 'Privacy Policy'}
-              </h1>
-              <p className="text-slate-500">
-                {isRomanian ? `Versiunea ${version} • Ultima actualizare: ${lastUpdated}` : `Version ${version} • Last updated: February 2, 2026`}
-              </p>
-            </div>
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-3 bg-primary-100 rounded-xl">
+            <Shield className="w-8 h-8 text-primary-600" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">
+              {isRomanian ? 'Politica de Confidențialitate' : 'Privacy Policy'}
+            </h1>
+            <p className="text-slate-500">
+              {isRomanian ? `Versiunea ${version} • Ultima actualizare: ${lastUpdated}` : `Version ${version} • Last updated: February 2, 2026`}
+            </p>
           </div>
         </div>
+      </div>
 
         {/* GDPR Badge */}
         <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8">
@@ -526,14 +507,13 @@ export default function Privacy() {
           )}
         </div>
 
-        {/* Footer */}
-        <div className="mt-8 text-center text-sm text-slate-500">
-          <p>Healthy.ai - {isRomanian ? 'Toate drepturile rezervate' : 'All rights reserved'} © 2026</p>
-          <div className="mt-2 space-x-4">
-            <Link to="/terms" className="text-primary-600 hover:underline">
-              {isRomanian ? 'Termeni și Condiții' : 'Terms and Conditions'}
-            </Link>
-          </div>
+      {/* Footer */}
+      <div className="mt-8 text-center text-sm text-slate-500">
+        <p>Analize.Online - {isRomanian ? 'Toate drepturile rezervate' : 'All rights reserved'} © 2026</p>
+        <div className="mt-2 space-x-4">
+          <Link to="/terms" className="text-primary-600 hover:underline">
+            {isRomanian ? 'Termeni și Condiții' : 'Terms and Conditions'}
+          </Link>
         </div>
       </div>
     </div>
