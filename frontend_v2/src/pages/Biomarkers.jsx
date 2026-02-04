@@ -80,7 +80,11 @@ function categorize(biomarkerName) {
     return 'other';
 }
 
-const openPdf = async (documentId) => {
+const openPdf = async (documentId, e) => {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
     try {
         const token = localStorage.getItem('token');
         const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -90,17 +94,37 @@ const openPdf = async (documentId) => {
         if (!response.ok) throw new Error('Failed to fetch PDF');
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
+
+        // For mobile Safari, use a different approach
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            // Create a temporary link and click it
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            window.open(url, '_blank');
+        }
     } catch (e) {
         console.error('Failed to open PDF:', e);
+        alert('Nu s-a putut deschide PDF-ul. Încercați din nou.');
     }
 };
 
-// Biomarker row with expandable history
-const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory }) => {
+// Biomarker row with expandable history - Mobile responsive
+const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssues }) => {
     const latest = group.latest;
     const historyCount = group.history.length;
     const isExpanded = expandedHistory.has(group.canonical_name);
+
+    // If filtering for issues only and this specific biomarker is normal, skip it
+    if (showOnlyIssues && latest.status === 'normal') {
+        return null;
+    }
 
     // Calculate trend from history
     const getTrend = () => {
@@ -117,9 +141,10 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory }) => {
 
     return (
         <>
+            {/* Desktop layout */}
             <div
                 className={cn(
-                    "grid grid-cols-12 gap-4 p-3 items-center hover:bg-slate-50/80 transition-all duration-200 group",
+                    "hidden md:grid grid-cols-12 gap-4 p-3 items-center hover:bg-slate-50/80 transition-all duration-200 group",
                     isExpanded && "bg-slate-50/50"
                 )}
             >
@@ -170,7 +195,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory }) => {
                 <div className="col-span-1 text-center">
                     {latest.document_id && (
                         <button
-                            onClick={(e) => { e.stopPropagation(); openPdf(latest.document_id); }}
+                            onClick={(e) => openPdf(latest.document_id, e)}
                             className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             title={t('documents.viewPdf')}
                         >
@@ -189,11 +214,87 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory }) => {
                 </div>
             </div>
 
-            {/* Expanded history rows */}
+            {/* Mobile layout - Card style */}
+            <div
+                className={cn(
+                    "md:hidden p-3 hover:bg-slate-50/80 transition-all duration-200",
+                    isExpanded && "bg-slate-50/50"
+                )}
+            >
+                <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                            {historyCount > 1 && (
+                                <button
+                                    onClick={() => onToggleHistory(group.canonical_name)}
+                                    className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors flex-shrink-0"
+                                >
+                                    {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                </button>
+                            )}
+                            <Link
+                                to={`/evolution/${encodeURIComponent(group.canonical_name)}`}
+                                className="font-medium text-slate-800 hover:text-primary-600 transition-colors truncate"
+                            >
+                                {group.canonical_name}
+                            </Link>
+                            {historyCount > 1 && (
+                                <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">
+                                    {historyCount}x
+                                </span>
+                            )}
+                            {trend && (
+                                <span className={cn(
+                                    "p-0.5 rounded flex-shrink-0",
+                                    trend === 'up' && "text-amber-500",
+                                    trend === 'down' && "text-blue-500",
+                                    trend === 'stable' && "text-slate-400"
+                                )}>
+                                    {trend === 'up' && <TrendingUp size={12} />}
+                                    {trend === 'down' && <TrendingDown size={12} />}
+                                    {trend === 'stable' && <Minus size={12} />}
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                            <span className="font-bold text-slate-800">{latest.value}</span>
+                            <span className="text-slate-400 text-xs">{latest.unit}</span>
+                            <span className="text-slate-300">•</span>
+                            <span className="text-xs text-slate-500">{latest.range}</span>
+                        </div>
+                        <div className="text-xs text-slate-400 mt-1">
+                            {new Date(latest.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' })}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                        {latest.document_id && (
+                            <button
+                                onClick={(e) => openPdf(latest.document_id, e)}
+                                className="p-2 text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
+                                title={t('documents.viewPdf')}
+                            >
+                                <Eye size={16} />
+                            </button>
+                        )}
+                        {latest.status === 'normal' ? (
+                            <span className="inline-block w-3 h-3 bg-teal-500 rounded-full" title={t('biomarkers.normal')} />
+                        ) : (
+                            <span className="inline-flex items-center justify-center w-6 h-6 bg-rose-100 rounded-full text-rose-600" title={latest.status === 'high' ? t('biomarkers.high') : t('biomarkers.low')}>
+                                {latest.status === 'high' ? <ArrowUp size={14} strokeWidth={3} /> : <ArrowDown size={14} strokeWidth={3} />}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Expanded history rows - Desktop */}
             {isExpanded && group.history.slice(1).map((bio, idx) => (
                 <div
                     key={bio.id}
-                    className="grid grid-cols-12 gap-4 p-2 pl-6 items-center bg-slate-50/30 border-l-2 border-slate-200 ml-4 text-sm"
+                    className={cn(
+                        "hidden md:grid grid-cols-12 gap-4 p-2 pl-6 items-center bg-slate-50/30 border-l-2 border-slate-200 ml-4 text-sm",
+                        showOnlyIssues && bio.status === 'normal' && "!hidden"
+                    )}
                 >
                     <div className="col-span-4 pl-8 text-slate-500 flex items-center gap-2">
                         <History size={12} className="text-slate-400" />
@@ -211,7 +312,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory }) => {
                     <div className="col-span-1 text-center">
                         {bio.document_id && (
                             <button
-                                onClick={(e) => { e.stopPropagation(); openPdf(bio.document_id); }}
+                                onClick={(e) => openPdf(bio.document_id, e)}
                                 className="inline-flex items-center justify-center p-1 text-slate-400 hover:text-primary-600 rounded transition-colors"
                             >
                                 <Eye size={12} />
@@ -229,15 +330,66 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory }) => {
                     </div>
                 </div>
             ))}
+
+            {/* Expanded history rows - Mobile */}
+            {isExpanded && group.history.slice(1).map((bio, idx) => (
+                <div
+                    key={`mobile-${bio.id}`}
+                    className={cn(
+                        "md:hidden p-2 pl-6 bg-slate-50/30 border-l-2 border-slate-200 ml-3 text-sm",
+                        showOnlyIssues && bio.status === 'normal' && "hidden"
+                    )}
+                >
+                    <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 text-slate-500 mb-1">
+                                <History size={12} className="text-slate-400 flex-shrink-0" />
+                                {bio.name !== group.canonical_name && (
+                                    <span className="truncate text-xs">{bio.name}</span>
+                                )}
+                            </div>
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                                <span className="font-medium text-slate-700">{bio.value}</span>
+                                <span className="text-slate-400 text-xs">{bio.unit}</span>
+                                <span className="text-slate-300">•</span>
+                                <span className="text-xs text-slate-400">{bio.range}</span>
+                            </div>
+                            <div className="text-xs text-slate-400 mt-0.5">
+                                {new Date(bio.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' })}
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                            {bio.document_id && (
+                                <button
+                                    onClick={(e) => openPdf(bio.document_id, e)}
+                                    className="p-1.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                >
+                                    <Eye size={14} />
+                                </button>
+                            )}
+                            {bio.status === 'normal' ? (
+                                <span className="inline-block w-2 h-2 bg-teal-400 rounded-full" />
+                            ) : (
+                                <span className={cn("text-xs", bio.status === 'high' ? "text-rose-500" : "text-blue-500")}>
+                                    {bio.status === 'high' ? <ArrowUp size={12} /> : <ArrowDown size={12} />}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ))}
         </>
     );
 };
 
-const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, expandedHistory, onToggleHistory }) => {
+const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, expandedHistory, onToggleHistory, showOnlyIssues }) => {
     const category = CATEGORIES[categoryKey];
     const colors = COLOR_CLASSES[category.color];
     const Icon = category.icon;
-    const issueCount = biomarkerGroups.filter(g => g.has_issues).length;
+    const issueCount = biomarkerGroups.filter(g => g.latest?.status !== 'normal').length;
+
+    // When filtering for issues, only count biomarkers with actual issues
+    const visibleCount = showOnlyIssues ? issueCount : biomarkerGroups.length;
 
     return (
         <div className="card overflow-hidden">
@@ -254,7 +406,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                     </div>
                     <div className="text-left">
                         <h3 className="font-semibold text-slate-800">{t(category.nameKey)}</h3>
-                        <p className="text-xs text-slate-500">{biomarkerGroups.length} {t('biomarkers.tests')}</p>
+                        <p className="text-xs text-slate-500">{visibleCount} {t('biomarkers.tests')}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -269,15 +421,20 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
 
             {expanded && (
                 <div className="border-t border-slate-100">
-                    <div className="grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    {/* Desktop header */}
+                    <div className="hidden md:grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                         <div className="col-span-4 pl-2">{t('biomarkers.testName')}</div>
                         <div className="col-span-2">{t('biomarkers.value')}</div>
                         <div className="col-span-2">{t('biomarkers.refRange')}</div>
                         <div className="col-span-2">{t('biomarkers.date')}</div>
-                        <div className="col-span-1 text-center">{t('biomarkers.pdf')}</div>
+                        <div className="col-span-1 text-center">PDF</div>
                         <div className="col-span-1 text-right pr-2">Status</div>
                     </div>
-                    <div className="divide-y divide-slate-50">
+                    {/* Mobile header */}
+                    <div className="md:hidden p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        {t('biomarkers.testResults')}
+                    </div>
+                    <div className="divide-y divide-slate-100 md:divide-slate-50">
                         {biomarkerGroups.map((group) => (
                             <BiomarkerRow
                                 key={group.canonical_name}
@@ -285,6 +442,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                                 t={t}
                                 expandedHistory={expandedHistory}
                                 onToggleHistory={onToggleHistory}
+                                showOnlyIssues={showOnlyIssues}
                             />
                         ))}
                     </div>
@@ -539,6 +697,7 @@ const Biomarkers = () => {
                                 t={t}
                                 expandedHistory={expandedHistory}
                                 onToggleHistory={toggleHistory}
+                                showOnlyIssues={filter === 'out_of_range'}
                             />
                         );
                     })}
