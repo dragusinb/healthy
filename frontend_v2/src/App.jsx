@@ -1,168 +1,174 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
+import ErrorBoundary from './components/ErrorBoundary';
+import PageLoader from './components/PageLoader';
+
+// Critical path - loaded immediately (needed for initial render)
 import Login from './pages/Login';
-import VerifyEmail from './pages/VerifyEmail';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import VaultUnlock from './pages/VaultUnlock';
-import Dashboard from './pages/Dashboard';
-import Documents from './pages/Documents';
-import Biomarkers from './pages/Biomarkers';
-import Evolution from './pages/Evolution';
-import LinkedAccounts from './pages/LinkedAccounts';
-import HealthReports from './pages/HealthReports';
-import Screenings from './pages/Screenings';
-import Profile from './pages/Profile';
-import Settings from './pages/Settings';
-import Admin from './pages/Admin';
-import Pricing from './pages/Pricing';
-import Billing from './pages/Billing';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
-import JoinFamily from './pages/JoinFamily';
 import Home from './pages/Home';
-import Layout from './components/Layout';
+
+// Lazy loaded pages - code split into separate chunks
+const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const VaultUnlock = lazy(() => import('./pages/VaultUnlock'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Documents = lazy(() => import('./pages/Documents'));
+const Biomarkers = lazy(() => import('./pages/Biomarkers'));
+const Evolution = lazy(() => import('./pages/Evolution'));
+const LinkedAccounts = lazy(() => import('./pages/LinkedAccounts'));
+const HealthReports = lazy(() => import('./pages/HealthReports'));
+const Screenings = lazy(() => import('./pages/Screenings'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const Billing = lazy(() => import('./pages/Billing'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const JoinFamily = lazy(() => import('./pages/JoinFamily'));
+const Layout = lazy(() => import('./components/Layout'));
+
+// Inline loader for layout-wrapped components
+const LayoutLoader = () => (
+    <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+    </div>
+);
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
-  if (!user) return <Navigate to="/login" />;
+    if (loading) return <PageLoader />;
+    if (!user) return <Navigate to="/login" />;
 
-  return children;
+    return children;
 };
 
 // Wrapper that shows Layout for logged-in users, standalone for guests
 const OptionalLayoutRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+    if (loading) return <PageLoader />;
 
-  if (user) {
-    return <Layout>{children}</Layout>;
-  }
+    if (user) {
+        return (
+            <Suspense fallback={<PageLoader />}>
+                <Layout>{children}</Layout>
+            </Suspense>
+        );
+    }
 
-  return children;
+    return children;
+};
+
+// Private route with Layout
+const PrivateLayoutRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) return <PageLoader />;
+    if (!user) return <Navigate to="/login" />;
+
+    return (
+        <Suspense fallback={<PageLoader />}>
+            <Layout>
+                <Suspense fallback={<LayoutLoader />}>
+                    {children}
+                </Suspense>
+            </Layout>
+        </Suspense>
+    );
 };
 
 // Home page for guests, Dashboard for logged-in users
 const HomeOrDashboard = () => {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
+    if (loading) return <PageLoader />;
 
-  if (user) {
-    return (
-      <Layout>
-        <Dashboard />
-      </Layout>
-    );
-  }
+    if (user) {
+        return (
+            <Suspense fallback={<PageLoader />}>
+                <Layout>
+                    <Suspense fallback={<LayoutLoader />}>
+                        <Dashboard />
+                    </Suspense>
+                </Layout>
+            </Suspense>
+        );
+    }
 
-  return <Home />;
+    return <Home />;
 };
 
 const App = () => {
-  return (
-    <AuthProvider>
-      <SubscriptionProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/vault-unlock" element={<VaultUnlock />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/join-family" element={<JoinFamily />} />
-          <Route path="/" element={<HomeOrDashboard />} />
-          <Route path="/documents" element={
-            <PrivateRoute>
-              <Layout>
-                <Documents />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/biomarkers" element={
-            <PrivateRoute>
-              <Layout>
-                <Biomarkers />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/evolution/:name" element={
-            <PrivateRoute>
-              <Layout>
-                <Evolution />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/linked-accounts" element={
-            <PrivateRoute>
-              <Layout>
-                <LinkedAccounts />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/profile" element={
-            <PrivateRoute>
-              <Layout>
-                <Profile />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/health" element={
-            <PrivateRoute>
-              <Layout>
-                <HealthReports />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/screenings" element={
-            <PrivateRoute>
-              <Layout>
-                <Screenings />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/admin" element={
-            <PrivateRoute>
-              <Layout>
-                <Admin />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/settings" element={
-            <PrivateRoute>
-              <Layout>
-                <Settings />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/billing" element={
-            <PrivateRoute>
-              <Layout>
-                <Billing />
-              </Layout>
-            </PrivateRoute>
-          } />
-          <Route path="/terms" element={
-            <OptionalLayoutRoute>
-              <Terms />
-            </OptionalLayoutRoute>
-          } />
-          <Route path="/privacy" element={
-            <OptionalLayoutRoute>
-              <Privacy />
-            </OptionalLayoutRoute>
-          } />
-        </Routes>
-        </Router>
-      </SubscriptionProvider>
-    </AuthProvider>
-  );
+    return (
+        <ErrorBoundary>
+            <AuthProvider>
+                <SubscriptionProvider>
+                    <Router>
+                        <Suspense fallback={<PageLoader />}>
+                            <Routes>
+                                {/* Public routes */}
+                                <Route path="/login" element={<Login />} />
+                                <Route path="/verify-email" element={<VerifyEmail />} />
+                                <Route path="/forgot-password" element={<ForgotPassword />} />
+                                <Route path="/reset-password" element={<ResetPassword />} />
+                                <Route path="/vault-unlock" element={<VaultUnlock />} />
+                                <Route path="/pricing" element={<Pricing />} />
+                                <Route path="/join-family" element={<JoinFamily />} />
+
+                                {/* Home / Dashboard */}
+                                <Route path="/" element={<HomeOrDashboard />} />
+
+                                {/* Private routes with Layout */}
+                                <Route path="/documents" element={
+                                    <PrivateLayoutRoute><Documents /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/biomarkers" element={
+                                    <PrivateLayoutRoute><Biomarkers /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/evolution/:name" element={
+                                    <PrivateLayoutRoute><Evolution /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/linked-accounts" element={
+                                    <PrivateLayoutRoute><LinkedAccounts /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/profile" element={
+                                    <PrivateLayoutRoute><Profile /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/health" element={
+                                    <PrivateLayoutRoute><HealthReports /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/screenings" element={
+                                    <PrivateLayoutRoute><Screenings /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/admin" element={
+                                    <PrivateLayoutRoute><Admin /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/settings" element={
+                                    <PrivateLayoutRoute><Settings /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/billing" element={
+                                    <PrivateLayoutRoute><Billing /></PrivateLayoutRoute>
+                                } />
+
+                                {/* Optional layout routes (show layout for logged-in users) */}
+                                <Route path="/terms" element={
+                                    <OptionalLayoutRoute><Terms /></OptionalLayoutRoute>
+                                } />
+                                <Route path="/privacy" element={
+                                    <OptionalLayoutRoute><Privacy /></OptionalLayoutRoute>
+                                } />
+                            </Routes>
+                        </Suspense>
+                    </Router>
+                </SubscriptionProvider>
+            </AuthProvider>
+        </ErrorBoundary>
+    );
 };
 
 export default App;

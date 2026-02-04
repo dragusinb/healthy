@@ -301,7 +301,7 @@ Healthy/
 - [x] Document deletion with cascade delete of biomarkers
 - [x] Edit linked account credentials
 - [x] Full localization (Romanian/English) for all pages
-- [ ] Email verification for registration (AWS SES configured, implementation pending)
+- [x] Email verification for registration (AWS SES configured and working)
 - [ ] Report history and comparison
 
 ### Phase 4 - PARTIAL (Production Deployment)
@@ -346,7 +346,7 @@ These credentials are configured in `/opt/healthy/.env` on the production server
 2. ~~Set up SSL/HTTPS with Let's Encrypt~~ DONE
 3. ~~Configure AWS SES credentials~~ DONE (in .env)
 4. ~~Complete localization~~ DONE (all pages translated)
-5. Implement email verification for registration
+5. ~~Implement email verification for registration~~ DONE
 6. Implement report comparison feature
 7. Implement per-user encryption (see `PER_USER_ENCRYPTION_PLAN.md`)
 
