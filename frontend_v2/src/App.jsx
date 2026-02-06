@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageLoader from './components/PageLoader';
+import CookieConsent from './components/CookieConsent';
 
 // Critical path - loaded immediately (needed for initial render)
 import Login from './pages/Login';
@@ -109,6 +110,7 @@ const App = () => {
             <AuthProvider>
                 <SubscriptionProvider>
                     <Router>
+                        <CookieConsent />
                         <Suspense fallback={<PageLoader />}>
                             <Routes>
                                 {/* Public routes */}

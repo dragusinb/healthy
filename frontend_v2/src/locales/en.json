@@ -635,6 +635,22 @@
     "getFamily": "Get Family",
     "questions": "Questions?"
   },
+  "cookies": {
+    "title": "We use cookies",
+    "description": "We use cookies to improve your experience and analyze site usage. You can customize your preferences or accept all cookies.",
+    "learnMore": "Learn more",
+    "acceptAll": "Accept All",
+    "essentialOnly": "Essential Only",
+    "customize": "Customize",
+    "settings": "Cookie Preferences",
+    "essential": "Essential Cookies",
+    "essentialDesc": "Required for the website to function. Cannot be disabled.",
+    "analytics": "Analytics Cookies",
+    "analyticsDesc": "Help us understand how visitors use our website.",
+    "marketing": "Marketing Cookies",
+    "marketingDesc": "Used to deliver personalized advertisements.",
+    "savePreferences": "Save Preferences"
+  },
   "billing": {
     "title": "Subscription & Billing",
     "subtitle": "Manage your subscription and view usage",

@@ -686,6 +686,22 @@
     "getFamily": "Alege Family",
     "questions": "Intrebari?"
   },
+  "cookies": {
+    "title": "Folosim cookie-uri",
+    "description": "Folosim cookie-uri pentru a-ti imbunatati experienta si a analiza utilizarea site-ului. Poti personaliza preferintele sau accepta toate cookie-urile.",
+    "learnMore": "Afla mai mult",
+    "acceptAll": "Accepta Tot",
+    "essentialOnly": "Doar Esentiale",
+    "customize": "Personalizeaza",
+    "settings": "Preferinte Cookie",
+    "essential": "Cookie-uri Esentiale",
+    "essentialDesc": "Necesare pentru functionarea site-ului. Nu pot fi dezactivate.",
+    "analytics": "Cookie-uri Analitice",
+    "analyticsDesc": "Ne ajuta sa intelegem cum folosesc vizitatorii site-ul.",
+    "marketing": "Cookie-uri Marketing",
+    "marketingDesc": "Folosite pentru a livra reclame personalizate.",
+    "savePreferences": "Salveaza Preferinte"
+  },
   "billing": {
     "title": "Abonament si Facturare",
     "subtitle": "Gestioneaza abonamentul si vezi utilizarea",
