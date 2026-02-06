@@ -290,7 +290,7 @@ Healthy/
 - [x] Sort biomarkers by issues first or most recent
 - [x] PDF view icons to see source documents
 
-### Phase 2 - NEARLY COMPLETE (98%)
+### Phase 2 - NEARLY COMPLETE (99%)
 - [x] User registration and authentication (email/password)
 - [x] Google OAuth authentication
 - [x] Secure credential storage (Fernet encryption)
@@ -301,7 +301,7 @@ Healthy/
 - [x] Document deletion with cascade delete of biomarkers
 - [x] Edit linked account credentials
 - [x] Full localization (Romanian/English) for all pages
-- [x] Email verification for registration (AWS SES configured and working)
+- [x] Email verification (banner prompting users to verify + resend functionality)
 - [ ] Report history and comparison
 
 ### Phase 4 - PARTIAL (Production Deployment)
@@ -311,7 +311,7 @@ Healthy/
 - [x] Systemd services for API and Xvfb
 - [x] SSL/HTTPS via Let's Encrypt
 - [x] Custom domain: analize.online
-- [ ] GDPR compliance
+- [x] GDPR compliance (cookie consent banner, data export, account deletion, terms acceptance)
 - [ ] Backup and disaster recovery
 - [ ] Monitoring and alerting
 
@@ -346,8 +346,10 @@ These credentials are configured in `/opt/healthy/.env` on the production server
 2. ~~Set up SSL/HTTPS with Let's Encrypt~~ DONE
 3. ~~Configure AWS SES credentials~~ DONE (in .env)
 4. ~~Complete localization~~ DONE (all pages translated)
-5. ~~Implement email verification for registration~~ DONE
-6. Implement report comparison feature
-7. Implement per-user encryption (see `PER_USER_ENCRYPTION_PLAN.md`)
+5. ~~Implement email verification for registration~~ DONE (banner + resend)
+6. ~~GDPR compliance~~ DONE (cookie consent, data export, account deletion)
+7. Implement report comparison feature
+8. Implement per-user encryption (see `PER_USER_ENCRYPTION_PLAN.md`)
+9. Backup and disaster recovery
 
 See **BACKLOG.md** for full list of planned features and technical debt.
