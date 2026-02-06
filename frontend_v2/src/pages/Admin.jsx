@@ -7,7 +7,8 @@ import {
     Trash2, RotateCcw, Play, Brain, Power,
     Clock, XCircle, UserSearch, Calendar,
     Zap, X, KeyRound, Wifi, Timer, Bug, Download, User,
-    Lock, Unlock, ShieldCheck, ShieldOff, Crown, Star, Users2
+    Lock, Unlock, ShieldCheck, ShieldOff, Crown, Star, Users2,
+    DollarSign, TrendingUp, Cpu
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -300,6 +301,7 @@ const Admin = () => {
     const [syncHistory, setSyncHistory] = useState(null);
     const [schedulerStatus, setSchedulerStatus] = useState(null);
     const [vaultStatus, setVaultStatus] = useState(null);
+    const [openaiUsage, setOpenaiUsage] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -309,14 +311,15 @@ const Admin = () => {
         setLoading(true);
         setError(null);
         try {
-            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes, vaultRes] = await Promise.all([
+            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes, vaultRes, openaiRes] = await Promise.all([
                 api.get('/admin/stats'),
                 api.get('/admin/server'),
                 api.get('/admin/users'),
                 api.get('/admin/sync-jobs?limit=20'),
                 api.get('/admin/sync-history?days=14'),
                 api.get('/admin/scheduler-status'),
-                api.get('/admin/vault/status')
+                api.get('/admin/vault/status'),
+                api.get('/admin/openai-usage?days=30').catch(() => ({ data: null }))
             ]);
             setStats(statsRes.data);
             setServerStats(serverRes.data);
@@ -325,6 +328,7 @@ const Admin = () => {
             setSyncHistory(historyRes.data);
             setSchedulerStatus(schedulerRes.data);
             setVaultStatus(vaultRes.data);
+            setOpenaiUsage(openaiRes.data);
         } catch (e) {
             console.error("Failed to fetch admin data", e);
             if (e.response?.status === 403) {
@@ -619,6 +623,118 @@ const Admin = () => {
                             </a>
                         )}
                     </div>
+                </div>
+            )}
+
+            {/* OpenAI Usage Monitoring */}
+            {openaiUsage && openaiUsage.totals && (
+                <div className="card p-6">
+                    <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <Cpu size={20} />
+                        {t('admin.openaiUsage') || 'OpenAI API Usage'} ({openaiUsage.period_days} {t('common.days') || 'days'})
+                    </h2>
+
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Zap size={16} className="text-violet-500" />
+                                <span className="text-sm text-violet-600">{t('admin.apiCalls') || 'API Calls'}</span>
+                            </div>
+                            <p className="text-2xl font-bold text-violet-700">{openaiUsage.totals.calls?.toLocaleString() || 0}</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Activity size={16} className="text-blue-500" />
+                                <span className="text-sm text-blue-600">{t('admin.totalTokens') || 'Total Tokens'}</span>
+                            </div>
+                            <p className="text-2xl font-bold text-blue-700">{(openaiUsage.totals.total_tokens / 1000)?.toFixed(1) || 0}K</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <DollarSign size={16} className="text-emerald-500" />
+                                <span className="text-sm text-emerald-600">{t('admin.estimatedCost') || 'Est. Cost'}</span>
+                            </div>
+                            <p className="text-2xl font-bold text-emerald-700">${openaiUsage.totals.cost_usd?.toFixed(2) || '0.00'}</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-rose-50 to-pink-50 border border-rose-200 rounded-xl p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <AlertTriangle size={16} className="text-rose-500" />
+                                <span className="text-sm text-rose-600">{t('admin.errors') || 'Errors'}</span>
+                            </div>
+                            <p className="text-2xl font-bold text-rose-700">{openaiUsage.errors || 0}</p>
+                        </div>
+                    </div>
+
+                    {/* Usage by Purpose */}
+                    {openaiUsage.by_purpose && openaiUsage.by_purpose.length > 0 && (
+                        <div className="mb-6">
+                            <h3 className="text-sm font-semibold text-slate-600 mb-3">{t('admin.byPurpose') || 'By Purpose'}</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                {openaiUsage.by_purpose.map(item => (
+                                    <div key={item.purpose} className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                                        <p className="text-sm font-medium text-slate-700 mb-2">
+                                            {item.purpose?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                                        </p>
+                                        <div className="flex justify-between text-xs text-slate-500">
+                                            <span>{item.calls} calls</span>
+                                            <span>{(item.tokens / 1000).toFixed(1)}K tokens</span>
+                                            <span>${item.cost?.toFixed(3)}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Usage by Model */}
+                    {openaiUsage.by_model && openaiUsage.by_model.length > 0 && (
+                        <div className="mb-6">
+                            <h3 className="text-sm font-semibold text-slate-600 mb-3">{t('admin.byModel') || 'By Model'}</h3>
+                            <div className="flex flex-wrap gap-3">
+                                {openaiUsage.by_model.map(item => (
+                                    <div key={item.model} className="bg-white border border-slate-200 rounded-lg px-4 py-2 flex items-center gap-3">
+                                        <span className="text-sm font-mono font-medium text-slate-700">{item.model}</span>
+                                        <span className="text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-600">{item.calls} calls</span>
+                                        <span className="text-xs text-emerald-600 font-medium">${item.cost?.toFixed(3)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Daily Usage Chart (simplified) */}
+                    {openaiUsage.daily && openaiUsage.daily.length > 0 && (
+                        <div>
+                            <h3 className="text-sm font-semibold text-slate-600 mb-3">{t('admin.dailyUsage') || 'Daily Usage (Last 14 days)'}</h3>
+                            <div className="flex items-end gap-1 h-24">
+                                {openaiUsage.daily.slice(0, 14).reverse().map((day, idx) => {
+                                    const maxCalls = Math.max(...openaiUsage.daily.slice(0, 14).map(d => d.calls || 1));
+                                    const height = Math.max(8, (day.calls / maxCalls) * 100);
+                                    return (
+                                        <div
+                                            key={day.date}
+                                            className="flex-1 bg-gradient-to-t from-violet-500 to-purple-400 rounded-t-sm hover:from-violet-600 hover:to-purple-500 transition-colors cursor-default"
+                                            style={{ height: `${height}%` }}
+                                            title={`${day.date}: ${day.calls} calls, $${day.cost?.toFixed(3)}`}
+                                        />
+                                    );
+                                })}
+                            </div>
+                            <div className="flex justify-between text-xs text-slate-400 mt-1">
+                                <span>{openaiUsage.daily[openaiUsage.daily.length - 1]?.date?.slice(5)}</span>
+                                <span>{openaiUsage.daily[0]?.date?.slice(5)}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* No data state */}
+                    {(!openaiUsage.daily || openaiUsage.daily.length === 0) && openaiUsage.totals.calls === 0 && (
+                        <div className="text-center py-8 text-slate-400">
+                            <Cpu size={32} className="mx-auto mb-2 opacity-50" />
+                            <p>{t('admin.noOpenaiData') || 'No OpenAI usage data yet. Data will appear after API calls are made.'}</p>
+                        </div>
+                    )}
                 </div>
             )}
 

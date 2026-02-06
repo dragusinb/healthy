@@ -419,6 +419,36 @@ class UsageMetrics(Base):
     )
 
 
+class OpenAIUsageLog(Base):
+    """Track individual OpenAI API calls for monitoring and cost analysis."""
+    __tablename__ = "openai_usage_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    date = Column(String, index=True)  # YYYY-MM-DD for daily aggregation
+
+    # API call details
+    model = Column(String)  # gpt-4o, gpt-4o-mini, etc.
+    purpose = Column(String)  # document_parsing, profile_extraction, health_analysis
+    tokens_input = Column(Integer, default=0)
+    tokens_output = Column(Integer, default=0)
+    total_tokens = Column(Integer, default=0)
+
+    # Cost tracking (estimated based on model pricing)
+    cost_usd = Column(Float, default=0.0)
+
+    # Optional user attribution
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    # Additional context
+    success = Column(Boolean, default=True)
+    error_message = Column(String, nullable=True)
+
+    __table_args__ = (
+        Index('ix_openai_usage_date_purpose', 'date', 'purpose'),
+    )
+
+
 # Add relationships to User model
 User.health_reports = relationship("HealthReport", back_populates="user")
 User.notifications = relationship("Notification", back_populates="user")

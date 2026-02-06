@@ -4,6 +4,11 @@ from typing import Dict, Any, List
 from pypdf import PdfReader
 from openai import OpenAI
 
+try:
+    from backend_v2.services.openai_tracker import track_openai_response, log_openai_call
+except ImportError:
+    from services.openai_tracker import track_openai_response, log_openai_call
+
 class AIService:
     def __init__(self):
         self.api_key = os.environ.get("OPENAI_API_KEY")
@@ -34,9 +39,9 @@ class AIService:
     def parse_text_with_ai(self, text: str) -> Dict[str, Any]:
         try:
             client = OpenAI(api_key=self.api_key)
-            
+
             prompt = self._construct_prompt(text)
-            
+
             response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
@@ -46,14 +51,18 @@ class AIService:
                 temperature=0,
                 response_format={"type": "json_object"}
             )
-            
+
+            # Track OpenAI usage
+            track_openai_response(response, model="gpt-4o", purpose="document_parsing")
+
             content = response.choices[0].message.content
-            print(f"AI Response: {content[:100]}...") # Debug log
-            
+            print(f"AI Response: {content[:100]}...")  # Debug log
+
             data = json.loads(content)
             return data
 
         except Exception as e:
+            log_openai_call(model="gpt-4o", purpose="document_parsing", success=False, error_message=str(e))
             print(f"AI Parse Error: {e}")
             return {"error": str(e), "results": [], "metadata": {}}
 

@@ -3,6 +3,11 @@ import json
 import re
 from typing import List, Dict, Any
 
+try:
+    from backend_v2.services.openai_tracker import track_openai_response, log_openai_call
+except ImportError:
+    from services.openai_tracker import track_openai_response, log_openai_call
+
 class AIParser:
     """
     Parser 4.0: Uses OpenAI GPT-4o to extract structured data.
@@ -39,6 +44,9 @@ class AIParser:
                 response_format={"type": "json_object"}
             )
 
+            # Track OpenAI usage
+            track_openai_response(response, model="gpt-4o", purpose="profile_extraction")
+
             content = response.choices[0].message.content
             data = json.loads(content)
 
@@ -49,6 +57,7 @@ class AIParser:
             }
 
         except Exception as e:
+            log_openai_call(model="gpt-4o", purpose="profile_extraction", success=False, error_message=str(e))
             return {"error": str(e), "profile": {}}
 
     def extract_profiles_batch(self, documents: List[Dict[str, str]], max_docs: int = 5) -> Dict[str, Any]:
@@ -129,6 +138,9 @@ Rules:
                 response_format={"type": "json_object"}
             )
 
+            # Track OpenAI usage
+            track_openai_response(response, model="gpt-4o-mini", purpose="profile_extraction_batch")
+
             content = response.choices[0].message.content
             data = json.loads(content)
 
@@ -140,6 +152,7 @@ Rules:
             }
 
         except Exception as e:
+            log_openai_call(model="gpt-4o-mini", purpose="profile_extraction_batch", success=False, error_message=str(e))
             return {"error": str(e), "profile": {}, "documents_scanned": 0}
 
     def _construct_profile_prompt(self, text: str) -> str:
@@ -236,7 +249,10 @@ Full document text (for context only - prefer header):
                 max_tokens=8000,  # Increased to handle large number of biomarkers
                 response_format={"type": "json_object"}
             )
-            
+
+            # Track OpenAI usage
+            track_openai_response(response, model="gpt-4o", purpose="document_parsing")
+
             content = response.choices[0].message.content
             data = json.loads(content)
 
@@ -252,6 +268,7 @@ Full document text (for context only - prefer header):
             }
 
         except Exception as e:
+            log_openai_call(model="gpt-4o", purpose="document_parsing", success=False, error_message=str(e))
             return {"error": str(e), "results": []}
 
     def _construct_prompt(self, text: str) -> str:

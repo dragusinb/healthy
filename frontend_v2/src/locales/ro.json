@@ -24,7 +24,8 @@
     "disclaimer": "Declinare responsabilitate",
     "analyzing": "Se analizeaza...",
     "note": "Nota",
-    "backToDashboard": "Inapoi la Panou"
+    "backToDashboard": "Inapoi la Panou",
+    "days": "zile"
   },
   "nav": {
     "dashboard": "Panou Principal",
@@ -472,7 +473,16 @@
     "actions": "Actiuni",
     "user": "Utilizator",
     "docs": "Doc.",
-    "subscription": "Abonament"
+    "subscription": "Abonament",
+    "openaiUsage": "Utilizare API OpenAI",
+    "apiCalls": "Apeluri API",
+    "totalTokens": "Tokeni Totali",
+    "estimatedCost": "Cost Est.",
+    "errors": "Erori",
+    "byPurpose": "Dupa Scop",
+    "byModel": "Dupa Model",
+    "dailyUsage": "Utilizare Zilnica (Ultimele 14 zile)",
+    "noOpenaiData": "Nu exista date de utilizare OpenAI inca. Datele vor aparea dupa efectuarea apelurilor API."
   },
   "settings": {
     "title": "Setari",

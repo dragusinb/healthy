@@ -22,6 +22,10 @@ LOCKOUT_SECONDS = 900  # 15 minute lockout after max attempts
 MAX_REGISTER_ATTEMPTS = 3  # Max registrations per window
 REGISTER_WINDOW_SECONDS = 3600  # 1 hour window
 
+# Profile scan rate limits (to prevent excessive OpenAI API calls)
+MAX_PROFILE_SCANS_PER_DAY = 3  # Max scans per day per user
+PROFILE_SCAN_WINDOW_SECONDS = 86400  # 24 hour window
+
 
 class RateLimiter:
     """Thread-safe in-memory rate limiter."""
@@ -163,3 +167,24 @@ def reset_login_rate_limit(request: Request):
     """Reset login rate limit after successful login."""
     client_ip = get_client_ip(request)
     _rate_limiter.reset(f"login:{client_ip}")
+
+
+def check_profile_scan_rate_limit(user_id: int):
+    """
+    Rate limit for profile scan endpoint.
+    Limits by user ID to prevent excessive OpenAI API calls.
+
+    Args:
+        user_id: The user's ID
+
+    Returns:
+        True if request is allowed, raises HTTPException if rate limited
+    """
+    if IS_TEST_ENV:
+        return  # Skip rate limiting in tests
+    _rate_limiter.check_rate_limit(
+        key=f"profile_scan:{user_id}",
+        max_attempts=MAX_PROFILE_SCANS_PER_DAY,
+        window_seconds=PROFILE_SCAN_WINDOW_SECONDS,
+        lockout_seconds=0  # No lockout, just enforce daily limit
+    )

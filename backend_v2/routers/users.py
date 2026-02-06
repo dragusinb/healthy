@@ -27,6 +27,7 @@ try:
     from backend_v2.auth.crypto import encrypt_password, decrypt_password
     from backend_v2.services.vault import vault, VaultLockedError
     from backend_v2.services.subscription_service import SubscriptionService
+    from backend_v2.auth.rate_limiter import check_profile_scan_rate_limit
 except ImportError:
     from database import get_db
     from models import User, LinkedAccount
@@ -35,6 +36,7 @@ except ImportError:
     from auth.crypto import encrypt_password, decrypt_password
     from services.vault import vault, VaultLockedError
     from services.subscription_service import SubscriptionService
+    from auth.rate_limiter import check_profile_scan_rate_limit
 
 
 def get_account_username(account: LinkedAccount) -> str:
@@ -382,6 +384,7 @@ def scan_profile_from_documents(
     """
     Scan user's documents to extract profile information using AI.
     OPTIMIZED: Uses batch extraction (1 API call for multiple documents).
+    RATE LIMITED: Max 3 scans per day per user to prevent excessive API usage.
     """
     import os
 
@@ -391,6 +394,9 @@ def scan_profile_from_documents(
     except ImportError:
         from models import Document
         from services.ai_parser import AIParser
+
+    # Apply rate limiting (max 3 scans per day)
+    check_profile_scan_rate_limit(current_user.id)
 
     # Check if profile is already complete - skip expensive AI call
     current_profile = get_profile_data(current_user)

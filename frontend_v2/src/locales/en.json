@@ -21,7 +21,8 @@
     "download": "Download",
     "refresh": "Refresh",
     "add": "Add",
-    "backToDashboard": "Back to Dashboard"
+    "backToDashboard": "Back to Dashboard",
+    "days": "days"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -428,7 +429,16 @@
     "actions": "Actions",
     "user": "User",
     "docs": "Docs",
-    "subscription": "Subscription"
+    "subscription": "Subscription",
+    "openaiUsage": "OpenAI API Usage",
+    "apiCalls": "API Calls",
+    "totalTokens": "Total Tokens",
+    "estimatedCost": "Est. Cost",
+    "errors": "Errors",
+    "byPurpose": "By Purpose",
+    "byModel": "By Model",
+    "dailyUsage": "Daily Usage (Last 14 days)",
+    "noOpenaiData": "No OpenAI usage data yet. Data will appear after API calls are made."
   },
   "settings": {
     "title": "Settings",

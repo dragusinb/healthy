@@ -9,12 +9,12 @@ from datetime import datetime, timedelta
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics
+    from backend_v2.models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics, OpenAIUsageLog
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services.audit_service import AuditService
 except ImportError:
     from database import get_db
-    from models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics
+    from models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics, OpenAIUsageLog
     from routers.documents import get_current_user
     from services.audit_service import AuditService
 
@@ -640,9 +640,12 @@ def scan_documents_for_profiles(db: Session = Depends(get_db), admin: User = Dep
             return ""
 
     def scan_user_documents(user_id: int):
-        """Scan documents for a user and extract profile data."""
+        """Scan documents for a user and extract profile data.
+        OPTIMIZED: Uses batch extraction (1 API call for multiple documents).
+        """
         from database import SessionLocal
         from models import User, Document
+        import os
 
         db_session = SessionLocal()
         try:
@@ -668,56 +671,66 @@ def scan_documents_for_profiles(db: Session = Depends(get_db), admin: User = Dep
             if not documents:
                 return {"user_id": user_id, "status": "no_documents"}
 
+            # Collect document texts for batch processing
+            doc_texts = []
+            for doc in documents:
+                if not doc.file_path or not os.path.exists(doc.file_path):
+                    continue
+
+                text = extract_text_from_pdf(doc.file_path)
+                if text:
+                    doc_texts.append({
+                        "id": doc.id,
+                        "filename": doc.filename,
+                        "text": text
+                    })
+                if len(doc_texts) >= 5:  # Max 5 documents for batch
+                    break
+
+            if not doc_texts:
+                return {"user_id": user_id, "status": "no_readable_documents"}
+
+            # OPTIMIZED: Single API call for all documents
             parser = AIParser()
+            result = parser.extract_profiles_batch(doc_texts, max_docs=5)
+
+            if result.get("error"):
+                return {"user_id": user_id, "status": "error", "message": result["error"]}
+
+            patient_info = result.get("profile", {})
+
+            if not patient_info or not any(patient_info.values()):
+                return {"user_id": user_id, "status": "no_profile_data_found"}
+
+            # Apply profile updates (don't overwrite existing)
             profile_updates = {}
 
-            for doc in documents:
-                if not doc.file_path:
-                    continue
+            if patient_info.get("full_name") and not user.full_name:
+                profile_updates["full_name"] = patient_info["full_name"]
 
-                # Skip if file doesn't exist
-                import os
-                if not os.path.exists(doc.file_path):
-                    continue
+            if patient_info.get("date_of_birth") and not user.date_of_birth:
+                try:
+                    from datetime import datetime
+                    dob = datetime.strptime(patient_info["date_of_birth"], "%Y-%m-%d")
+                    profile_updates["date_of_birth"] = dob
+                except (ValueError, TypeError):
+                    pass  # Invalid date format - skip
 
-                # Extract text and parse
-                text = extract_text_from_pdf(doc.file_path)
-                if not text:
-                    continue
+            if patient_info.get("gender") and not user.gender:
+                profile_updates["gender"] = patient_info["gender"]
 
-                result = parser.parse_text(text)
-                patient_info = result.get("patient_info", {})
+            if patient_info.get("blood_type") and not user.blood_type:
+                profile_updates["blood_type"] = patient_info["blood_type"]
 
-                if not patient_info:
-                    continue
-
-                # Merge patient info (don't overwrite existing)
-                if patient_info.get("full_name") and not profile_updates.get("full_name") and not user.full_name:
-                    profile_updates["full_name"] = patient_info["full_name"]
-
-                if patient_info.get("date_of_birth") and not profile_updates.get("date_of_birth") and not user.date_of_birth:
-                    try:
-                        from datetime import datetime
-                        dob = datetime.strptime(patient_info["date_of_birth"], "%Y-%m-%d")
-                        profile_updates["date_of_birth"] = dob
-                    except (ValueError, TypeError):
-                        pass  # Invalid date format - skip
-
-                if patient_info.get("gender") and not profile_updates.get("gender") and not user.gender:
-                    profile_updates["gender"] = patient_info["gender"]
-
-                if patient_info.get("blood_type") and not profile_updates.get("blood_type") and not user.blood_type:
-                    profile_updates["blood_type"] = patient_info["blood_type"]
-
-                if patient_info.get("height_cm") and not profile_updates.get("height_cm") and not user.height_cm:
-                    profile_updates["height_cm"] = patient_info["height_cm"]
-
-                if patient_info.get("weight_kg") and not profile_updates.get("weight_kg") and not user.weight_kg:
-                    profile_updates["weight_kg"] = patient_info["weight_kg"]
-
-                # If we found all we need, stop
-                if len(profile_updates) >= 4:
-                    break
+            if patient_info.get("age_years") and not user.date_of_birth and not profile_updates.get("date_of_birth"):
+                # Estimate DOB from age if no DOB found
+                try:
+                    from datetime import datetime
+                    age = int(patient_info["age_years"])
+                    estimated_dob = datetime.now().replace(year=datetime.now().year - age, month=1, day=1)
+                    profile_updates["date_of_birth"] = estimated_dob
+                except (ValueError, TypeError):
+                    pass
 
             # Apply updates
             if profile_updates:
@@ -726,7 +739,7 @@ def scan_documents_for_profiles(db: Session = Depends(get_db), admin: User = Dep
                 db_session.commit()
                 return {"user_id": user_id, "status": "updated", "fields": list(profile_updates.keys())}
             else:
-                return {"user_id": user_id, "status": "no_profile_data_found"}
+                return {"user_id": user_id, "status": "no_new_profile_data"}
 
         except Exception as e:
             print(f"Error scanning for user {user_id}: {e}")
@@ -1360,3 +1373,70 @@ def set_user_subscription(
     )
 
     return {"status": "success", "message": f"User {user.email} subscription set to {tier}"}
+
+
+# =============================================================================
+# OpenAI Usage Monitoring
+# =============================================================================
+
+@router.get("/openai-usage")
+def get_openai_usage(
+    days: int = 30,
+    admin: User = Depends(require_admin)
+):
+    """Get OpenAI API usage statistics."""
+    try:
+        from backend_v2.services.openai_tracker import get_usage_summary
+    except ImportError:
+        from services.openai_tracker import get_usage_summary
+
+    return get_usage_summary(days)
+
+
+@router.get("/openai-usage/daily")
+def get_openai_daily_usage(
+    days: int = 30,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin)
+):
+    """Get detailed daily OpenAI usage breakdown."""
+    from sqlalchemy import func
+
+    try:
+        from backend_v2.models import OpenAIUsageLog
+    except ImportError:
+        from models import OpenAIUsageLog
+
+    cutoff = datetime.utcnow() - timedelta(days=days)
+
+    daily = db.query(
+        OpenAIUsageLog.date,
+        OpenAIUsageLog.model,
+        OpenAIUsageLog.purpose,
+        func.count(OpenAIUsageLog.id).label("calls"),
+        func.sum(OpenAIUsageLog.tokens_input).label("input_tokens"),
+        func.sum(OpenAIUsageLog.tokens_output).label("output_tokens"),
+        func.sum(OpenAIUsageLog.cost_usd).label("cost")
+    ).filter(
+        OpenAIUsageLog.timestamp >= cutoff
+    ).group_by(
+        OpenAIUsageLog.date,
+        OpenAIUsageLog.model,
+        OpenAIUsageLog.purpose
+    ).order_by(OpenAIUsageLog.date.desc()).all()
+
+    return {
+        "period_days": days,
+        "details": [
+            {
+                "date": d.date,
+                "model": d.model,
+                "purpose": d.purpose,
+                "calls": d.calls,
+                "input_tokens": d.input_tokens or 0,
+                "output_tokens": d.output_tokens or 0,
+                "cost": round(d.cost or 0, 4)
+            }
+            for d in daily
+        ]
+    }

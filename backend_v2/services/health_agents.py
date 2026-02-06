@@ -8,6 +8,11 @@ from openai import OpenAI
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
+try:
+    from backend_v2.services.openai_tracker import track_openai_response, log_openai_call
+except ImportError:
+    from services.openai_tracker import track_openai_response, log_openai_call
+
 
 class HealthAgent:
     """Base class for health analysis agents."""
@@ -29,21 +34,29 @@ class HealthAgent:
         """Get the language instruction for prompts."""
         return self.LANGUAGE_INSTRUCTIONS.get(self.language, self.LANGUAGE_INSTRUCTIONS["en"])
 
-    def _call_ai(self, system_prompt: str, user_prompt: str) -> str:
+    def _call_ai(self, system_prompt: str, user_prompt: str, purpose: str = "health_analysis") -> str:
         """Make an API call to OpenAI."""
         # Add language instruction to system prompt
         full_system_prompt = f"{system_prompt}\n\n{self._get_language_instruction()}"
 
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": full_system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.3,
-            max_tokens=2000
-        )
-        return response.choices[0].message.content
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": full_system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.3,
+                max_tokens=2000
+            )
+
+            # Track OpenAI usage
+            track_openai_response(response, model=self.model, purpose=purpose)
+
+            return response.choices[0].message.content
+        except Exception as e:
+            log_openai_call(model=self.model, purpose=purpose, success=False, error_message=str(e))
+            raise
 
 
 class GeneralistAgent(HealthAgent):
