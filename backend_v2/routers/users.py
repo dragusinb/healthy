@@ -379,7 +379,10 @@ def scan_profile_from_documents(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Scan user's documents to extract profile information using AI."""
+    """
+    Scan user's documents to extract profile information using AI.
+    OPTIMIZED: Uses batch extraction (1 API call for multiple documents).
+    """
     import os
 
     try:
@@ -389,12 +392,27 @@ def scan_profile_from_documents(
         from models import Document
         from services.ai_parser import AIParser
 
+    # Check if profile is already complete - skip expensive AI call
+    current_profile = get_profile_data(current_user)
+    if all([
+        current_profile.get("full_name"),
+        current_profile.get("date_of_birth"),
+        current_profile.get("gender")
+    ]):
+        # Profile is mostly complete, check if we're just missing blood type
+        if current_profile.get("blood_type"):
+            return {
+                "status": "already_complete",
+                "message": "Profile is already complete",
+                "profile": current_profile
+            }
+
     # Get user's processed documents (most recent first)
-    # Scan up to 50 documents to find profile data including blood type in older documents
+    # OPTIMIZED: Limit to 10 documents (was 50)
     documents = db.query(Document).filter(
         Document.user_id == current_user.id,
         Document.is_processed == True
-    ).order_by(Document.document_date.desc()).limit(50).all()
+    ).order_by(Document.document_date.desc()).limit(10).all()
 
     if not documents:
         return {"status": "no_documents", "message": "No processed documents found", "profile": {}}
@@ -405,8 +423,8 @@ def scan_profile_from_documents(
             import pdfplumber
             text = ""
             with pdfplumber.open(file_path) as pdf:
-                # Focus on first 3 pages where patient info usually is
-                for i, page in enumerate(pdf.pages[:3]):
+                # Focus on first 2 pages where patient info usually is
+                for i, page in enumerate(pdf.pages[:2]):
                     page_text = page.extract_text()
                     if page_text:
                         text += page_text + "\n"
@@ -415,60 +433,52 @@ def scan_profile_from_documents(
             print(f"Error extracting text from {file_path}: {e}")
             return ""
 
-    parser = AIParser()
-    extracted_profiles = []
-    scanned_count = 0
-    found_blood_type = False
-
+    # Collect document texts for batch processing
+    doc_texts = []
     for doc in documents:
         if not doc.file_path or not os.path.exists(doc.file_path):
             continue
-
         text = extract_text_from_pdf(doc.file_path)
-        if not text:
-            continue
-
-        scanned_count += 1
-        result = parser.extract_profile(text)
-
-        if result.get("profile") and not result.get("error"):
-            profile_data = result["profile"]
-            profile_data["source_document"] = doc.filename
-            profile_data["confidence"] = result.get("confidence", "low")
-            profile_data["document_date"] = doc.document_date  # Store document date for age calculation
-            extracted_profiles.append(profile_data)
-
-            # Track if we found blood type
-            if profile_data.get("blood_type"):
-                found_blood_type = True
-
-        # Stop early only if we have high confidence data AND blood type
-        # Otherwise continue scanning to find blood type in older documents
-        if extracted_profiles and extracted_profiles[-1].get("confidence") == "high" and found_blood_type:
+        if text:
+            doc_texts.append({
+                "id": doc.id,
+                "filename": doc.filename,
+                "text": text,
+                "date": doc.document_date
+            })
+        if len(doc_texts) >= 5:  # Max 5 documents for batch
             break
 
-        # Limit to 15 documents for basic profile, but scan more if still missing blood type
-        if scanned_count >= 15 and found_blood_type:
-            break
+    if not doc_texts:
+        return {
+            "status": "no_readable_documents",
+            "message": "Could not read any documents",
+            "profile": {}
+        }
 
-    if not extracted_profiles:
+    # OPTIMIZED: Single API call for all documents (was 1 call per document)
+    parser = AIParser()
+    result = parser.extract_profiles_batch(doc_texts, max_docs=5)
+
+    if result.get("error"):
+        return {
+            "status": "error",
+            "message": result["error"],
+            "profile": {}
+        }
+
+    merged_profile = result.get("profile", {})
+    scanned_count = result.get("documents_scanned", 0)
+
+    if not merged_profile or not any(merged_profile.values()):
         return {
             "status": "no_profile_found",
             "message": f"Scanned {scanned_count} documents but could not extract profile information",
             "profile": {}
         }
 
-    # Merge extracted profiles (prefer higher confidence, more recent)
-    merged_profile = {}
-    age_document_date = None  # Track document date for age_years calculation
-    for profile in reversed(extracted_profiles):  # Oldest first, so newer overwrites
-        for key, value in profile.items():
-            if value and key not in ["source_document", "confidence", "source_hints", "document_date"]:
-                if key not in merged_profile or profile.get("confidence") == "high":
-                    merged_profile[key] = value
-                    # Track document date when we get age_years
-                    if key == "age_years" and profile.get("document_date"):
-                        age_document_date = profile["document_date"]
+    # Track age document date for birth year calculation
+    age_document_date = doc_texts[0].get("date") if doc_texts else None
 
     # Apply to user profile (only fill empty fields)
     # Use vault encryption when available

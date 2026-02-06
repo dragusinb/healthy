@@ -51,6 +51,97 @@ class AIParser:
         except Exception as e:
             return {"error": str(e), "profile": {}}
 
+    def extract_profiles_batch(self, documents: List[Dict[str, str]], max_docs: int = 5) -> Dict[str, Any]:
+        """
+        Extract profile info from multiple documents in a SINGLE API call.
+        Much more efficient than calling extract_profile for each document.
+
+        Args:
+            documents: List of dicts with 'id', 'filename', 'text' keys
+            max_docs: Maximum documents to include (default 5)
+
+        Returns:
+            Dict with merged profile and individual results
+        """
+        if not self.api_key:
+            return {"error": "Missing API Key", "profile": {}}
+
+        if not documents:
+            return {"profile": {}, "documents_scanned": 0}
+
+        # Limit documents
+        docs_to_scan = documents[:max_docs]
+
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=self.api_key)
+
+            # Build combined prompt with headers from all documents
+            combined_headers = []
+            for i, doc in enumerate(docs_to_scan):
+                lines = doc['text'].split('\n')
+                header = '\n'.join(lines[:40])  # First 40 lines of each
+                combined_headers.append(f"=== DOCUMENT {i+1}: {doc.get('filename', 'unknown')} ===\n{header}\n")
+
+            prompt = f"""
+Analyze these Romanian medical laboratory report headers and extract PATIENT INFORMATION.
+
+{chr(10).join(combined_headers)}
+
+Look for patient demographics in the document headers:
+- Patient name: "Pacient:", "Nume:", or name on its own line
+- Age: "Varsta: XX ani", "XX ani"
+- CNP: "CNP: 1YYMMDDDXXXX" (decode: 1/3/5/7=Male, 2/4/6/8=Female, digits 2-7 = birth date)
+- Birth date: "Data nasterii:", "D.N."
+- Gender: "Sex:", "M/F", "Masculin/Feminin"
+- Blood type: "Grup sanguin", "A+", "B-", "O+", "AB-", etc.
+
+Return JSON with the BEST extracted profile (merge info from all documents):
+{{
+    "profile": {{
+        "full_name": "First Last" or null,
+        "date_of_birth": "YYYY-MM-DD" or null,
+        "gender": "male" or "female" or null,
+        "age_years": number or null,
+        "blood_type": "A+/A-/B+/B-/AB+/AB-/O+/O-" or null,
+        "cnp_prefix": "first 7 digits" or null
+    }},
+    "confidence": "high/medium/low",
+    "documents_with_data": [list of document numbers (1-based) that had patient info]
+}}
+
+Rules:
+1. Merge data from all documents - prefer info from documents with CNP
+2. CNP gives exact birth date (decode it)
+3. Use proper Title Case for names
+4. Output dates as YYYY-MM-DD
+"""
+
+            # Use cheaper model for profile extraction
+            response = client.chat.completions.create(
+                model="gpt-4o-mini",  # Cheaper model for simple extraction
+                messages=[
+                    {"role": "system", "content": "Extract patient demographics from Romanian medical documents. Output JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0,
+                max_tokens=500,
+                response_format={"type": "json_object"}
+            )
+
+            content = response.choices[0].message.content
+            data = json.loads(content)
+
+            return {
+                "profile": data.get("profile", {}),
+                "confidence": data.get("confidence", "low"),
+                "documents_scanned": len(docs_to_scan),
+                "documents_with_data": data.get("documents_with_data", [])
+            }
+
+        except Exception as e:
+            return {"error": str(e), "profile": {}, "documents_scanned": 0}
+
     def _construct_profile_prompt(self, text: str) -> str:
         """Construct prompt for profile extraction from Romanian medical documents."""
         # Limit text but focus on header area where patient info usually is
