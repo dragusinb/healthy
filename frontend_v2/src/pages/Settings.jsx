@@ -1,15 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Bell, Mail, Clock, Check, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle } from 'lucide-react';
 import api from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 export default function Settings() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // GDPR states
+  const [exporting, setExporting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   useEffect(() => {
     fetchPreferences();
@@ -23,6 +35,49 @@ export default function Settings() {
       setError('Failed to load preferences');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    setExporting(true);
+    try {
+      const response = await api.get('/users/export-data');
+      const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analize_online_export_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(t('settings.exportFailed') || 'Failed to export data');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword || !deleteConfirm) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await api.delete('/users/account', {
+        data: {
+          password: deletePassword,
+          confirm_deletion: true
+        }
+      });
+      // Account deleted - logout and redirect
+      logout();
+      navigate('/login');
+    } catch (err) {
+      setDeleteError(err.response?.data?.detail || t('settings.deleteFailed') || 'Failed to delete account');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -239,6 +294,127 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Privacy & Data (GDPR) */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <Shield className="w-5 h-5 text-gray-600" />
+            <h2 className="font-semibold text-gray-800">{t('settings.privacyData') || 'Privacy & Data'}</h2>
+          </div>
+          <p className="text-sm text-gray-500 mt-1">{t('settings.privacyDataDesc') || 'Manage your personal data'}</p>
+        </div>
+
+        <div className="divide-y divide-gray-100">
+          {/* Export Data */}
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-800">{t('settings.exportData') || 'Export My Data'}</p>
+              <p className="text-sm text-gray-500">{t('settings.exportDataDesc') || 'Download all your personal data as JSON'}</p>
+            </div>
+            <button
+              onClick={handleExportData}
+              disabled={exporting}
+              className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50"
+            >
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+              {exporting ? (t('common.loading') || 'Loading...') : (t('settings.download') || 'Download')}
+            </button>
+          </div>
+
+          {/* Delete Account */}
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div>
+              <p className="font-medium text-rose-600">{t('settings.deleteAccount') || 'Delete Account'}</p>
+              <p className="text-sm text-gray-500">{t('settings.deleteAccountDesc') || 'Permanently delete your account and all data'}</p>
+            </div>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              {t('settings.delete') || 'Delete'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-rose-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">{t('settings.deleteAccountTitle') || 'Delete Account'}</h3>
+                <p className="text-sm text-gray-500">{t('settings.deleteAccountWarning') || 'This action cannot be undone'}</p>
+              </div>
+            </div>
+
+            <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-700">
+              {t('settings.deleteAccountInfo') || 'All your documents, biomarkers, health reports, and personal data will be permanently deleted.'}
+            </div>
+
+            {deleteError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                {deleteError}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t('settings.enterPassword') || 'Enter your password to confirm'}
+                </label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  placeholder="Password"
+                />
+              </div>
+
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={deleteConfirm}
+                  onChange={(e) => setDeleteConfirm(e.target.checked)}
+                  className="mt-1 w-4 h-4 text-rose-600 rounded focus:ring-rose-500"
+                />
+                <span className="text-sm text-gray-700">
+                  {t('settings.confirmDelete') || 'I understand that this will permanently delete all my data'}
+                </span>
+              </label>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeletePassword('');
+                  setDeleteConfirm(false);
+                  setDeleteError(null);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                {t('common.cancel') || 'Cancel'}
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={!deletePassword || !deleteConfirm || deleting}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                {deleting ? (t('common.deleting') || 'Deleting...') : (t('settings.deleteForever') || 'Delete Forever')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

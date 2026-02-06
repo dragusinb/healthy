@@ -918,3 +918,256 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
         sync_status.status_error(user_id, provider_name, str(e))
     finally:
         db.close()
+
+
+# ==================== GDPR Compliance Endpoints ====================
+
+class DeleteAccountRequest(BaseModel):
+    password: str
+    confirm_deletion: bool = False
+
+
+@router.get("/export-data")
+def export_user_data(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    GDPR Data Export - Download all your personal data.
+    Returns a JSON object containing all user data.
+    """
+    from fastapi.responses import JSONResponse
+    import json
+
+    try:
+        from backend_v2.models import Document, TestResult, HealthReport, Subscription, AuditLog, UserSession
+    except ImportError:
+        from models import Document, TestResult, HealthReport, Subscription, AuditLog, UserSession
+
+    export_data = {
+        "export_date": datetime.datetime.utcnow().isoformat(),
+        "user_id": current_user.id,
+        "account": {},
+        "profile": {},
+        "linked_accounts": [],
+        "documents": [],
+        "biomarkers": [],
+        "health_reports": [],
+        "subscription": None,
+        "activity_log": []
+    }
+
+    # Account info
+    export_data["account"] = {
+        "email": current_user.email,
+        "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
+        "email_verified": current_user.email_verified,
+        "language": current_user.language,
+        "is_admin": current_user.is_admin
+    }
+
+    # Profile data
+    export_data["profile"] = get_profile_data(current_user)
+
+    # Linked accounts (without passwords)
+    for acc in current_user.linked_accounts:
+        username = get_account_username(acc) if vault.is_unlocked else "[encrypted]"
+        export_data["linked_accounts"].append({
+            "provider": acc.provider_name,
+            "username": username,
+            "status": acc.status,
+            "created_at": acc.created_at.isoformat() if acc.created_at else None,
+            "last_sync": acc.last_sync.isoformat() if acc.last_sync else None
+        })
+
+    # Documents
+    documents = db.query(Document).filter(Document.user_id == current_user.id).all()
+    for doc in documents:
+        # Decrypt patient name if available
+        patient_name = None
+        if vault.is_unlocked and doc.patient_name_enc:
+            try:
+                patient_name = vault.decrypt_data(doc.patient_name_enc)
+            except Exception:
+                pass
+        if patient_name is None:
+            patient_name = doc.patient_name
+
+        export_data["documents"].append({
+            "id": doc.id,
+            "filename": doc.filename,
+            "provider": doc.provider,
+            "document_date": doc.document_date.isoformat() if doc.document_date else None,
+            "upload_date": doc.upload_date.isoformat() if doc.upload_date else None,
+            "patient_name": patient_name,
+            "is_processed": doc.is_processed
+        })
+
+    # Biomarkers/Test Results
+    test_results = db.query(TestResult).join(Document).filter(
+        Document.user_id == current_user.id
+    ).all()
+    for tr in test_results:
+        export_data["biomarkers"].append({
+            "document_id": tr.document_id,
+            "test_name": tr.test_name,
+            "canonical_name": tr.canonical_name,
+            "value": tr.value,
+            "numeric_value": tr.numeric_value,
+            "unit": tr.unit,
+            "reference_range": tr.reference_range,
+            "flags": tr.flags
+        })
+
+    # Health Reports
+    reports = db.query(HealthReport).filter(HealthReport.user_id == current_user.id).all()
+    for report in reports:
+        # Decrypt report content if available
+        content = None
+        if vault.is_unlocked and report.content_enc:
+            try:
+                content = vault.decrypt_data(report.content_enc)
+            except Exception:
+                pass
+        if content is None:
+            content = report.content
+
+        export_data["health_reports"].append({
+            "id": report.id,
+            "report_type": report.report_type,
+            "specialist_type": report.specialist_type,
+            "created_at": report.created_at.isoformat() if report.created_at else None,
+            "content": content,
+            "summary": report.summary
+        })
+
+    # Subscription
+    subscription = db.query(Subscription).filter(Subscription.user_id == current_user.id).first()
+    if subscription:
+        export_data["subscription"] = {
+            "tier": subscription.tier,
+            "status": subscription.status,
+            "billing_cycle": subscription.billing_cycle,
+            "current_period_start": subscription.current_period_start.isoformat() if subscription.current_period_start else None,
+            "current_period_end": subscription.current_period_end.isoformat() if subscription.current_period_end else None
+        }
+
+    # Activity log (last 100 entries)
+    audit_logs = db.query(AuditLog).filter(
+        AuditLog.user_id == current_user.id
+    ).order_by(AuditLog.timestamp.desc()).limit(100).all()
+    for log in audit_logs:
+        export_data["activity_log"].append({
+            "action": log.action,
+            "resource_type": log.resource_type,
+            "timestamp": log.timestamp.isoformat() if log.timestamp else None,
+            "ip_address": log.ip_address
+        })
+
+    return JSONResponse(
+        content=export_data,
+        headers={
+            "Content-Disposition": f"attachment; filename=analize_online_data_export_{datetime.datetime.now().strftime('%Y%m%d')}.json"
+        }
+    )
+
+
+@router.delete("/account")
+def delete_user_account(
+    request: DeleteAccountRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    GDPR Account Deletion - Permanently delete your account and all data.
+    Requires password confirmation and explicit consent.
+    """
+    import shutil
+
+    try:
+        from backend_v2.models import Document, TestResult, HealthReport, Subscription, AuditLog, UserSession
+        from backend_v2.auth.security import verify_password
+        from backend_v2.services.audit_service import AuditService
+    except ImportError:
+        from models import Document, TestResult, HealthReport, Subscription, AuditLog, UserSession
+        from auth.security import verify_password
+        from services.audit_service import AuditService
+
+    # Verify password
+    if not verify_password(request.password, current_user.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid password")
+
+    # Require explicit confirmation
+    if not request.confirm_deletion:
+        raise HTTPException(
+            status_code=400,
+            detail="You must confirm deletion by setting confirm_deletion to true"
+        )
+
+    # Prevent admin from deleting their own account if they're the only admin
+    if current_user.is_admin:
+        admin_count = db.query(User).filter(User.is_admin == True).count()
+        if admin_count <= 1:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot delete the only admin account"
+            )
+
+    user_id = current_user.id
+    user_email = current_user.email
+
+    try:
+        # 1. Delete test results (cascade from documents)
+        doc_ids = [d.id for d in db.query(Document.id).filter(Document.user_id == user_id).all()]
+        if doc_ids:
+            db.query(TestResult).filter(TestResult.document_id.in_(doc_ids)).delete(synchronize_session=False)
+
+        # 2. Delete document files from disk
+        documents = db.query(Document).filter(Document.user_id == user_id).all()
+        for doc in documents:
+            if doc.file_path and os.path.exists(doc.file_path):
+                try:
+                    os.remove(doc.file_path)
+                except Exception:
+                    pass  # Continue even if file deletion fails
+
+        # 3. Delete documents from DB
+        db.query(Document).filter(Document.user_id == user_id).delete(synchronize_session=False)
+
+        # 4. Delete health reports
+        db.query(HealthReport).filter(HealthReport.user_id == user_id).delete(synchronize_session=False)
+
+        # 5. Delete linked accounts
+        db.query(LinkedAccount).filter(LinkedAccount.user_id == user_id).delete(synchronize_session=False)
+
+        # 6. Delete subscription
+        db.query(Subscription).filter(Subscription.user_id == user_id).delete(synchronize_session=False)
+
+        # 7. Delete user sessions
+        db.query(UserSession).filter(UserSession.user_id == user_id).delete(synchronize_session=False)
+
+        # 8. Anonymize audit logs (keep for compliance, but remove PII)
+        db.query(AuditLog).filter(AuditLog.user_id == user_id).update({
+            "user_id": None,
+            "details": '{"deleted": true}',
+            "ip_address": None,
+            "user_agent": None
+        }, synchronize_session=False)
+
+        # 9. Delete user
+        db.query(User).filter(User.id == user_id).delete(synchronize_session=False)
+
+        # Commit all deletions
+        db.commit()
+
+        return {
+            "status": "success",
+            "message": f"Account {user_email} and all associated data have been permanently deleted"
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to delete account: {str(e)}"
+        )
