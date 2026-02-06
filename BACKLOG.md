@@ -161,12 +161,15 @@ Time-limited shareable links
 
 ### Frontend Bundle Size
 **Priority:** Low
-**Issue:** >500KB bundle
-**Solution:** Code splitting, dynamic imports
+**Status:** DONE ✓
+**Issue:** >500KB bundle (was 1080KB)
+**Solution:** Code splitting with React.lazy() - reduced to 432KB main bundle
 
 ### Database Backups
 **Priority:** Medium
-**Solution:** pg_dump cron job + cloud backup
+**Status:** DONE ✓
+**Solution:** pg_dump cron job running daily at 3 AM, keeps 7 days of backups
+**Location:** /opt/healthy/backups/
 
 ---
 
