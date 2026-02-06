@@ -89,7 +89,11 @@
     "setNewPasswordDesc": "Introdu noua parola mai jos.",
     "newPassword": "Parola noua",
     "resetPassword": "Reseteaza parola",
-    "mustAcceptTerms": "Trebuie sa accepti Termenii si Conditiile si Politica de Confidentialitate"
+    "mustAcceptTerms": "Trebuie sa accepti Termenii si Conditiile si Politica de Confidentialitate",
+    "verifyEmailBanner": "Te rugam sa iti verifici adresa de email",
+    "verifyEmailBannerDesc": "Verifica inbox-ul pentru link-ul de verificare",
+    "resendVerification": "Retrimite",
+    "verificationSent": "Trimis!"
   },
   "dashboard": {
     "title": "Panou Principal",

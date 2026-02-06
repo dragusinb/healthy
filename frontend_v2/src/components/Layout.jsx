@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard } from 'lucide-react';
+import api from '../api/client';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
@@ -31,11 +32,33 @@ const Layout = ({ children }) => {
     const location = useLocation();
     const { t, i18n } = useTranslation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [verificationState, setVerificationState] = useState('idle'); // idle, sending, sent, error
+    const [bannerDismissed, setBannerDismissed] = useState(() => {
+        return localStorage.getItem('emailBannerDismissed') === 'true';
+    });
 
     // Close mobile menu when route changes
     useEffect(() => {
         setMobileMenuOpen(false);
     }, [location.pathname]);
+
+    const handleResendVerification = async () => {
+        setVerificationState('sending');
+        try {
+            await api.post('/auth/resend-verification', { email: user?.email });
+            setVerificationState('sent');
+        } catch (error) {
+            setVerificationState('error');
+            setTimeout(() => setVerificationState('idle'), 3000);
+        }
+    };
+
+    const dismissBanner = () => {
+        setBannerDismissed(true);
+        localStorage.setItem('emailBannerDismissed', 'true');
+    };
+
+    const showVerificationBanner = user && user.email_verified === false && !bannerDismissed;
 
     const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -259,6 +282,53 @@ const Layout = ({ children }) => {
                 )}
 
                 <div className="max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {/* Email Verification Banner */}
+                    {showVerificationBanner && (
+                        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-amber-100 rounded-lg">
+                                    <Mail size={20} className="text-amber-600" />
+                                </div>
+                                <div>
+                                    <p className="font-medium text-amber-800">
+                                        {t('auth.verifyEmailBanner') || 'Please verify your email address'}
+                                    </p>
+                                    <p className="text-sm text-amber-600">
+                                        {t('auth.verifyEmailBannerDesc') || 'Check your inbox for a verification link'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {verificationState === 'sent' ? (
+                                    <span className="flex items-center gap-2 text-sm text-teal-600 font-medium">
+                                        <CheckCircle size={16} />
+                                        {t('auth.verificationSent') || 'Sent!'}
+                                    </span>
+                                ) : (
+                                    <button
+                                        onClick={handleResendVerification}
+                                        disabled={verificationState === 'sending'}
+                                        className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-sm font-medium disabled:opacity-50"
+                                    >
+                                        {verificationState === 'sending' ? (
+                                            <Loader2 size={16} className="animate-spin" />
+                                        ) : (
+                                            <Mail size={16} />
+                                        )}
+                                        {t('auth.resendVerification') || 'Resend'}
+                                    </button>
+                                )}
+                                <button
+                                    onClick={dismissBanner}
+                                    className="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-100 rounded-lg transition-colors"
+                                    title={t('common.close')}
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Dynamic Page Header */}
                     <div className="mb-8 hidden md:block">
                         <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{getPageTitle()}</h2>

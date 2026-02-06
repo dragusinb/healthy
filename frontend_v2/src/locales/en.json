@@ -85,7 +85,11 @@
     "setNewPasswordDesc": "Enter your new password below.",
     "newPassword": "New password",
     "resetPassword": "Reset password",
-    "mustAcceptTerms": "You must accept the Terms and Conditions and Privacy Policy"
+    "mustAcceptTerms": "You must accept the Terms and Conditions and Privacy Policy",
+    "verifyEmailBanner": "Please verify your email address",
+    "verifyEmailBannerDesc": "Check your inbox for a verification link",
+    "resendVerification": "Resend",
+    "verificationSent": "Sent!"
   },
   "dashboard": {
     "title": "Dashboard",

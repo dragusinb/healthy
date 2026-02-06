@@ -109,6 +109,8 @@ def read_users_me(current_user: User = Depends(get_current_user)):
         "email": current_user.email,
         "id": current_user.id,
         "is_admin": current_user.is_admin,
+        "is_active": current_user.is_active,
+        "email_verified": current_user.email_verified,
         "language": current_user.language,
         "linked_accounts": linked_accounts_data,
         "profile": get_profile_data(current_user),
