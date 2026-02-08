@@ -1108,12 +1108,12 @@ def export_user_data(
     # Activity log (last 100 entries)
     audit_logs = db.query(AuditLog).filter(
         AuditLog.user_id == current_user.id
-    ).order_by(AuditLog.timestamp.desc()).limit(100).all()
+    ).order_by(AuditLog.created_at.desc()).limit(100).all()
     for log in audit_logs:
         export_data["activity_log"].append({
             "action": log.action,
             "resource_type": log.resource_type,
-            "timestamp": log.timestamp.isoformat() if log.timestamp else None,
+            "timestamp": log.created_at.isoformat() if log.created_at else None,
             "ip_address": log.ip_address
         })
 
