@@ -11,7 +11,7 @@ try:
     from backend_v2.services.biomarker_normalizer import (
         normalize_biomarker_name, get_canonical_name, group_biomarkers
     )
-    from backend_v2.services.vault import vault
+    from backend_v2.services.vault_helper import get_vault_helper
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
@@ -19,25 +19,32 @@ except ImportError:
     from services.biomarker_normalizer import (
         normalize_biomarker_name, get_canonical_name, group_biomarkers
     )
-    from services.vault import vault
+    from services.vault_helper import get_vault_helper
 
 
-def get_biomarker_value(result: TestResult) -> tuple:
+def get_biomarker_value(result: TestResult, user_id: int = None) -> tuple:
     """
     Get biomarker value and numeric_value, preferring vault-encrypted if available.
     Returns (value, numeric_value)
+
+    Args:
+        result: TestResult object
+        user_id: User ID for per-user vault decryption
     """
     value = None
     numeric_value = None
 
-    if vault.is_unlocked:
-        try:
-            if result.value_enc:
-                value = vault.decrypt_data(result.value_enc)
-            if result.numeric_value_enc:
-                numeric_value = vault.decrypt_number(result.numeric_value_enc)
-        except Exception:
-            pass  # Fall back to legacy
+    # Use per-user vault if user_id provided
+    if user_id:
+        vault_helper = get_vault_helper(user_id)
+        if vault_helper.is_available:
+            try:
+                if result.value_enc:
+                    value = vault_helper.decrypt_data(result.value_enc)
+                if result.numeric_value_enc:
+                    numeric_value = vault_helper.decrypt_number(result.numeric_value_enc)
+            except Exception:
+                pass  # Fall back to legacy
 
     # Fall back to legacy unencrypted fields
     if value is None:
@@ -109,7 +116,7 @@ def get_evolution(biomarker_name: str, db: Session = Depends(get_db), current_us
 
         if is_match:
             date_label = r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown Date"
-            value, numeric_value = get_biomarker_value(r)
+            value, numeric_value = get_biomarker_value(r, current_user.id)
             data_points.append({
                 "date": date_label,
                 "value": numeric_value,
@@ -139,7 +146,7 @@ def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depen
             canonical_name = r.canonical_name
         else:
             canonical_name, _ = normalize_biomarker_name(r.test_name)
-        value, numeric_value = get_biomarker_value(r)
+        value, numeric_value = get_biomarker_value(r, current_user.id)
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,
@@ -182,7 +189,7 @@ def get_grouped_biomarkers(
             canonical_name = r.canonical_name
         else:
             canonical_name, _ = normalize_biomarker_name(r.test_name)
-        value, numeric_value = get_biomarker_value(r)
+        value, numeric_value = get_biomarker_value(r, current_user.id)
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,
@@ -245,7 +252,7 @@ def get_recent_biomarkers(db: Session = Depends(get_db), current_user: User = De
         canonical_name = get_canonical_name(r.test_name)
         if canonical_name not in seen_normalized and len(recent) < limit:
             seen_normalized.add(canonical_name)
-            value, numeric_value = get_biomarker_value(r)
+            value, numeric_value = get_biomarker_value(r, current_user.id)
             display_value = numeric_value if numeric_value else value
             recent.append({
                 "name": canonical_name,
@@ -348,13 +355,14 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
     """
     # --- Patient Identity ---
     profile = {}
+    vault_helper = get_vault_helper(current_user.id)
     try:
         # Try to get encrypted profile data first
-        if vault.is_unlocked:
+        if vault_helper.is_available:
             if current_user.full_name_enc:
-                profile["full_name"] = vault.decrypt_data(current_user.full_name_enc)
+                profile["full_name"] = vault_helper.decrypt_data(current_user.full_name_enc)
             if current_user.date_of_birth_enc:
-                dob_str = vault.decrypt_data(current_user.date_of_birth_enc)
+                dob_str = vault_helper.decrypt_data(current_user.date_of_birth_enc)
                 if dob_str:
                     try:
                         dob = datetime.fromisoformat(dob_str.replace('Z', '+00:00'))
@@ -366,9 +374,9 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
                     except:
                         profile["date_of_birth"] = dob_str
             if current_user.gender_enc:
-                profile["gender"] = vault.decrypt_data(current_user.gender_enc)
+                profile["gender"] = vault_helper.decrypt_data(current_user.gender_enc)
             if current_user.blood_type_enc:
-                profile["blood_type"] = vault.decrypt_data(current_user.blood_type_enc)
+                profile["blood_type"] = vault_helper.decrypt_data(current_user.blood_type_enc)
 
         # Fallback to legacy unencrypted fields
         if not profile.get("full_name") and current_user.full_name:
@@ -450,10 +458,10 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
         health_status["last_analysis_date"] = latest_report.created_at.isoformat()
 
         # Decrypt report content for risk level
-        if vault.is_unlocked and latest_report.content_enc:
+        if vault_helper.is_available and latest_report.content_enc:
             try:
                 import json
-                content = json.loads(vault.decrypt_data(latest_report.content_enc))
+                content = json.loads(vault_helper.decrypt_data(latest_report.content_enc))
                 health_status["risk_level"] = content.get("risk_level", "unknown")
             except:
                 health_status["risk_level"] = "unknown"
@@ -497,10 +505,10 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
         .order_by(HealthReport.created_at.desc())\
         .first()
 
-    if gap_analysis and vault.is_unlocked and gap_analysis.content_enc:
+    if gap_analysis and vault_helper.is_available and gap_analysis.content_enc:
         try:
             import json
-            content = json.loads(vault.decrypt_data(gap_analysis.content_enc))
+            content = json.loads(vault_helper.decrypt_data(gap_analysis.content_enc))
             recommended = content.get("recommended_tests", [])
             for test in recommended:
                 if test.get("is_overdue"):
@@ -515,10 +523,10 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
 
     # --- Latest AI Summary ---
     ai_summary = None
-    if latest_report and vault.is_unlocked and latest_report.content_enc:
+    if latest_report and vault_helper.is_available and latest_report.content_enc:
         try:
             import json
-            content = json.loads(vault.decrypt_data(latest_report.content_enc))
+            content = json.loads(vault_helper.decrypt_data(latest_report.content_enc))
             ai_summary = content.get("summary", "")
         except:
             pass

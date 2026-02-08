@@ -25,7 +25,9 @@ try:
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services import sync_status
     from backend_v2.auth.crypto import encrypt_password, decrypt_password
-    from backend_v2.services.vault import vault, VaultLockedError
+    from backend_v2.services.vault_helper import get_vault_helper, VaultHelper
+    from backend_v2.services.user_vault import get_user_vault, is_user_vault_unlocked
+    from backend_v2.services.vault import VaultLockedError
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.auth.rate_limiter import check_profile_scan_rate_limit
 except ImportError:
@@ -34,28 +36,37 @@ except ImportError:
     from routers.documents import get_current_user
     from services import sync_status
     from auth.crypto import encrypt_password, decrypt_password
-    from services.vault import vault, VaultLockedError
+    from services.vault_helper import get_vault_helper, VaultHelper
+    from services.user_vault import get_user_vault, is_user_vault_unlocked
+    from services.vault import VaultLockedError
     from services.subscription_service import SubscriptionService
     from auth.rate_limiter import check_profile_scan_rate_limit
 
 
-def get_account_username(account: LinkedAccount) -> str:
+def get_account_username(account: LinkedAccount, user_id: int = None) -> str:
     """Get username from account, preferring vault-encrypted if available."""
-    if account.username_enc and vault.is_unlocked:
-        try:
-            return vault.decrypt_credential(account.username_enc)
-        except Exception:
-            pass
+    # Try per-user vault first
+    if user_id and account.username_enc:
+        vault_helper = get_vault_helper(user_id)
+        if vault_helper.is_available:
+            try:
+                return vault_helper.decrypt_credential(account.username_enc)
+            except Exception:
+                pass
+    # Fall back to legacy unencrypted field
     return account.username
 
 
-def get_account_password(account: LinkedAccount) -> str:
+def get_account_password(account: LinkedAccount, user_id: int = None) -> str:
     """Get decrypted password from account, preferring vault-encrypted if available."""
-    if account.password_enc and vault.is_unlocked:
-        try:
-            return vault.decrypt_credential(account.password_enc)
-        except Exception:
-            pass
+    # Try per-user vault first
+    if user_id and account.password_enc:
+        vault_helper = get_vault_helper(user_id)
+        if vault_helper.is_available:
+            try:
+                return vault_helper.decrypt_credential(account.password_enc)
+            except Exception:
+                pass
     # Fall back to legacy Fernet encryption
     if account.encrypted_password:
         return decrypt_password(account.encrypted_password)
@@ -86,11 +97,15 @@ class ProfileUpdate(BaseModel):
 
 @router.get("/me")
 def read_users_me(current_user: User = Depends(get_current_user)):
+    # Get user's vault helper
+    vault_helper = get_vault_helper(current_user.id)
+    vault_available = vault_helper.is_available
+
     # Include linked account errors for popup notification
     linked_accounts_data = []
     for acc in current_user.linked_accounts:
         # Get username from vault if available
-        username = get_account_username(acc) if vault.is_unlocked else "[encrypted]"
+        username = get_account_username(acc, current_user.id) if vault_available else "[encrypted]"
 
         acc_data = {
             "id": acc.id,
@@ -114,12 +129,15 @@ def read_users_me(current_user: User = Depends(get_current_user)):
         "language": current_user.language,
         "linked_accounts": linked_accounts_data,
         "profile": get_profile_data(current_user),
-        "vault_unlocked": vault.is_unlocked
+        "vault_unlocked": vault_available
     }
 
 
 def get_profile_data(user: User) -> dict:
     """Extract profile data from user model, preferring vault-encrypted fields."""
+    # Get user's vault helper
+    vault_helper = get_vault_helper(user.id)
+
     # Try vault-encrypted fields first
     full_name = None
     date_of_birth = None
@@ -131,22 +149,22 @@ def get_profile_data(user: User) -> dict:
     chronic_conditions = []
     current_medications = []
 
-    if vault.is_unlocked:
+    if vault_helper.is_available:
         try:
             if user.full_name_enc:
-                full_name = vault.decrypt_data(user.full_name_enc)
+                full_name = vault_helper.decrypt_data(user.full_name_enc)
             if user.date_of_birth_enc:
-                date_of_birth = vault.decrypt_data(user.date_of_birth_enc)
+                date_of_birth = vault_helper.decrypt_data(user.date_of_birth_enc)
             if user.gender_enc:
-                gender = vault.decrypt_data(user.gender_enc)
+                gender = vault_helper.decrypt_data(user.gender_enc)
             if user.blood_type_enc:
-                blood_type = vault.decrypt_data(user.blood_type_enc)
+                blood_type = vault_helper.decrypt_data(user.blood_type_enc)
             if user.profile_data_enc:
-                profile_data = vault.decrypt_json(user.profile_data_enc)
+                profile_data = vault_helper.decrypt_json(user.profile_data_enc)
                 height_cm = profile_data.get("height_cm")
                 weight_kg = profile_data.get("weight_kg")
             if user.health_context_enc:
-                health_context = vault.decrypt_json(user.health_context_enc)
+                health_context = vault_helper.decrypt_json(user.health_context_enc)
                 allergies = json.loads(health_context.get("allergies", "[]")) if isinstance(health_context.get("allergies"), str) else health_context.get("allergies", [])
                 chronic_conditions = json.loads(health_context.get("chronic_conditions", "[]")) if isinstance(health_context.get("chronic_conditions"), str) else health_context.get("chronic_conditions", [])
                 current_medications = json.loads(health_context.get("current_medications", "[]")) if isinstance(health_context.get("current_medications"), str) else health_context.get("current_medications", [])
@@ -229,12 +247,13 @@ def update_profile(
     current_user: User = Depends(get_current_user)
 ):
     """Update user's profile data."""
-    # Check vault status for encrypted storage
-    use_vault = vault.is_unlocked
+    # Get user's vault helper for encrypted storage
+    vault_helper = get_vault_helper(current_user.id)
+    use_vault = vault_helper.is_available
 
     if profile.full_name is not None:
         if use_vault:
-            current_user.full_name_enc = vault.encrypt_data(profile.full_name) if profile.full_name else None
+            current_user.full_name_enc = vault_helper.encrypt_data(profile.full_name) if profile.full_name else None
             current_user.full_name = None  # Clear legacy
         else:
             current_user.full_name = profile.full_name
@@ -248,7 +267,7 @@ def update_profile(
             try:
                 dob = datetime.datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
                 if use_vault:
-                    current_user.date_of_birth_enc = vault.encrypt_data(profile.date_of_birth)
+                    current_user.date_of_birth_enc = vault_helper.encrypt_data(profile.date_of_birth)
                     current_user.date_of_birth = None  # Clear legacy
                 else:
                     current_user.date_of_birth = dob
@@ -260,7 +279,7 @@ def update_profile(
             raise HTTPException(status_code=400, detail="Invalid gender value")
         gender_val = profile.gender if profile.gender else None
         if use_vault:
-            current_user.gender_enc = vault.encrypt_data(gender_val) if gender_val else None
+            current_user.gender_enc = vault_helper.encrypt_data(gender_val) if gender_val else None
             current_user.gender = None  # Clear legacy
         else:
             current_user.gender = gender_val
@@ -271,7 +290,7 @@ def update_profile(
             raise HTTPException(status_code=400, detail="Invalid blood type")
         blood_type_val = profile.blood_type if profile.blood_type else None
         if use_vault:
-            current_user.blood_type_enc = vault.encrypt_data(blood_type_val) if blood_type_val else None
+            current_user.blood_type_enc = vault_helper.encrypt_data(blood_type_val) if blood_type_val else None
             current_user.blood_type = None  # Clear legacy
         else:
             current_user.blood_type = blood_type_val
@@ -290,14 +309,14 @@ def update_profile(
             profile_data = {}
             if current_user.profile_data_enc:
                 try:
-                    profile_data = vault.decrypt_json(current_user.profile_data_enc)
+                    profile_data = vault_helper.decrypt_json(current_user.profile_data_enc)
                 except Exception:
                     pass
             if profile.height_cm is not None:
                 profile_data["height_cm"] = profile.height_cm if profile.height_cm > 0 else None
             if profile.weight_kg is not None:
                 profile_data["weight_kg"] = profile.weight_kg if profile.weight_kg > 0 else None
-            current_user.profile_data_enc = vault.encrypt_json(profile_data)
+            current_user.profile_data_enc = vault_helper.encrypt_json(profile_data)
             current_user.height_cm = None  # Clear legacy
             current_user.weight_kg = None
         else:
@@ -312,7 +331,7 @@ def update_profile(
             health_context = {}
             if current_user.health_context_enc:
                 try:
-                    health_context = vault.decrypt_json(current_user.health_context_enc)
+                    health_context = vault_helper.decrypt_json(current_user.health_context_enc)
                 except Exception:
                     pass
             if profile.allergies is not None:
@@ -321,7 +340,7 @@ def update_profile(
                 health_context["chronic_conditions"] = json.dumps(profile.chronic_conditions)
             if profile.current_medications is not None:
                 health_context["current_medications"] = json.dumps(profile.current_medications)
-            current_user.health_context_enc = vault.encrypt_json(health_context)
+            current_user.health_context_enc = vault_helper.encrypt_json(health_context)
             # Clear legacy
             current_user.allergies = None
             current_user.chronic_conditions = None
@@ -489,8 +508,9 @@ def scan_profile_from_documents(
     age_document_date = doc_texts[0].get("date") if doc_texts else None
 
     # Apply to user profile (only fill empty fields)
-    # Use vault encryption when available
-    use_vault = vault.is_unlocked
+    # Use per-user vault encryption when available
+    vault_helper = get_vault_helper(current_user.id)
+    use_vault = vault_helper.is_available
     updates_made = []
 
     # Check current profile data (prefer encrypted, fall back to legacy)
@@ -502,13 +522,13 @@ def scan_profile_from_documents(
     if use_vault:
         try:
             if current_user.full_name_enc:
-                current_full_name = vault.decrypt_data(current_user.full_name_enc)
+                current_full_name = vault_helper.decrypt_data(current_user.full_name_enc)
             if current_user.date_of_birth_enc:
-                current_dob = vault.decrypt_data(current_user.date_of_birth_enc)
+                current_dob = vault_helper.decrypt_data(current_user.date_of_birth_enc)
             if current_user.gender_enc:
-                current_gender = vault.decrypt_data(current_user.gender_enc)
+                current_gender = vault_helper.decrypt_data(current_user.gender_enc)
             if current_user.blood_type_enc:
-                current_blood_type = vault.decrypt_data(current_user.blood_type_enc)
+                current_blood_type = vault_helper.decrypt_data(current_user.blood_type_enc)
         except Exception:
             pass
 
@@ -524,7 +544,7 @@ def scan_profile_from_documents(
 
     if merged_profile.get("full_name") and not current_full_name:
         if use_vault:
-            current_user.full_name_enc = vault.encrypt_data(merged_profile["full_name"])
+            current_user.full_name_enc = vault_helper.encrypt_data(merged_profile["full_name"])
             current_user.full_name = None  # Clear legacy
         else:
             current_user.full_name = merged_profile["full_name"]
@@ -558,7 +578,7 @@ def scan_profile_from_documents(
 
         if dob_str:
             if use_vault:
-                current_user.date_of_birth_enc = vault.encrypt_data(dob_str)
+                current_user.date_of_birth_enc = vault_helper.encrypt_data(dob_str)
                 current_user.date_of_birth = None  # Clear legacy
             else:
                 current_user.date_of_birth = datetime.datetime.strptime(dob_str, "%Y-%m-%d")
@@ -566,7 +586,7 @@ def scan_profile_from_documents(
     if merged_profile.get("gender") and not current_gender:
         if merged_profile["gender"] in ["male", "female"]:
             if use_vault:
-                current_user.gender_enc = vault.encrypt_data(merged_profile["gender"])
+                current_user.gender_enc = vault_helper.encrypt_data(merged_profile["gender"])
                 current_user.gender = None  # Clear legacy
             else:
                 current_user.gender = merged_profile["gender"]
@@ -578,7 +598,7 @@ def scan_profile_from_documents(
         blood_type = merged_profile["blood_type"].upper().strip()
         if blood_type in valid_blood_types:
             if use_vault:
-                current_user.blood_type_enc = vault.encrypt_data(blood_type)
+                current_user.blood_type_enc = vault_helper.encrypt_data(blood_type)
                 current_user.blood_type = None  # Clear legacy
             else:
                 current_user.blood_type = blood_type
@@ -635,11 +655,14 @@ def link_account(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Check vault status
-    if not vault.is_unlocked:
+    # Get user's vault helper
+    vault_helper = get_vault_helper(current_user.id)
+
+    # Check vault status - prefer per-user vault
+    if not vault_helper.is_available:
         raise HTTPException(
             status_code=503,
-            detail="Vault is locked. Please contact administrator to unlock the system."
+            detail="Your encryption vault is locked. Please log out and log back in."
         )
 
     # Check if this is a new account (not updating existing)
@@ -655,9 +678,9 @@ def link_account(
         if not can_add:
             raise HTTPException(status_code=403, detail=message)
 
-    # Encrypt credentials with vault
-    username_enc = vault.encrypt_credential(account.username)
-    password_enc = vault.encrypt_credential(account.password)
+    # Encrypt credentials with user's vault
+    username_enc = vault_helper.encrypt_credential(account.username)
+    password_enc = vault_helper.encrypt_credential(account.password)
 
     if existing:
         was_in_error = existing.status == 'ERROR'
@@ -713,11 +736,14 @@ async def sync_provider(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Check vault status
-    if not vault.is_unlocked:
+    # Get user's vault helper
+    vault_helper = get_vault_helper(current_user.id)
+
+    # Check vault status - prefer per-user vault
+    if not vault_helper.is_available:
         raise HTTPException(
             status_code=503,
-            detail="Vault is locked. Please contact administrator to unlock the system."
+            detail="Your encryption vault is locked. Please log out and log back in."
         )
 
     link = db.query(LinkedAccount).filter(
@@ -752,15 +778,20 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
     try:
         from backend_v2.database import SessionLocal
         from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
-        from backend_v2.services.vault import vault, VaultLockedError
+        from backend_v2.services.vault_helper import get_vault_helper
+        from backend_v2.services.user_vault import UserVaultLockedError
     except ImportError:
         from database import SessionLocal
         from services.crawlers_manager import run_regina_async, run_synevo_async
-        from services.vault import vault, VaultLockedError
+        from services.vault_helper import get_vault_helper
+        from services.user_vault import UserVaultLockedError
+
+    # Get user's vault helper
+    vault_helper = get_vault_helper(user_id)
 
     # Check vault is unlocked
-    if not vault.is_unlocked:
-        sync_status.status_error(user_id, provider_name, "Vault is locked")
+    if not vault_helper.is_available:
+        sync_status.status_error(user_id, provider_name, "Your vault is locked. Please log in again.")
         return
 
     # Create new db session for background task
@@ -774,14 +805,14 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
             db.close()
             return
 
-        username = get_account_username(account)
-        password = get_account_password(account)
+        username = get_account_username(account, user_id)
+        password = get_account_password(account, user_id)
 
         if not username or not password:
             sync_status.status_error(user_id, provider_name, "Could not decrypt credentials")
             db.close()
             return
-    except VaultLockedError:
+    except (VaultLockedError, UserVaultLockedError):
         sync_status.status_error(user_id, provider_name, "Vault locked during sync")
         db.close()
         return
@@ -987,9 +1018,13 @@ def export_user_data(
     # Profile data
     export_data["profile"] = get_profile_data(current_user)
 
+    # Get user's vault helper
+    vault_helper = get_vault_helper(current_user.id)
+    vault_available = vault_helper.is_available
+
     # Linked accounts (without passwords)
     for acc in current_user.linked_accounts:
-        username = get_account_username(acc) if vault.is_unlocked else "[encrypted]"
+        username = get_account_username(acc, current_user.id) if vault_available else "[encrypted]"
         export_data["linked_accounts"].append({
             "provider": acc.provider_name,
             "username": username,
@@ -1003,9 +1038,9 @@ def export_user_data(
     for doc in documents:
         # Decrypt patient name if available
         patient_name = None
-        if vault.is_unlocked and doc.patient_name_enc:
+        if vault_available and doc.patient_name_enc:
             try:
-                patient_name = vault.decrypt_data(doc.patient_name_enc)
+                patient_name = vault_helper.decrypt_data(doc.patient_name_enc)
             except Exception:
                 pass
         if patient_name is None:
@@ -1042,9 +1077,9 @@ def export_user_data(
     for report in reports:
         # Decrypt report content if available
         content = None
-        if vault.is_unlocked and report.content_enc:
+        if vault_available and report.content_enc:
             try:
-                content = vault.decrypt_data(report.content_enc)
+                content = vault_helper.decrypt_data(report.content_enc)
             except Exception:
                 pass
         if content is None:

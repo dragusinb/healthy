@@ -15,7 +15,6 @@ try:
     from backend_v2.routers.auth import oauth2_scheme
     from backend_v2.services.ai_parser import AIParser
     from backend_v2.services.biomarker_normalizer import get_canonical_name
-    from backend_v2.services.vault import vault
     from backend_v2.services.vault_helper import get_vault_helper
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.services.audit_service import AuditService
@@ -25,7 +24,6 @@ except ImportError:
     from routers.auth import oauth2_scheme
     from services.ai_parser import AIParser
     from services.biomarker_normalizer import get_canonical_name
-    from services.vault import vault
     from services.vault_helper import get_vault_helper
     from services.subscription_service import SubscriptionService
     from services.audit_service import AuditService
@@ -43,24 +41,17 @@ def read_document_content(doc: Document, user_id: int = None) -> bytes:
 
     Args:
         doc: Document object
-        user_id: User ID for per-user vault (optional, uses global vault if not provided)
+        user_id: User ID for per-user vault
     """
     if doc.is_encrypted and doc.encrypted_path:
-        # Try per-user vault first, then global vault
-        if user_id:
-            vault_helper = get_vault_helper(user_id)
-            if vault_helper.is_available:
-                encrypted_content = Path(doc.encrypted_path).read_bytes()
-                return vault_helper.decrypt_document(encrypted_content)
-
-        # Fall back to global vault
-        if not vault.is_unlocked:
+        vault_helper = get_vault_helper(user_id)
+        if not vault_helper.is_available:
             raise HTTPException(
                 status_code=503,
                 detail="Vault is locked. Please contact administrator to unlock the system."
             )
         encrypted_content = Path(doc.encrypted_path).read_bytes()
-        return vault.decrypt_document(encrypted_content)
+        return vault_helper.decrypt_document(encrypted_content)
     elif doc.file_path and os.path.exists(doc.file_path):
         return Path(doc.file_path).read_bytes()
     else:
@@ -72,18 +63,13 @@ def save_document_encrypted(content: bytes, user_id: int, doc_id: int) -> str:
 
     Uses per-user vault if available, otherwise falls back to global vault.
     """
-    # Try per-user vault first
     vault_helper = get_vault_helper(user_id)
-    if vault_helper.is_available:
-        encrypted_content = vault_helper.encrypt_document(content)
-    elif vault.is_unlocked:
-        # Fall back to global vault
-        encrypted_content = vault.encrypt_document(content)
-    else:
+    if not vault_helper.is_available:
         raise HTTPException(
             status_code=503,
             detail="Vault is locked. Cannot save encrypted documents."
         )
+    encrypted_content = vault_helper.encrypt_document(content)
 
     # Save to encrypted storage
     user_dir = get_encrypted_storage_path() / str(user_id)
@@ -294,6 +280,9 @@ def get_document_biomarkers(doc_id: int, db: Session = Depends(get_db), current_
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
+    # Get user's vault helper
+    vault_helper = get_vault_helper(current_user.id)
+
     results = db.query(TestResult).filter(TestResult.document_id == doc_id).all()
 
     biomarkers = []
@@ -302,12 +291,12 @@ def get_document_biomarkers(doc_id: int, db: Session = Depends(get_db), current_
         value = None
         numeric_value = None
 
-        if vault.is_unlocked:
+        if vault_helper.is_available:
             try:
                 if r.value_enc:
-                    value = vault.decrypt_data(r.value_enc)
+                    value = vault_helper.decrypt_data(r.value_enc)
                 if r.numeric_value_enc:
-                    numeric_value = vault.decrypt_number(r.numeric_value_enc)
+                    numeric_value = vault_helper.decrypt_number(r.numeric_value_enc)
             except Exception:
                 pass
 
@@ -405,8 +394,9 @@ def upload_document(
     db.commit()
     db.refresh(doc)
 
-    # Save file - encrypted if vault is unlocked, otherwise plaintext
-    if vault.is_unlocked:
+    # Save file - encrypted if user's vault is unlocked, otherwise plaintext
+    vault_helper = get_vault_helper(current_user.id)
+    if vault_helper.is_available:
         encrypted_path = save_document_encrypted(content, current_user.id, doc.id)
         doc.encrypted_path = encrypted_path
         doc.is_encrypted = True
@@ -447,7 +437,10 @@ def process_document(doc_id: int, db: Session):
     doc = db.query(Document).filter(Document.id == doc_id).first()
     if not doc:
         return
-        
+
+    # Get user's vault helper
+    vault_helper = get_vault_helper(doc.user_id)
+
     # Read text (simplified, assuming PDF)
     import pdfplumber
     full_text = ""
@@ -462,7 +455,7 @@ def process_document(doc_id: int, db: Session):
     # AI Parse
     parser = AIParser() # Ensure API Key is set in ENV
     result = parser.parse_text(full_text)
-    
+
     if "results" in result:
         for r in result["results"]:
              test_name = r.get("test_name")
@@ -478,11 +471,11 @@ def process_document(doc_id: int, db: Session):
                  flags=r.get("flags", "NORMAL"),
              )
 
-             # Encrypt values if vault is unlocked
-             if vault.is_unlocked:
-                 tr.value_enc = vault.encrypt_data(value_str)
+             # Encrypt values if user's vault is unlocked
+             if vault_helper.is_available:
+                 tr.value_enc = vault_helper.encrypt_data(value_str)
                  if numeric_val is not None:
-                     tr.numeric_value_enc = vault.encrypt_number(numeric_val)
+                     tr.numeric_value_enc = vault_helper.encrypt_number(numeric_val)
              else:
                  # Fall back to unencrypted storage
                  tr.value = value_str

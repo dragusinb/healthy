@@ -12,7 +12,7 @@ try:
     from backend_v2.models import User, Document, TestResult, HealthReport
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services.health_agents import HealthAnalysisService, SpecialistAgent
-    from backend_v2.services.vault import vault
+    from backend_v2.services.vault_helper import get_vault_helper
     from backend_v2.services.notification_service import notify_analysis_complete
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.services.audit_service import AuditService
@@ -21,41 +21,48 @@ except ImportError:
     from models import User, Document, TestResult, HealthReport
     from routers.documents import get_current_user
     from services.health_agents import HealthAnalysisService, SpecialistAgent
-    from services.vault import vault
+    from services.vault_helper import get_vault_helper
     from services.notification_service import notify_analysis_complete
     from services.subscription_service import SubscriptionService
     from services.audit_service import AuditService
 
 
-def get_report_content(report: HealthReport) -> dict:
-    """Get report content, preferring vault-encrypted if available."""
-    if report.content_enc and vault.is_unlocked:
-        try:
-            content = vault.decrypt_json(report.content_enc)
-            summary = content.get("summary", "")
-            findings = content.get("findings", [])
-            recommendations = content.get("recommendations", [])
+def get_report_content(report: HealthReport, user_id: int = None) -> dict:
+    """Get report content, preferring vault-encrypted if available.
 
-            # Handle case where findings/recommendations were stored as JSON strings
-            # (from migration) instead of parsed lists
-            if isinstance(findings, str):
-                try:
-                    findings = json.loads(findings)
-                except (json.JSONDecodeError, TypeError):
-                    findings = []
-            if isinstance(recommendations, str):
-                try:
-                    recommendations = json.loads(recommendations)
-                except (json.JSONDecodeError, TypeError):
-                    recommendations = []
+    Args:
+        report: HealthReport object
+        user_id: User ID for per-user vault decryption
+    """
+    if report.content_enc and user_id:
+        vault_helper = get_vault_helper(user_id)
+        if vault_helper.is_available:
+            try:
+                content = vault_helper.decrypt_json(report.content_enc)
+                summary = content.get("summary", "")
+                findings = content.get("findings", [])
+                recommendations = content.get("recommendations", [])
 
-            return {
-                "summary": summary,
-                "findings": findings if isinstance(findings, list) else [],
-                "recommendations": recommendations if isinstance(recommendations, list) else []
-            }
-        except Exception:
-            pass  # Fall back to legacy
+                # Handle case where findings/recommendations were stored as JSON strings
+                # (from migration) instead of parsed lists
+                if isinstance(findings, str):
+                    try:
+                        findings = json.loads(findings)
+                    except (json.JSONDecodeError, TypeError):
+                        findings = []
+                if isinstance(recommendations, str):
+                    try:
+                        recommendations = json.loads(recommendations)
+                    except (json.JSONDecodeError, TypeError):
+                        recommendations = []
+
+                return {
+                    "summary": summary,
+                    "findings": findings if isinstance(findings, list) else [],
+                    "recommendations": recommendations if isinstance(recommendations, list) else []
+                }
+            except Exception:
+                pass  # Fall back to legacy
 
     # Fall back to legacy unencrypted fields
     return {
@@ -65,20 +72,33 @@ def get_report_content(report: HealthReport) -> dict:
     }
 
 
-def save_report_content(report: HealthReport, summary: str, findings: list, recommendations: list):
-    """Save report content, using vault encryption if available."""
-    if vault.is_unlocked:
-        content = {
-            "summary": summary,
-            "findings": findings,
-            "recommendations": recommendations
-        }
-        report.content_enc = vault.encrypt_json(content)
-        # Clear legacy fields
-        report.summary = None
-        report.findings = None
-        report.recommendations = None
-    else:
+def save_report_content(report: HealthReport, summary: str, findings: list, recommendations: list, user_id: int = None):
+    """Save report content, using vault encryption if available.
+
+    Args:
+        report: HealthReport object
+        summary: Report summary text
+        findings: List of findings
+        recommendations: List of recommendations
+        user_id: User ID for per-user vault encryption
+    """
+    encrypted = False
+    if user_id:
+        vault_helper = get_vault_helper(user_id)
+        if vault_helper.is_available:
+            content = {
+                "summary": summary,
+                "findings": findings,
+                "recommendations": recommendations
+            }
+            report.content_enc = vault_helper.encrypt_json(content)
+            # Clear legacy fields
+            report.summary = None
+            report.findings = None
+            report.recommendations = None
+            encrypted = True
+
+    if not encrypted:
         # Fall back to legacy storage
         report.summary = summary
         report.findings = json.dumps(findings)
@@ -94,18 +114,21 @@ def get_user_biomarkers(db: Session, user_id: int) -> list:
         .order_by(Document.document_date.desc())\
         .all()
 
+    # Get vault helper for this user
+    vault_helper = get_vault_helper(user_id)
+
     biomarkers = []
     for r in results:
         # Get values, preferring vault-encrypted
         value = None
         numeric_value = None
 
-        if vault.is_unlocked:
+        if vault_helper.is_available:
             try:
                 if r.value_enc:
-                    value = vault.decrypt_data(r.value_enc)
+                    value = vault_helper.decrypt_data(r.value_enc)
                 if r.numeric_value_enc:
-                    numeric_value = vault.decrypt_number(r.numeric_value_enc)
+                    numeric_value = vault_helper.decrypt_number(r.numeric_value_enc)
             except Exception:
                 pass
 
@@ -128,11 +151,20 @@ def get_user_biomarkers(db: Session, user_id: int) -> list:
     return biomarkers
 
 
-def get_user_profile(user: User) -> dict:
-    """Get user profile data for AI analysis, using vault-encrypted fields when available."""
+def get_user_profile(user: User, user_id: int = None) -> dict:
+    """Get user profile data for AI analysis, using vault-encrypted fields when available.
+
+    Args:
+        user: User object
+        user_id: User ID for per-user vault decryption (defaults to user.id if not provided)
+    """
     from datetime import date
 
     profile = {}
+
+    # Use provided user_id or fall back to user.id
+    uid = user_id if user_id else user.id
+    vault_helper = get_vault_helper(uid)
 
     # Try vault-encrypted fields first
     full_name = None
@@ -145,22 +177,22 @@ def get_user_profile(user: User) -> dict:
     chronic_conditions = None
     current_medications = None
 
-    if vault.is_unlocked:
+    if vault_helper.is_available:
         try:
             if user.full_name_enc:
-                full_name = vault.decrypt_data(user.full_name_enc)
+                full_name = vault_helper.decrypt_data(user.full_name_enc)
             if user.date_of_birth_enc:
-                date_of_birth_str = vault.decrypt_data(user.date_of_birth_enc)
+                date_of_birth_str = vault_helper.decrypt_data(user.date_of_birth_enc)
             if user.gender_enc:
-                gender = vault.decrypt_data(user.gender_enc)
+                gender = vault_helper.decrypt_data(user.gender_enc)
             if user.blood_type_enc:
-                blood_type = vault.decrypt_data(user.blood_type_enc)
+                blood_type = vault_helper.decrypt_data(user.blood_type_enc)
             if user.profile_data_enc:
-                profile_data = vault.decrypt_json(user.profile_data_enc)
+                profile_data = vault_helper.decrypt_json(user.profile_data_enc)
                 height_cm = profile_data.get("height_cm")
                 weight_kg = profile_data.get("weight_kg")
             if user.health_context_enc:
-                health_context = vault.decrypt_json(user.health_context_enc)
+                health_context = vault_helper.decrypt_json(user.health_context_enc)
                 allergies_raw = health_context.get("allergies")
                 chronic_raw = health_context.get("chronic_conditions")
                 meds_raw = health_context.get("current_medications")
@@ -297,7 +329,8 @@ def run_health_analysis(
         report,
         summary=general.get("summary", "Analysis complete"),
         findings=general.get("findings", []),
-        recommendations=general.get("recommendations", [])
+        recommendations=general.get("recommendations", []),
+        user_id=current_user.id
     )
     db.add(report)
 
@@ -314,7 +347,8 @@ def run_health_analysis(
             specialist_report,
             summary=specialist_data.get("summary", ""),
             findings=specialist_data.get("key_findings", []),
-            recommendations=specialist_data.get("recommendations", [])
+            recommendations=specialist_data.get("recommendations", []),
+            user_id=current_user.id
         )
         db.add(specialist_report)
 
@@ -383,7 +417,7 @@ def get_reports(
 
     result = []
     for r in reports:
-        content = get_report_content(r)
+        content = get_report_content(r, current_user.id)
         result.append({
             "id": r.id,
             "report_type": r.report_type,
@@ -413,7 +447,7 @@ def get_report(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    content = get_report_content(report)
+    content = get_report_content(report, current_user.id)
     return {
         "id": report.id,
         "report_type": report.report_type,
@@ -442,7 +476,7 @@ def get_latest_report(
     if not report:
         return {"has_report": False, "message": "No health analysis available. Run an analysis first."}
 
-    content = get_report_content(report)
+    content = get_report_content(report, current_user.id)
     return {
         "has_report": True,
         "id": report.id,
@@ -584,7 +618,8 @@ def run_specialist_analysis(
         report,
         summary=analysis.get("summary", ""),
         findings=analysis.get("key_findings", []),
-        recommendations=analysis.get("recommendations", [])
+        recommendations=analysis.get("recommendations", []),
+        user_id=current_user.id
     )
     db.add(report)
     db.commit()
@@ -739,7 +774,8 @@ def run_gap_analysis(
         report,
         summary=analysis.get("summary", ""),
         findings=enriched_tests,
-        recommendations=[]
+        recommendations=[],
+        user_id=current_user.id
     )
     db.add(report)
     db.commit()
@@ -770,7 +806,7 @@ def get_latest_gap_analysis(
     if not report:
         return {"has_report": False}
 
-    content = get_report_content(report)
+    content = get_report_content(report, current_user.id)
     recommended_tests = content["findings"]
 
     # Re-enrich with current test history (may have changed since analysis was run)
@@ -822,10 +858,10 @@ def get_report_history(
             .filter(HealthReport.created_at <= session_end)\
             .all()
 
-        general_content = get_report_content(general)
+        general_content = get_report_content(general, current_user.id)
         specialist_items = []
         for r in specialist_reports:
-            r_content = get_report_content(r)
+            r_content = get_report_content(r, current_user.id)
             specialist_items.append({
                 "id": r.id,
                 "report_type": r.report_type,
@@ -874,7 +910,7 @@ def compare_reports(
         raise HTTPException(status_code=404, detail="One or both reports not found")
 
     def format_report(r):
-        content = get_report_content(r)
+        content = get_report_content(r, current_user.id)
         return {
             "id": r.id,
             "report_type": r.report_type,
