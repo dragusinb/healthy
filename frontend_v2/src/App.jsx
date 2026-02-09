@@ -31,6 +31,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const JoinFamily = lazy(() => import('./pages/JoinFamily'));
 const Layout = lazy(() => import('./components/Layout'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Inline loader for layout-wrapped components
 const LayoutLoader = () => (
@@ -164,6 +165,9 @@ const App = () => {
                                 <Route path="/privacy" element={
                                     <OptionalLayoutRoute><Privacy /></OptionalLayoutRoute>
                                 } />
+
+                                {/* 404 catch-all route */}
+                                <Route path="*" element={<NotFound />} />
                             </Routes>
                         </Suspense>
                     </Router>

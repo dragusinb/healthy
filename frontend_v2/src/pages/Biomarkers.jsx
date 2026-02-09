@@ -80,7 +80,7 @@ function categorize(biomarkerName) {
     return 'other';
 }
 
-const openPdf = async (documentId, e, errorMessage) => {
+const openPdf = async (documentId, e, errorMessage, onError) => {
     if (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -91,7 +91,13 @@ const openPdf = async (documentId, e, errorMessage) => {
         const response = await fetch(`${baseUrl}/documents/${documentId}/download`, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        if (!response.ok) throw new Error('Failed to fetch PDF');
+        if (!response.ok) {
+            // Check for specific error codes
+            if (response.status === 503) {
+                throw new Error('vault_locked');
+            }
+            throw new Error('Failed to fetch PDF');
+        }
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
 
@@ -113,12 +119,14 @@ const openPdf = async (documentId, e, errorMessage) => {
         setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (err) {
         console.error('Failed to open PDF:', err);
-        alert(errorMessage || 'Could not open PDF. Please try again.');
+        if (onError) {
+            onError(errorMessage || 'Could not open PDF. Please try again.');
+        }
     }
 };
 
 // Biomarker row with expandable history - Mobile responsive
-const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssues }) => {
+const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssues, onPdfError }) => {
     const latest = group.latest;
     const historyCount = group.history.length;
     const isExpanded = expandedHistory.has(group.canonical_name);
@@ -198,7 +206,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                 <div className="col-span-1 text-center">
                     {latest.document_id && (
                         <button
-                            onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'))}
+                            onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'), onPdfError)}
                             className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             aria-label={t('documents.viewPdf')}
                         >
@@ -272,7 +280,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     <div className="flex items-center gap-2 flex-shrink-0">
                         {latest.document_id && (
                             <button
-                                onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'))}
+                                onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'), onPdfError)}
                                 className="p-2 text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
                                 title={t('documents.viewPdf')}
                             >
@@ -315,7 +323,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     <div className="col-span-1 text-center">
                         {bio.document_id && (
                             <button
-                                onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'))}
+                                onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), onPdfError)}
                                 className="inline-flex items-center justify-center p-1 text-slate-400 hover:text-primary-600 rounded transition-colors"
                             >
                                 <Eye size={12} />
@@ -364,7 +372,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         <div className="flex items-center gap-2 flex-shrink-0">
                             {bio.document_id && (
                                 <button
-                                    onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'))}
+                                    onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), onPdfError)}
                                     className="p-1.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
                                 >
                                     <Eye size={14} />
@@ -385,7 +393,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
     );
 };
 
-const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, expandedHistory, onToggleHistory, showOnlyIssues }) => {
+const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, expandedHistory, onToggleHistory, showOnlyIssues, onPdfError }) => {
     const category = CATEGORIES[categoryKey];
     const colors = COLOR_CLASSES[category.color];
     const Icon = category.icon;
@@ -446,6 +454,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                                 expandedHistory={expandedHistory}
                                 onToggleHistory={onToggleHistory}
                                 showOnlyIssues={showOnlyIssues}
+                                onPdfError={onPdfError}
                             />
                         ))}
                     </div>
@@ -464,6 +473,8 @@ const Biomarkers = () => {
     const [documentBiomarkers, setDocumentBiomarkers] = useState([]);
     const [documentInfo, setDocumentInfo] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [pdfError, setPdfError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState('all');
     const [sortBy, setSortBy] = useState('issues');
@@ -481,11 +492,17 @@ const Biomarkers = () => {
     const fetchBiomarkers = async () => {
         setLoading(true);
         setDocumentInfo(null);
+        setError('');
         try {
             const res = await api.get('/dashboard/biomarkers-grouped');
             setBiomarkerGroups(res.data);
         } catch (e) {
             console.error("Failed to fetch biomarkers", e);
+            if (e.response?.status === 503) {
+                setError(t('documents.vaultLocked'));
+            } else {
+                setError(t('common.error'));
+            }
         } finally {
             setLoading(false);
         }
@@ -593,6 +610,22 @@ const Biomarkers = () => {
 
     return (
         <div>
+            {/* Error Banner */}
+            {(error || pdfError) && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <AlertTriangle size={20} className="text-red-500" />
+                        <p className="text-red-700 font-medium">{error || pdfError}</p>
+                    </div>
+                    <button
+                        onClick={() => { setError(''); setPdfError(''); }}
+                        className="p-1 text-red-500 hover:bg-red-100 rounded-lg"
+                    >
+                        <X size={16} />
+                    </button>
+                </div>
+            )}
+
             {/* Document Filter Banner */}
             {documentInfo && (
                 <div className="mb-6 p-4 bg-primary-50 border border-primary-100 rounded-xl flex items-center justify-between">
@@ -701,6 +734,7 @@ const Biomarkers = () => {
                                 expandedHistory={expandedHistory}
                                 onToggleHistory={toggleHistory}
                                 showOnlyIssues={filter === 'out_of_range'}
+                                onPdfError={setPdfError}
                             />
                         );
                     })}

@@ -1,7 +1,7 @@
 {
   "common": {
     "loading": "Se incarca...",
-    "error": "Eroare",
+    "error": "A aparut o eroare. Te rugam sa incerci din nou.",
     "success": "Succes",
     "save": "Salveaza",
     "cancel": "Anuleaza",
@@ -25,7 +25,13 @@
     "analyzing": "Se analizeaza...",
     "note": "Nota",
     "backToDashboard": "Inapoi la Panou",
+    "backToHome": "Inapoi la Acasa",
+    "retry": "Reincearca",
     "days": "zile"
+  },
+  "errors": {
+    "pageNotFound": "Pagina nu a fost gasita",
+    "pageNotFoundDescription": "Pagina pe care o cauti nu exista sau a fost mutata."
   },
   "nav": {
     "dashboard": "Panou Principal",
@@ -200,7 +206,7 @@
     "deleteFailed": "Stergerea documentului a esuat",
     "totalDocuments": "Documente",
     "totalBiomarkers": "Biomarkeri",
-    "vaultLocked": "Sistemul este temporar indisponibil. Contactati administratorul."
+    "vaultLocked": "Seiful tau este blocat. Deconecteaza-te si conecteaza-te din nou."
   },
   "biomarkers": {
     "title": "Biomarkeri",

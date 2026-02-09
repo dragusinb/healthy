@@ -49,7 +49,7 @@ def read_document_content(doc: Document, user_id: int = None) -> bytes:
         if not vault_helper.is_available:
             raise HTTPException(
                 status_code=503,
-                detail="Vault is locked. Please contact administrator to unlock the system."
+                detail="Your vault is locked. Please log out and log back in."
             )
         # Security: Validate encrypted path belongs to user's encrypted directory
         real_path = os.path.normpath(os.path.realpath(doc.encrypted_path))
@@ -82,7 +82,7 @@ def save_document_encrypted(content: bytes, user_id: int, doc_id: int) -> str:
     if not vault_helper.is_available:
         raise HTTPException(
             status_code=503,
-            detail="Vault is locked. Cannot save encrypted documents."
+            detail="Your vault is locked. Please log out and log back in."
         )
     encrypted_content = vault_helper.encrypt_document(content)
 

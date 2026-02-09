@@ -1,7 +1,7 @@
 {
   "common": {
     "loading": "Loading...",
-    "error": "Error",
+    "error": "An error occurred. Please try again.",
     "success": "Success",
     "save": "Save",
     "cancel": "Cancel",
@@ -22,7 +22,13 @@
     "refresh": "Refresh",
     "add": "Add",
     "backToDashboard": "Back to Dashboard",
+    "backToHome": "Back to Home",
+    "retry": "Retry",
     "days": "days"
+  },
+  "errors": {
+    "pageNotFound": "Page Not Found",
+    "pageNotFoundDescription": "The page you are looking for does not exist or has been moved."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -168,7 +174,7 @@
     "deleteFailed": "Failed to delete document",
     "totalDocuments": "Documents",
     "totalBiomarkers": "Biomarkers",
-    "vaultLocked": "System temporarily unavailable. Please contact administrator."
+    "vaultLocked": "Your vault is locked. Please log out and log back in."
   },
   "biomarkers": {
     "title": "Biomarkers",

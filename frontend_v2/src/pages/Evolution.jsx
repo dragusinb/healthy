@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
-import { ArrowLeft, Activity, Calendar } from 'lucide-react';
+import { ArrowLeft, Activity, Calendar, AlertTriangle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 // Convert date string to timestamp for proper time scaling
@@ -97,6 +97,7 @@ const Evolution = () => {
     const navigate = useNavigate();
     const [rawData, setRawData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [refRange, setRefRange] = useState({ min: null, max: null });
 
     useEffect(() => {
@@ -107,6 +108,7 @@ const Evolution = () => {
 
     const fetchEvolution = async () => {
         setLoading(true);
+        setError('');
         try {
             const res = await api.get(`/dashboard/evolution/${encodeURIComponent(name)}`);
             setRawData(res.data);
@@ -116,6 +118,11 @@ const Evolution = () => {
             }
         } catch (e) {
             console.error("Failed to fetch evolution data", e);
+            if (e.response?.status === 503) {
+                setError(t('documents.vaultLocked'));
+            } else {
+                setError(t('common.error'));
+            }
         } finally {
             setLoading(false);
         }
@@ -143,6 +150,26 @@ const Evolution = () => {
     }, [data]);
 
     if (loading) return <div className="p-8 text-center text-gray-500">{t('evolution.loadingEvolution')}</div>;
+
+    if (error) {
+        return (
+            <div className="max-w-4xl mx-auto p-6 text-center">
+                <button onClick={() => navigate(-1)} className="mb-4 text-blue-600 hover:underline flex items-center justify-center gap-2">
+                    <ArrowLeft size={16} /> {t('common.back')}
+                </button>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+                    <AlertTriangle className="mx-auto text-red-500 mb-3" size={32} />
+                    <p className="text-red-600 font-medium">{error}</p>
+                    <button
+                        onClick={fetchEvolution}
+                        className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                    >
+                        {t('common.retry') || 'Retry'}
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     if (data.length === 0) {
         return (
