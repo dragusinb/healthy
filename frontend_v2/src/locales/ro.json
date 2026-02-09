@@ -630,7 +630,11 @@
     "footer": "Criptarea seifului protejeaza datele medicale sensibile",
     "status": "Status Seif",
     "lockVault": "Blocheaza Seiful",
-    "vaultLocked": "Seiful este blocat. Contacteaza administratorul pentru deblocare."
+    "vaultLocked": "Seiful este blocat. Contacteaza administratorul pentru deblocare.",
+    "systemVaultUnlocked": "Seiful Sistem este Deblocat",
+    "personalVaultInfo": "Cauti datele tale personale?",
+    "personalVaultDescription": "Seiful tau personal se deblocheaza automat la autentificare. Daca vezi erori \"seif blocat\", te rugam sa te deconectezi si sa te conectezi din nou.",
+    "adminOnly": "Aceasta pagina este doar pentru administratorii sistemului"
   },
   "notifications": {
     "title": "Notificari",

@@ -579,7 +579,11 @@
     "footer": "Vault encryption protects sensitive medical data",
     "status": "Vault Status",
     "lockVault": "Lock Vault",
-    "vaultLocked": "Vault is locked. Contact administrator to unlock."
+    "vaultLocked": "Vault is locked. Contact administrator to unlock.",
+    "systemVaultUnlocked": "System Vault is Unlocked",
+    "personalVaultInfo": "Looking for your personal data?",
+    "personalVaultDescription": "Your personal vault unlocks automatically when you log in. If you see \"vault locked\" errors, please log out and log back in.",
+    "adminOnly": "This page is for system administrators only"
   },
   "notifications": {
     "title": "Notifications",
