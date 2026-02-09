@@ -711,8 +711,8 @@ def enrich_recommended_tests_with_history(recommended_tests: list, db: Session, 
                     match = re.search(r'(\d+)\s*year', frequency)
                     if match:
                         recommended_months = int(match.group(1)) * 12
-                except:
-                    pass
+                except (ValueError, TypeError, AttributeError):
+                    pass  # Frequency parsing failed, use default
             elif "6 month" in frequency or "semi" in frequency:
                 recommended_months = 6
             elif "3 month" in frequency or "quarter" in frequency:
