@@ -106,7 +106,14 @@
       "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"Fix get_current_user import path\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\")",
       "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" add backend_v2/tests/conftest.py)",
       "Bash(git -C \"c:\\\\OldD\\\\_Projects\\\\Healthy\" commit -m \"Fix test API URL \\(remove /api prefix\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\")",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MTIzNDU2QGV4YW1wbGUuY29tIiwiZXhwIjoxNzcwNzE1ODg2fQ.xUSMQ4HKycJc4PSxBGHaFJuzepSreSNTx7FAQmNm0H4\" curl -s https://analize.online/auth/vault-status -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MTIzNDU2QGV4YW1wbGUuY29tIiwiZXhwIjoxNzcwNzE1ODg2fQ.xUSMQ4HKycJc4PSxBGHaFJuzepSreSNTx7FAQmNm0H4\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MTIzNDU2QGV4YW1wbGUuY29tIiwiZXhwIjoxNzcwNzE2MTU4fQ.L4p2H94bZz8g0WykB26jPpdN3VM1fEHVyNXQtagY2pA\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MTIzNDU2QGV4YW1wbGUuY29tIiwiZXhwIjoxNzcwNzE2MTU4fQ.L4p2H94bZz8g0WykB26jPpdN3VM1fEHVyNXQtagY2pA\" curl -s https://analize.online/dashboard/stats -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MTIzNDU2QGV4YW1wbGUuY29tIiwiZXhwIjoxNzcwNzE2MzAwfQ.1NRQch9_HCiMY9FpemwF5t1KyP7QMCyCwCjJARcg4fA\" curl -s -i https://analize.online/users/me -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlcjc4OUBleGFtcGxlLmNvbSIsImV4cCI6MTc3MDcxNjg1MH0.7jhvRW5bvWN1Rh5ejp9vye6f88E5ic_DxZdfc9MzY5A\" echo \"=== User Profile ===\" curl -s https://analize.online/users/me -H \"Authorization: Bearer $TOKEN\")",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlcjc4OUBleGFtcGxlLmNvbSIsImV4cCI6MTc3MDcxNjg1MH0.7jhvRW5bvWN1Rh5ejp9vye6f88E5ic_DxZdfc9MzY5A\" curl -s -i https://analize.online/users/me -H \"Authorization: Bearer $TOKEN\")"
     ]
   }
 }

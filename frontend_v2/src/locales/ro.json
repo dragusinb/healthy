@@ -40,7 +40,9 @@
     "settings": "Setari",
     "billing": "Abonament",
     "admin": "Administrare",
-    "logout": "Deconectare"
+    "logout": "Deconectare",
+    "openMenu": "Deschide meniul",
+    "closeMenu": "Închide meniul"
   },
   "auth": {
     "login": "Autentificare",

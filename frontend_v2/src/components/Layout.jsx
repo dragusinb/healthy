@@ -170,8 +170,10 @@ const Layout = ({ children }) => {
                         <button
                             onClick={() => setMobileMenuOpen(true)}
                             className="min-h-11 min-w-11 flex items-center justify-center text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors -ml-1"
+                            aria-label={t('nav.openMenu') || 'Open menu'}
+                            aria-expanded={mobileMenuOpen}
                         >
-                            <Menu size={22} />
+                            <Menu size={22} aria-hidden="true" />
                         </button>
                         <div className="p-2 bg-primary-50 rounded-lg">
                             <HeartPulse size={20} className="text-primary-600" />
@@ -182,12 +184,13 @@ const Layout = ({ children }) => {
                         <button
                             onClick={toggleLanguage}
                             className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            aria-label={t('settings.language') || 'Change language'}
                         >
-                            <Globe size={18} />
+                            <Globe size={18} aria-hidden="true" />
                             <span className="text-xs font-medium ml-1">{i18n.language.toUpperCase()}</span>
                         </button>
-                        <button onClick={handleLogout} className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
-                            <LogOut size={18} />
+                        <button onClick={handleLogout} className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" aria-label={t('nav.logout')}>
+                            <LogOut size={18} aria-hidden="true" />
                         </button>
                     </div>
                 </header>
@@ -213,8 +216,9 @@ const Layout = ({ children }) => {
                                     <button
                                         onClick={closeMobileMenu}
                                         className="min-h-11 min-w-11 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                        aria-label={t('nav.closeMenu') || 'Close menu'}
                                     >
-                                        <X size={20} />
+                                        <X size={20} aria-hidden="true" />
                                     </button>
                                 </div>
 

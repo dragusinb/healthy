@@ -137,8 +137,15 @@ def register(
     db.refresh(new_user)
 
     # Set up the user's encryption vault
-    vault = UserVault(new_user.id)
-    vault_result = vault.setup_vault(user.password)
+    try:
+        vault = UserVault(new_user.id)
+        vault_result = vault.setup_vault(user.password)
+    except Exception as e:
+        # Vault setup failed - delete user to avoid orphaned account
+        logging.error(f"Vault setup failed for user {new_user.id}: {e}")
+        db.delete(new_user)
+        db.commit()
+        raise HTTPException(status_code=500, detail="Failed to initialize encryption vault. Please try again.")
 
     # Store vault configuration in database
     new_user.vault_data = json.dumps(vault_result['vault_data'])

@@ -415,22 +415,25 @@ const Documents = () => {
                                         onClick={() => handleViewPdf(doc.id, doc.filename)}
                                         className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                                         title={t('documents.viewPdf')}
+                                        aria-label={t('documents.viewPdf')}
                                     >
-                                        <Eye size={18} />
+                                        <Eye size={18} aria-hidden="true" />
                                     </button>
                                     <Link
                                         to={`/biomarkers?doc=${doc.id}`}
                                         className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
                                         title={t('documents.viewBiomarkers')}
+                                        aria-label={t('documents.viewBiomarkers')}
                                     >
-                                        <Activity size={18} />
+                                        <Activity size={18} aria-hidden="true" />
                                     </Link>
                                     <button
                                         onClick={() => setDeleteConfirm(doc)}
                                         className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                                         title={t('documents.deleteDocument')}
+                                        aria-label={t('documents.deleteDocument')}
                                     >
-                                        <Trash2 size={18} />
+                                        <Trash2 size={18} aria-hidden="true" />
                                     </button>
                                 </div>
                             </div>
@@ -441,14 +444,14 @@ const Documents = () => {
 
             {/* Delete Confirmation Modal */}
             {deleteConfirm && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => !deleting && setDeleteConfirm(null)}>
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" onClick={() => !deleting && setDeleteConfirm(null)}>
                     <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-rose-100 rounded-full">
-                                <Trash2 size={24} className="text-rose-600" />
+                                <Trash2 size={24} className="text-rose-600" aria-hidden="true" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800">{t('documents.deleteConfirmTitle')}</h3>
+                                <h3 id="delete-modal-title" className="text-lg font-bold text-slate-800">{t('documents.deleteConfirmTitle')}</h3>
                                 <p className="text-sm text-slate-500">{t('documents.deleteConfirmText')}</p>
                             </div>
                         </div>

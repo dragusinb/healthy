@@ -138,10 +138,11 @@ const Dashboard = () => {
                             </Link>
                             <button
                                 onClick={() => dismissError(acc.id)}
-                                className="p-2 hover:bg-rose-100 rounded-lg transition-colors text-rose-400 hover:text-rose-600"
+                                className="p-2 hover:bg-rose-100 rounded-lg transition-colors text-rose-400 hover:text-rose-600 focus:ring-2 focus:ring-rose-500/20"
                                 title={t('common.close')}
+                                aria-label={t('common.close')}
                             >
-                                <X size={18} />
+                                <X size={18} aria-hidden="true" />
                             </button>
                         </div>
                     ))}

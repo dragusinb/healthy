@@ -37,7 +37,9 @@
     "settings": "Settings",
     "billing": "Subscription",
     "admin": "Admin",
-    "logout": "Logout"
+    "logout": "Logout",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "auth": {
     "login": "Login",
