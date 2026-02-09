@@ -99,15 +99,24 @@ const HealthReports = () => {
         }
 
         let currentStep = 0;
+        let cancelled = false;
+        let timeoutId = null;
+
         const runSteps = () => {
+            if (cancelled) return;
             if (currentStep < ANALYSIS_STEPS.length) {
                 setAnalysisStep(currentStep);
                 const delay = ANALYSIS_STEPS[currentStep].duration;
                 currentStep++;
-                setTimeout(runSteps, delay);
+                timeoutId = setTimeout(runSteps, delay);
             }
         };
         runSteps();
+
+        return () => {
+            cancelled = true;
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, [analyzing]);
 
     const fetchData = async () => {

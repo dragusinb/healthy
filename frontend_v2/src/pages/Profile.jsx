@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import {
@@ -27,6 +27,16 @@ const Profile = () => {
     const [scanStage, setScanStage] = useState(0);
     const [message, setMessage] = useState(null);
     const [multiPatientWarning, setMultiPatientWarning] = useState(null);
+    const scanIntervalRef = useRef(null);
+
+    // Cleanup scan interval on unmount
+    useEffect(() => {
+        return () => {
+            if (scanIntervalRef.current) {
+                clearInterval(scanIntervalRef.current);
+            }
+        };
+    }, []);
 
     // Scan progress stages for user feedback
     const scanStages = [
@@ -133,13 +143,16 @@ const Profile = () => {
         setMultiPatientWarning(null);
 
         // Cycle through stages to show progress
-        const stageInterval = setInterval(() => {
+        scanIntervalRef.current = setInterval(() => {
             setScanStage(prev => (prev + 1) % scanStages.length);
         }, 2500); // Change stage every 2.5 seconds
 
         try {
             const res = await api.post('/users/scan-profile');
-            clearInterval(stageInterval);
+            if (scanIntervalRef.current) {
+                clearInterval(scanIntervalRef.current);
+                scanIntervalRef.current = null;
+            }
 
             // Check for multi-patient warning
             if (res.data.multi_patient_warning) {
@@ -174,7 +187,10 @@ const Profile = () => {
             }
             setTimeout(() => setMessage(null), 5000);
         } catch (e) {
-            clearInterval(stageInterval);
+            if (scanIntervalRef.current) {
+                clearInterval(scanIntervalRef.current);
+                scanIntervalRef.current = null;
+            }
             console.error('Failed to scan profile', e);
             setMessage({ type: 'error', text: e.response?.data?.detail || t('common.error') });
         } finally {

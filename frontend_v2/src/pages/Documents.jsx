@@ -75,15 +75,24 @@ const Documents = () => {
         }
 
         let currentStep = 0;
+        let cancelled = false;
+        let timeoutId = null;
+
         const runSteps = () => {
-            if (currentStep < UPLOAD_STEPS.length && uploading) {
+            if (cancelled) return;
+            if (currentStep < UPLOAD_STEPS.length) {
                 setUploadStep(currentStep);
                 const delay = UPLOAD_STEPS[currentStep].duration;
                 currentStep++;
-                setTimeout(runSteps, delay);
+                timeoutId = setTimeout(runSteps, delay);
             }
         };
         runSteps();
+
+        return () => {
+            cancelled = true;
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, [uploading]);
 
     const handleViewPdf = async (docId, filename) => {

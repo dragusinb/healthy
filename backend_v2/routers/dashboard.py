@@ -375,7 +375,7 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
                         today = date.today()
                         age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
                         profile["age"] = age
-                    except:
+                    except (ValueError, TypeError, AttributeError):
                         profile["date_of_birth"] = dob_str
             if current_user.gender_enc:
                 profile["gender"] = vault_helper.decrypt_data(current_user.gender_enc)
@@ -394,8 +394,8 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
                         dob = datetime.fromisoformat(dob.replace('Z', '+00:00')).date()
                     today = date.today()
                     profile["age"] = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-                except:
-                    pass
+                except (ValueError, TypeError, AttributeError):
+                    pass  # Age calculation failed, skip silently
         # Fallback for gender and blood_type
         if not profile.get("gender") and current_user.gender:
             profile["gender"] = current_user.gender
@@ -467,7 +467,7 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
                 import json
                 content = json.loads(vault_helper.decrypt_data(latest_report.content_enc))
                 health_status["risk_level"] = content.get("risk_level", "unknown")
-            except:
+            except (json.JSONDecodeError, TypeError, ValueError):
                 health_status["risk_level"] = "unknown"
         else:
             health_status["risk_level"] = "unknown"
@@ -522,8 +522,8 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
                         "months_overdue": test.get("months_since_last", 0) - test.get("recommended_interval_months", 12),
                         "reason": test.get("reason", "")
                     })
-        except:
-            pass
+        except (json.JSONDecodeError, TypeError, ValueError):
+            pass  # Gap analysis content parsing failed
 
     # --- Latest AI Summary ---
     ai_summary = None
@@ -532,8 +532,8 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
             import json
             content = json.loads(vault_helper.decrypt_data(latest_report.content_enc))
             ai_summary = content.get("summary", "")
-        except:
-            pass
+        except (json.JSONDecodeError, TypeError, ValueError):
+            pass  # AI summary content parsing failed
     # Fallback to legacy unencrypted field
     if not ai_summary and latest_report and latest_report.summary:
         ai_summary = latest_report.summary
