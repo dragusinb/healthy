@@ -53,6 +53,7 @@ class BaseCrawler(ABC):
                 headless=self.headless,
                 channel="chrome",  # Use installed Chrome instead of bundled Chromium
                 slow_mo=150,  # Slightly slower to seem more human
+                timeout=60000,  # 60 second timeout for browser launch
                 args=[
                     "--disable-blink-features=AutomationControlled",
                     "--start-maximized",

@@ -109,6 +109,8 @@ const openPdf = async (documentId, e, errorMessage) => {
         } else {
             window.open(url, '_blank');
         }
+        // Revoke blob URL after a delay to prevent memory leak
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (err) {
         console.error('Failed to open PDF:', err);
         alert(errorMessage || 'Could not open PDF. Please try again.');

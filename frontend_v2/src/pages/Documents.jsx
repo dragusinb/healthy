@@ -94,6 +94,8 @@ const Documents = () => {
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
             window.open(url, '_blank');
+            // Revoke blob URL after a delay to prevent memory leak
+            setTimeout(() => window.URL.revokeObjectURL(url), 60000);
         } catch (e) {
             console.error("Failed to download PDF", e);
             // Check for vault locked (503) error

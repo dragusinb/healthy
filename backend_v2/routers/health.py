@@ -352,7 +352,11 @@ def run_health_analysis(
         )
         db.add(specialist_report)
 
-    db.commit()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to save reports: {str(e)}")
 
     # Increment AI usage counter
     subscription_service.increment_ai_usage(current_user.id)

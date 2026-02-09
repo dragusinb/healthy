@@ -623,13 +623,6 @@ def scan_profile_from_documents(
         if cnp_prefix and cnp_prefix not in patient_groups:
             patient_groups[cnp_prefix] = name or "Unknown"
 
-    # Also add from extracted profiles
-    for profile in extracted_profiles:
-        cnp = profile.get("cnp_prefix")
-        name = profile.get("full_name")
-        if cnp and cnp not in patient_groups:
-            patient_groups[cnp] = name or "Unknown"
-
     distinct_patients = list(patient_groups.values())
 
     # Build response
@@ -827,15 +820,16 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
-        if provider_name == "Regina Maria":
-            res = loop.run_until_complete(run_regina_async(username, password, user_id=user_id))
-        elif provider_name == "Synevo":
-            res = loop.run_until_complete(run_synevo_async(username, password, user_id=user_id))
-        else:
-            sync_status.status_error(user_id, provider_name, "Unknown provider")
-            return
-
-        loop.close()
+        try:
+            if provider_name == "Regina Maria":
+                res = loop.run_until_complete(run_regina_async(username, password, user_id=user_id))
+            elif provider_name == "Synevo":
+                res = loop.run_until_complete(run_synevo_async(username, password, user_id=user_id))
+            else:
+                sync_status.status_error(user_id, provider_name, "Unknown provider")
+                return
+        finally:
+            loop.close()
 
         if res.get("status") != "success":
             sync_status.status_error(user_id, provider_name, res.get("message", "Crawl failed"))
