@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import Optional
 from datetime import datetime, date
@@ -89,8 +89,9 @@ def get_evolution(biomarker_name: str, db: Session = Depends(get_db), current_us
     # Get the canonical name for the requested biomarker
     canonical_name = get_canonical_name(biomarker_name)
 
-    # Get all results for this user
+    # Get all results for this user (eager load document to prevent N+1 queries)
     all_results = db.query(TestResult).join(Document)\
+        .options(joinedload(TestResult.document))\
         .filter(Document.user_id == current_user.id)\
         .order_by(Document.document_date)\
         .all()
@@ -132,6 +133,7 @@ def get_evolution(biomarker_name: str, db: Session = Depends(get_db), current_us
 @router.get("/biomarkers")
 def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depends(get_current_user), filter_out_of_range: bool = False):
     query = db.query(TestResult).join(Document)\
+        .options(joinedload(TestResult.document))\
         .filter(Document.user_id == current_user.id)
 
     if filter_out_of_range:
@@ -174,6 +176,7 @@ def get_grouped_biomarkers(
     Each group contains all historical results for that biomarker.
     """
     query = db.query(TestResult).join(Document)\
+        .options(joinedload(TestResult.document))\
         .filter(Document.user_id == current_user.id)
 
     if filter_out_of_range:
@@ -239,8 +242,9 @@ def get_grouped_biomarkers(
 @router.get("/recent-biomarkers")
 def get_recent_biomarkers(db: Session = Depends(get_db), current_user: User = Depends(get_current_user), limit: int = 5):
     """Get most recent unique biomarkers for dashboard display (using normalized names)."""
-    # Get distinct test names with their most recent result
+    # Get distinct test names with their most recent result (eager load document to prevent N+1 queries)
     results = db.query(TestResult).join(Document)\
+        .options(joinedload(TestResult.document))\
         .filter(Document.user_id == current_user.id)\
         .order_by(Document.document_date.desc())\
         .limit(100).all()

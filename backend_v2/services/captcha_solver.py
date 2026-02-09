@@ -7,9 +7,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# API Keys (from environment or hardcoded fallback)
-TWOCAPTCHA_API_KEY = os.environ.get('TWOCAPTCHA_API_KEY', '1eeed9b49a149c676bb39825c9ecf904')
-ANTICAPTCHA_API_KEY = os.environ.get('ANTICAPTCHA_API_KEY', '125b983f44ec1e87662ab3c3b9b49cd3')
+# API Keys (from environment - REQUIRED, no hardcoded fallbacks for security)
+TWOCAPTCHA_API_KEY = os.environ.get('TWOCAPTCHA_API_KEY')
+ANTICAPTCHA_API_KEY = os.environ.get('ANTICAPTCHA_API_KEY')
 
 # Preferred service order
 PREFERRED_SERVICE = os.environ.get('CAPTCHA_SERVICE', '2captcha')  # '2captcha' or 'anticaptcha'
@@ -26,6 +26,8 @@ class CaptchaSolver:
     def _init_2captcha(self):
         """Initialize 2captcha solver."""
         if self._2captcha_solver is None:
+            if not TWOCAPTCHA_API_KEY:
+                raise ValueError("TWOCAPTCHA_API_KEY environment variable not set")
             try:
                 from twocaptcha import TwoCaptcha
                 self._2captcha_solver = TwoCaptcha(TWOCAPTCHA_API_KEY)
@@ -38,6 +40,8 @@ class CaptchaSolver:
     def _init_anticaptcha(self):
         """Initialize anti-captcha solver."""
         if self._anticaptcha is None:
+            if not ANTICAPTCHA_API_KEY:
+                raise ValueError("ANTICAPTCHA_API_KEY environment variable not set")
             try:
                 from anticaptchaofficial.recaptchav2proxyless import recaptchaV2Proxyless
                 self._anticaptcha = recaptchaV2Proxyless()

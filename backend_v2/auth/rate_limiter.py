@@ -26,6 +26,11 @@ REGISTER_WINDOW_SECONDS = 3600  # 1 hour window
 MAX_PROFILE_SCANS_PER_DAY = 3  # Max scans per day per user
 PROFILE_SCAN_WINDOW_SECONDS = 86400  # 24 hour window
 
+# Vault unlock rate limits (to prevent brute force attacks)
+MAX_VAULT_UNLOCK_ATTEMPTS = 5  # Max attempts per window
+VAULT_UNLOCK_WINDOW_SECONDS = 300  # 5 minute window
+VAULT_UNLOCK_LOCKOUT_SECONDS = 1800  # 30 minute lockout after max attempts
+
 
 class RateLimiter:
     """Thread-safe in-memory rate limiter."""
@@ -188,3 +193,25 @@ def check_profile_scan_rate_limit(user_id: int):
         window_seconds=PROFILE_SCAN_WINDOW_SECONDS,
         lockout_seconds=0  # No lockout, just enforce daily limit
     )
+
+
+def check_vault_unlock_rate_limit(request: Request):
+    """
+    Rate limit dependency for vault unlock endpoint.
+    Limits by IP address to prevent brute force attacks on the master password.
+    """
+    if IS_TEST_ENV:
+        return  # Skip rate limiting in tests
+    client_ip = get_client_ip(request)
+    _rate_limiter.check_rate_limit(
+        key=f"vault_unlock:{client_ip}",
+        max_attempts=MAX_VAULT_UNLOCK_ATTEMPTS,
+        window_seconds=VAULT_UNLOCK_WINDOW_SECONDS,
+        lockout_seconds=VAULT_UNLOCK_LOCKOUT_SECONDS
+    )
+
+
+def reset_vault_unlock_rate_limit(request: Request):
+    """Reset vault unlock rate limit after successful unlock."""
+    client_ip = get_client_ip(request)
+    _rate_limiter.reset(f"vault_unlock:{client_ip}")

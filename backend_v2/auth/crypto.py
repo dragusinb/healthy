@@ -29,8 +29,13 @@ def _get_fernet():
             "ENCRYPTION_KEY appears to be a passphrase, not a proper Fernet key. "
             "For better security, use a randomly generated Fernet key."
         )
-        # Use deployment-specific salt from env, or fall back to instance ID
-        salt_str = os.getenv("ENCRYPTION_SALT", os.getenv("INSTANCE_ID", "healthy_default_salt"))
+        # Use deployment-specific salt from env - REQUIRED for security
+        salt_str = os.getenv("ENCRYPTION_SALT") or os.getenv("INSTANCE_ID")
+        if not salt_str:
+            raise ValueError(
+                "ENCRYPTION_SALT or INSTANCE_ID environment variable required when using passphrase-based key. "
+                "Set ENCRYPTION_SALT to a unique random string for this deployment."
+            )
         salt = salt_str.encode()[:16].ljust(16, b'\x00')  # Ensure 16 bytes
 
         kdf = PBKDF2HMAC(

@@ -34,14 +34,14 @@ db.close()
 
 app = FastAPI(title="Healthy v2 API", version="2.0")
 
-# CORS - configurable via environment
+# CORS - configurable via environment (no hardcoded production IPs)
 default_origins = [
     "http://localhost:5173",  # React Vite dev
     "http://localhost:3000",
     "http://localhost:4173",  # Vite preview
-    "http://62.171.163.23",   # Contabo production
 ]
-# Add production origins from env (comma-separated)
+# Add production origins from env (comma-separated) - REQUIRED for production
+# Example: CORS_ORIGINS=https://analize.online,https://www.analize.online
 extra_origins = os.getenv("CORS_ORIGINS", "").split(",")
 origins = default_origins + [o.strip() for o in extra_origins if o.strip()]
 
@@ -49,8 +49,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Vault-Token"],
 )
 
 # Routers

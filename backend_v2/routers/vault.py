@@ -8,17 +8,19 @@ These endpoints allow administrators to:
 - Check vault status
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel, Field
 
 try:
     from backend_v2.services.vault import vault, VaultError, VaultNotInitializedError, VaultLockedError
     from backend_v2.routers.documents import get_current_user
     from backend_v2.models import User
+    from backend_v2.auth.rate_limiter import check_vault_unlock_rate_limit, reset_vault_unlock_rate_limit
 except ImportError:
     from services.vault import vault, VaultError, VaultNotInitializedError, VaultLockedError
     from routers.documents import get_current_user
     from models import User
+    from auth.rate_limiter import check_vault_unlock_rate_limit, reset_vault_unlock_rate_limit
 
 router = APIRouter(prefix="/admin/vault", tags=["vault"])
 
@@ -103,7 +105,11 @@ async def initialize_vault(request: VaultPasswordRequest):
 
 
 @router.post("/unlock", response_model=VaultInitResponse)
-async def unlock_vault(request: VaultPasswordRequest):
+async def unlock_vault(
+    request: VaultPasswordRequest,
+    http_request: Request,
+    _: None = Depends(check_vault_unlock_rate_limit)
+):
     """
     Unlock the vault with the master password.
 
@@ -113,6 +119,7 @@ async def unlock_vault(request: VaultPasswordRequest):
 
     Note: This endpoint does not require authentication since the
     system cannot verify users while the vault is locked.
+    Rate limited to prevent brute force attacks on the master password.
     """
     if not vault.is_configured:
         raise HTTPException(
@@ -129,6 +136,8 @@ async def unlock_vault(request: VaultPasswordRequest):
     try:
         success = vault.unlock(request.master_password)
         if success:
+            # Reset rate limit on successful unlock
+            reset_vault_unlock_rate_limit(http_request)
             return VaultInitResponse(
                 success=True,
                 message="Vault unlocked successfully."
