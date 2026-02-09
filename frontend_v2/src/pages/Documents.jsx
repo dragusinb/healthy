@@ -155,7 +155,14 @@ const Documents = () => {
             setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Upload failed", error);
-            setError(t('common.error'));
+            // Show specific error from backend if available
+            if (error.response?.status === 503) {
+                setError(t('documents.vaultLocked'));
+            } else if (error.response?.data?.detail) {
+                setError(error.response.data.detail);
+            } else {
+                setError(t('documents.uploadFailed') || t('common.error'));
+            }
         } finally {
             setUploading(false);
             e.target.value = null;
@@ -174,7 +181,13 @@ const Documents = () => {
             setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Delete failed", error);
-            setError(t('common.error'));
+            if (error.response?.status === 503) {
+                setError(t('documents.vaultLocked'));
+            } else if (error.response?.data?.detail) {
+                setError(error.response.data.detail);
+            } else {
+                setError(t('documents.deleteFailed') || t('common.error'));
+            }
         } finally {
             setDeleting(false);
         }
@@ -186,7 +199,15 @@ const Documents = () => {
         try {
             const res = await api.post('/documents/rescan-patient-names');
             if (res.data.updated > 0) {
-                setSuccess(t('documents.rescanSuccess', { count: res.data.updated }));
+                // Check for partial failures
+                if (res.data.errors && res.data.errors.length > 0) {
+                    setSuccess(t('documents.rescanPartialSuccess', {
+                        updated: res.data.updated,
+                        failed: res.data.errors.length
+                    }) || `Updated ${res.data.updated} documents, ${res.data.errors.length} failed`);
+                } else {
+                    setSuccess(t('documents.rescanSuccess', { count: res.data.updated }));
+                }
                 fetchDocuments();
             } else {
                 setSuccess(t('documents.rescanNoUpdates'));
@@ -194,7 +215,11 @@ const Documents = () => {
             setTimeout(() => setSuccess(null), 5000);
         } catch (error) {
             console.error("Rescan failed", error);
-            setError(t('common.error'));
+            if (error.response?.data?.detail) {
+                setError(error.response.data.detail);
+            } else {
+                setError(t('documents.rescanFailed') || t('common.error'));
+            }
         } finally {
             setRescanning(false);
         }

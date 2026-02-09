@@ -97,7 +97,10 @@
     "resendVerification": "Retrimite",
     "verificationSent": "Trimis!",
     "showPassword": "Arată parola",
-    "hidePassword": "Ascunde parola"
+    "hidePassword": "Ascunde parola",
+    "loginSuccess": "Te-ai conectat cu succes",
+    "vaultUnlockedSuccess": "Datele tale criptate sunt acum accesibile",
+    "welcomeBack": "Bine ai revenit!"
   },
   "dashboard": {
     "title": "Panou Principal",
@@ -191,6 +194,10 @@
     "rescanTooltip": "Scaneaza documentele pentru a extrage numele pacientilor",
     "rescanSuccess": "S-au gasit nume de pacienti in {{count}} documente",
     "rescanNoUpdates": "Toate documentele au deja nume de pacienti",
+    "rescanPartialSuccess": "Actualizate {{updated}} documente, {{failed}} esuate",
+    "rescanFailed": "Rescanarea documentelor a esuat",
+    "uploadFailed": "Incarcarea documentului a esuat",
+    "deleteFailed": "Stergerea documentului a esuat",
     "totalDocuments": "Documente",
     "totalBiomarkers": "Biomarkeri",
     "vaultLocked": "Sistemul este temporar indisponibil. Contactati administratorul."

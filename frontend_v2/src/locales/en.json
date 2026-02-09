@@ -93,7 +93,10 @@
     "resendVerification": "Resend",
     "verificationSent": "Sent!",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "loginSuccess": "Logged in successfully",
+    "vaultUnlockedSuccess": "Your encrypted data is now accessible",
+    "welcomeBack": "Welcome back!"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -159,6 +162,10 @@
     "rescanTooltip": "Scan documents to extract patient names",
     "rescanSuccess": "Found patient names in {{count}} documents",
     "rescanNoUpdates": "All documents already have patient names",
+    "rescanPartialSuccess": "Updated {{updated}} documents, {{failed}} failed",
+    "rescanFailed": "Failed to rescan documents",
+    "uploadFailed": "Failed to upload document",
+    "deleteFailed": "Failed to delete document",
     "totalDocuments": "Documents",
     "totalBiomarkers": "Biomarkers",
     "vaultLocked": "System temporarily unavailable. Please contact administrator."

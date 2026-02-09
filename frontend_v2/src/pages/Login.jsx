@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe, CheckSquare, Square, Key, Copy, CheckCircle, AlertTriangle, X, Shield } from 'lucide-react';
+import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe, CheckSquare, Square, Key, Copy, CheckCircle, AlertTriangle, X, Shield, Unlock } from 'lucide-react';
 import api from '../api/client';
 
 // Recovery Key Modal Component
@@ -491,6 +491,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [serverStatus, setServerStatus] = useState('checking'); // 'online', 'offline', 'checking'
     const [recoveryKey, setRecoveryKey] = useState(null); // For showing recovery key modal
+    const [loginSuccess, setLoginSuccess] = useState(false); // For showing vault unlock success
 
     // Check server status on mount
     useEffect(() => {
@@ -552,10 +553,13 @@ const Login = () => {
         } else {
             try {
                 await login(email, password);
-                navigate('/');
+                // Show vault unlock success briefly before navigating
+                setLoginSuccess(true);
+                setTimeout(() => {
+                    navigate('/');
+                }, 1500);
             } catch (err) {
                 setError(t('auth.invalidCredentials'));
-            } finally {
                 setLoading(false);
             }
         }
@@ -591,7 +595,11 @@ const Login = () => {
     };
 
     const handleUnlockComplete = () => {
-        navigate('/');
+        // Show vault unlock success briefly before navigating
+        setLoginSuccess(true);
+        setTimeout(() => {
+            navigate('/');
+        }, 1500);
     };
 
     const toggleMode = () => {
@@ -613,6 +621,33 @@ const Login = () => {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50">
+            {/* Login Success Modal - Vault Unlocked */}
+            {loginSuccess && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-8 text-center animate-in fade-in zoom-in duration-300">
+                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full mb-6 shadow-lg shadow-teal-500/30">
+                            <Unlock size={40} className="text-white" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                            {t('auth.welcomeBack')}
+                        </h2>
+                        <p className="text-slate-500 mb-4">
+                            {t('auth.vaultUnlockedSuccess')}
+                        </p>
+                        <div className="flex items-center justify-center gap-2 text-teal-600 bg-teal-50 rounded-xl py-3 px-4">
+                            <Shield size={18} />
+                            <span className="text-sm font-medium">
+                                {i18n.language === 'ro' ? 'Documentele tale sunt accesibile' : 'Your documents are accessible'}
+                            </span>
+                        </div>
+                        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
+                            <div className="w-4 h-4 border-2 border-slate-300 border-t-teal-500 rounded-full animate-spin" />
+                            {i18n.language === 'ro' ? 'Se deschide panoul...' : 'Opening dashboard...'}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Recovery Key Modal */}
             {recoveryKey && (
                 <RecoveryKeyModal
