@@ -238,6 +238,33 @@ def login(
         vault_unlocked = vault.unlock_with_password(form_data.password, vault_data)
         if vault_unlocked:
             set_user_vault_session(user.id, vault)
+
+            # Auto-migrate: Check if user has plaintext data that needs re-encryption
+            # This handles cases where migration didn't complete properly
+            try:
+                from backend_v2.services.reencryption_service import reencrypt_all_user_data
+            except ImportError:
+                from services.reencryption_service import reencrypt_all_user_data
+
+            try:
+                # Check if there's plaintext data to migrate
+                from backend_v2.models import Document, TestResult
+            except ImportError:
+                from models import Document, TestResult
+
+            has_plaintext_docs = db.query(Document).filter(
+                Document.user_id == user.id,
+                Document.file_path.isnot(None)
+            ).first() is not None
+
+            if has_plaintext_docs:
+                logger.info(f"User {user.id} has plaintext data - running auto re-encryption")
+                try:
+                    stats = reencrypt_all_user_data(db, user, vault, delete_plaintext=True)
+                    logger.info(f"Auto re-encryption for user {user.id}: {stats}")
+                    is_legacy_migration = True
+                except Exception as e:
+                    logger.error(f"Auto re-encryption failed for user {user.id}: {e}")
     else:
         # Legacy user without vault - create one and migrate their data
         try:

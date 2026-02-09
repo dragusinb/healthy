@@ -10,16 +10,23 @@ These endpoints allow administrators to:
 
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 try:
     from backend_v2.services.vault import vault, VaultError, VaultNotInitializedError, VaultLockedError
+    from backend_v2.services.user_vault import get_user_vault
+    from backend_v2.services.reencryption_service import reencrypt_all_user_data
     from backend_v2.routers.documents import get_current_user
     from backend_v2.models import User
+    from backend_v2.database import get_db
     from backend_v2.auth.rate_limiter import check_vault_unlock_rate_limit, reset_vault_unlock_rate_limit
 except ImportError:
     from services.vault import vault, VaultError, VaultNotInitializedError, VaultLockedError
+    from services.user_vault import get_user_vault
+    from services.reencryption_service import reencrypt_all_user_data
     from routers.documents import get_current_user
     from models import User
+    from database import get_db
     from auth.rate_limiter import check_vault_unlock_rate_limit, reset_vault_unlock_rate_limit
 
 router = APIRouter(prefix="/admin/vault", tags=["vault"])
@@ -171,3 +178,66 @@ async def lock_vault(current_user: User = Depends(require_admin)):
         success=True,
         message="Vault locked. All encryption keys cleared from memory."
     )
+
+
+class ReencryptRequest(BaseModel):
+    user_id: int = Field(..., description="User ID to re-encrypt data for")
+    delete_plaintext: bool = Field(True, description="Delete plaintext data after encryption")
+
+
+@router.post("/reencrypt-user")
+async def reencrypt_user_data(
+    request: ReencryptRequest,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    """
+    Re-encrypt all data for a specific user from plaintext sources.
+
+    This endpoint:
+    1. Reads user's documents from unencrypted file_path
+    2. Reads biomarkers from plaintext value columns
+    3. Encrypts everything with the user's per-user vault
+    4. Optionally deletes/clears plaintext data
+
+    Prerequisites:
+    - User must have a vault set up (vault_data in users table)
+    - User's vault must be unlocked (they must be logged in)
+
+    Use this when:
+    - A user's data was encrypted with the wrong key
+    - Migration failed and needs to be re-run
+    """
+    # Get the target user
+    target_user = db.query(User).filter(User.id == request.user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Check if user has a vault
+    if not target_user.vault_data:
+        raise HTTPException(
+            status_code=400,
+            detail="User does not have a vault set up. They need to log in first."
+        )
+
+    # Get user's unlocked vault from session
+    user_vault = get_user_vault(request.user_id)
+    if not user_vault or not user_vault.is_unlocked:
+        raise HTTPException(
+            status_code=400,
+            detail="User's vault is not unlocked. The user needs to be logged in."
+        )
+
+    # Run re-encryption
+    stats = reencrypt_all_user_data(
+        db=db,
+        user=target_user,
+        user_vault=user_vault,
+        delete_plaintext=request.delete_plaintext
+    )
+
+    return {
+        "success": stats.get("success", False),
+        "stats": stats,
+        "message": "Re-encryption completed" if stats.get("success") else "Re-encryption completed with errors"
+    }

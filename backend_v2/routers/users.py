@@ -1221,3 +1221,62 @@ def delete_user_account(
             status_code=500,
             detail=f"Failed to delete account: {str(e)}"
         )
+
+
+@router.post("/reencrypt-my-data")
+def reencrypt_my_data(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Re-encrypt all your data using your personal vault.
+
+    Use this if you're experiencing issues viewing your documents or biomarkers.
+    This will re-encrypt your data from plaintext sources (if available) using
+    your per-user vault key.
+
+    Prerequisites:
+    - You must be logged in (vault unlocked)
+    """
+    try:
+        from backend_v2.services.user_vault import get_user_vault
+        from backend_v2.services.reencryption_service import reencrypt_all_user_data
+    except ImportError:
+        from services.user_vault import get_user_vault
+        from services.reencryption_service import reencrypt_all_user_data
+
+    # Check if user has a vault
+    if not current_user.vault_data:
+        raise HTTPException(
+            status_code=400,
+            detail="Your vault is not set up. Please log out and log back in."
+        )
+
+    # Get user's unlocked vault from session
+    user_vault = get_user_vault(current_user.id)
+    if not user_vault or not user_vault.is_unlocked:
+        raise HTTPException(
+            status_code=400,
+            detail="Your vault is not unlocked. Please log out and log back in."
+        )
+
+    # Run re-encryption (don't delete plaintext in case of errors - let admin do that)
+    stats = reencrypt_all_user_data(
+        db=db,
+        user=current_user,
+        user_vault=user_vault,
+        delete_plaintext=False  # Keep plaintext until we're sure everything works
+    )
+
+    return {
+        "success": stats.get("success", False),
+        "stats": {
+            "documents": stats.get("documents", {}).get("documents_reencrypted", 0),
+            "biomarkers": stats.get("biomarkers", {}).get("biomarkers_reencrypted", 0),
+            "profile_fields": stats.get("profile", {}).get("fields_reencrypted", 0),
+            "health_reports": stats.get("health_reports", {}).get("reports_reencrypted", 0),
+            "linked_accounts": stats.get("linked_accounts", {}).get("accounts_reencrypted", 0),
+        },
+        "errors": stats.get("total_errors", []),
+        "message": "Re-encryption completed successfully" if stats.get("success") else "Re-encryption completed with some errors"
+    }
