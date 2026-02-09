@@ -50,6 +50,20 @@ def read_document_content(doc: Document, user_id: int = None) -> bytes:
                 status_code=503,
                 detail="Vault is locked. Please contact administrator to unlock the system."
             )
+        # Security: Validate encrypted path belongs to user's encrypted directory
+        real_path = os.path.normpath(os.path.realpath(doc.encrypted_path))
+        user_encrypted_dir = os.path.normpath(os.path.realpath(f"data/encrypted/{user_id}"))
+        try:
+            common = os.path.commonpath([real_path, user_encrypted_dir])
+            if common != user_encrypted_dir:
+                import logging
+                logging.warning(f"Encrypted path traversal blocked: user={user_id}, path={doc.encrypted_path}")
+                raise HTTPException(status_code=403, detail="Access denied")
+        except ValueError:
+            import logging
+            logging.warning(f"Encrypted path traversal blocked: user={user_id}, path={doc.encrypted_path}")
+            raise HTTPException(status_code=403, detail="Access denied")
+
         encrypted_content = Path(doc.encrypted_path).read_bytes()
         return vault_helper.decrypt_document(encrypted_content)
     elif doc.file_path and os.path.exists(doc.file_path):
@@ -356,7 +370,7 @@ def upload_document(
         )
         raise HTTPException(status_code=403, detail=message)
 
-    # Validate file type
+    # Validate file extension
     if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
@@ -368,6 +382,15 @@ def upload_document(
     file.file.seek(0, 2)  # Seek to end
     file_size = file.file.tell()
     file.file.seek(0)  # Reset to beginning
+
+    # Validate PDF magic bytes (file starts with %PDF)
+    magic_bytes = file.file.read(4)
+    file.file.seek(0)  # Reset to beginning
+    if magic_bytes != b'%PDF':
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid PDF file. File content does not match PDF format."
+        )
 
     if file_size > MAX_UPLOAD_SIZE_BYTES:
         raise HTTPException(
