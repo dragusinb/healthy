@@ -93,7 +93,9 @@
     "verifyEmailBanner": "Te rugam sa iti verifici adresa de email",
     "verifyEmailBannerDesc": "Verifica inbox-ul pentru link-ul de verificare",
     "resendVerification": "Retrimite",
-    "verificationSent": "Trimis!"
+    "verificationSent": "Trimis!",
+    "showPassword": "Arată parola",
+    "hidePassword": "Ascunde parola"
   },
   "dashboard": {
     "title": "Panou Principal",

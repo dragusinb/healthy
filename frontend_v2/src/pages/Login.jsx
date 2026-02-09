@@ -29,14 +29,14 @@ const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="recovery-key-title">
             <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative max-h-[90vh] overflow-y-auto">
                 {/* Success Header */}
                 <div className="text-center mb-6">
                     <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full mb-4 shadow-lg shadow-amber-500/30">
                         <Key size={40} className="text-white" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                    <h2 id="recovery-key-title" className="text-2xl font-bold text-slate-800 mb-2">
                         {i18n.language === 'ro' ? 'Salvează Cheia de Recuperare!' : 'Save Your Recovery Key!'}
                     </h2>
                     <p className="text-slate-500">
@@ -84,6 +84,7 @@ const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
                         </span>
                         <button
                             onClick={handleCopy}
+                            aria-label={i18n.language === 'ro' ? 'Copiază cheia de recuperare' : 'Copy recovery key'}
                             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all ${
                                 copied
                                     ? 'bg-teal-500 text-white'
@@ -197,14 +198,14 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="setup-password-title">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
                 {/* Header with Icon */}
                 <div className="text-center mb-6">
                     <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full mb-4 shadow-lg shadow-teal-500/30">
-                        <Shield size={40} className="text-white" />
+                        <Shield size={40} className="text-white" aria-hidden="true" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">
+                    <h2 id="setup-password-title" className="text-2xl font-bold text-slate-800 mb-2">
                         {i18n.language === 'ro' ? 'Ultimul Pas: Securitate' : 'Final Step: Security'}
                     </h2>
                     <p className="text-slate-500">
@@ -301,9 +302,10 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? (i18n.language === 'ro' ? 'Ascunde parola' : 'Hide password') : (i18n.language === 'ro' ? 'Arată parola' : 'Show password')}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                             >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                             </button>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">
@@ -372,14 +374,14 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true" aria-labelledby="unlock-data-title">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
                 {/* Header */}
                 <div className="text-center mb-6">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mb-4 shadow-lg shadow-primary-500/30">
-                        <Lock size={32} className="text-white" />
+                        <Lock size={32} className="text-white" aria-hidden="true" />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-800 mb-2">
+                    <h2 id="unlock-data-title" className="text-xl font-bold text-slate-800 mb-2">
                         {i18n.language === 'ro' ? 'Bine ai revenit!' : 'Welcome back!'}
                     </h2>
                     <p className="text-slate-500 text-sm">
@@ -434,9 +436,10 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? (i18n.language === 'ro' ? 'Ascunde parola' : 'Hide password') : (i18n.language === 'ro' ? 'Arată parola' : 'Show password')}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                             >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                             </button>
                         </div>
                         <p className="text-xs text-slate-400 mt-1">
@@ -755,9 +758,10 @@ const Login = () => {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
+                                    aria-label={showPassword ? t('auth.hidePassword') || 'Hide password' : t('auth.showPassword') || 'Show password'}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                                 >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                                 </button>
                             </div>
                             {isRegisterMode && (
@@ -791,9 +795,10 @@ const Login = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        aria-label={showConfirmPassword ? t('auth.hidePassword') || 'Hide password' : t('auth.showPassword') || 'Show password'}
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                                     >
-                                        {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        {showConfirmPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                                     </button>
                                 </div>
                             </div>

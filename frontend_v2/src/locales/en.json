@@ -89,7 +89,9 @@
     "verifyEmailBanner": "Please verify your email address",
     "verifyEmailBannerDesc": "Check your inbox for a verification link",
     "resendVerification": "Resend",
-    "verificationSent": "Sent!"
+    "verificationSent": "Sent!",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
   },
   "dashboard": {
     "title": "Dashboard",
