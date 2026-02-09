@@ -41,12 +41,15 @@ export default function Settings() {
   const handleExportData = async () => {
     setExporting(true);
     try {
-      const response = await api.get('/users/export-data');
-      const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: 'application/json' });
+      // Use the GDPR export endpoint which returns a ZIP file
+      const response = await api.get('/gdpr/export', {
+        responseType: 'blob'
+      });
+      const blob = new Blob([response.data], { type: 'application/zip' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `analize_online_export_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `analize_online_export_${new Date().toISOString().split('T')[0]}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -65,11 +68,9 @@ export default function Settings() {
     setDeleteError(null);
 
     try {
-      await api.delete('/users/account', {
-        data: {
-          password: deletePassword,
-          confirm_deletion: true
-        }
+      await api.post('/gdpr/delete-account', {
+        password: deletePassword,
+        confirm_text: 'DELETE MY ACCOUNT'
       });
       // Account deleted - logout and redirect
       logout();
