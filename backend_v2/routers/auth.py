@@ -761,14 +761,29 @@ def setup_password(
 @router.get("/vault-status")
 def get_vault_status(request: Request, db: Session = Depends(get_db)):
     """Check current user's vault status."""
-    from backend_v2.auth.security import get_current_user
+    from jose import jwt
+    try:
+        from backend_v2.auth.security import SECRET_KEY, ALGORITHM
+    except ImportError:
+        from auth.security import SECRET_KEY, ALGORITHM
 
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     token = auth_header.replace("Bearer ", "")
-    current_user = get_current_user(db, token)
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    current_user = db.query(User).filter(User.email == email).first()
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="User not found")
 
     vault = get_user_vault(current_user.id)
 
@@ -796,14 +811,29 @@ def unlock_data(
 
     This is the same password you set up when you first registered.
     """
-    from backend_v2.auth.security import get_current_user
+    from jose import jwt
+    try:
+        from backend_v2.auth.security import SECRET_KEY, ALGORITHM
+    except ImportError:
+        from auth.security import SECRET_KEY, ALGORITHM
 
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     token = auth_header.replace("Bearer ", "")
-    current_user = get_current_user(db, token)
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    current_user = db.query(User).filter(User.email == email).first()
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="User not found")
 
     audit = AuditService(db)
     ip_address = request.client.host if request.client else None
