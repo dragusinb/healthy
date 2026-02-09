@@ -189,6 +189,8 @@
     "issuesCount": "issues",
     "showHistory": "Show history",
     "hideHistory": "Hide history",
+    "expandHistory": "Expand history",
+    "collapseHistory": "Collapse history",
     "historicalValues": "historical values",
     "showingFrom": "Showing biomarkers from",
     "categories": {

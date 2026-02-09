@@ -8,10 +8,10 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const ProfileField = ({ icon: Icon, label, children, className }) => (
+const ProfileField = ({ icon: Icon, label, children, className, htmlFor }) => (
     <div className={cn("space-y-2", className)}>
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-            <Icon size={16} className="text-slate-400" />
+        <label htmlFor={htmlFor} className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <Icon size={16} className="text-slate-400" aria-hidden="true" />
             {label}
         </label>
         {children}
@@ -332,8 +332,9 @@ const Profile = () => {
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.basicInfo') || 'Basic Information'}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <ProfileField icon={User} label={t('profile.fullName') || 'Full Name'}>
+                        <ProfileField icon={User} label={t('profile.fullName') || 'Full Name'} htmlFor="full_name">
                             <input
+                                id="full_name"
                                 type="text"
                                 value={profile.full_name}
                                 onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
@@ -342,8 +343,9 @@ const Profile = () => {
                             />
                         </ProfileField>
 
-                        <ProfileField icon={Calendar} label={t('profile.dateOfBirth') || 'Date of Birth'}>
+                        <ProfileField icon={Calendar} label={t('profile.dateOfBirth') || 'Date of Birth'} htmlFor="date_of_birth">
                             <input
+                                id="date_of_birth"
                                 type="date"
                                 value={profile.date_of_birth}
                                 onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
@@ -351,8 +353,9 @@ const Profile = () => {
                             />
                         </ProfileField>
 
-                        <ProfileField icon={User} label={t('profile.gender') || 'Gender'}>
+                        <ProfileField icon={User} label={t('profile.gender') || 'Gender'} htmlFor="gender">
                             <select
+                                id="gender"
                                 value={profile.gender}
                                 onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
                                 className="input"
@@ -364,8 +367,9 @@ const Profile = () => {
                             </select>
                         </ProfileField>
 
-                        <ProfileField icon={Droplets} label={t('profile.bloodType') || 'Blood Type'}>
+                        <ProfileField icon={Droplets} label={t('profile.bloodType') || 'Blood Type'} htmlFor="blood_type">
                             <select
+                                id="blood_type"
                                 value={profile.blood_type}
                                 onChange={(e) => setProfile({ ...profile, blood_type: e.target.value })}
                                 className="input"
@@ -388,8 +392,9 @@ const Profile = () => {
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.bodyMeasurements') || 'Body Measurements'}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <ProfileField icon={Ruler} label={t('profile.height') || 'Height (cm)'}>
+                        <ProfileField icon={Ruler} label={t('profile.height') || 'Height (cm)'} htmlFor="height_cm">
                             <input
+                                id="height_cm"
                                 type="number"
                                 value={profile.height_cm}
                                 onChange={(e) => setProfile({ ...profile, height_cm: parseFloat(e.target.value) || '' })}
@@ -400,8 +405,9 @@ const Profile = () => {
                             />
                         </ProfileField>
 
-                        <ProfileField icon={Scale} label={t('profile.weight') || 'Weight (kg)'}>
+                        <ProfileField icon={Scale} label={t('profile.weight') || 'Weight (kg)'} htmlFor="weight_kg">
                             <input
+                                id="weight_kg"
                                 type="number"
                                 value={profile.weight_kg}
                                 onChange={(e) => setProfile({ ...profile, weight_kg: parseFloat(e.target.value) || '' })}

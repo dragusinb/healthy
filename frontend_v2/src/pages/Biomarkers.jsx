@@ -152,10 +152,11 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     {historyCount > 1 && (
                         <button
                             onClick={() => onToggleHistory(group.canonical_name)}
-                            className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors"
-                            title={t('biomarkers.showHistory')}
+                            className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            aria-label={isExpanded ? t('biomarkers.collapseHistory') : t('biomarkers.expandHistory')}
+                            aria-expanded={isExpanded}
                         >
-                            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                            {isExpanded ? <ChevronDown size={14} aria-hidden="true" /> : <ChevronRight size={14} aria-hidden="true" />}
                         </button>
                     )}
                     {historyCount <= 1 && <div className="w-6" />}
@@ -197,18 +198,18 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         <button
                             onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'))}
                             className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                            title={t('documents.viewPdf')}
+                            aria-label={t('documents.viewPdf')}
                         >
-                            <Eye size={14} />
+                            <Eye size={14} aria-hidden="true" />
                         </button>
                     )}
                 </div>
                 <div className="col-span-1 text-right pr-2">
                     {latest.status === 'normal' ? (
-                        <span className="inline-block w-2 h-2 bg-teal-500 rounded-full" title={t('biomarkers.normal')} />
+                        <span className="inline-block w-2 h-2 bg-teal-500 rounded-full" role="img" aria-label={t('biomarkers.normal')} />
                     ) : (
-                        <span className="inline-flex items-center text-rose-600" title={latest.status === 'high' ? t('biomarkers.high') : t('biomarkers.low')}>
-                            {latest.status === 'high' ? <ArrowUp size={14} strokeWidth={3} /> : <ArrowDown size={14} strokeWidth={3} />}
+                        <span className="inline-flex items-center text-rose-600" role="img" aria-label={latest.status === 'high' ? t('biomarkers.high') : t('biomarkers.low')}>
+                            {latest.status === 'high' ? <ArrowUp size={14} strokeWidth={3} aria-hidden="true" /> : <ArrowDown size={14} strokeWidth={3} aria-hidden="true" />}
                         </span>
                     )}
                 </div>
@@ -259,7 +260,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         <div className="flex items-baseline gap-2 flex-wrap">
                             <span className="font-bold text-slate-800">{latest.value}</span>
                             <span className="text-slate-400 text-xs">{latest.unit}</span>
-                            <span className="text-slate-300">•</span>
+                            <span className="text-slate-400" aria-hidden="true">•</span>
                             <span className="text-xs text-slate-500">{latest.range}</span>
                         </div>
                         <div className="text-xs text-slate-400 mt-1">
@@ -351,7 +352,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             <div className="flex items-baseline gap-2 flex-wrap">
                                 <span className="font-medium text-slate-700">{bio.value}</span>
                                 <span className="text-slate-400 text-xs">{bio.unit}</span>
-                                <span className="text-slate-300">•</span>
+                                <span className="text-slate-400" aria-hidden="true">•</span>
                                 <span className="text-xs text-slate-400">{bio.range}</span>
                             </div>
                             <div className="text-xs text-slate-400 mt-0.5">

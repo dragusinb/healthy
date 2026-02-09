@@ -221,6 +221,8 @@
     "issuesCount": "probleme",
     "showHistory": "Afiseaza istoricul",
     "hideHistory": "Ascunde istoricul",
+    "expandHistory": "Extinde istoricul",
+    "collapseHistory": "Restrange istoricul",
     "historicalValues": "valori istorice",
     "showingFrom": "Afisare biomarkeri din",
     "categories": {
