@@ -221,6 +221,7 @@
     "viewReport": "View Report",
     "noReportYet": "No report yet",
     "reportHistory": "Report History",
+    "comparisonFailed": "Failed to compare reports",
     "disclaimer": "This AI analysis is for informational purposes only and is not a substitute for professional medical advice. Always consult with a qualified healthcare provider for medical decisions.",
     "analysisInProgress": "AI Analysis in Progress",
     "analysisSteps": {

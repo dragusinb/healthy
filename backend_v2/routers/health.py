@@ -909,6 +909,10 @@ def compare_reports(
     if not report_1 or not report_2:
         raise HTTPException(status_code=404, detail="One or both reports not found")
 
+    # Ensure older report is first, newer is second for consistent comparison
+    if report_1.created_at and report_2.created_at and report_1.created_at > report_2.created_at:
+        report_1, report_2 = report_2, report_1
+
     def format_report(r):
         content = get_report_content(r, current_user.id)
         return {
@@ -940,6 +944,6 @@ def compare_reports(
         "comparison": {
             "risk_change": risk_change,
             "days_between": (report_2.created_at - report_1.created_at).days if report_1.created_at and report_2.created_at else None,
-            "biomarkers_change": report_2.biomarkers_analyzed - report_1.biomarkers_analyzed if report_1.biomarkers_analyzed and report_2.biomarkers_analyzed else None
+            "biomarkers_change": report_2.biomarkers_analyzed - report_1.biomarkers_analyzed if report_1.biomarkers_analyzed is not None and report_2.biomarkers_analyzed is not None else None
         }
     }

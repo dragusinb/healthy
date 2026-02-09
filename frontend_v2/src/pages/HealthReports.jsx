@@ -143,12 +143,13 @@ const HealthReports = () => {
 
     const runComparison = async () => {
         if (selectedForCompare.length !== 2) return;
+        setError(null);
         try {
             const res = await api.get(`/health/compare/${selectedForCompare[0].general.id}/${selectedForCompare[1].general.id}`);
             setComparisonData(res.data);
         } catch (e) {
             console.error("Comparison failed", e);
-            setError("Failed to compare reports");
+            setError(t('healthReports.comparisonFailed') || "Failed to compare reports");
         }
     };
 

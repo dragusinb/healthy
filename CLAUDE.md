@@ -290,7 +290,7 @@ Healthy/
 - [x] Sort biomarkers by issues first or most recent
 - [x] PDF view icons to see source documents
 
-### Phase 2 - NEARLY COMPLETE (99%)
+### Phase 2 - COMPLETE ✓
 - [x] User registration and authentication (email/password)
 - [x] Google OAuth authentication
 - [x] Secure credential storage (Fernet encryption)
@@ -301,8 +301,8 @@ Healthy/
 - [x] Document deletion with cascade delete of biomarkers
 - [x] Edit linked account credentials
 - [x] Full localization (Romanian/English) for all pages
-- [x] Email verification (banner prompting users to verify + resend functionality)
-- [ ] Report history and comparison
+- [x] Email verification (backend, frontend UI, resend functionality - needs SMTP config)
+- [x] Report history and comparison (view past reports, compare side-by-side)
 
 ### Phase 4 - PARTIAL (Production Deployment)
 - [x] PostgreSQL database (production) - Running on Contabo
