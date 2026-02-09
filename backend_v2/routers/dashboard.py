@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import Optional
@@ -22,7 +22,12 @@ except ImportError:
     from services.vault_helper import get_vault_helper
 
 
-def get_biomarker_value(result: TestResult, user_id: int = None) -> tuple:
+class VaultRequiredError(Exception):
+    """Raised when vault is needed but not available."""
+    pass
+
+
+def get_biomarker_value(result: TestResult, user_id: int = None, raise_on_vault_required: bool = False) -> tuple:
     """
     Get biomarker value and numeric_value, preferring vault-encrypted if available.
     Returns (value, numeric_value)
@@ -30,12 +35,17 @@ def get_biomarker_value(result: TestResult, user_id: int = None) -> tuple:
     Args:
         result: TestResult object
         user_id: User ID for per-user vault decryption
+        raise_on_vault_required: If True, raise error when encrypted data exists but vault is locked
     """
     value = None
     numeric_value = None
 
+    # Check if data is encrypted and we need vault
+    has_encrypted_data = result.value_enc is not None or result.numeric_value_enc is not None
+    has_plaintext_data = result.value is not None or result.numeric_value is not None
+
     # Use per-user vault if user_id provided
-    if user_id:
+    if user_id and has_encrypted_data:
         vault_helper = get_vault_helper(user_id)
         if vault_helper.is_available:
             try:
@@ -44,7 +54,12 @@ def get_biomarker_value(result: TestResult, user_id: int = None) -> tuple:
                 if result.numeric_value_enc:
                     numeric_value = vault_helper.decrypt_number(result.numeric_value_enc)
             except Exception:
-                pass  # Fall back to legacy
+                # Decryption failed - check if we should raise or fall back
+                if raise_on_vault_required and not has_plaintext_data:
+                    raise VaultRequiredError("Vault decryption failed")
+        elif raise_on_vault_required and not has_plaintext_data:
+            # Vault not available and no plaintext fallback
+            raise VaultRequiredError("Vault is locked. Please log out and log back in.")
 
     # Fall back to legacy unencrypted fields
     if value is None:
@@ -117,7 +132,13 @@ def get_evolution(biomarker_name: str, db: Session = Depends(get_db), current_us
 
         if is_match:
             date_label = r.document.document_date.strftime("%Y-%m-%d") if r.document.document_date else "Unknown Date"
-            value, numeric_value = get_biomarker_value(r, current_user.id)
+            try:
+                value, numeric_value = get_biomarker_value(r, current_user.id, raise_on_vault_required=True)
+            except VaultRequiredError:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Your vault is locked. Please log out and log back in to view your data."
+                )
             data_points.append({
                 "date": date_label,
                 "value": numeric_value,
@@ -148,7 +169,13 @@ def get_all_biomarkers(db: Session = Depends(get_db), current_user: User = Depen
             canonical_name = r.canonical_name
         else:
             canonical_name, _ = normalize_biomarker_name(r.test_name)
-        value, numeric_value = get_biomarker_value(r, current_user.id)
+        try:
+            value, numeric_value = get_biomarker_value(r, current_user.id, raise_on_vault_required=True)
+        except VaultRequiredError:
+            raise HTTPException(
+                status_code=503,
+                detail="Your vault is locked. Please log out and log back in to view your data."
+            )
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,
@@ -192,7 +219,13 @@ def get_grouped_biomarkers(
             canonical_name = r.canonical_name
         else:
             canonical_name, _ = normalize_biomarker_name(r.test_name)
-        value, numeric_value = get_biomarker_value(r, current_user.id)
+        try:
+            value, numeric_value = get_biomarker_value(r, current_user.id, raise_on_vault_required=True)
+        except VaultRequiredError:
+            raise HTTPException(
+                status_code=503,
+                detail="Your vault is locked. Please log out and log back in to view your data."
+            )
         biomarkers.append({
             "id": r.id,
             "name": r.test_name,
@@ -256,7 +289,13 @@ def get_recent_biomarkers(db: Session = Depends(get_db), current_user: User = De
         canonical_name = get_canonical_name(r.test_name)
         if canonical_name not in seen_normalized and len(recent) < limit:
             seen_normalized.add(canonical_name)
-            value, numeric_value = get_biomarker_value(r, current_user.id)
+            try:
+                value, numeric_value = get_biomarker_value(r, current_user.id, raise_on_vault_required=True)
+            except VaultRequiredError:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Your vault is locked. Please log out and log back in to view your data."
+                )
             display_value = numeric_value if numeric_value else value
             recent.append({
                 "name": canonical_name,
