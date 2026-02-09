@@ -7,6 +7,9 @@ import secrets
 import datetime
 
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 try:
     from backend_v2.database import get_db
@@ -16,6 +19,7 @@ try:
     from backend_v2.services.email_service import get_email_service
     from backend_v2.services.audit_service import AuditService
     from backend_v2.services.user_vault import UserVault, set_user_vault_session, get_user_vault
+    from backend_v2.services.user_migration import setup_vault_for_legacy_user
 except ImportError:
     from database import get_db
     from models import User
@@ -24,6 +28,7 @@ except ImportError:
     from services.email_service import get_email_service
     from services.audit_service import AuditService
     from services.user_vault import UserVault, set_user_vault_session, get_user_vault
+    from services.user_migration import setup_vault_for_legacy_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -221,28 +226,62 @@ def login(
     # Reset rate limit on successful login
     reset_login_rate_limit(request)
 
-    # Unlock user's encryption vault
+    # Handle user's encryption vault
     vault_unlocked = False
+    recovery_key = None  # Only set for legacy users getting vault for first time
+    is_legacy_migration = False
+
     if user.vault_data:
+        # Existing vault - unlock it
         vault = UserVault(user.id)
         vault_data = json.loads(user.vault_data)
         vault_unlocked = vault.unlock_with_password(form_data.password, vault_data)
         if vault_unlocked:
             set_user_vault_session(user.id, vault)
+    else:
+        # Legacy user without vault - create one and migrate their data
+        try:
+            logger.info(f"Creating vault for legacy user {user.id}")
+            vault, recovery_key, migration_stats = setup_vault_for_legacy_user(
+                db, user, form_data.password
+            )
+            set_user_vault_session(user.id, vault)
+            vault_unlocked = True
+            is_legacy_migration = True
+            logger.info(f"Legacy migration completed for user {user.id}: {migration_stats}")
+        except Exception as e:
+            logger.error(f"Failed to create vault for legacy user {user.id}: {e}")
+            # Continue login even if vault creation fails
+            vault_unlocked = False
 
     # Log successful login
     audit.log_action(
         user_id=user.id,
         action="login",
         resource_type="session",
-        details={"email": user.email, "vault_unlocked": vault_unlocked},
+        details={
+            "email": user.email,
+            "vault_unlocked": vault_unlocked,
+            "legacy_migration": is_legacy_migration
+        },
         ip_address=ip_address,
         user_agent=user_agent,
         status="success"
     )
 
     access_token = create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer", "vault_unlocked": vault_unlocked}
+    response = {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "vault_unlocked": vault_unlocked
+    }
+
+    # Include recovery key for legacy users (they must save it!)
+    if recovery_key:
+        response["recovery_key"] = recovery_key
+        response["is_first_vault_setup"] = True
+
+    return response
 
 
 @router.post("/google", response_model=Token)

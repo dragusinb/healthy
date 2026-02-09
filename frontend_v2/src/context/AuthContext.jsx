@@ -65,6 +65,8 @@ export const AuthProvider = ({ children }) => {
         const res = await api.post('/auth/token', formData);
         localStorage.setItem('token', res.data.access_token);
         await checkUser();
+        // Return response data so caller can check for recovery_key (legacy user migration)
+        return res.data;
     };
 
     const register = async (email, password, acceptedTerms = false) => {

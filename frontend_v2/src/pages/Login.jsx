@@ -552,12 +552,19 @@ const Login = () => {
             }
         } else {
             try {
-                await login(email, password);
-                // Show vault unlock success briefly before navigating
-                setLoginSuccess(true);
-                setTimeout(() => {
-                    navigate('/');
-                }, 1500);
+                const result = await login(email, password);
+                // Check if this is a legacy user migration (recovery key returned)
+                if (result?.recovery_key) {
+                    setRecoveryKey(result.recovery_key);
+                    setLoading(false);
+                    // Don't navigate - wait for user to save recovery key
+                } else {
+                    // Show vault unlock success briefly before navigating
+                    setLoginSuccess(true);
+                    setTimeout(() => {
+                        navigate('/');
+                    }, 1500);
+                }
             } catch (err) {
                 setError(t('auth.invalidCredentials'));
                 setLoading(false);

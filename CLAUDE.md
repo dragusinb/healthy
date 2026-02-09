@@ -130,8 +130,8 @@
 - GDPR compliant
 - User owns their data
 
-#### Encryption Vault (IMPLEMENTED)
-**All sensitive data is encrypted with a master password using AES-256-GCM. Keys are held in memory only - lost on server restart.**
+#### Per-User Encryption Vault (IMPLEMENTED)
+**Each user's data is encrypted with their own password-derived key using AES-256-GCM. Admins cannot access user data.**
 
 **Encrypted data:**
 - Provider login credentials (Regina Maria, Synevo usernames/passwords)
@@ -141,41 +141,31 @@
 - User profile PII (name, DOB, gender, etc.)
 
 **Security model:**
-- Master password required after every server restart
-- PBKDF2 key derivation (600,000 iterations, SHA-256)
-- AES-256-GCM authenticated encryption
-- Unique nonce per encryption operation
-- No keys ever written to disk
+- Each user has their own vault key (random AES-256 key)
+- Vault key is encrypted with password-derived key (PBKDF2, 600,000 iterations)
+- Recovery key provided at registration (user must save - only shown once)
+- Password change re-encrypts vault key only (not all data)
+- Keys held in memory per session, cleared on logout
+- Legacy users migrated automatically on login
 
-**Vault Operations:**
+**User Vault Operations:**
+- Vault is created automatically on registration
+- Vault is unlocked automatically on login
+- Recovery key is shown once at registration (user must save)
+- Password reset requires recovery key for encrypted accounts
 
+**Admin Global Vault (legacy fallback):**
 ```bash
-# Initialize vault (first time only)
-curl -X POST https://analize.online/api/admin/vault/initialize \
-  -H "Content-Type: application/json" \
-  -d '{"master_password": "YOUR-16-CHAR-PASSWORD"}'
+# Check admin vault status
+curl https://analize.online/api/admin/vault/status
 
-# Unlock vault (after every server restart)
+# Unlock admin vault (for legacy data migration)
 curl -X POST https://analize.online/api/admin/vault/unlock \
   -H "Content-Type: application/json" \
   -d '{"master_password": "YOUR-16-CHAR-PASSWORD"}'
-
-# Check vault status
-curl https://analize.online/api/admin/vault/status
-
-# Lock vault (optional - clears keys from memory)
-curl -X POST https://analize.online/api/admin/vault/lock
 ```
 
-**When vault is locked:**
-- All encrypted data inaccessible (returns 503 error)
-- Sync jobs skip execution
-- Frontend shows vault unlock prompt
-- Admin panel shows vault status indicator
-
-**Recovery:** There is NO password recovery. If password is forgotten, all encrypted data is permanently lost.
-
-See `VAULT_IMPLEMENTATION.md` for detailed implementation notes.
+**Recovery:** Users who forget their password AND lose their recovery key will lose access to their encrypted data permanently.
 
 **Goal:** The system administrator (even with database access) should NOT be able to:
 - Read any user's medical documents
@@ -262,7 +252,7 @@ Healthy/
 
 | Issue | Priority | Notes |
 |-------|----------|-------|
-| Regina Maria headless CAPTCHA bypass | Low | Site detects headless mode despite extensive stealth. Fallback to visible browser works fine. Revisit when we have more time for advanced evasion techniques. |
+| None | - | All major issues resolved |
 
 ---
 
