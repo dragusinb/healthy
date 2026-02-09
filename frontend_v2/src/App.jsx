@@ -30,6 +30,7 @@ const Billing = lazy(() => import('./pages/Billing'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const JoinFamily = lazy(() => import('./pages/JoinFamily'));
+const Family = lazy(() => import('./pages/Family'));
 const Layout = lazy(() => import('./components/Layout'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -156,6 +157,9 @@ const App = () => {
                                 } />
                                 <Route path="/billing" element={
                                     <PrivateLayoutRoute><Billing /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/family" element={
+                                    <PrivateLayoutRoute><Family /></PrivateLayoutRoute>
                                 } />
 
                                 {/* Optional layout routes (show layout for logged-in users) */}

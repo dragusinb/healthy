@@ -11,15 +11,17 @@ import os
 try:
     from backend_v2.database import get_db
     from backend_v2.routers.documents import get_current_user
-    from backend_v2.models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember
+    from backend_v2.models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember, Document, TestResult, HealthReport
     from backend_v2.services.subscription_service import SubscriptionService, TIER_LIMITS, PRICING
     from backend_v2.services.netopia_service import get_netopia_service
+    from backend_v2.services.user_vault import get_user_vault
 except ImportError:
     from database import get_db
     from routers.documents import get_current_user
-    from models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember
+    from models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember, Document, TestResult, HealthReport
     from services.subscription_service import SubscriptionService, TIER_LIMITS, PRICING
     from services.netopia_service import get_netopia_service
+    from services.user_vault import get_user_vault
 
 router = APIRouter(prefix="/subscription", tags=["subscription"])
 
@@ -444,3 +446,504 @@ def remove_family_member(
     db.commit()
 
     return {"status": "success", "message": "Member removed"}
+
+
+# =============================================================================
+# Family Data Sharing Endpoints
+# =============================================================================
+
+def verify_family_access(db: Session, current_user: User, target_user_id: int) -> User:
+    """
+    Verify that current_user has family access to target_user_id's data.
+    Returns the target user if access is granted.
+    """
+    if current_user.id == target_user_id:
+        return current_user
+
+    # Get current user's family membership
+    current_membership = db.query(FamilyMember).filter(
+        FamilyMember.user_id == current_user.id
+    ).first()
+
+    if not current_membership:
+        raise HTTPException(status_code=403, detail="You are not in a family group")
+
+    # Check if target user is in the same family
+    target_membership = db.query(FamilyMember).filter(
+        FamilyMember.user_id == target_user_id,
+        FamilyMember.family_id == current_membership.family_id
+    ).first()
+
+    if not target_membership:
+        raise HTTPException(status_code=403, detail="User is not in your family group")
+
+    # Get target user
+    target_user = db.query(User).filter(User.id == target_user_id).first()
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return target_user
+
+
+def get_biomarker_value_for_family(result: TestResult, target_user_id: int) -> dict:
+    """
+    Get biomarker value for family viewing.
+    Returns value if available, or indicates if owner needs to be logged in.
+    """
+    value = None
+    numeric_value = None
+    values_available = False
+
+    # Try plaintext values first
+    if result.value is not None:
+        value = result.value
+        values_available = True
+    if result.numeric_value is not None:
+        numeric_value = result.numeric_value
+        values_available = True
+
+    # If no plaintext, try decrypting with owner's vault
+    if not values_available and (result.value_enc or result.numeric_value_enc):
+        user_vault = get_user_vault(target_user_id)
+        if user_vault and user_vault.is_unlocked:
+            try:
+                if result.value_enc:
+                    value = user_vault.decrypt_data(result.value_enc)
+                    values_available = True
+                if result.numeric_value_enc:
+                    numeric_value = user_vault.decrypt_number(result.numeric_value_enc)
+                    values_available = True
+            except Exception:
+                pass
+
+    return {
+        "value": value,
+        "numeric_value": numeric_value,
+        "values_available": values_available
+    }
+
+
+@router.get("/family/members-with-data")
+def get_family_members_with_data(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get list of family members with their data summary.
+    Shows document count, biomarker count, last activity.
+    """
+    # Get current user's family membership
+    membership = db.query(FamilyMember).filter(
+        FamilyMember.user_id == current_user.id
+    ).first()
+
+    if not membership:
+        return {"members": [], "has_family": False}
+
+    # Get all family members
+    family_members = db.query(FamilyMember).filter(
+        FamilyMember.family_id == membership.family_id
+    ).all()
+
+    members_data = []
+    for member in family_members:
+        user = member.user
+        if not user:
+            continue
+
+        # Get document count
+        doc_count = db.query(Document).filter(Document.user_id == user.id).count()
+
+        # Get biomarker count
+        doc_ids = [d.id for d in db.query(Document.id).filter(Document.user_id == user.id).all()]
+        biomarker_count = 0
+        if doc_ids:
+            biomarker_count = db.query(TestResult).filter(TestResult.document_id.in_(doc_ids)).count()
+
+        # Get last document date
+        last_doc = db.query(Document).filter(
+            Document.user_id == user.id
+        ).order_by(Document.document_date.desc()).first()
+
+        # Get alerts count (HIGH/LOW biomarkers)
+        alerts_count = 0
+        if doc_ids:
+            alerts_count = db.query(TestResult).filter(
+                TestResult.document_id.in_(doc_ids),
+                TestResult.flags.in_(["HIGH", "LOW"])
+            ).count()
+
+        members_data.append({
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": member.role,
+            "is_current_user": user.id == current_user.id,
+            "document_count": doc_count,
+            "biomarker_count": biomarker_count,
+            "alerts_count": alerts_count,
+            "last_activity": last_doc.document_date.isoformat() if last_doc and last_doc.document_date else None,
+            "vault_active": get_user_vault(user.id) is not None and get_user_vault(user.id).is_unlocked
+        })
+
+    return {
+        "members": members_data,
+        "has_family": True,
+        "family_name": membership.family.name if membership.family else None
+    }
+
+
+@router.get("/family/members/{user_id}/biomarkers")
+def get_family_member_biomarkers(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get biomarkers for a family member.
+    Shows all biomarker metadata, values shown if owner's vault is active.
+    """
+    target_user = verify_family_access(db, current_user, user_id)
+
+    # Get all documents for target user
+    doc_ids = [d.id for d in db.query(Document.id).filter(Document.user_id == user_id).all()]
+
+    if not doc_ids:
+        return {"biomarkers": [], "values_available": True, "owner_name": target_user.full_name or target_user.email}
+
+    # Get all biomarkers
+    results = db.query(TestResult).join(Document).filter(
+        TestResult.document_id.in_(doc_ids)
+    ).order_by(Document.document_date.desc()).all()
+
+    biomarkers = []
+    any_values_available = True
+
+    for result in results:
+        value_data = get_biomarker_value_for_family(result, user_id)
+        if not value_data["values_available"]:
+            any_values_available = False
+
+        biomarkers.append({
+            "id": result.id,
+            "test_name": result.test_name,
+            "canonical_name": result.canonical_name,
+            "value": value_data["value"],
+            "numeric_value": value_data["numeric_value"],
+            "unit": result.unit,
+            "reference_range": result.reference_range,
+            "flags": result.flags,
+            "category": result.category,
+            "document_date": result.document.document_date.isoformat() if result.document and result.document.document_date else None,
+            "values_available": value_data["values_available"]
+        })
+
+    return {
+        "biomarkers": biomarkers,
+        "values_available": any_values_available,
+        "owner_name": target_user.full_name or target_user.email,
+        "owner_vault_active": get_user_vault(user_id) is not None and get_user_vault(user_id).is_unlocked
+    }
+
+
+@router.get("/family/members/{user_id}/biomarkers-grouped")
+def get_family_member_biomarkers_grouped(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get biomarkers for a family member, grouped by category.
+    Shows latest value for each biomarker.
+    """
+    target_user = verify_family_access(db, current_user, user_id)
+
+    # Get all documents for target user, ordered by date
+    documents = db.query(Document).filter(
+        Document.user_id == user_id
+    ).order_by(Document.document_date.desc()).all()
+
+    doc_ids = [d.id for d in documents]
+
+    if not doc_ids:
+        return {"categories": [], "owner_name": target_user.full_name or target_user.email}
+
+    # Get all biomarkers
+    results = db.query(TestResult).filter(
+        TestResult.document_id.in_(doc_ids)
+    ).all()
+
+    # Group by canonical_name, keeping only latest
+    biomarker_map = {}
+    for result in results:
+        key = result.canonical_name or result.test_name
+        if key not in biomarker_map:
+            biomarker_map[key] = result
+        else:
+            # Keep the one with more recent document date
+            existing_doc = db.query(Document).filter(Document.id == biomarker_map[key].document_id).first()
+            current_doc = db.query(Document).filter(Document.id == result.document_id).first()
+            if current_doc and existing_doc:
+                if current_doc.document_date and existing_doc.document_date:
+                    if current_doc.document_date > existing_doc.document_date:
+                        biomarker_map[key] = result
+
+    # Group by category
+    categories = {}
+    for name, result in biomarker_map.items():
+        cat = result.category or "General"
+        if cat not in categories:
+            categories[cat] = []
+
+        value_data = get_biomarker_value_for_family(result, user_id)
+
+        categories[cat].append({
+            "id": result.id,
+            "test_name": result.test_name,
+            "canonical_name": result.canonical_name,
+            "value": value_data["value"],
+            "numeric_value": value_data["numeric_value"],
+            "unit": result.unit,
+            "reference_range": result.reference_range,
+            "flags": result.flags,
+            "document_date": result.document.document_date.isoformat() if result.document and result.document.document_date else None,
+            "values_available": value_data["values_available"]
+        })
+
+    # Sort categories and biomarkers
+    result_categories = []
+    for cat_name in sorted(categories.keys()):
+        biomarkers = sorted(categories[cat_name], key=lambda x: x["test_name"])
+        result_categories.append({
+            "name": cat_name,
+            "biomarkers": biomarkers,
+            "alerts_count": sum(1 for b in biomarkers if b["flags"] in ["HIGH", "LOW"])
+        })
+
+    return {
+        "categories": result_categories,
+        "owner_name": target_user.full_name or target_user.email,
+        "owner_vault_active": get_user_vault(user_id) is not None and get_user_vault(user_id).is_unlocked
+    }
+
+
+@router.get("/family/members/{user_id}/documents")
+def get_family_member_documents(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get documents for a family member.
+    Documents can be listed, but downloading requires owner's vault.
+    """
+    target_user = verify_family_access(db, current_user, user_id)
+
+    documents = db.query(Document).filter(
+        Document.user_id == user_id
+    ).order_by(Document.document_date.desc()).all()
+
+    docs_data = []
+    for doc in documents:
+        # Count biomarkers in document
+        biomarker_count = db.query(TestResult).filter(TestResult.document_id == doc.id).count()
+        alerts_count = db.query(TestResult).filter(
+            TestResult.document_id == doc.id,
+            TestResult.flags.in_(["HIGH", "LOW"])
+        ).count()
+
+        docs_data.append({
+            "id": doc.id,
+            "filename": doc.filename,
+            "provider": doc.provider,
+            "document_date": doc.document_date.isoformat() if doc.document_date else None,
+            "upload_date": doc.upload_date.isoformat() if doc.upload_date else None,
+            "is_processed": doc.is_processed,
+            "biomarker_count": biomarker_count,
+            "alerts_count": alerts_count,
+            "can_download": doc.file_path is not None or (
+                doc.encrypted_path is not None and
+                get_user_vault(user_id) is not None and
+                get_user_vault(user_id).is_unlocked
+            )
+        })
+
+    return {
+        "documents": docs_data,
+        "owner_name": target_user.full_name or target_user.email,
+        "owner_vault_active": get_user_vault(user_id) is not None and get_user_vault(user_id).is_unlocked
+    }
+
+
+@router.get("/family/members/{user_id}/reports")
+def get_family_member_reports(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get health reports for a family member.
+    """
+    target_user = verify_family_access(db, current_user, user_id)
+
+    reports = db.query(HealthReport).filter(
+        HealthReport.user_id == user_id
+    ).order_by(HealthReport.created_at.desc()).all()
+
+    reports_data = []
+    for report in reports:
+        # Try to get report content
+        summary = report.summary
+        findings = report.findings
+        recommendations = report.recommendations
+
+        # If encrypted, try to decrypt with owner's vault
+        if not summary and report.content_enc:
+            user_vault = get_user_vault(user_id)
+            if user_vault and user_vault.is_unlocked:
+                try:
+                    content = user_vault.decrypt_json(report.content_enc)
+                    summary = content.get("summary")
+                    findings = content.get("findings")
+                    recommendations = content.get("recommendations")
+                except Exception:
+                    pass
+
+        reports_data.append({
+            "id": report.id,
+            "report_type": report.report_type,
+            "created_at": report.created_at.isoformat() if report.created_at else None,
+            "summary": summary,
+            "findings": findings,
+            "recommendations": recommendations,
+            "has_content": summary is not None
+        })
+
+    return {
+        "reports": reports_data,
+        "owner_name": target_user.full_name or target_user.email,
+        "owner_vault_active": get_user_vault(user_id) is not None and get_user_vault(user_id).is_unlocked
+    }
+
+
+@router.get("/family/members/{user_id}/evolution/{biomarker_name}")
+def get_family_member_biomarker_evolution(
+    user_id: int,
+    biomarker_name: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get evolution data for a specific biomarker for a family member.
+    """
+    from urllib.parse import unquote
+    biomarker_name = unquote(biomarker_name)
+
+    target_user = verify_family_access(db, current_user, user_id)
+
+    # Get all documents for target user
+    doc_ids = [d.id for d in db.query(Document.id).filter(Document.user_id == user_id).all()]
+
+    if not doc_ids:
+        return {"data": [], "biomarker_name": biomarker_name, "owner_name": target_user.full_name or target_user.email}
+
+    # Get all results for this biomarker
+    results = db.query(TestResult).join(Document).filter(
+        TestResult.document_id.in_(doc_ids),
+        (TestResult.canonical_name == biomarker_name) | (TestResult.test_name == biomarker_name)
+    ).order_by(Document.document_date.asc()).all()
+
+    evolution_data = []
+    for result in results:
+        value_data = get_biomarker_value_for_family(result, user_id)
+
+        evolution_data.append({
+            "date": result.document.document_date.isoformat() if result.document and result.document.document_date else None,
+            "value": value_data["numeric_value"] or value_data["value"],
+            "unit": result.unit,
+            "reference_range": result.reference_range,
+            "flags": result.flags,
+            "values_available": value_data["values_available"]
+        })
+
+    return {
+        "data": evolution_data,
+        "biomarker_name": biomarker_name,
+        "owner_name": target_user.full_name or target_user.email,
+        "owner_vault_active": get_user_vault(user_id) is not None and get_user_vault(user_id).is_unlocked
+    }
+
+
+@router.get("/family/health-summary")
+def get_family_health_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get health summary for all family members.
+    Shows alerts and recent activity.
+    """
+    # Get current user's family membership
+    membership = db.query(FamilyMember).filter(
+        FamilyMember.user_id == current_user.id
+    ).first()
+
+    if not membership:
+        return {"summary": [], "has_family": False}
+
+    # Get all family members
+    family_members = db.query(FamilyMember).filter(
+        FamilyMember.family_id == membership.family_id
+    ).all()
+
+    summary = []
+    for member in family_members:
+        user = member.user
+        if not user:
+            continue
+
+        # Get document IDs
+        doc_ids = [d.id for d in db.query(Document.id).filter(Document.user_id == user.id).all()]
+
+        # Get alerts (HIGH/LOW)
+        alerts = []
+        if doc_ids:
+            alert_results = db.query(TestResult).join(Document).filter(
+                TestResult.document_id.in_(doc_ids),
+                TestResult.flags.in_(["HIGH", "LOW"])
+            ).order_by(Document.document_date.desc()).limit(5).all()
+
+            for result in alert_results:
+                value_data = get_biomarker_value_for_family(result, user.id)
+                alerts.append({
+                    "test_name": result.canonical_name or result.test_name,
+                    "value": value_data["value"],
+                    "unit": result.unit,
+                    "flags": result.flags,
+                    "date": result.document.document_date.isoformat() if result.document and result.document.document_date else None,
+                    "values_available": value_data["values_available"]
+                })
+
+        # Get latest report
+        latest_report = db.query(HealthReport).filter(
+            HealthReport.user_id == user.id
+        ).order_by(HealthReport.created_at.desc()).first()
+
+        summary.append({
+            "user_id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "role": member.role,
+            "is_current_user": user.id == current_user.id,
+            "alerts": alerts,
+            "alerts_count": len(alerts),
+            "latest_report_date": latest_report.created_at.isoformat() if latest_report else None,
+            "latest_report_type": latest_report.report_type if latest_report else None,
+            "vault_active": get_user_vault(user.id) is not None and get_user_vault(user.id).is_unlocked
+        })
+
+    return {
+        "summary": summary,
+        "has_family": True,
+        "family_name": membership.family.name if membership.family else None
+    }
