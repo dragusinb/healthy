@@ -17,7 +17,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        // Only logout on 401 (Unauthorized = token invalid/expired)
+        // Do NOT logout on 403 (Forbidden = authenticated but not authorized for this resource)
+        // Do NOT logout on 503 (Service Unavailable = vault locked, need to re-login)
+        if (error.response?.status === 401) {
             // Clear invalid token and redirect to login
             localStorage.removeItem('token');
             localStorage.removeItem('user');

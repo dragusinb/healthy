@@ -81,8 +81,14 @@ class VaultHelper:
             except Exception:
                 # May be encrypted with global vault, try that
                 if global_vault.is_unlocked:
-                    return global_vault.decrypt_data(ciphertext)
-                raise
+                    try:
+                        return global_vault.decrypt_data(ciphertext)
+                    except Exception:
+                        raise VaultLockedError("Data encryption key mismatch.")
+                else:
+                    raise VaultLockedError(
+                        "Data was encrypted with legacy encryption. Please log out and back in."
+                    )
         return global_vault.decrypt_data(ciphertext)
 
     # Credential encryption
@@ -110,11 +116,23 @@ class VaultHelper:
         if self._use_user_vault:
             try:
                 return self._user_vault.decrypt_bytes(ciphertext)
-            except Exception:
-                # May be encrypted with global vault
+            except Exception as user_vault_error:
+                # May be encrypted with global vault (legacy data)
                 if global_vault.is_unlocked:
-                    return global_vault.decrypt_document(ciphertext)
-                raise
+                    try:
+                        return global_vault.decrypt_document(ciphertext)
+                    except Exception:
+                        # Neither vault could decrypt it
+                        raise VaultLockedError(
+                            "Document encryption key mismatch. This document may need to be re-imported."
+                        )
+                else:
+                    # Global vault is locked and user vault failed
+                    # This likely means the data was encrypted with global vault
+                    raise VaultLockedError(
+                        "This document was encrypted with legacy encryption. "
+                        "Please contact support or try logging out and back in."
+                    )
         return global_vault.decrypt_document(ciphertext)
 
     # JSON encryption
@@ -134,8 +152,14 @@ class VaultHelper:
                 return self._user_vault.decrypt_json(ciphertext)
             except Exception:
                 if global_vault.is_unlocked:
-                    return global_vault.decrypt_json(ciphertext)
-                raise
+                    try:
+                        return global_vault.decrypt_json(ciphertext)
+                    except Exception:
+                        raise VaultLockedError("Data encryption key mismatch.")
+                else:
+                    raise VaultLockedError(
+                        "Data was encrypted with legacy encryption. Please log out and back in."
+                    )
         return global_vault.decrypt_json(ciphertext)
 
     # Number encryption

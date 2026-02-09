@@ -17,6 +17,7 @@ try:
     from backend_v2.services.ai_parser import AIParser
     from backend_v2.services.biomarker_normalizer import get_canonical_name
     from backend_v2.services.vault_helper import get_vault_helper
+    from backend_v2.services.vault import VaultLockedError
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.services.audit_service import AuditService
 except ImportError:
@@ -26,6 +27,7 @@ except ImportError:
     from services.ai_parser import AIParser
     from services.biomarker_normalizer import get_canonical_name
     from services.vault_helper import get_vault_helper
+    from services.vault import VaultLockedError
     from services.subscription_service import SubscriptionService
     from services.audit_service import AuditService
 
@@ -52,21 +54,28 @@ def read_document_content(doc: Document, user_id: int = None) -> bytes:
                 detail="Your vault is locked. Please log out and log back in."
             )
         # Security: Validate encrypted path belongs to user's encrypted directory
+        # The path should contain /encrypted/{user_id}/ pattern
         real_path = os.path.normpath(os.path.realpath(doc.encrypted_path))
-        user_encrypted_dir = os.path.normpath(os.path.realpath(f"data/encrypted/{user_id}"))
-        try:
-            common = os.path.commonpath([real_path, user_encrypted_dir])
-            if common != user_encrypted_dir:
-                import logging
-                logging.warning(f"Encrypted path traversal blocked: user={user_id}, path={doc.encrypted_path}")
-                raise HTTPException(status_code=403, detail="Access denied")
-        except ValueError:
+        expected_pattern = f"/encrypted/{user_id}/"
+        alt_pattern = f"\\encrypted\\{user_id}\\"  # Windows compatibility
+
+        if expected_pattern not in real_path and alt_pattern not in real_path:
             import logging
             logging.warning(f"Encrypted path traversal blocked: user={user_id}, path={doc.encrypted_path}")
             raise HTTPException(status_code=403, detail="Access denied")
 
-        encrypted_content = Path(doc.encrypted_path).read_bytes()
-        return vault_helper.decrypt_document(encrypted_content)
+        # Also verify the file exists
+        if not os.path.exists(real_path):
+            raise HTTPException(status_code=404, detail="Encrypted file not found")
+
+        encrypted_content = Path(real_path).read_bytes()
+        try:
+            return vault_helper.decrypt_document(encrypted_content)
+        except VaultLockedError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=str(e) or "Unable to decrypt document. Please log out and log back in."
+            )
     elif doc.file_path and os.path.exists(doc.file_path):
         return Path(doc.file_path).read_bytes()
     else:
