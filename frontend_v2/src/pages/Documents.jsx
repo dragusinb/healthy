@@ -96,7 +96,14 @@ const Documents = () => {
             window.open(url, '_blank');
         } catch (e) {
             console.error("Failed to download PDF", e);
-            setError(t('common.error'));
+            // Check for vault locked (503) error
+            if (e.response?.status === 503) {
+                setError(t('documents.vaultLocked'));
+            } else if (e.response?.data?.detail) {
+                setError(e.response.data.detail);
+            } else {
+                setError(t('common.error'));
+            }
         }
     };
 

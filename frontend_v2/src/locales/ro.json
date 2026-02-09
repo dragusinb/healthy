@@ -187,7 +187,8 @@
     "rescanSuccess": "S-au gasit nume de pacienti in {{count}} documente",
     "rescanNoUpdates": "Toate documentele au deja nume de pacienti",
     "totalDocuments": "Documente",
-    "totalBiomarkers": "Biomarkeri"
+    "totalBiomarkers": "Biomarkeri",
+    "vaultLocked": "Sistemul este temporar indisponibil. Contactati administratorul."
   },
   "biomarkers": {
     "title": "Biomarkeri",

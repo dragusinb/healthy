@@ -155,7 +155,8 @@
     "rescanSuccess": "Found patient names in {{count}} documents",
     "rescanNoUpdates": "All documents already have patient names",
     "totalDocuments": "Documents",
-    "totalBiomarkers": "Biomarkers"
+    "totalBiomarkers": "Biomarkers",
+    "vaultLocked": "System temporarily unavailable. Please contact administrator."
   },
   "biomarkers": {
     "title": "Biomarkers",
