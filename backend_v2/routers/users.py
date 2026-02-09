@@ -6,6 +6,9 @@ import datetime
 import json
 import hashlib
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_file_hash(file_path: str) -> str:
@@ -457,7 +460,7 @@ def scan_profile_from_documents(
                         text += page_text + "\n"
             return text
         except Exception as e:
-            print(f"Error extracting text from {file_path}: {e}")
+            logger.warning(f"Error extracting text from {file_path}: {e}")
             return ""
 
     # Collect document texts for batch processing
@@ -951,12 +954,12 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
                     db.commit()
                     count_processed += 1
                 elif "error" in parsed_data:
-                    print(f"AI parsing error for {doc_info['filename']}: {parsed_data['error']}")
+                    logger.warning(f"AI parsing error for {doc_info['filename']}: {parsed_data['error']}")
                     # Mark as processed but with no results to avoid re-processing
                     new_doc.is_processed = True
                     db.commit()
             except Exception as e:
-                print(f"Failed to parse {doc_info['filename']}: {e}")
+                logger.warning(f"Failed to parse {doc_info['filename']}: {e}")
                 # Mark document as processed to avoid re-processing loop
                 new_doc.is_processed = True
                 db.commit()

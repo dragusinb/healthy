@@ -169,7 +169,7 @@ const Layout = ({ children }) => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setMobileMenuOpen(true)}
-                            className="p-2 text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors -ml-1"
+                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors -ml-1"
                         >
                             <Menu size={22} />
                         </button>
@@ -178,15 +178,15 @@ const Layout = ({ children }) => {
                         </div>
                         <span className="font-bold text-slate-800">Analize.online</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                         <button
                             onClick={toggleLanguage}
-                            className="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors flex items-center gap-1"
+                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                         >
                             <Globe size={18} />
-                            <span className="text-xs font-medium">{i18n.language.toUpperCase()}</span>
+                            <span className="text-xs font-medium ml-1">{i18n.language.toUpperCase()}</span>
                         </button>
-                        <button onClick={handleLogout} className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                        <button onClick={handleLogout} className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
                             <LogOut size={18} />
                         </button>
                     </div>
@@ -201,7 +201,7 @@ const Layout = ({ children }) => {
                             onClick={closeMobileMenu}
                         />
                         {/* Drawer */}
-                        <aside className="absolute left-0 top-0 h-full w-72 bg-white shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
+                        <aside className="absolute left-0 top-0 h-full w-72 max-w-[calc(100vw-3rem)] bg-white shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
                             <div className="p-6 pb-4">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-3 text-primary-600">
@@ -212,7 +212,7 @@ const Layout = ({ children }) => {
                                     </div>
                                     <button
                                         onClick={closeMobileMenu}
-                                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                        className="min-h-11 min-w-11 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                     >
                                         <X size={20} />
                                     </button>
@@ -320,7 +320,7 @@ const Layout = ({ children }) => {
                                 )}
                                 <button
                                     onClick={dismissBanner}
-                                    className="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-100 rounded-lg transition-colors"
+                                    className="min-h-11 min-w-11 flex items-center justify-center text-amber-500 hover:text-amber-700 hover:bg-amber-100 rounded-lg transition-colors"
                                     title={t('common.close')}
                                 >
                                     <X size={18} />

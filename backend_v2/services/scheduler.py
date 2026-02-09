@@ -364,8 +364,8 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
                 sync_job.error_message = error_msg
                 sync_job.completed_at = datetime.utcnow()
             db.commit()
-        except:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to update sync job status in DB: {e}")
         sync_status.status_error(user_id, provider_name, error_msg, error_type)
     finally:
         db.close()

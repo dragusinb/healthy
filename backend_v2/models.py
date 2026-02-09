@@ -82,8 +82,8 @@ class LinkedAccount(Base):
     __tablename__ = "linked_accounts"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    provider_name = Column(String)  # "Regina Maria" or "Synevo"
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)  # Index for user queries
+    provider_name = Column(String, index=True)  # Index for provider queries
     username = Column(String, nullable=True)  # Legacy - will be removed after migration
     encrypted_password = Column(String, nullable=True)  # Legacy - will be removed after migration
     # Vault-encrypted fields
@@ -104,7 +104,7 @@ class Document(Base):
     __tablename__ = "documents"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)  # Index for user queries
     filename = Column(String)
     file_path = Column(String, nullable=True)  # Legacy path (unencrypted files)
     encrypted_path = Column(String, nullable=True)  # Path to vault-encrypted file
@@ -126,7 +126,7 @@ class TestResult(Base):
     __tablename__ = "test_results"
 
     id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(Integer, ForeignKey("documents.id"))
+    document_id = Column(Integer, ForeignKey("documents.id"), index=True)  # Index for document joins
     test_name = Column(String, index=True)  # Original name from lab report
     canonical_name = Column(String, index=True, nullable=True)  # Normalized name for grouping
     value = Column(String, nullable=True)  # Legacy - will be removed after migration

@@ -97,6 +97,7 @@ router = APIRouter(prefix="/documents", tags=["documents"])
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     from jose import jwt
+    from sqlalchemy.orm import joinedload
     try:
         from backend_v2.auth.security import SECRET_KEY, ALGORITHM
     except ImportError:
@@ -109,8 +110,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             raise HTTPException(status_code=401, detail="Invalid credentials")
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-        
-    user = db.query(User).filter(User.email == email).first()
+
+    # Eager load linked_accounts to avoid N+1 queries in /users/me endpoint
+    user = db.query(User).options(
+        joinedload(User.linked_accounts)
+    ).filter(User.email == email).first()
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
     return user
