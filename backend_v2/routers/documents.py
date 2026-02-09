@@ -5,6 +5,7 @@ from typing import List, Optional
 import shutil
 import os
 import datetime
+import logging
 
 from pathlib import Path
 from io import BytesIO
@@ -476,7 +477,7 @@ def process_document(doc_id: int, db: Session):
             for page in pdf.pages:
                 full_text += (page.extract_text() or "") + "\n"
     except Exception as e:
-        print(f"Error reading PDF: {e}")
+        logging.error(f"Error reading PDF for document {doc.id}: {e}")
         return
 
     # AI Parse
@@ -650,14 +651,14 @@ def delete_document(
         try:
             os.remove(doc.file_path)
         except Exception as e:
-            print(f"Warning: Could not delete file {doc.file_path}: {e}")
+            logging.warning(f"Could not delete file {doc.file_path}: {e}")
 
     # Delete encrypted file if exists
     if doc.encrypted_path and os.path.exists(doc.encrypted_path):
         try:
             os.remove(doc.encrypted_path)
         except Exception as e:
-            print(f"Warning: Could not delete encrypted file {doc.encrypted_path}: {e}")
+            logging.warning(f"Could not delete encrypted file {doc.encrypted_path}: {e}")
 
     # Delete the document record
     db.delete(doc)

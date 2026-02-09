@@ -73,22 +73,22 @@ const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t })
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="error-modal-title">
                 <div className="p-6">
                     <div className="flex items-start gap-4">
                         <div className={cn("p-3 rounded-xl border", colorClasses[errorConfig.color])}>
-                            <Icon size={24} />
+                            <Icon size={24} aria-hidden="true" />
                         </div>
                         <div className="flex-1">
-                            <h2 className="text-xl font-bold text-slate-800 mb-1">
+                            <h2 id="error-modal-title" className="text-xl font-bold text-slate-800 mb-1">
                                 {t(errorConfig.titleKey) || 'Connection Problem'}
                             </h2>
                             <p className="text-sm text-slate-500 mb-2">
                                 {account.provider_name}
                             </p>
                         </div>
-                        <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg">
-                            <X size={20} className="text-slate-400" />
+                        <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg" aria-label={t('common.close')}>
+                            <X size={20} className="text-slate-400" aria-hidden="true" />
                         </button>
                     </div>
 
@@ -254,8 +254,9 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                         ) : (
                             <form onSubmit={(e) => { e.preventDefault(); onLink(name, creds); setIsEditing(false); }} className="space-y-4 animate-in slide-in-from-top-2">
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.username')}</label>
+                                    <label htmlFor="edit-username" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.username')}</label>
                                     <input
+                                        id="edit-username"
                                         type="text"
                                         className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                                         value={creds.username}
@@ -264,8 +265,9 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.newPassword')}</label>
+                                    <label htmlFor="edit-password" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.newPassword')}</label>
                                     <input
+                                        id="edit-password"
                                         type="password"
                                         className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                                         value={creds.password}
@@ -308,8 +310,9 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-4 animate-in slide-in-from-top-2">
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.username')}</label>
+                                    <label htmlFor="link-username" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.username')}</label>
                                     <input
+                                        id="link-username"
                                         type="text"
                                         className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                                         value={creds.username}
@@ -318,8 +321,9 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.password')}</label>
+                                    <label htmlFor="link-password" className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">{t('linkedAccounts.password')}</label>
                                     <input
+                                        id="link-password"
                                         type="password"
                                         className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
                                         value={creds.password}
