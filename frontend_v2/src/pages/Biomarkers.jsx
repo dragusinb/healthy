@@ -80,7 +80,7 @@ function categorize(biomarkerName) {
     return 'other';
 }
 
-const openPdf = async (documentId, e) => {
+const openPdf = async (documentId, e, errorMessage) => {
     if (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -109,9 +109,9 @@ const openPdf = async (documentId, e) => {
         } else {
             window.open(url, '_blank');
         }
-    } catch (e) {
-        console.error('Failed to open PDF:', e);
-        alert('Nu s-a putut deschide PDF-ul. Încercați din nou.');
+    } catch (err) {
+        console.error('Failed to open PDF:', err);
+        alert(errorMessage || 'Could not open PDF. Please try again.');
     }
 };
 
@@ -195,7 +195,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                 <div className="col-span-1 text-center">
                     {latest.document_id && (
                         <button
-                            onClick={(e) => openPdf(latest.document_id, e)}
+                            onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'))}
                             className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             title={t('documents.viewPdf')}
                         >
@@ -269,7 +269,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     <div className="flex items-center gap-2 flex-shrink-0">
                         {latest.document_id && (
                             <button
-                                onClick={(e) => openPdf(latest.document_id, e)}
+                                onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'))}
                                 className="p-2 text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
                                 title={t('documents.viewPdf')}
                             >
@@ -312,7 +312,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     <div className="col-span-1 text-center">
                         {bio.document_id && (
                             <button
-                                onClick={(e) => openPdf(bio.document_id, e)}
+                                onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'))}
                                 className="inline-flex items-center justify-center p-1 text-slate-400 hover:text-primary-600 rounded transition-colors"
                             >
                                 <Eye size={12} />
@@ -361,7 +361,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         <div className="flex items-center gap-2 flex-shrink-0">
                             {bio.document_id && (
                                 <button
-                                    onClick={(e) => openPdf(bio.document_id, e)}
+                                    onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'))}
                                     className="p-1.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
                                 >
                                     <Eye size={14} />

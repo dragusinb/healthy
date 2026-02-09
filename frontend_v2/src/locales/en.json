@@ -131,6 +131,7 @@
     "processed": "Done",
     "pending": "Pending",
     "viewPdf": "View PDF",
+    "pdfOpenError": "Could not open PDF. Please try again.",
     "viewBiomarkers": "View Biomarkers",
     "deleteDocument": "Delete Document",
     "deleteConfirmTitle": "Delete Document?",

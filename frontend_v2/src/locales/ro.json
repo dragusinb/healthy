@@ -163,6 +163,7 @@
     "processed": "Finalizat",
     "pending": "In asteptare",
     "viewPdf": "Vezi PDF",
+    "pdfOpenError": "Nu s-a putut deschide PDF-ul. Incercati din nou.",
     "viewBiomarkers": "Vezi Biomarkeri",
     "deleteDocument": "Sterge Document",
     "deleteConfirmTitle": "Stergi Documentul?",
