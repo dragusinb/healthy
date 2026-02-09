@@ -885,22 +885,48 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
             if existing_doc:
                 continue
 
-            # Create Document with file_hash
+            # Create Document with file_hash and encrypt with user vault
             try:
+                # Read the downloaded file
+                from pathlib import Path
+                pdf_content = Path(doc_info["local_path"]).read_bytes()
+
+                # Encrypt with user vault
+                encrypted_content = vault_helper.encrypt_document(pdf_content)
+
+                # Save encrypted file
+                encrypted_dir = Path("data/encrypted") / str(user_id)
+                encrypted_dir.mkdir(parents=True, exist_ok=True)
+
+                # Create document first to get ID
                 new_doc = Document(
                     user_id=user_id,
                     filename=doc_info["filename"],
-                    file_path=doc_info["local_path"],
                     file_hash=file_hash,
                     provider=provider_name,
                     document_date=doc_info["date"],
                     upload_date=datetime.datetime.now(),
-                    is_processed=False
+                    is_processed=False,
+                    is_encrypted=True
                 )
                 db.add(new_doc)
                 db.commit()
                 db.refresh(new_doc)
+
+                # Save encrypted content with document ID
+                encrypted_path = encrypted_dir / f"{new_doc.id}.enc"
+                encrypted_path.write_bytes(encrypted_content)
+                new_doc.encrypted_path = str(encrypted_path)
+                db.commit()
+
+                # Delete unencrypted file
+                try:
+                    os.remove(doc_info["local_path"])
+                except Exception:
+                    pass  # Ignore if delete fails
+
             except Exception as e:
+                logger.warning(f"Failed to create document {doc_info['filename']}: {e}")
                 continue
 
             # AI Parse
@@ -958,9 +984,24 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
                 new_doc.is_processed = True
                 db.commit()
 
+        # Update linked account status to success
+        account.status = "ACTIVE"
+        account.last_sync = datetime.datetime.now()
+        account.last_sync_error = None
+        account.consecutive_failures = 0
+        db.commit()
+
         sync_status.status_complete(user_id, provider_name, count_processed)
 
     except Exception as e:
+        # Update linked account status to error
+        try:
+            account.status = "ERROR"
+            account.last_sync_error = str(e)[:500]  # Truncate long errors
+            account.consecutive_failures += 1
+            db.commit()
+        except Exception:
+            pass
         sync_status.status_error(user_id, provider_name, str(e))
     finally:
         db.close()
