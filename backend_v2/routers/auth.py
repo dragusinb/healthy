@@ -625,13 +625,32 @@ class ChangePasswordRequest(BaseModel):
 def change_password(
     data: ChangePasswordRequest,
     request: Request,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(lambda db=Depends(get_db): None)  # Will be replaced with get_current_user
+    db: Session = Depends(get_db)
 ):
     """Change password for logged-in user. Re-encrypts vault key with new password."""
-    # Get current user from token
-    from backend_v2.auth.security import get_current_user
-    current_user = get_current_user(db, request.headers.get("Authorization", "").replace("Bearer ", ""))
+    from jose import jwt
+    try:
+        from backend_v2.auth.security import SECRET_KEY, ALGORITHM
+    except ImportError:
+        from auth.security import SECRET_KEY, ALGORITHM
+
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    token = auth_header.replace("Bearer ", "")
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    current_user = db.query(User).filter(User.email == email).first()
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="User not found")
 
     audit = AuditService(db)
     ip_address = request.client.host if request.client else None
@@ -709,14 +728,29 @@ def setup_password(
 
     After this, the user can login with either Google or email+password.
     """
-    from backend_v2.auth.security import get_current_user
+    from jose import jwt
+    try:
+        from backend_v2.auth.security import SECRET_KEY, ALGORITHM
+    except ImportError:
+        from auth.security import SECRET_KEY, ALGORITHM
 
     auth_header = request.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     token = auth_header.replace("Bearer ", "")
-    current_user = get_current_user(db, token)
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    current_user = db.query(User).filter(User.email == email).first()
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="User not found")
 
     audit = AuditService(db)
     ip_address = request.client.host if request.client else None
