@@ -13,13 +13,13 @@ try:
     from backend_v2.models import User, Subscription
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.services.netopia_service import get_netopia_service
-    from backend_v2.auth.security import get_current_user
+    from backend_v2.routers.documents import get_current_user
 except ImportError:
     from database import get_db
     from models import User, Subscription
     from services.subscription_service import SubscriptionService
     from services.netopia_service import get_netopia_service
-    from auth.security import get_current_user
+    from routers.documents import get_current_user
 
 # Check if we're in production mode (strict by default)
 IS_PRODUCTION = os.getenv("ENVIRONMENT", "production") == "production"
