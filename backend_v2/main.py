@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import sys
 import asyncio
+import logging
 
 # Fix for Windows Python 3.8+ subprocess in asyncio
 if sys.platform == "win32":
@@ -117,13 +118,17 @@ def health_check():
 
     # Check database connectivity
     try:
-        from backend_v2.database import SessionLocal
-        db = SessionLocal()
+        try:
+            from backend_v2.database import SessionLocal as HealthSessionLocal
+        except ImportError:
+            from database import SessionLocal as HealthSessionLocal
+        db = HealthSessionLocal()
         db.execute("SELECT 1")
         db.close()
         checks["database"] = {"status": "ok", "message": "Connected"}
     except Exception as e:
-        checks["database"] = {"status": "error", "message": str(e)[:100]}
+        logging.error(f"Health check database error: {e}")
+        checks["database"] = {"status": "error", "message": "Database connection failed"}
         issues.append("database")
 
     # Check disk space
@@ -138,7 +143,8 @@ def health_check():
         else:
             checks["disk"] = {"status": "ok", "percent_used": disk_percent}
     except Exception as e:
-        checks["disk"] = {"status": "error", "message": str(e)[:100]}
+        logging.error(f"Health check disk error: {e}")
+        checks["disk"] = {"status": "error", "message": "Disk check failed"}
 
     # Check memory
     try:
@@ -152,11 +158,15 @@ def health_check():
         else:
             checks["memory"] = {"status": "ok", "percent_used": mem_percent}
     except Exception as e:
-        checks["memory"] = {"status": "error", "message": str(e)[:100]}
+        logging.error(f"Health check memory error: {e}")
+        checks["memory"] = {"status": "error", "message": "Memory check failed"}
 
     # Check vault status
     try:
-        from backend_v2.services.vault import vault
+        try:
+            from backend_v2.services.vault import vault
+        except ImportError:
+            from services.vault import vault
         checks["vault"] = {
             "status": "ok" if vault.is_unlocked else "locked",
             "is_configured": vault.is_configured,
@@ -165,7 +175,8 @@ def health_check():
         if not vault.is_unlocked:
             issues.append("vault_locked")
     except Exception as e:
-        checks["vault"] = {"status": "error", "message": str(e)[:100]}
+        logging.error(f"Health check vault error: {e}")
+        checks["vault"] = {"status": "error", "message": "Vault check failed"}
 
     # Determine overall status
     if any("critical" in i or i == "database" for i in issues):
@@ -228,10 +239,14 @@ def metrics():
 
     # Database metrics
     try:
-        from backend_v2.database import SessionLocal
-        from backend_v2.models import User, Document, TestResult, HealthReport, LinkedAccount
+        try:
+            from backend_v2.database import SessionLocal as MetricsSessionLocal
+            from backend_v2.models import User, Document, TestResult, HealthReport, LinkedAccount
+        except ImportError:
+            from database import SessionLocal as MetricsSessionLocal
+            from models import User, Document, TestResult, HealthReport, LinkedAccount
 
-        db = SessionLocal()
+        db = MetricsSessionLocal()
         user_count = db.query(User).count()
         doc_count = db.query(Document).count()
         biomarker_count = db.query(TestResult).count()
@@ -263,10 +278,13 @@ def metrics():
 
     # Vault status
     try:
-        from backend_v2.services.vault import vault
+        try:
+            from backend_v2.services.vault import vault as metrics_vault
+        except ImportError:
+            from services.vault import vault as metrics_vault
         lines.append(f"# HELP healthy_vault_unlocked Vault unlock status (1=unlocked, 0=locked)")
         lines.append(f"# TYPE healthy_vault_unlocked gauge")
-        lines.append(f"healthy_vault_unlocked {1 if vault.is_unlocked else 0}")
+        lines.append(f"healthy_vault_unlocked {1 if metrics_vault.is_unlocked else 0}")
     except Exception:
         pass
 

@@ -473,11 +473,21 @@ def process_document(doc_id: int, db: Session):
     # Get user's vault helper
     vault_helper = get_vault_helper(doc.user_id)
 
-    # Read text (simplified, assuming PDF)
+    # Read PDF content - handle both encrypted and unencrypted
     import pdfplumber
     full_text = ""
     try:
-        with pdfplumber.open(doc.file_path) as pdf:
+        # Try to read content (handles encryption if needed)
+        if doc.is_encrypted and doc.encrypted_path:
+            content = read_document_content(doc, doc.user_id)
+            pdf_file = BytesIO(content)
+        elif doc.file_path and os.path.exists(doc.file_path):
+            pdf_file = doc.file_path
+        else:
+            logging.error(f"No valid file path for document {doc.id}")
+            return
+
+        with pdfplumber.open(pdf_file) as pdf:
             for page in pdf.pages:
                 full_text += (page.extract_text() or "") + "\n"
     except Exception as e:

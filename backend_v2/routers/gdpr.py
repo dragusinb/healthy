@@ -20,7 +20,9 @@ try:
     from backend_v2.routers.documents import get_current_user
     from backend_v2.models import (
         User, Document, TestResult, HealthReport, LinkedAccount,
-        Subscription, UsageTracker, FamilyGroup, FamilyMember
+        Subscription, UsageTracker, FamilyGroup, FamilyMember,
+        AuditLog, UserSession, SyncJob, Notification, NotificationPreference,
+        PushSubscription, AbuseFlag, UsageMetrics, OpenAIUsageLog
     )
     from backend_v2.services.user_vault import get_user_vault
 except ImportError:
@@ -28,7 +30,9 @@ except ImportError:
     from routers.documents import get_current_user
     from models import (
         User, Document, TestResult, HealthReport, LinkedAccount,
-        Subscription, UsageTracker, FamilyGroup, FamilyMember
+        Subscription, UsageTracker, FamilyGroup, FamilyMember,
+        AuditLog, UserSession, SyncJob, Notification, NotificationPreference,
+        PushSubscription, AbuseFlag, UsageMetrics, OpenAIUsageLog
     )
     from services.user_vault import get_user_vault
 
@@ -390,7 +394,18 @@ async def delete_user_account(
             except Exception as e:
                 logger.warning(f"Could not delete encrypted directory: {e}")
 
-        # 10. Finally, delete the user
+        # 10. Delete audit logs, sessions, and other user-related records
+        db.query(AuditLog).filter(AuditLog.user_id == user_id).delete()
+        db.query(UserSession).filter(UserSession.user_id == user_id).delete()
+        db.query(SyncJob).filter(SyncJob.user_id == user_id).delete()
+        db.query(Notification).filter(Notification.user_id == user_id).delete()
+        db.query(NotificationPreference).filter(NotificationPreference.user_id == user_id).delete()
+        db.query(PushSubscription).filter(PushSubscription.user_id == user_id).delete()
+        db.query(AbuseFlag).filter(AbuseFlag.user_id == user_id).delete()
+        db.query(UsageMetrics).filter(UsageMetrics.user_id == user_id).delete()
+        db.query(OpenAIUsageLog).filter(OpenAIUsageLog.user_id == user_id).delete()
+
+        # 11. Finally, delete the user
         db.query(User).filter(User.id == user_id).delete()
 
         db.commit()

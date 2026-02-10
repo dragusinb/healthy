@@ -54,14 +54,29 @@ def require_admin(current_user: User = Depends(get_current_user)) -> User:
     return current_user
 
 
-@router.get("/status", response_model=VaultStatusResponse)
-async def get_vault_status():
-    """
-    Check the current status of the vault.
+class VaultReadyResponse(BaseModel):
+    ready: bool
 
-    Returns whether the vault is configured and unlocked.
+
+@router.get("/status")
+async def get_vault_status_public() -> VaultReadyResponse:
+    """
+    Check if the system is ready for login.
+
+    Returns minimal info - just whether the vault is ready.
     This endpoint is public (no auth required) so the frontend
     can show the unlock page when needed.
+    """
+    is_ready = vault.is_configured and vault.is_unlocked
+    return VaultReadyResponse(ready=is_ready)
+
+
+@router.get("/status/detailed", response_model=VaultStatusResponse)
+async def get_vault_status_detailed(current_user: User = Depends(require_admin)):
+    """
+    Get detailed vault status. Requires admin authentication.
+
+    Returns whether the vault is configured and unlocked with a descriptive message.
     """
     is_configured = vault.is_configured
     is_unlocked = vault.is_unlocked
