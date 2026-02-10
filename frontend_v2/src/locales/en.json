@@ -619,7 +619,21 @@
       "analysis_complete": "Analysis complete",
       "sync_failed": "Sync failed",
       "reminder": "Reminder"
-    }
+    },
+    "pushSettings": "Push Notifications",
+    "pushSettingsDesc": "Receive instant notifications in your browser",
+    "enablePush": "Enable Push Notifications",
+    "enablePushDesc": "Get instant alerts when new results are available",
+    "pushBlocked": "Notifications are blocked. Enable in browser settings.",
+    "pushDenied": "Notification permission denied. Please enable in browser settings.",
+    "pushNotConfigured": "Push notifications not available on this server.",
+    "pushFailed": "Failed to enable push notifications.",
+    "pushEnabled": "Push Notifications Enabled",
+    "pushEnabledDesc": "You will receive instant notifications",
+    "enable": "Enable",
+    "disable": "Disable",
+    "test": "Test",
+    "registeredDevices": "Registered Devices"
   },
   "subscription": {
     "usage": "Usage",

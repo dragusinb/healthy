@@ -670,7 +670,21 @@
       "analysis_complete": "Analiza completa",
       "sync_failed": "Sincronizare esuata",
       "reminder": "Memento"
-    }
+    },
+    "pushSettings": "Notificari Push",
+    "pushSettingsDesc": "Primeste notificari instant in browser",
+    "enablePush": "Activeaza Notificarile Push",
+    "enablePushDesc": "Primeste alerte instant cand sunt disponibile rezultate noi",
+    "pushBlocked": "Notificarile sunt blocate. Activeaza-le din setarile browser-ului.",
+    "pushDenied": "Permisiunea pentru notificari a fost refuzata. Activeaza din setarile browser-ului.",
+    "pushNotConfigured": "Notificarile push nu sunt disponibile pe acest server.",
+    "pushFailed": "Activarea notificarilor push a esuat.",
+    "pushEnabled": "Notificari Push Activate",
+    "pushEnabledDesc": "Vei primi notificari instant",
+    "enable": "Activeaza",
+    "disable": "Dezactiveaza",
+    "test": "Testeaza",
+    "registeredDevices": "Dispozitive Inregistrate"
   },
   "subscription": {
     "usage": "Utilizare",
