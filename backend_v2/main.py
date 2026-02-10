@@ -122,8 +122,9 @@ def health_check():
             from backend_v2.database import SessionLocal as HealthSessionLocal
         except ImportError:
             from database import SessionLocal as HealthSessionLocal
+        from sqlalchemy import text
         db = HealthSessionLocal()
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         db.close()
         checks["database"] = {"status": "ok", "message": "Connected"}
     except Exception as e:
