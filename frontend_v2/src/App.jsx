@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
+import { AnalysisProvider } from './context/AnalysisContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageLoader from './components/PageLoader';
 import CookieConsent from './components/CookieConsent';
@@ -111,6 +112,7 @@ const App = () => {
         <ErrorBoundary>
             <AuthProvider>
                 <SubscriptionProvider>
+                    <AnalysisProvider>
                     <Router>
                         <CookieConsent />
                         <Suspense fallback={<PageLoader />}>
@@ -175,6 +177,7 @@ const App = () => {
                             </Routes>
                         </Suspense>
                     </Router>
+                    </AnalysisProvider>
                 </SubscriptionProvider>
             </AuthProvider>
         </ErrorBoundary>

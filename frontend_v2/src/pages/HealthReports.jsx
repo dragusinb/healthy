@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
+import { useAnalysis } from '../context/AnalysisContext';
 import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
@@ -31,16 +32,6 @@ const RISK_COLORS = {
     'slightly low': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Clock },
 };
 
-// Analysis steps - labels will be translated in component
-const ANALYSIS_STEPS = [
-    { key: 'loading', duration: 800 },
-    { key: 'analyzing', duration: 1500 },
-    { key: 'general', duration: 4000 },
-    { key: 'specialists', duration: 8000 },
-    { key: 'compiling', duration: 3000 },
-    { key: 'finishing', duration: 1500 },
-];
-
 const openPdf = async (documentId) => {
     try {
         const token = localStorage.getItem('token');
@@ -59,6 +50,15 @@ const openPdf = async (documentId) => {
 
 const HealthReports = () => {
     const { t } = useTranslation();
+    const {
+        healthAnalyzing: analyzing,
+        healthStep: analysisStep,
+        healthError: contextError,
+        healthSteps: ANALYSIS_STEPS,
+        startHealthAnalysis,
+        registerHealthCallback,
+        clearHealthError
+    } = useAnalysis();
 
     // Get translated step labels
     const getStepLabel = (key) => {
@@ -77,8 +77,6 @@ const HealthReports = () => {
     const [reports, setReports] = useState([]);
     const [biomarkers, setBiomarkers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [analyzing, setAnalyzing] = useState(false);
-    const [analysisStep, setAnalysisStep] = useState(0);
     const [error, setError] = useState(null);
     const [selectedReport, setSelectedReport] = useState(null);
     const [reportHistory, setReportHistory] = useState([]);
@@ -87,37 +85,27 @@ const HealthReports = () => {
     const [comparisonData, setComparisonData] = useState(null);
     const [showHistory, setShowHistory] = useState(false);
 
-    useEffect(() => {
-        fetchData();
+    // Handle analysis completion callback
+    const handleAnalysisComplete = useCallback((err, result) => {
+        if (err) {
+            setError(err);
+        } else {
+            fetchData();
+        }
     }, []);
 
-    // Simulate progress steps during analysis
     useEffect(() => {
-        if (!analyzing) {
-            setAnalysisStep(0);
-            return;
+        fetchData();
+        // Register callback for when analysis completes (in case we navigated away and back)
+        registerHealthCallback(handleAnalysisComplete);
+    }, [registerHealthCallback, handleAnalysisComplete]);
+
+    // Sync context error to local error
+    useEffect(() => {
+        if (contextError) {
+            setError(contextError);
         }
-
-        let currentStep = 0;
-        let cancelled = false;
-        let timeoutId = null;
-
-        const runSteps = () => {
-            if (cancelled) return;
-            if (currentStep < ANALYSIS_STEPS.length) {
-                setAnalysisStep(currentStep);
-                const delay = ANALYSIS_STEPS[currentStep].duration;
-                currentStep++;
-                timeoutId = setTimeout(runSteps, delay);
-            }
-        };
-        runSteps();
-
-        return () => {
-            cancelled = true;
-            if (timeoutId) clearTimeout(timeoutId);
-        };
-    }, [analyzing]);
+    }, [contextError]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -205,16 +193,13 @@ const HealthReports = () => {
     };
 
     const runAnalysis = async () => {
-        setAnalyzing(true);
         setError(null);
+        clearHealthError();
         try {
-            await api.post('/health/analyze');
-            await fetchData();
+            await startHealthAnalysis(handleAnalysisComplete);
         } catch (e) {
+            // Error is handled by the callback
             console.error("Analysis failed", e);
-            setError(e.response?.data?.detail || "Analysis failed. Please try again.");
-        } finally {
-            setAnalyzing(false);
         }
     };
 

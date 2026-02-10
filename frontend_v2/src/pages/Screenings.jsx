@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
+import { useAnalysis } from '../context/AnalysisContext';
 import {
     ClipboardList, Sparkles, Calendar, Clock, Loader2, AlertTriangle,
     CheckCircle, ChevronRight, ArrowLeft, RefreshCw, Heart, Activity,
@@ -18,15 +19,43 @@ const CATEGORY_ICONS = {
 
 const Screenings = () => {
     const { t } = useTranslation();
+    const {
+        screeningsAnalyzing: analyzing,
+        screeningsError: contextError,
+        startScreeningsAnalysis,
+        registerScreeningsCallback,
+        clearScreeningsError
+    } = useAnalysis();
+
     const [gapAnalysis, setGapAnalysis] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [analyzing, setAnalyzing] = useState(false);
     const [error, setError] = useState(null);
     const [profile, setProfile] = useState(null);
 
+    // Handle analysis completion callback
+    const handleAnalysisComplete = useCallback((err, result) => {
+        if (err) {
+            setError(err);
+        } else if (result?.data) {
+            setGapAnalysis({
+                ...result.data.analysis,
+                created_at: result.data.analyzed_at
+            });
+        }
+    }, []);
+
     useEffect(() => {
         fetchData();
-    }, []);
+        // Register callback for when analysis completes (in case we navigated away and back)
+        registerScreeningsCallback(handleAnalysisComplete);
+    }, [registerScreeningsCallback, handleAnalysisComplete]);
+
+    // Sync context error to local error
+    useEffect(() => {
+        if (contextError) {
+            setError(contextError);
+        }
+    }, [contextError]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -54,19 +83,13 @@ const Screenings = () => {
     };
 
     const runGapAnalysis = async () => {
-        setAnalyzing(true);
         setError(null);
+        clearScreeningsError();
         try {
-            const res = await api.post('/health/gap-analysis');
-            setGapAnalysis({
-                ...res.data.analysis,
-                created_at: res.data.analyzed_at
-            });
+            await startScreeningsAnalysis(handleAnalysisComplete);
         } catch (e) {
+            // Error is handled by the callback
             console.error("Gap analysis failed", e);
-            setError(e.response?.data?.detail || "Analysis failed. Please try again.");
-        } finally {
-            setAnalyzing(false);
         }
     };
 
