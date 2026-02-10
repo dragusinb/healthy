@@ -15,7 +15,7 @@ try:
     from backend_v2.database import get_db
     from backend_v2.models import User
     from backend_v2.auth.security import verify_password, get_password_hash, create_access_token
-    from backend_v2.auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit
+    from backend_v2.auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit, check_password_reset_rate_limit
     from backend_v2.services.email_service import get_email_service
     from backend_v2.services.audit_service import AuditService
     from backend_v2.services.user_vault import UserVault, set_user_vault_session, get_user_vault
@@ -24,7 +24,7 @@ except ImportError:
     from database import get_db
     from models import User
     from auth.security import verify_password, get_password_hash, create_access_token
-    from auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit
+    from auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit, check_password_reset_rate_limit
     from services.email_service import get_email_service
     from services.audit_service import AuditService
     from services.user_vault import UserVault, set_user_vault_session, get_user_vault
@@ -481,8 +481,10 @@ def resend_verification(
 @router.post("/forgot-password")
 def forgot_password(
     data: PasswordResetRequest,
+    request: Request,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: None = Depends(check_password_reset_rate_limit)
 ):
     """Request password reset email."""
     user = db.query(User).filter(User.email == data.email).first()
@@ -511,7 +513,12 @@ def forgot_password(
 
 
 @router.post("/reset-password")
-def reset_password(data: PasswordReset, request: Request, db: Session = Depends(get_db)):
+def reset_password(
+    data: PasswordReset,
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(check_password_reset_rate_limit)
+):
     """Reset password using token from email link.
     Note: This endpoint is for users WITHOUT a vault set up.
     For users with vault, use /reset-password-with-recovery endpoint.
@@ -581,7 +588,12 @@ def reset_password(data: PasswordReset, request: Request, db: Session = Depends(
 
 
 @router.post("/reset-password-with-recovery")
-def reset_password_with_recovery(data: PasswordResetWithRecovery, request: Request, db: Session = Depends(get_db)):
+def reset_password_with_recovery(
+    data: PasswordResetWithRecovery,
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(check_password_reset_rate_limit)
+):
     """Reset password using token from email AND recovery key.
     Required for accounts with encrypted data to re-encrypt the vault key.
     """
@@ -666,15 +678,25 @@ def reset_password_with_recovery(data: PasswordResetWithRecovery, request: Reque
     return {"message": "Password reset successfully", "vault_unlocked": True}
 
 @router.get("/check-reset-token/{token}")
-def check_reset_token(token: str, db: Session = Depends(get_db)):
-    """Check if a reset token is valid and whether it requires a recovery key."""
+def check_reset_token(
+    token: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(check_password_reset_rate_limit)
+):
+    """Check if a reset token is valid and whether it requires a recovery key.
+
+    Rate limited to prevent token enumeration attacks.
+    """
     user = db.query(User).filter(User.reset_token == token).first()
 
+    # Generic error message for both invalid and non-existent tokens
+    # This prevents enumeration of valid tokens
     if not user:
-        raise HTTPException(status_code=400, detail="Invalid reset token")
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
     if user.reset_token_expires and user.reset_token_expires < datetime.datetime.utcnow():
-        raise HTTPException(status_code=400, detail="Reset token expired")
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
     return {
         "valid": True,

@@ -257,8 +257,14 @@ Healthy/
 ---
 
 ## Current Status
-**Phase:** 2 NEARLY COMPLETE, Phase 4 PARTIAL
-**Focus:** Finishing Phase 2, preparing for production
+**Phase:** LAUNCH READY (Phase 2: 100%, Phase 3: 70%, Phase 4: 90%)
+**Focus:** Production launch, Netopia payment setup
+
+### Documentation
+- **MAINTENANCE.md** - Server operations, runbooks, emergency procedures
+- **BACKLOG.md** - Future work and technical debt
+- **BUGS.md** - Bug tracking
+- **tasks.md** - Current sprint and testing status
 
 ### Phase 0 - COMPLETE ✓
 - [x] Synevo crawler works reliably (headless, downloads all docs)

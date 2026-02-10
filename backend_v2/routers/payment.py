@@ -1,6 +1,7 @@
 """
 Payment webhook handling for Netopia IPN.
 """
+import os
 from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
@@ -12,11 +13,16 @@ try:
     from backend_v2.models import User, Subscription
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.services.netopia_service import get_netopia_service
+    from backend_v2.auth.security import get_current_user
 except ImportError:
     from database import get_db
     from models import User, Subscription
     from services.subscription_service import SubscriptionService
     from services.netopia_service import get_netopia_service
+    from auth.security import get_current_user
+
+# Check if we're in production mode (strict by default)
+IS_PRODUCTION = os.getenv("ENVIRONMENT", "production") == "production"
 
 logger = logging.getLogger(__name__)
 
@@ -127,16 +133,19 @@ async def netopia_ipn(
 @router.get("/verify/{order_id}")
 def verify_payment(
     order_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """
     Verify payment status by order ID.
 
     This is used by the frontend after redirect to check if payment was successful.
+    Requires authentication to prevent order enumeration attacks.
     """
-    # Look for subscription with this order_id
+    # Look for subscription with this order_id - MUST belong to current user
     subscription = db.query(Subscription).filter(
-        Subscription.stripe_subscription_id == order_id  # We store order_id here
+        Subscription.stripe_subscription_id == order_id,
+        Subscription.user_id == current_user.id  # Security: only show user's own orders
     ).first()
 
     if subscription and subscription.tier != "free" and subscription.status == "active":
@@ -161,10 +170,10 @@ def simulate_payment_success(
     """
     Simulate a successful payment (for development/testing only).
 
-    This endpoint should be disabled in production.
+    This endpoint is disabled by default - only available when ENVIRONMENT=development or ENVIRONMENT=test.
     """
-    import os
-    if os.getenv("ENVIRONMENT") == "production":
+    # Security: Only allow in explicit dev/test environments (deny by default)
+    if IS_PRODUCTION:
         raise HTTPException(status_code=403, detail="Not available in production")
 
     # Verify user exists

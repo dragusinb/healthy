@@ -31,6 +31,11 @@ MAX_VAULT_UNLOCK_ATTEMPTS = 5  # Max attempts per window
 VAULT_UNLOCK_WINDOW_SECONDS = 300  # 5 minute window
 VAULT_UNLOCK_LOCKOUT_SECONDS = 1800  # 30 minute lockout after max attempts
 
+# Password reset rate limits (to prevent email enumeration/spam)
+MAX_PASSWORD_RESET_ATTEMPTS = 3  # Max password reset requests per window
+PASSWORD_RESET_WINDOW_SECONDS = 3600  # 1 hour window
+PASSWORD_RESET_LOCKOUT_SECONDS = 3600  # 1 hour lockout after max attempts
+
 
 class RateLimiter:
     """Thread-safe in-memory rate limiter."""
@@ -215,3 +220,19 @@ def reset_vault_unlock_rate_limit(request: Request):
     """Reset vault unlock rate limit after successful unlock."""
     client_ip = get_client_ip(request)
     _rate_limiter.reset(f"vault_unlock:{client_ip}")
+
+
+def check_password_reset_rate_limit(request: Request):
+    """
+    Rate limit dependency for password reset endpoints.
+    Limits by IP address to prevent email enumeration and spam.
+    """
+    if IS_TEST_ENV:
+        return  # Skip rate limiting in tests
+    client_ip = get_client_ip(request)
+    _rate_limiter.check_rate_limit(
+        key=f"password_reset:{client_ip}",
+        max_attempts=MAX_PASSWORD_RESET_ATTEMPTS,
+        window_seconds=PASSWORD_RESET_WINDOW_SECONDS,
+        lockout_seconds=PASSWORD_RESET_LOCKOUT_SECONDS
+    )
