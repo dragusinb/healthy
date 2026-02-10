@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle } from 'lucide-react';
+import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Smartphone, BellRing, Monitor, X } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import {
+  isPushSupported,
+  getPermissionStatus,
+  subscribeToPush,
+  unsubscribeFromPush,
+  isSubscribed,
+  getSubscribedDevices,
+  deleteDeviceSubscription,
+  sendTestNotification,
+  initializePushNotifications
+} from '../services/pushNotifications';
 
 export default function Settings() {
   const { t } = useTranslation();
@@ -23,9 +34,102 @@ export default function Settings() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
+  // Push notification states
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushPermission, setPushPermission] = useState('default');
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushEnabling, setPushEnabling] = useState(false);
+  const [pushDevices, setPushDevices] = useState([]);
+  const [testingPush, setTestingPush] = useState(false);
+
   useEffect(() => {
     fetchPreferences();
+    initPushStatus();
   }, []);
+
+  const initPushStatus = async () => {
+    const status = await initializePushNotifications();
+    setPushSupported(status.supported);
+    setPushPermission(status.permission);
+    setPushSubscribed(status.subscribed);
+    if (status.subscribed) {
+      loadPushDevices();
+    }
+  };
+
+  const loadPushDevices = async () => {
+    try {
+      const devices = await getSubscribedDevices();
+      setPushDevices(devices);
+    } catch (err) {
+      console.error('Failed to load push devices:', err);
+    }
+  };
+
+  const handleEnablePush = async () => {
+    setPushEnabling(true);
+    setError(null);
+    try {
+      await subscribeToPush();
+      setPushSubscribed(true);
+      setPushPermission('granted');
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
+      loadPushDevices();
+    } catch (err) {
+      console.error('Push subscription failed:', err);
+      if (err.message.includes('denied')) {
+        setError(t('notifications.pushDenied') || 'Notification permission denied. Please enable in browser settings.');
+        setPushPermission('denied');
+      } else if (err.message.includes('not configured')) {
+        setError(t('notifications.pushNotConfigured') || 'Push notifications not available on this server.');
+      } else {
+        setError(t('notifications.pushFailed') || 'Failed to enable push notifications.');
+      }
+    } finally {
+      setPushEnabling(false);
+    }
+  };
+
+  const handleDisablePush = async () => {
+    setPushEnabling(true);
+    try {
+      await unsubscribeFromPush();
+      setPushSubscribed(false);
+      setPushDevices([]);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
+    } catch (err) {
+      setError('Failed to disable push notifications');
+    } finally {
+      setPushEnabling(false);
+    }
+  };
+
+  const handleDeleteDevice = async (deviceId) => {
+    try {
+      await deleteDeviceSubscription(deviceId);
+      setPushDevices(devices => devices.filter(d => d.id !== deviceId));
+      // Check if current device was deleted
+      const stillSubscribed = await isSubscribed();
+      setPushSubscribed(stillSubscribed);
+    } catch (err) {
+      setError('Failed to remove device');
+    }
+  };
+
+  const handleTestPush = async () => {
+    setTestingPush(true);
+    try {
+      await sendTestNotification();
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Failed to send test notification');
+    } finally {
+      setTestingPush(false);
+    }
+  };
 
   const fetchPreferences = async () => {
     try {
@@ -224,6 +328,156 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Push Notifications */}
+      {pushSupported && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <BellRing className="w-5 h-5 text-gray-600" />
+              <h2 className="font-semibold text-gray-800">{t('notifications.pushSettings') || 'Push Notifications'}</h2>
+            </div>
+            <p className="text-sm text-gray-500 mt-1">{t('notifications.pushSettingsDesc') || 'Receive instant notifications in your browser'}</p>
+          </div>
+
+          <div className="divide-y divide-gray-100">
+            {/* Enable/Disable Push */}
+            <div className="px-6 py-4">
+              {!pushSubscribed ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-800">{t('notifications.enablePush') || 'Enable Push Notifications'}</p>
+                    <p className="text-sm text-gray-500">
+                      {pushPermission === 'denied'
+                        ? (t('notifications.pushBlocked') || 'Notifications are blocked. Enable in browser settings.')
+                        : (t('notifications.enablePushDesc') || 'Get instant alerts when new results are available')}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleEnablePush}
+                    disabled={pushEnabling || pushPermission === 'denied'}
+                    className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {pushEnabling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+                    {pushEnabling ? (t('common.loading') || 'Loading...') : (t('notifications.enable') || 'Enable')}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-800">{t('notifications.pushEnabled') || 'Push Notifications Enabled'}</p>
+                      <p className="text-sm text-green-600">{t('notifications.pushEnabledDesc') || 'You will receive instant notifications'}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleTestPush}
+                        disabled={testingPush}
+                        className="flex items-center gap-2 px-3 py-2 text-cyan-600 border border-cyan-300 rounded-lg hover:bg-cyan-50 transition-colors disabled:opacity-50"
+                      >
+                        {testingPush ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
+                        {t('notifications.test') || 'Test'}
+                      </button>
+                      <button
+                        onClick={handleDisablePush}
+                        disabled={pushEnabling}
+                        className="flex items-center gap-2 px-3 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                      >
+                        {pushEnabling ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+                        {t('notifications.disable') || 'Disable'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Registered Devices */}
+                  {pushDevices.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <p className="text-sm font-medium text-gray-700 mb-2">{t('notifications.registeredDevices') || 'Registered Devices'}</p>
+                      <div className="space-y-2">
+                        {pushDevices.map((device) => (
+                          <div key={device.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <Monitor className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm text-gray-700">{device.device_name || 'Unknown Device'}</span>
+                              <span className="text-xs text-gray-400">
+                                {device.last_used ? new Date(device.last_used).toLocaleDateString() : ''}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => handleDeleteDevice(device.id)}
+                              className="text-gray-400 hover:text-rose-500 transition-colors"
+                              title={t('common.remove') || 'Remove'}
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Push Notification Type Toggles - only show when enabled */}
+            {pushSubscribed && preferences?.push_enabled !== false && (
+              <>
+                {/* Push New Documents */}
+                <div className="px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-800">{t('notifications.newDocuments')}</p>
+                    <p className="text-sm text-gray-500">{t('notifications.newDocumentsDesc')}</p>
+                  </div>
+                  <Toggle
+                    checked={preferences?.push_new_documents !== false}
+                    onChange={(v) => updatePreference('push_new_documents', v)}
+                    disabled={saving}
+                  />
+                </div>
+
+                {/* Push Abnormal Biomarkers */}
+                <div className="px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-800">{t('notifications.abnormalBiomarkers')}</p>
+                    <p className="text-sm text-gray-500">{t('notifications.abnormalBiomarkersDesc')}</p>
+                  </div>
+                  <Toggle
+                    checked={preferences?.push_abnormal_biomarkers !== false}
+                    onChange={(v) => updatePreference('push_abnormal_biomarkers', v)}
+                    disabled={saving}
+                  />
+                </div>
+
+                {/* Push Analysis Complete */}
+                <div className="px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-800">{t('notifications.analysisComplete')}</p>
+                    <p className="text-sm text-gray-500">{t('notifications.analysisCompleteDesc')}</p>
+                  </div>
+                  <Toggle
+                    checked={preferences?.push_analysis_complete !== false}
+                    onChange={(v) => updatePreference('push_analysis_complete', v)}
+                    disabled={saving}
+                  />
+                </div>
+
+                {/* Push Sync Failed */}
+                <div className="px-6 py-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-800">{t('notifications.syncFailed')}</p>
+                    <p className="text-sm text-gray-500">{t('notifications.syncFailedDesc')}</p>
+                  </div>
+                  <Toggle
+                    checked={preferences?.push_sync_failed !== false}
+                    onChange={(v) => updatePreference('push_sync_failed', v)}
+                    disabled={saving}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Frequency Settings */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">

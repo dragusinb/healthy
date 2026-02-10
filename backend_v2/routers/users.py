@@ -773,12 +773,12 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
     import asyncio
     try:
         from backend_v2.database import SessionLocal
-        from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
+        from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async, run_medlife_async, run_sanador_async
         from backend_v2.services.vault_helper import get_vault_helper
         from backend_v2.services.user_vault import UserVaultLockedError
     except ImportError:
         from database import SessionLocal
-        from services.crawlers_manager import run_regina_async, run_synevo_async
+        from services.crawlers_manager import run_regina_async, run_synevo_async, run_medlife_async, run_sanador_async
         from services.vault_helper import get_vault_helper
         from services.user_vault import UserVaultLockedError
 
@@ -825,6 +825,10 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
                 res = loop.run_until_complete(run_regina_async(username, password, user_id=user_id))
             elif provider_name == "Synevo":
                 res = loop.run_until_complete(run_synevo_async(username, password, user_id=user_id))
+            elif provider_name == "MedLife":
+                res = loop.run_until_complete(run_medlife_async(username, password, user_id=user_id))
+            elif provider_name == "Sanador":
+                res = loop.run_until_complete(run_sanador_async(username, password, user_id=user_id))
             else:
                 sync_status.status_error(user_id, provider_name, "Unknown provider")
                 return

@@ -566,6 +566,36 @@ const LinkedAccounts = () => {
                     onEditComplete={() => setEditingProvider(null)}
                     t={t}
                 />
+                <ProviderCard
+                    name="MedLife"
+                    logoColor="bg-blue-600"
+                    isLinked={!!isLinked('MedLife')}
+                    username={isLinked('MedLife')}
+                    onLink={handleLink}
+                    onSync={handleSync}
+                    linking={linking === 'MedLife'}
+                    syncing={syncing === 'MedLife'}
+                    syncStatus={syncStatus['MedLife']}
+                    account={getAccountByProvider('MedLife')}
+                    forceEdit={editingProvider === 'MedLife'}
+                    onEditComplete={() => setEditingProvider(null)}
+                    t={t}
+                />
+                <ProviderCard
+                    name="Sanador"
+                    logoColor="bg-teal-600"
+                    isLinked={!!isLinked('Sanador')}
+                    username={isLinked('Sanador')}
+                    onLink={handleLink}
+                    onSync={handleSync}
+                    linking={linking === 'Sanador'}
+                    syncing={syncing === 'Sanador'}
+                    syncStatus={syncStatus['Sanador']}
+                    account={getAccountByProvider('Sanador')}
+                    forceEdit={editingProvider === 'Sanador'}
+                    onEditComplete={() => setEditingProvider(null)}
+                    t={t}
+                />
             </div>
 
             {/* Error Modal */}

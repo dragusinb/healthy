@@ -303,7 +303,7 @@ Healthy/
 - [x] Custom domain: analize.online
 - [x] GDPR compliance (cookie consent banner, data export, account deletion, terms acceptance)
 - [x] Backup and disaster recovery (scripts, restore procedure, runbook)
-- [x] Monitoring and alerting (enhanced /health, /metrics, monitor script)
+- [x] Monitoring and alerting (Prometheus + Grafana stack with dashboards and alerts)
 
 ### Deployment Info
 - **Domain:** https://analize.online (SSL via Let's Encrypt, expires 2026-04-24)
@@ -313,6 +313,40 @@ Healthy/
 - **Database:** PostgreSQL (local on server)
 - **Email:** AWS SES (eu-central-1)
 - **Git:** Auto-deploy via `git pull` + rebuild
+
+### Monitoring Stack
+- **Grafana:** https://analize.online/grafana/ (admin / HealthyMonitor2024!)
+- **Prometheus:** http://localhost:9090 (internal only, not exposed publicly)
+- **Node Exporter:** http://localhost:9100 (system metrics)
+- **PostgreSQL Exporter:** http://localhost:9187 (database metrics)
+- **FastAPI Metrics:** http://localhost:8000/api/metrics (HTTP request metrics)
+
+**Grafana Dashboards:**
+1. **System Resources** - CPU, memory, disk, network I/O with gauges and history
+2. **API Performance** - Request rate, response times, error rates, status codes
+3. **Database Health** - Connections, database size, operations, cache hit ratio
+
+**Alert Rules (Prometheus):**
+- High CPU usage (>80% for 5 minutes)
+- High memory usage (>80% for 5 minutes)
+- High disk usage (>80% for 5 minutes)
+- API response time >5s (p95)
+- API error rate >5%
+- API down
+- Database connections >80
+- Database down
+
+**Services:**
+```bash
+# Check monitoring services status
+systemctl status prometheus prometheus-node-exporter prometheus-postgres-exporter grafana-server
+
+# Restart monitoring services
+systemctl restart prometheus grafana-server
+
+# View Prometheus targets
+curl http://localhost:9090/api/v1/targets
+```
 
 ### AWS SES Credentials (NEVER FORGET)
 ```

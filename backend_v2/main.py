@@ -11,6 +11,7 @@ if sys.platform == "win32":
 load_dotenv() # Load .env file
 
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # Support both local development (backend_v2.X) and production (X) imports
 try:
@@ -65,6 +66,18 @@ app.include_router(notifications.router)
 app.include_router(subscription.router)
 app.include_router(payment.router)
 app.include_router(gdpr.router)
+
+# Prometheus metrics instrumentation for HTTP request tracking
+# Exposes metrics at /api/metrics for Prometheus scraping
+instrumentator = Instrumentator(
+    should_group_status_codes=True,
+    should_ignore_untemplated=True,
+    should_instrument_requests_inprogress=True,
+    excluded_handlers=["/health", "/metrics", "/api/metrics"],
+    inprogress_name="http_requests_inprogress",
+    inprogress_labels=True,
+)
+instrumentator.instrument(app).expose(app, endpoint="/api/metrics", include_in_schema=False)
 
 
 # Initialize scheduler on startup

@@ -214,6 +214,13 @@ class NotificationPreference(Base):
     email_sync_failed = Column(Boolean, default=True)
     email_reminders = Column(Boolean, default=True)
 
+    # Push notification toggles
+    push_enabled = Column(Boolean, default=True)
+    push_new_documents = Column(Boolean, default=True)
+    push_abnormal_biomarkers = Column(Boolean, default=True)
+    push_analysis_complete = Column(Boolean, default=True)
+    push_sync_failed = Column(Boolean, default=True)
+
     # Digest preference: immediate, daily, weekly
     email_frequency = Column(String, default="immediate")
 
@@ -224,6 +231,33 @@ class NotificationPreference(Base):
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
     user = relationship("User", back_populates="notification_preferences")
+
+
+class PushSubscription(Base):
+    """Store Web Push subscriptions for push notifications."""
+    __tablename__ = "push_subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+
+    # Web Push subscription data
+    endpoint = Column(String, unique=True, index=True)  # Push service endpoint URL
+    p256dh_key = Column(String)  # Public key for encryption
+    auth_key = Column(String)  # Auth secret for encryption
+
+    # Device info
+    user_agent = Column(String, nullable=True)  # Browser/device info
+    device_name = Column(String, nullable=True)  # User-friendly device name
+
+    # Status tracking
+    is_active = Column(Boolean, default=True)
+    last_used = Column(DateTime, nullable=True)
+    failure_count = Column(Integer, default=0)  # Track delivery failures
+
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="push_subscriptions")
 
 
 # =============================================================================
@@ -461,3 +495,4 @@ User.audit_logs = relationship("AuditLog", back_populates="user")
 User.sessions = relationship("UserSession", back_populates="user")
 User.abuse_flags = relationship("AbuseFlag", foreign_keys="AbuseFlag.user_id", back_populates="user")
 User.usage_metrics = relationship("UsageMetrics", back_populates="user")
+User.push_subscriptions = relationship("PushSubscription", back_populates="user")

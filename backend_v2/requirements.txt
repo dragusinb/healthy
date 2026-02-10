@@ -17,3 +17,5 @@ cryptography
 psycopg2-binary
 apscheduler
 psutil
+pywebpush
+py-vapid

@@ -89,9 +89,10 @@ class NotificationService:
         title: str,
         message: str,
         data: Optional[Dict[str, Any]] = None,
-        send_email: bool = True
+        send_email: bool = True,
+        send_push: bool = True
     ):
-        """Create a notification and optionally send email."""
+        """Create a notification and optionally send email and push notification."""
         try:
             from backend_v2.models import Notification, User
         except ImportError:
@@ -119,7 +120,37 @@ class NotificationService:
                 if user:
                     self._send_notification_email(user, notification)
 
+        # Send push notification
+        if send_push:
+            self._send_push_notification(user_id, notification_type, title, message, data)
+
         return notification
+
+    def _send_push_notification(
+        self,
+        user_id: int,
+        notification_type: str,
+        title: str,
+        message: str,
+        data: Optional[Dict[str, Any]] = None
+    ):
+        """Send a push notification."""
+        try:
+            try:
+                from backend_v2.services.push_service import PushNotificationService
+            except ImportError:
+                from services.push_service import PushNotificationService
+
+            push_service = PushNotificationService(self.db)
+            push_service.send_push_notification(
+                user_id=user_id,
+                title=title,
+                body=message,
+                notification_type=notification_type,
+                data=data
+            )
+        except Exception as e:
+            logger.error(f"Failed to send push notification: {e}")
 
     def _send_notification_email(self, user, notification):
         """Send email for a notification."""
