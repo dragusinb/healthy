@@ -15,6 +15,11 @@
   - [x] Test endpoint protection
 - [x] Documentation cleanup and consolidation
 - [x] Create maintenance documentation
+- [x] UX improvements
+  - [x] PageLoader translation
+  - [x] Vault-locked error messages
+  - [x] Modal Escape key handling
+- [x] Production verification (API issue identified)
 
 ---
 
@@ -23,8 +28,8 @@
 ### Pre-Launch (Required)
 
 - [ ] Netopia payment production credentials
-- [ ] Final production deployment verification
-- [ ] User acceptance testing
+- [ ] Restart backend API on production server
+- [ ] User acceptance testing (after API restart)
 
 ### Post-Launch (Nice to Have)
 
@@ -92,6 +97,8 @@
 - Added password reset rate limiting
 - Documentation consolidation
 - Created maintenance documentation
+- UX improvements (translations, vault errors, modal accessibility)
+- Production verification found API down - needs restart
 
 ### 2026-02-02
 - Fixed 4 bugs from user testing
