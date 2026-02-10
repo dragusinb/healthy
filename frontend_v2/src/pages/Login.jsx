@@ -10,6 +10,17 @@ const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
     const [copied, setCopied] = useState(false);
     const [confirmed, setConfirmed] = useState(false);
 
+    // Handle Escape key to close modal (only if confirmed)
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && confirmed) {
+                onClose();
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [confirmed, onClose]);
+
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(recoveryKey);
@@ -172,6 +183,17 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { setupPassword } = useAuth();
+
+    // Handle Escape key to cancel
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && !loading) {
+                onCancel();
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [loading, onCancel]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -357,6 +379,17 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const { unlockData } = useAuth();
+
+    // Handle Escape key to cancel
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape' && !loading) {
+                onCancel();
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [loading, onCancel]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

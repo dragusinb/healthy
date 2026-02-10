@@ -1,13 +1,17 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-const PageLoader = () => (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="text-center">
-            <Loader2 className="w-10 h-10 text-primary-600 animate-spin mx-auto mb-3" />
-            <p className="text-slate-500 text-sm">Loading...</p>
+const PageLoader = () => {
+    const { t } = useTranslation();
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+            <div className="text-center">
+                <Loader2 className="w-10 h-10 text-primary-600 animate-spin mx-auto mb-3" />
+                <p className="text-slate-500 text-sm">{t('common.loading')}</p>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default PageLoader;
