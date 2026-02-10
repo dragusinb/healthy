@@ -45,7 +45,8 @@
     "admin": "Admin",
     "logout": "Logout",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "family": "My Family"
   },
   "auth": {
     "login": "Login",

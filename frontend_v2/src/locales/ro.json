@@ -48,7 +48,8 @@
     "admin": "Administrare",
     "logout": "Deconectare",
     "openMenu": "Deschide meniul",
-    "closeMenu": "Închide meniul"
+    "closeMenu": "Închide meniul",
+    "family": "Familia Mea"
   },
   "auth": {
     "login": "Autentificare",
