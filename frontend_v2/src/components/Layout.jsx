@@ -11,7 +11,7 @@ const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
         to={to}
         onClick={onClick}
         className={({ isActive }) => cn(
-            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm group",
+            "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 font-medium text-sm group",
             isActive
                 ? "bg-primary-50 text-primary-700 shadow-sm"
                 : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -19,7 +19,7 @@ const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
     >
         {({ isActive }) => (
             <>
-                <Icon size={20} className={isActive ? "text-primary-600" : "text-slate-400 group-hover:text-slate-600"} />
+                <Icon size={18} className={isActive ? "text-primary-600" : "text-slate-400 group-hover:text-slate-600"} />
                 <span>{label}</span>
             </>
         )}
@@ -94,24 +94,24 @@ const Layout = ({ children }) => {
         <div className="flex h-screen bg-slate-50 overflow-hidden">
             {/* Modern Sidebar */}
             <aside className="w-72 bg-white border-r border-slate-200 flex flex-col hidden md:flex h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
-                <div className="p-8 pb-4">
-                    <div className="flex items-center gap-3 text-primary-600 mb-8">
-                        <div className="p-2.5 bg-primary-100 rounded-xl">
-                            <HeartPulse size={28} className="text-primary-600" />
+                <div className="p-6 pb-2">
+                    <div className="flex items-center gap-3 text-primary-600 mb-6">
+                        <div className="p-2 bg-primary-100 rounded-xl">
+                            <HeartPulse size={24} className="text-primary-600" />
                         </div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Analize<span className="text-primary-500">.online</span></h1>
+                        <h1 className="text-xl font-bold tracking-tight text-slate-800">Analize<span className="text-primary-500">.online</span></h1>
                     </div>
 
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">Menu</div>
-                    <nav className="space-y-1.5">
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">Menu</div>
+                    <nav className="space-y-0.5">
                         <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} />
                         <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} />
                         <SidebarItem to="/biomarkers" icon={Activity} label={t('nav.biomarkers')} />
                         <SidebarItem to="/health" icon={Brain} label={t('nav.doctorAI')} />
                         <SidebarItem to="/screenings" icon={ClipboardList} label={t('nav.screenings')} />
-                        <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} />
-                        <div className="pt-4 mt-4 border-t border-slate-100"></div>
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
+                        <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
+                        <div className="pt-3 mt-3 border-t border-slate-100"></div>
+                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
                         <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} />
