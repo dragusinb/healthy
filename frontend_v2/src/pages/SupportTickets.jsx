@@ -41,16 +41,22 @@ export default function SupportTickets() {
     const [loadingDetail, setLoadingDetail] = useState(false);
     const [updatingStatus, setUpdatingStatus] = useState(false);
     const [statusResponse, setStatusResponse] = useState('');
+    const [viewMode, setViewMode] = useState('mine'); // 'mine' or 'all' (admin only)
 
     useEffect(() => {
         fetchTickets();
-    }, [isAdmin]);
+    }, [isAdmin, viewMode]);
 
     const fetchTickets = async () => {
+        setLoading(true);
         try {
-            const endpoint = isAdmin ? '/support/admin/tickets' : '/support/tickets';
+            // Admin can view 'mine' or 'all', regular users always see their own
+            const endpoint = (isAdmin && viewMode === 'all') ? '/support/admin/tickets' : '/support/tickets';
             const response = await api.get(endpoint);
             setTickets(response.data);
+            // Reset selection when switching views
+            setSelectedTicket(null);
+            setTicketDetail(null);
         } catch (err) {
             setError(t('common.error'));
         } finally {
@@ -61,7 +67,8 @@ export default function SupportTickets() {
     const fetchTicketDetail = async (ticketId) => {
         setLoadingDetail(true);
         try {
-            const endpoint = isAdmin ? `/support/admin/tickets/${ticketId}` : `/support/tickets/${ticketId}`;
+            // Use admin endpoint when viewing all tickets
+            const endpoint = (isAdmin && viewMode === 'all') ? `/support/admin/tickets/${ticketId}` : `/support/tickets/${ticketId}`;
             const response = await api.get(endpoint);
             setTicketDetail(response.data);
             setStatusResponse(response.data.ai_response || '');
@@ -114,16 +121,42 @@ export default function SupportTickets() {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <div className={`p-3 rounded-xl ${isAdmin ? 'bg-amber-100' : 'bg-primary-100'}`}>
-                    <MessageSquare size={24} className={isAdmin ? 'text-amber-600' : 'text-primary-600'} />
+                <div className={`p-3 rounded-xl ${isAdmin && viewMode === 'all' ? 'bg-amber-100' : 'bg-primary-100'}`}>
+                    <MessageSquare size={24} className={isAdmin && viewMode === 'all' ? 'text-amber-600' : 'text-primary-600'} />
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">
-                        {isAdmin ? t('tickets.allTickets') : t('tickets.title')}
+                        {t('tickets.title')}
                     </h1>
                     <p className="text-slate-500">{t('tickets.subtitle')}</p>
                 </div>
             </div>
+
+            {/* Admin Tabs */}
+            {isAdmin && (
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setViewMode('mine')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            viewMode === 'mine'
+                                ? 'bg-primary-100 text-primary-700'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                    >
+                        {t('tickets.myTickets')}
+                    </button>
+                    <button
+                        onClick={() => setViewMode('all')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            viewMode === 'all'
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                    >
+                        {t('tickets.allTickets')}
+                    </button>
+                </div>
+            )}
 
             {error && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
@@ -145,7 +178,7 @@ export default function SupportTickets() {
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="p-4 border-b border-slate-100">
                             <h2 className="font-semibold text-slate-700">
-                                {isAdmin ? t('tickets.allTickets') : t('tickets.yourTickets')} ({tickets.length})
+                                {isAdmin && viewMode === 'all' ? t('tickets.allTickets') : t('tickets.yourTickets')} ({tickets.length})
                             </h2>
                         </div>
                         <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
@@ -173,7 +206,7 @@ export default function SupportTickets() {
                                                         {ticket.attachments_count}
                                                     </span>
                                                 )}
-                                                {isAdmin && ticket.reporter_email && (
+                                                {isAdmin && viewMode === 'all' && ticket.reporter_email && (
                                                     <span className="text-slate-500">
                                                         {ticket.reporter_email}
                                                     </span>
@@ -267,8 +300,8 @@ export default function SupportTickets() {
                                     </div>
                                 )}
 
-                                {/* Admin Controls */}
-                                {isAdmin && (
+                                {/* Admin Controls - only show when viewing all tickets */}
+                                {isAdmin && viewMode === 'all' && (
                                     <div className="border-t border-slate-200 pt-4 mt-4">
                                         <label className="block text-xs font-medium text-slate-400 uppercase mb-2">
                                             {t('tickets.updateStatus')}

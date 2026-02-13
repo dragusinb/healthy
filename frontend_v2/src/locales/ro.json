@@ -45,6 +45,7 @@
     "linkedAccounts": "Conturi Conectate",
     "settings": "Setari",
     "billing": "Abonament",
+    "support": "Suport",
     "admin": "Administrare",
     "logout": "Deconectare",
     "openMenu": "Deschide meniul",
@@ -751,11 +752,12 @@
     "savePreferences": "Salveaza Preferinte"
   },
   "tickets": {
-    "title": "Tichetele Mele",
+    "title": "Suport",
     "subtitle": "Vizualizeaza feedback-ul si tichetele de suport trimise",
     "noTickets": "Niciun tichet inca",
     "noTicketsHint": "Feedback-ul trimis va aparea aici",
     "yourTickets": "Tichetele Tale",
+    "myTickets": "Tichetele Mele",
     "allTickets": "Toate Tichetele",
     "selectTicket": "Selecteaza un tichet pentru detalii",
     "submittedOn": "Trimis pe",

@@ -42,6 +42,7 @@
     "linkedAccounts": "Linked Accounts",
     "settings": "Settings",
     "billing": "Subscription",
+    "support": "Support",
     "admin": "Admin",
     "logout": "Logout",
     "openMenu": "Open menu",
@@ -700,11 +701,12 @@
     "savePreferences": "Save Preferences"
   },
   "tickets": {
-    "title": "My Tickets",
+    "title": "Support",
     "subtitle": "View your submitted feedback and support tickets",
     "noTickets": "No tickets yet",
     "noTicketsHint": "Feedback you submit will appear here",
     "yourTickets": "Your Tickets",
+    "myTickets": "My Tickets",
     "allTickets": "All Tickets",
     "selectTicket": "Select a ticket to view details",
     "submittedOn": "Submitted on",

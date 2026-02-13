@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare } from 'lucide-react';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
 
@@ -117,6 +117,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
                         <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} />
                         <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} />
+                        <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} />
                         {user?.is_admin && (
                             <SidebarItem to="/admin" icon={Shield} label={t('nav.admin')} />
                         )}
@@ -239,6 +240,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} onClick={closeMobileMenu} />
                                     {user?.is_admin && (
                                         <SidebarItem to="/admin" icon={Shield} label={t('nav.admin')} onClick={closeMobileMenu} />
                                     )}
