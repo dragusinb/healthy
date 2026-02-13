@@ -20,41 +20,48 @@ export default function FeedbackButton() {
         setIsCapturing(true);
         setError(null);
 
+        const feedbackModal = document.getElementById('feedback-modal');
+
         try {
             // Hide the feedback modal temporarily
-            const feedbackModal = document.getElementById('feedback-modal');
             if (feedbackModal) feedbackModal.style.display = 'none';
 
             // Wait a moment for the modal to hide
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 150));
 
-            // Use html2canvas from CDN
+            // Wait for html2canvas to load if not ready (max 3 seconds)
+            let attempts = 0;
+            while (typeof window.html2canvas !== 'function' && attempts < 30) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+
             if (typeof window.html2canvas !== 'function') {
-                throw new Error('Screenshot library not loaded');
+                throw new Error('Screenshot library failed to load');
             }
 
             const canvas = await window.html2canvas(document.body, {
                 useCORS: true,
                 allowTaint: true,
                 logging: false,
-                scale: 1, // Lower scale for smaller file size
+                scale: 0.8,
+                ignoreElements: (element) => {
+                    // Ignore elements that might cause issues
+                    return element.tagName === 'IFRAME' || element.classList?.contains('feedback-modal');
+                }
             });
 
             // Convert to base64
-            const dataUrl = canvas.toDataURL('image/png');
+            const dataUrl = canvas.toDataURL('image/png', 0.8);
             setScreenshot(dataUrl);
             setScreenshotPreview(dataUrl);
-
-            // Show modal again
-            if (feedbackModal) feedbackModal.style.display = '';
 
         } catch (err) {
             console.error('Screenshot capture failed:', err);
             setError(t('feedback.screenshotFailed'));
-            // Show modal again on error
-            const feedbackModal = document.getElementById('feedback-modal');
-            if (feedbackModal) feedbackModal.style.display = '';
         } finally {
+            // Always show modal again
+            if (feedbackModal) feedbackModal.style.display = '';
             setIsCapturing(false);
         }
     };
