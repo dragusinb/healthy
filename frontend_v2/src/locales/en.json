@@ -696,6 +696,23 @@
     "marketingDesc": "Used to deliver personalized advertisements.",
     "savePreferences": "Save Preferences"
   },
+  "feedback": {
+    "buttonTitle": "Send Feedback",
+    "title": "Send Feedback",
+    "page": "Page",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your issue or suggestion...",
+    "screenshot": "Screenshot (optional)",
+    "captureScreenshot": "Capture Screenshot",
+    "capturing": "Capturing...",
+    "screenshotFailed": "Screenshot capture failed",
+    "send": "Send",
+    "sending": "Sending...",
+    "thankYou": "Thank you!",
+    "submitted": "Your feedback has been submitted successfully.",
+    "descriptionRequired": "Please describe your issue or suggestion",
+    "submitFailed": "Could not submit feedback. Please try again."
+  },
   "billing": {
     "title": "Subscription & Billing",
     "subtitle": "Manage your subscription and view usage",

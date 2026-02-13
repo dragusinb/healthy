@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
 import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users } from 'lucide-react';
 import { cn } from '../lib/utils';
+import FeedbackButton from './FeedbackButton';
 
 const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
     <NavLink
@@ -345,6 +346,9 @@ const Layout = ({ children }) => {
                     {children}
                 </div>
             </main>
+
+            {/* Feedback Button - Only show for authenticated users */}
+            <FeedbackButton />
         </div>
     );
 };

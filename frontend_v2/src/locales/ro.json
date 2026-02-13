@@ -747,6 +747,23 @@
     "marketingDesc": "Folosite pentru a livra reclame personalizate.",
     "savePreferences": "Salveaza Preferinte"
   },
+  "feedback": {
+    "buttonTitle": "Trimite Feedback",
+    "title": "Trimite Feedback",
+    "page": "Pagina",
+    "description": "Descriere",
+    "descriptionPlaceholder": "Descrie problema sau sugestia ta...",
+    "screenshot": "Captura de ecran (optional)",
+    "captureScreenshot": "Captureaza Ecranul",
+    "capturing": "Se captureaza...",
+    "screenshotFailed": "Captura de ecran a esuat",
+    "send": "Trimite",
+    "sending": "Se trimite...",
+    "thankYou": "Multumim!",
+    "submitted": "Feedback-ul tau a fost trimis cu succes.",
+    "descriptionRequired": "Te rugam sa descrii problema sau sugestia",
+    "submitFailed": "Nu am putut trimite feedback-ul. Te rugam sa incerci din nou."
+  },
   "billing": {
     "title": "Abonament si Facturare",
     "subtitle": "Gestioneaza abonamentul si vezi utilizarea",

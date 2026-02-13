@@ -483,6 +483,79 @@ class OpenAIUsageLog(Base):
     )
 
 
+# =============================================================================
+# Support Ticket Models
+# =============================================================================
+
+class SupportTicket(Base):
+    """Support tickets created via feedback button."""
+    __tablename__ = "support_tickets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ticket_number = Column(String, unique=True, index=True)  # e.g. TICK-001
+    subject = Column(String, default="Feedback")
+    description = Column(Text)
+    page_url = Column(String)  # URL where feedback was submitted
+    type = Column(String, default="feedback")  # feedback, bug, feature
+    priority = Column(String, default="normal")  # low, normal, high, urgent
+    status = Column(String, default="open")  # open, in_progress, resolved, closed
+
+    # Reporter info
+    reporter_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    reporter_email = Column(String)
+    reporter_name = Column(String, nullable=True)
+
+    # AI processing
+    ai_status = Column(String, default="pending")  # pending, processing, fixed, skipped, escalated
+    ai_response = Column(Text, nullable=True)
+    ai_fixed_at = Column(DateTime, nullable=True)
+
+    # Timestamps
+    resolved_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    # Relationships
+    reporter = relationship("User", back_populates="support_tickets")
+    replies = relationship("SupportTicketReply", back_populates="ticket", cascade="all, delete-orphan")
+    attachments = relationship("SupportTicketAttachment", back_populates="ticket", cascade="all, delete-orphan")
+
+
+class SupportTicketReply(Base):
+    """Replies to support tickets."""
+    __tablename__ = "support_ticket_replies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ticket_id = Column(Integer, ForeignKey("support_tickets.id"), index=True)
+    message = Column(Text)
+    author_email = Column(String)
+    author_name = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    ticket = relationship("SupportTicket", back_populates="replies")
+    attachments = relationship("SupportTicketAttachment", back_populates="reply", cascade="all, delete-orphan")
+
+
+class SupportTicketAttachment(Base):
+    """Attachments for support tickets (screenshots, files)."""
+    __tablename__ = "support_ticket_attachments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ticket_id = Column(Integer, ForeignKey("support_tickets.id"), index=True)
+    reply_id = Column(Integer, ForeignKey("support_ticket_replies.id"), nullable=True)
+
+    file_name = Column(String)
+    file_path = Column(String)  # Path to file on disk
+    file_type = Column(String)  # MIME type
+    file_size = Column(Integer)  # Size in bytes
+    uploaded_by_name = Column(String, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    ticket = relationship("SupportTicket", back_populates="attachments")
+    reply = relationship("SupportTicketReply", back_populates="attachments")
+
+
 # Add relationships to User model
 User.health_reports = relationship("HealthReport", back_populates="user")
 User.notifications = relationship("Notification", back_populates="user")
@@ -496,3 +569,4 @@ User.sessions = relationship("UserSession", back_populates="user")
 User.abuse_flags = relationship("AbuseFlag", foreign_keys="AbuseFlag.user_id", back_populates="user")
 User.usage_metrics = relationship("UsageMetrics", back_populates="user")
 User.push_subscriptions = relationship("PushSubscription", back_populates="user")
+User.support_tickets = relationship("SupportTicket", back_populates="reporter")
