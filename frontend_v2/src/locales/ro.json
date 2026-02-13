@@ -747,6 +747,20 @@
     "marketingDesc": "Folosite pentru a livra reclame personalizate.",
     "savePreferences": "Salveaza Preferinte"
   },
+  "tickets": {
+    "title": "Tichetele Mele",
+    "subtitle": "Vizualizeaza feedback-ul si tichetele de suport trimise",
+    "noTickets": "Niciun tichet inca",
+    "noTicketsHint": "Feedback-ul trimis va aparea aici",
+    "yourTickets": "Tichetele Tale",
+    "selectTicket": "Selecteaza un tichet pentru detalii",
+    "submittedOn": "Trimis pe",
+    "pageUrl": "Pagina",
+    "description": "Descriere",
+    "aiResponse": "Raspuns",
+    "fixedOn": "Rezolvat pe",
+    "attachments": "Atasamente"
+  },
   "feedback": {
     "buttonTitle": "Trimite Feedback",
     "title": "Trimite Feedback",
@@ -762,7 +776,8 @@
     "thankYou": "Multumim!",
     "submitted": "Feedback-ul tau a fost trimis cu succes.",
     "descriptionRequired": "Te rugam sa descrii problema sau sugestia",
-    "submitFailed": "Nu am putut trimite feedback-ul. Te rugam sa incerci din nou."
+    "submitFailed": "Nu am putut trimite feedback-ul. Te rugam sa incerci din nou.",
+    "viewTickets": "Vezi tichetele tale"
   },
   "billing": {
     "title": "Abonament si Facturare",

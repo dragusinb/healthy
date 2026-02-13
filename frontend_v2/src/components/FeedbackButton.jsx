@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageSquare, X, Camera, Send, Loader2, CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { MessageSquare, X, Camera, Send, Loader2, CheckCircle, ExternalLink } from 'lucide-react';
 import api from '../api/client';
 
 export default function FeedbackButton() {
@@ -16,52 +17,77 @@ export default function FeedbackButton() {
 
     const pageUrl = window.location.href;
 
+    const loadHtml2Canvas = () => {
+        return new Promise((resolve, reject) => {
+            if (typeof window.html2canvas === 'function') {
+                resolve(window.html2canvas);
+                return;
+            }
+
+            // Try to load dynamically if not already loaded
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            script.onload = () => {
+                if (typeof window.html2canvas === 'function') {
+                    resolve(window.html2canvas);
+                } else {
+                    reject(new Error('html2canvas failed to initialize'));
+                }
+            };
+            script.onerror = () => reject(new Error('Failed to load html2canvas'));
+            document.head.appendChild(script);
+        });
+    };
+
     const captureScreenshot = async () => {
         setIsCapturing(true);
         setError(null);
 
         const feedbackModal = document.getElementById('feedback-modal');
+        const backdrop = feedbackModal?.parentElement;
 
         try {
-            // Hide the feedback modal temporarily
-            if (feedbackModal) feedbackModal.style.display = 'none';
+            // Hide the entire modal overlay temporarily
+            if (backdrop) backdrop.style.visibility = 'hidden';
 
-            // Wait a moment for the modal to hide
-            await new Promise(resolve => setTimeout(resolve, 150));
+            // Wait for DOM to update
+            await new Promise(resolve => setTimeout(resolve, 200));
 
-            // Wait for html2canvas to load if not ready (max 3 seconds)
-            let attempts = 0;
-            while (typeof window.html2canvas !== 'function' && attempts < 30) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
+            // Load html2canvas
+            const html2canvas = await loadHtml2Canvas();
 
-            if (typeof window.html2canvas !== 'function') {
-                throw new Error('Screenshot library failed to load');
-            }
+            // Capture the main content area instead of body for better results
+            const mainContent = document.querySelector('main') || document.body;
 
-            const canvas = await window.html2canvas(document.body, {
+            const canvas = await html2canvas(mainContent, {
                 useCORS: true,
                 allowTaint: true,
                 logging: false,
-                scale: 0.8,
+                scale: window.devicePixelRatio > 1 ? 0.5 : 0.8,
+                backgroundColor: '#f8fafc',
+                removeContainer: true,
                 ignoreElements: (element) => {
-                    // Ignore elements that might cause issues
-                    return element.tagName === 'IFRAME' || element.classList?.contains('feedback-modal');
+                    // Ignore problematic elements
+                    const tag = element.tagName?.toLowerCase();
+                    return tag === 'iframe' ||
+                           tag === 'video' ||
+                           tag === 'canvas' ||
+                           element.id === 'feedback-modal' ||
+                           element.classList?.contains('fixed');
                 }
             });
 
-            // Convert to base64
-            const dataUrl = canvas.toDataURL('image/png', 0.8);
+            // Convert to base64 with compression
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
             setScreenshot(dataUrl);
             setScreenshotPreview(dataUrl);
 
         } catch (err) {
             console.error('Screenshot capture failed:', err);
-            setError(t('feedback.screenshotFailed'));
+            setError(t('feedback.screenshotFailed') + ' (' + err.message + ')');
         } finally {
             // Always show modal again
-            if (feedbackModal) feedbackModal.style.display = '';
+            if (backdrop) backdrop.style.visibility = '';
             setIsCapturing(false);
         }
     };
@@ -157,7 +183,15 @@ export default function FeedbackButton() {
                                     <h3 className="text-xl font-semibold text-gray-800 mb-2">
                                         {t('feedback.thankYou')}
                                     </h3>
-                                    <p className="text-gray-500">{t('feedback.submitted')}</p>
+                                    <p className="text-gray-500 mb-4">{t('feedback.submitted')}</p>
+                                    <Link
+                                        to="/support"
+                                        onClick={handleClose}
+                                        className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
+                                    >
+                                        {t('feedback.viewTickets')}
+                                        <ExternalLink size={16} />
+                                    </Link>
                                 </div>
                             ) : (
                                 <>

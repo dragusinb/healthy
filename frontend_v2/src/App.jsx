@@ -32,6 +32,7 @@ const Terms = lazy(() => import('./pages/Terms'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const JoinFamily = lazy(() => import('./pages/JoinFamily'));
 const Family = lazy(() => import('./pages/Family'));
+const SupportTickets = lazy(() => import('./pages/SupportTickets'));
 const Layout = lazy(() => import('./components/Layout'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -162,6 +163,9 @@ const App = () => {
                                 } />
                                 <Route path="/family" element={
                                     <PrivateLayoutRoute><Family /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/support" element={
+                                    <PrivateLayoutRoute><SupportTickets /></PrivateLayoutRoute>
                                 } />
 
                                 {/* Optional layout routes (show layout for logged-in users) */}

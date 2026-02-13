@@ -696,6 +696,20 @@
     "marketingDesc": "Used to deliver personalized advertisements.",
     "savePreferences": "Save Preferences"
   },
+  "tickets": {
+    "title": "My Tickets",
+    "subtitle": "View your submitted feedback and support tickets",
+    "noTickets": "No tickets yet",
+    "noTicketsHint": "Feedback you submit will appear here",
+    "yourTickets": "Your Tickets",
+    "selectTicket": "Select a ticket to view details",
+    "submittedOn": "Submitted on",
+    "pageUrl": "Page",
+    "description": "Description",
+    "aiResponse": "Response",
+    "fixedOn": "Fixed on",
+    "attachments": "Attachments"
+  },
   "feedback": {
     "buttonTitle": "Send Feedback",
     "title": "Send Feedback",
@@ -711,7 +725,8 @@
     "thankYou": "Thank you!",
     "submitted": "Your feedback has been submitted successfully.",
     "descriptionRequired": "Please describe your issue or suggestion",
-    "submitFailed": "Could not submit feedback. Please try again."
+    "submitFailed": "Could not submit feedback. Please try again.",
+    "viewTickets": "View your tickets"
   },
   "billing": {
     "title": "Subscription & Billing",
