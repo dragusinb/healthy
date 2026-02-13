@@ -42,9 +42,21 @@ const ERROR_TYPES = {
         titleKey: 'linkedAccounts.errors.timeout',
         descKey: 'linkedAccounts.errors.timeoutDesc'
     },
+    login_failed: {
+        icon: AlertCircle,
+        color: 'amber',
+        titleKey: 'linkedAccounts.errors.loginFailed',
+        descKey: 'linkedAccounts.errors.loginFailedDesc'
+    },
+    sync_error: {
+        icon: RefreshCw,
+        color: 'slate',
+        titleKey: 'linkedAccounts.errors.syncError',
+        descKey: 'linkedAccounts.errors.syncErrorDesc'
+    },
     unknown: {
         icon: AlertCircle,
-        color: 'rose',
+        color: 'slate',
         titleKey: 'linkedAccounts.errors.unknown',
         descKey: 'linkedAccounts.errors.unknownDesc'
     }

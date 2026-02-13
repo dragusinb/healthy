@@ -408,8 +408,12 @@
       "timeoutDesc": "Conexiunea catre furnizor a expirat. Te rugam sa incerci mai tarziu.",
       "serverError": "Mentenanta Server",
       "serverErrorDesc": "Serviciul de sincronizare este temporar indisponibil. Nu este o problema cu contul tau - te rugam sa incerci din nou in cateva minute.",
-      "unknown": "Problema de Conexiune",
-      "unknownDesc": "A aparut o problema neasteptata la conectarea cu contul tau de furnizor medical."
+      "loginFailed": "Autentificare Esuata",
+      "loginFailedDesc": "Nu am putut finaliza autentificarea. Aceasta nu este neaparat o problema cu parola ta - site-ul furnizorului poate avea probleme tehnice. Te rugam sa incerci din nou mai tarziu.",
+      "syncError": "Eroare Sincronizare",
+      "syncErrorDesc": "Am reusit sa ne conectam, dar a aparut o problema la descarcarea documentelor. Te rugam sa incerci din nou.",
+      "unknown": "Eroare Tehnica",
+      "unknownDesc": "A aparut o problema tehnica la sincronizare. Aceasta NU este o problema cu credentialele tale. Te rugam sa incerci din nou mai tarziu sau contacteaza suportul daca problema persista."
     }
   },
   "evolution": {

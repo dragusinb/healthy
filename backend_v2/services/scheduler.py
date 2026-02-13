@@ -37,12 +37,14 @@ def classify_sync_error(error_msg: str) -> str:
     """Classify error message into a category for user-friendly display.
 
     Returns one of:
-    - wrong_password: Invalid credentials
+    - wrong_password: Invalid credentials (user should update password)
     - captcha_failed: CAPTCHA solving failed/required
     - site_down: Provider site unavailable
     - server_error: Server-side issue (XServer, display, etc.)
     - session_expired: Login session expired
     - timeout: Operation timed out
+    - login_failed: Login failed for unknown reason (NOT a password issue)
+    - sync_error: Document sync/download failed (after successful login)
     - unknown: Other/unknown error
     """
     error_lower = error_msg.lower()
@@ -52,41 +54,64 @@ def classify_sync_error(error_msg: str) -> str:
     if any(phrase in error_lower for phrase in [
         "xserver", "x server", "xvfb", "display", "headed browser",
         "no display", "cannot open display", "browser launch",
-        "playwright", "chromium", "browser error"
+        "playwright", "chromium", "browser error", "browser crash"
     ]):
         return "server_error"
 
-    # Wrong password / invalid credentials
+    # Wrong password / invalid credentials - EXPLICIT password errors only
     if any(phrase in error_lower for phrase in [
-        "invalid credentials", "incorrect", "wrong password",
+        "invalid credentials", "incorrect password", "wrong password",
         "autentificare nereusita", "date de autentificare incorecte",
-        "parola gresita", "cont incorect"
+        "parola gresita", "cont incorect", "credentials invalid",
+        "bad password", "authentication failed"
     ]):
         return "wrong_password"
 
     # CAPTCHA related
     if any(phrase in error_lower for phrase in [
-        "captcha", "recaptcha", "robot", "verification"
+        "captcha", "recaptcha", "robot", "verification required",
+        "human verification", "challenge"
     ]):
         return "captcha_failed"
 
+    # Timeout - check before site_down since both might contain "timeout"
+    if any(phrase in error_lower for phrase in [
+        "timed out", "timeout", "time out", "exceeded time"
+    ]):
+        return "timeout"
+
     # Site down / network issues
     if any(phrase in error_lower for phrase in [
-        "site down", "unavailable", "network", "connection",
-        "timeout", "refused", "unreachable", "503", "502", "500"
+        "site down", "unavailable", "network error", "connection refused",
+        "refused", "unreachable", "503", "502", "500", "404",
+        "dns", "host not found", "no route", "connection reset",
+        "ssl", "certificate", "site unavailable"
     ]):
         return "site_down"
 
     # Session expired
     if any(phrase in error_lower for phrase in [
         "session expired", "logged out", "deconectat",
-        "sesiune expirata"
+        "sesiune expirata", "session invalid", "token expired"
     ]):
         return "session_expired"
 
-    # Timeout
-    if "timeout" in error_lower or "timed out" in error_lower:
-        return "timeout"
+    # Login failed but NOT a password issue - ambiguous login failures
+    # Check this AFTER wrong_password to avoid false positives
+    if any(phrase in error_lower for phrase in [
+        "login failed", "could not detect authenticated",
+        "failed to login", "login unsuccessful", "stuck at",
+        "nu am putut autentifica", "autentificare esuata"
+    ]):
+        return "login_failed"
+
+    # Document sync/download errors (happens after successful login)
+    if any(phrase in error_lower for phrase in [
+        "download failed", "no documents", "extract failed",
+        "sync failed", "could not download", "document error",
+        "pdf error", "parse error"
+    ]):
+        return "sync_error"
 
     return "unknown"
 

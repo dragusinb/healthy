@@ -364,8 +364,12 @@
       "timeoutDesc": "The connection to the provider timed out. Please try again later.",
       "serverError": "Server Maintenance",
       "serverErrorDesc": "Our sync service is temporarily unavailable. This is not a problem with your account - please try again in a few minutes.",
-      "unknown": "Connection Problem",
-      "unknownDesc": "There was an unexpected problem connecting to your medical provider account."
+      "loginFailed": "Login Failed",
+      "loginFailedDesc": "We could not complete the login process. This is not necessarily a password issue - the provider's site may be having technical problems. Please try again later.",
+      "syncError": "Sync Error",
+      "syncErrorDesc": "We connected successfully, but there was a problem downloading documents. Please try again.",
+      "unknown": "Technical Error",
+      "unknownDesc": "A technical error occurred during sync. This is NOT a problem with your credentials. Please try again later or contact support if the issue persists."
     }
   },
   "evolution": {

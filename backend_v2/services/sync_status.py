@@ -101,11 +101,15 @@ def status_error(user_id: int, provider_name: str, error_msg: str, error_type: s
     """Set error status with categorized error type.
 
     Error types:
-    - wrong_password: Invalid credentials
+    - wrong_password: Invalid credentials (user should update password)
     - captcha_failed: CAPTCHA solving failed/required
     - site_down: Provider site unavailable
+    - server_error: Server-side issue (XServer, display, etc.)
     - session_expired: Login session expired
-    - unknown: Other/unknown error
+    - timeout: Operation timed out
+    - login_failed: Login failed for unknown reason (NOT a password issue)
+    - sync_error: Document sync/download failed (after successful login)
+    - unknown: Other/unknown error (NOT a credential issue)
     """
     set_status(user_id, provider_name, "error", error_msg,
                is_complete=True, is_error=True, error_type=error_type)

@@ -354,7 +354,9 @@ class NotificationService:
                 "server_error": "Eroare de server. Echipa tehnică a fost notificată.",
                 "session_expired": "Sesiunea a expirat. Trebuie să te reautentifici.",
                 "timeout": "Operațiunea a durat prea mult. Vom reîncerca automat.",
-                "unknown": "A apărut o eroare neașteptată. Vom investiga."
+                "login_failed": "Nu am putut finaliza autentificarea. Aceasta nu este neapărat o problemă cu parola - site-ul poate avea probleme tehnice.",
+                "sync_error": "Autentificarea a reușit, dar a apărut o problemă la descărcarea documentelor.",
+                "unknown": "A apărut o eroare tehnică. Aceasta NU este o problemă cu credențialele tale."
             },
             "en": {
                 "wrong_password": "Password or username are incorrect. Please verify your credentials.",
@@ -363,7 +365,9 @@ class NotificationService:
                 "server_error": "Server error. The technical team has been notified.",
                 "session_expired": "Your session has expired. You need to re-authenticate.",
                 "timeout": "The operation took too long. We'll retry automatically.",
-                "unknown": "An unexpected error occurred. We'll investigate."
+                "login_failed": "We couldn't complete the login. This is not necessarily a password issue - the site may be having technical problems.",
+                "sync_error": "Login was successful, but there was a problem downloading documents.",
+                "unknown": "A technical error occurred. This is NOT a problem with your credentials."
             }
         }
 
