@@ -1,5 +1,5 @@
 """Support ticket router for feedback button functionality."""
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
@@ -12,10 +12,12 @@ try:
     from backend_v2.database import get_db
     from backend_v2.models import User, SupportTicket, SupportTicketReply, SupportTicketAttachment
     from backend_v2.routers.auth import oauth2_scheme
+    from backend_v2.services.email_service import get_email_service
 except ImportError:
     from database import get_db
     from models import User, SupportTicket, SupportTicketReply, SupportTicketAttachment
     from routers.auth import oauth2_scheme
+    from services.email_service import get_email_service
 
 router = APIRouter(prefix="/support", tags=["support"])
 
@@ -394,6 +396,7 @@ def get_ticket_admin(
 def update_ticket_status(
     ticket_id: int,
     request: UpdateTicketStatusRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
@@ -407,6 +410,7 @@ def update_ticket_status(
     if request.ai_status not in valid_statuses:
         raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
 
+    old_status = ticket.ai_status
     ticket.ai_status = request.ai_status
     if request.ai_response:
         ticket.ai_response = request.ai_response
@@ -420,5 +424,21 @@ def update_ticket_status(
 
     ticket.updated_at = datetime.datetime.utcnow()
     db.commit()
+
+    # Send email notification when ticket is resolved
+    if request.ai_status == "fixed" and old_status != "fixed" and ticket.reporter_email:
+        def send_resolution_email():
+            try:
+                email_service = get_email_service()
+                email_service.send_ticket_resolved_email(
+                    to_email=ticket.reporter_email,
+                    ticket_number=ticket.ticket_number,
+                    resolution_message=ticket.ai_response,
+                    language="ro"  # Default to Romanian
+                )
+            except Exception as e:
+                logging.error(f"Failed to send ticket resolution email: {e}")
+
+        background_tasks.add_task(send_resolution_email)
 
     return {"success": True, "message": f"Ticket status updated to {request.ai_status}"}

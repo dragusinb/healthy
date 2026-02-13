@@ -265,6 +265,135 @@ If you didn't request a password reset, you can ignore this email.
 
         return self.send_email(to_email, subject, html_body, text_body)
 
+    def send_ticket_resolved_email(
+        self,
+        to_email: str,
+        ticket_number: str,
+        resolution_message: Optional[str] = None,
+        language: str = "ro"
+    ) -> bool:
+        """Send notification when a support ticket is resolved."""
+        tickets_url = f"{self.app_url}/support"
+
+        if language == "ro":
+            subject = f"Tichetul {ticket_number} a fost rezolvat - Analize.online"
+            resolution_html = ""
+            resolution_text = ""
+            if resolution_message:
+                resolution_html = f"""
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                            <p style="margin: 0; color: #166534; font-weight: 500;">Mesaj de la echipa de suport:</p>
+                            <p style="margin: 10px 0 0 0; color: #15803d; white-space: pre-wrap;">{resolution_message}</p>
+                        </div>
+                """
+                resolution_text = f"\nMesaj de la echipa de suport:\n{resolution_message}\n"
+
+            html_body = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+                    .content {{ background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }}
+                    .button {{ display: inline-block; background: #22c55e; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }}
+                    .footer {{ text-align: center; color: #64748b; font-size: 12px; margin-top: 20px; }}
+                    .ticket-badge {{ display: inline-block; background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 14px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1 style="margin:0;">✅ Tichet Rezolvat</h1>
+                    </div>
+                    <div class="content">
+                        <p>Bună,</p>
+                        <p>Tichetul tău <span class="ticket-badge">{ticket_number}</span> a fost rezolvat.</p>
+                        {resolution_html}
+                        <p>Mulțumim că ne-ai semnalat problema! Feedback-ul tău ne ajută să îmbunătățim aplicația.</p>
+                        <p style="text-align: center;">
+                            <a href="{tickets_url}" class="button">Vezi Tichetele</a>
+                        </p>
+                    </div>
+                    <div class="footer">
+                        <p>Acest email a fost trimis automat de Analize.online</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            text_body = f"""
+Bună,
+
+Tichetul tău {ticket_number} a fost rezolvat.
+{resolution_text}
+Mulțumim că ne-ai semnalat problema! Feedback-ul tău ne ajută să îmbunătățim aplicația.
+
+Vezi tichetele tale: {tickets_url}
+            """
+        else:
+            subject = f"Ticket {ticket_number} has been resolved - Analize.online"
+            resolution_html = ""
+            resolution_text = ""
+            if resolution_message:
+                resolution_html = f"""
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                            <p style="margin: 0; color: #166534; font-weight: 500;">Message from support team:</p>
+                            <p style="margin: 10px 0 0 0; color: #15803d; white-space: pre-wrap;">{resolution_message}</p>
+                        </div>
+                """
+                resolution_text = f"\nMessage from support team:\n{resolution_message}\n"
+
+            html_body = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }}
+                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                    .header {{ background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+                    .content {{ background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }}
+                    .button {{ display: inline-block; background: #22c55e; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }}
+                    .footer {{ text-align: center; color: #64748b; font-size: 12px; margin-top: 20px; }}
+                    .ticket-badge {{ display: inline-block; background: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 14px; }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1 style="margin:0;">✅ Ticket Resolved</h1>
+                    </div>
+                    <div class="content">
+                        <p>Hello,</p>
+                        <p>Your ticket <span class="ticket-badge">{ticket_number}</span> has been resolved.</p>
+                        {resolution_html}
+                        <p>Thank you for reporting the issue! Your feedback helps us improve the application.</p>
+                        <p style="text-align: center;">
+                            <a href="{tickets_url}" class="button">View Tickets</a>
+                        </p>
+                    </div>
+                    <div class="footer">
+                        <p>This email was sent automatically by Analize.online</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
+            text_body = f"""
+Hello,
+
+Your ticket {ticket_number} has been resolved.
+{resolution_text}
+Thank you for reporting the issue! Your feedback helps us improve the application.
+
+View your tickets: {tickets_url}
+            """
+
+        return self.send_email(to_email, subject, html_body, text_body)
+
 
 # Singleton instance
 _email_service = None
