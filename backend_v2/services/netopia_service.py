@@ -10,7 +10,7 @@ import hashlib
 import hmac
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, Tuple
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -122,7 +122,7 @@ class NetopiaService:
         root = ET.Element("order", {
             "type": "card",
             "id": order_id,
-            "timestamp": datetime.utcnow().strftime("%Y%m%d%H%M%S")
+            "timestamp": datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
         })
 
         # Signature (merchant ID)

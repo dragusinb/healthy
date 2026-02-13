@@ -1,9 +1,12 @@
 """Encryption utilities for sensitive data storage."""
 import os
 import base64
+import logging
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+logger = logging.getLogger(__name__)
 
 # Get encryption key from environment or generate a warning
 _ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
@@ -72,10 +75,10 @@ def decrypt_password(encrypted_password: str) -> str:
         decrypted = f.decrypt(encrypted_password.encode())
         return decrypted.decode()
     except ValueError as e:
-        print(f"WARNING: {e}")
+        logger.warning(f"Encryption key issue: {e}")
         # Assume it's a legacy plain password
         return encrypted_password
     except Exception as e:
-        print(f"Decryption failed: {e}")
+        logger.warning(f"Decryption failed, returning as legacy password: {type(e).__name__}")
         # Return as-is for legacy compatibility
         return encrypted_password

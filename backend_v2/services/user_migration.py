@@ -295,16 +295,16 @@ def setup_vault_for_legacy_user(
     Returns:
         Tuple of (vault, recovery_key, migration_stats)
     """
-    import datetime
+    from datetime import datetime, timezone
+    import json
 
     # Create vault
     vault = UserVault(user.id)
     vault_result = vault.setup_vault(password)
 
     # Store vault configuration
-    import json
     user.vault_data = json.dumps(vault_result['vault_data'])
-    user.vault_setup_at = datetime.datetime.utcnow()
+    user.vault_setup_at = datetime.now(timezone.utc)
     db.commit()
 
     # Migrate existing data

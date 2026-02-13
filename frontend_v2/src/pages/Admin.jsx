@@ -93,6 +93,7 @@ const ErrorModal = ({ job, onClose, t }) => {
 
 // Countdown Timer Component
 const CountdownTimer = ({ targetTime }) => {
+    const { t } = useTranslation();
     const [timeLeft, setTimeLeft] = useState('');
 
     useEffect(() => {
@@ -103,7 +104,7 @@ const CountdownTimer = ({ targetTime }) => {
             const diff = target - now;
 
             if (diff <= 0) {
-                setTimeLeft(t ? t('admin.runningNow') : 'Running now...');
+                setTimeLeft(t('admin.runningNow') || 'Running now...');
                 return;
             }
 

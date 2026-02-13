@@ -1,6 +1,6 @@
 """Background scheduler for automatic syncing of linked accounts."""
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
@@ -184,7 +184,7 @@ def check_and_run_syncs():
 
     db = SessionLocal()
     try:
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Find accounts that need syncing
         accounts = db.query(LinkedAccount).filter(
@@ -281,7 +281,7 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
             linked_account_id=account_id,
             provider_name=provider_name,
             status="running",
-            started_at=datetime.utcnow()
+            started_at=datetime.now(timezone.utc)
         )
         db.add(sync_job)
         account.status = "SYNCING"
@@ -313,7 +313,7 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
             error_type = classify_sync_error(error_msg)
             sync_job.status = "failed"
             sync_job.error_message = error_msg
-            sync_job.completed_at = datetime.utcnow()
+            sync_job.completed_at = datetime.now(timezone.utc)
             account.status = "ERROR"
             account.last_sync_error = error_msg
             account.error_type = error_type
@@ -339,9 +339,9 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
 
         # Success
         sync_job.status = "completed"
-        sync_job.completed_at = datetime.utcnow()
+        sync_job.completed_at = datetime.now(timezone.utc)
         account.status = "ACTIVE"
-        account.last_sync = datetime.utcnow()
+        account.last_sync = datetime.now(timezone.utc)
         account.last_sync_error = None
         account.consecutive_failures = 0
         db.commit()
@@ -387,7 +387,7 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
             if sync_job:
                 sync_job.status = "failed"
                 sync_job.error_message = error_msg
-                sync_job.completed_at = datetime.utcnow()
+                sync_job.completed_at = datetime.now(timezone.utc)
             db.commit()
         except Exception as e:
             logger.warning(f"Failed to update sync job status in DB: {e}")
@@ -545,7 +545,7 @@ def cleanup_stuck_syncs():
     db = SessionLocal()
     try:
         # 15 minutes is realistic max time for a sync - includes login, download, processing
-        cutoff = datetime.utcnow() - timedelta(minutes=15)
+        cutoff = datetime.now(timezone.utc) - timedelta(minutes=15)
 
         # Find stuck sync jobs
         stuck_jobs = db.query(SyncJob).filter(
@@ -556,7 +556,7 @@ def cleanup_stuck_syncs():
         for job in stuck_jobs:
             job.status = "failed"
             job.error_message = "Sync timed out (stuck for >15 minutes)"
-            job.completed_at = datetime.utcnow()
+            job.completed_at = datetime.now(timezone.utc)
 
             # Reset account status
             account = db.query(LinkedAccount).filter(

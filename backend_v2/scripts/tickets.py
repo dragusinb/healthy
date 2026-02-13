@@ -26,7 +26,7 @@ Examples:
 
 import sys
 import os
-import datetime
+from datetime import datetime, timezone
 import argparse
 
 # Add parent directory to path for imports
@@ -147,10 +147,10 @@ def resolve_ticket(ticket_id, response):
 
     ticket.ai_status = "fixed"
     ticket.ai_response = response
-    ticket.ai_fixed_at = datetime.datetime.utcnow()
+    ticket.ai_fixed_at = datetime.now(timezone.utc)
     ticket.status = "resolved"
-    ticket.resolved_at = datetime.datetime.utcnow()
-    ticket.updated_at = datetime.datetime.utcnow()
+    ticket.resolved_at = datetime.now(timezone.utc)
+    ticket.updated_at = datetime.now(timezone.utc)
 
     db.commit()
     print(f"Ticket {ticket.ticket_number} marked as FIXED")
@@ -191,7 +191,7 @@ def skip_ticket(ticket_id, reason):
 
     ticket.ai_status = "skipped"
     ticket.ai_response = f"Skipped: {reason}"
-    ticket.updated_at = datetime.datetime.utcnow()
+    ticket.updated_at = datetime.now(timezone.utc)
 
     db.commit()
     print(f"Ticket {ticket.ticket_number} marked as SKIPPED")
@@ -211,7 +211,7 @@ def escalate_ticket(ticket_id, reason):
 
     ticket.ai_status = "escalated"
     ticket.ai_response = f"Escalated: {reason}"
-    ticket.updated_at = datetime.datetime.utcnow()
+    ticket.updated_at = datetime.now(timezone.utc)
 
     db.commit()
     print(f"Ticket {ticket.ticket_number} marked as ESCALATED for human review")

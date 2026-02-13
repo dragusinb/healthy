@@ -1,13 +1,17 @@
 """
 Migration: Add performance indexes to improve query speed.
 
-This migration adds indexes on:
-1. linked_accounts.user_id - for user account lookups
-2. linked_accounts.provider_name - for provider filtering
-3. documents.user_id - for user document queries
-4. test_results.document_id - for document join queries
+This migration adds indexes on frequently queried columns:
+- linked_accounts: user_id, provider_name
+- documents: user_id, is_processed
+- test_results: document_id
+- health_reports: user_id, created_at
+- support_tickets: status, reporter_id, ai_status
+- notifications: user_id, is_read
+- sync_jobs: user_id, status
 
 Run this script once after deploying the code changes.
+Safe to run multiple times - existing indexes are skipped.
 """
 
 import sys
@@ -21,10 +25,26 @@ from database import engine
 
 # Index definitions: (table_name, column_name, index_name)
 INDEXES = [
+    # Original indexes
     ("linked_accounts", "user_id", "ix_linked_accounts_user_id"),
     ("linked_accounts", "provider_name", "ix_linked_accounts_provider_name"),
     ("documents", "user_id", "ix_documents_user_id"),
     ("test_results", "document_id", "ix_test_results_document_id"),
+    # Health reports - for report listing and filtering
+    ("health_reports", "user_id", "ix_health_reports_user_id"),
+    ("health_reports", "created_at", "ix_health_reports_created_at"),
+    # Support tickets - for ticket management
+    ("support_tickets", "status", "ix_support_tickets_status"),
+    ("support_tickets", "reporter_id", "ix_support_tickets_reporter_id"),
+    ("support_tickets", "ai_status", "ix_support_tickets_ai_status"),
+    # Notifications - for unread counts and user queries
+    ("notifications", "user_id", "ix_notifications_user_id"),
+    ("notifications", "is_read", "ix_notifications_is_read"),
+    # Documents - for processing status
+    ("documents", "is_processed", "ix_documents_is_processed"),
+    # Sync jobs - for job management
+    ("sync_jobs", "user_id", "ix_sync_jobs_user_id"),
+    ("sync_jobs", "status", "ix_sync_jobs_status"),
 ]
 
 

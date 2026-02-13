@@ -1,6 +1,11 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, Text, LargeBinary, Index
 from sqlalchemy.orm import relationship
-import datetime
+from datetime import datetime, timezone
+
+
+def utc_now():
+    """Return current UTC time as timezone-aware datetime."""
+    return datetime.now(timezone.utc)
 
 try:
     from backend_v2.database import Base
@@ -15,8 +20,8 @@ class VaultConfig(Base):
     id = Column(Integer, primary_key=True, index=True)
     salt = Column(String, nullable=False)  # Base64 encoded salt
     master_key_hash = Column(String, nullable=False)  # Hash for password verification
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
 class User(Base):
     __tablename__ = "users"
@@ -27,7 +32,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)  # Admin access
     language = Column(String, default="ro")  # User's preferred language (ro/en)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     # Email verification
     email_verified = Column(Boolean, default=False)
@@ -110,7 +115,7 @@ class Document(Base):
     encrypted_path = Column(String, nullable=True)  # Path to vault-encrypted file
     is_encrypted = Column(Boolean, default=False)  # Whether file is vault-encrypted
     provider = Column(String)  # "Regina Maria", "Synevo", "Upload"
-    upload_date = Column(DateTime, default=datetime.datetime.utcnow)
+    upload_date = Column(DateTime, default=utc_now)
     document_date = Column(DateTime, nullable=True)
     is_processed = Column(Boolean, default=False)
     patient_name = Column(String, nullable=True)  # Legacy - will be removed
@@ -155,7 +160,7 @@ class HealthReport(Base):
     # Vault-encrypted content (JSON with summary, findings, recommendations)
     content_enc = Column(LargeBinary, nullable=True)  # Encrypted with vault
     risk_level = Column(String, default="normal")  # normal, attention, concern, urgent - kept for filtering
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
     biomarkers_analyzed = Column(Integer, default=0)
 
     user = relationship("User", back_populates="health_reports")
@@ -176,7 +181,7 @@ class SyncJob(Base):
     documents_processed = Column(Integer, default=0)
     error_message = Column(String, nullable=True)
     retry_count = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     user = relationship("User")
     linked_account = relationship("LinkedAccount")
@@ -194,7 +199,7 @@ class Notification(Base):
     data = Column(Text, nullable=True)  # JSON with additional context
     is_read = Column(Boolean, default=False)
     is_sent_email = Column(Boolean, default=False)  # Email already sent
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
     sent_at = Column(DateTime, nullable=True)
 
     user = relationship("User", back_populates="notifications")
@@ -228,7 +233,7 @@ class NotificationPreference(Base):
     quiet_hours_start = Column(Integer, nullable=True)  # 0-23
     quiet_hours_end = Column(Integer, nullable=True)  # 0-23
 
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
     user = relationship("User", back_populates="notification_preferences")
 
@@ -254,8 +259,8 @@ class PushSubscription(Base):
     last_used = Column(DateTime, nullable=True)
     failure_count = Column(Integer, default=0)  # Track delivery failures
 
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
     user = relationship("User", back_populates="push_subscriptions")
 
@@ -287,8 +292,8 @@ class Subscription(Base):
     cancel_at_period_end = Column(Boolean, default=False)
 
     # Timestamps
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
     user = relationship("User", back_populates="subscription")
 
@@ -302,7 +307,7 @@ class UsageTracker(Base):
 
     # Monthly counters (reset on billing cycle)
     ai_analyses_this_month = Column(Integer, default=0)
-    month_start = Column(DateTime, default=datetime.datetime.utcnow)
+    month_start = Column(DateTime, default=utc_now)
 
     # Lifetime stats
     total_ai_analyses = Column(Integer, default=0)
@@ -319,7 +324,7 @@ class FamilyGroup(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
     name = Column(String, default="My Family")
     invite_code = Column(String, unique=True, nullable=True)  # For invite links
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     owner = relationship("User", foreign_keys=[owner_id], back_populates="owned_family")
     members = relationship("FamilyMember", back_populates="family", cascade="all, delete-orphan")
@@ -333,7 +338,7 @@ class FamilyMember(Base):
     family_id = Column(Integer, ForeignKey("family_groups.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
     role = Column(String, default="member")  # owner, admin, member
-    joined_at = Column(DateTime, default=datetime.datetime.utcnow)
+    joined_at = Column(DateTime, default=utc_now)
 
     family = relationship("FamilyGroup", back_populates="members")
     user = relationship("User", back_populates="family_membership")
@@ -356,7 +361,7 @@ class AuditLog(Base):
     ip_address = Column(String, nullable=True)
     user_agent = Column(String, nullable=True)
     status = Column(String, default="success")  # success, failed, blocked
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utc_now, index=True)
 
     user = relationship("User", back_populates="audit_logs")
 
@@ -372,8 +377,8 @@ class UserSession(Base):
     user_agent = Column(String, nullable=True)
     device_fingerprint = Column(String, nullable=True)  # Browser fingerprint
     location = Column(String, nullable=True)  # Geo-location from IP
-    started_at = Column(DateTime, default=datetime.datetime.utcnow)
-    last_activity = Column(DateTime, default=datetime.datetime.utcnow)
+    started_at = Column(DateTime, default=utc_now)
+    last_activity = Column(DateTime, default=utc_now)
     ended_at = Column(DateTime, nullable=True)
     is_active = Column(Boolean, default=True)
 
@@ -395,7 +400,7 @@ class AbuseFlag(Base):
     resolved_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     resolved_at = Column(DateTime, nullable=True)
     resolution_notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=utc_now, index=True)
 
     user = relationship("User", foreign_keys=[user_id], back_populates="abuse_flags")
 
@@ -408,7 +413,7 @@ class RateLimitCounter(Base):
     identifier = Column(String, index=True)  # user_id, ip_address, or combination
     action = Column(String, index=True)  # api_call, login, upload, analyze, etc.
     count = Column(Integer, default=0)
-    window_start = Column(DateTime, default=datetime.datetime.utcnow)
+    window_start = Column(DateTime, default=utc_now)
     window_minutes = Column(Integer, default=60)  # Window size in minutes
 
     __table_args__ = (
@@ -458,7 +463,7 @@ class OpenAIUsageLog(Base):
     __tablename__ = "openai_usage_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    timestamp = Column(DateTime, default=utc_now, index=True)
     date = Column(String, index=True)  # YYYY-MM-DD for daily aggregation
 
     # API call details
@@ -512,8 +517,8 @@ class SupportTicket(Base):
 
     # Timestamps
     resolved_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now, index=True)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
     # Relationships
     reporter = relationship("User", back_populates="support_tickets")
@@ -530,7 +535,7 @@ class SupportTicketReply(Base):
     message = Column(Text)
     author_email = Column(String)
     author_name = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     ticket = relationship("SupportTicket", back_populates="replies")
     attachments = relationship("SupportTicketAttachment", back_populates="reply", cascade="all, delete-orphan")
@@ -550,7 +555,7 @@ class SupportTicketAttachment(Base):
     file_size = Column(Integer)  # Size in bytes
     uploaded_by_name = Column(String, nullable=True)
 
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now)
 
     ticket = relationship("SupportTicket", back_populates="attachments")
     reply = relationship("SupportTicketReply", back_populates="attachments")

@@ -1,7 +1,7 @@
 """
 Audit logging, usage tracking, and abuse detection service.
 """
-import datetime
+from datetime import datetime, timedelta, timezone
 import json
 import hashlib
 from typing import Optional, Dict, Any, List
@@ -192,7 +192,7 @@ class AuditService:
         ).first()
 
         if session:
-            session.last_activity = datetime.datetime.utcnow()
+            session.last_activity = datetime.now(timezone.utc)
             self.db.commit()
 
     def end_session(self, user_id: int, token: str):
@@ -204,7 +204,7 @@ class AuditService:
 
         if session:
             session.is_active = False
-            session.ended_at = datetime.datetime.utcnow()
+            session.ended_at = datetime.now(timezone.utc)
             self.db.commit()
 
     def get_active_sessions(self, user_id: int) -> List[Dict]:
@@ -237,7 +237,7 @@ class AuditService:
             token_hash = hashlib.sha256(except_token.encode()).hexdigest()[:32]
             query = query.filter(UserSession.session_token != token_hash)
 
-        now = datetime.datetime.utcnow()
+        now = datetime.now(timezone.utc)
         query.update({
             UserSession.is_active: False,
             UserSession.ended_at: now
@@ -263,8 +263,8 @@ class AuditService:
         limit = custom_limit or config["limit"]
         window_minutes = custom_window or config["window_minutes"]
 
-        now = datetime.datetime.utcnow()
-        window_start = now - datetime.timedelta(minutes=window_minutes)
+        now = datetime.now(timezone.utc)
+        window_start = now - timedelta(minutes=window_minutes)
 
         # Get or create counter
         counter = self.db.query(RateLimitCounter).filter(
@@ -321,8 +321,8 @@ class AuditService:
         action: str
     ):
         """Check for potential abuse after an action."""
-        now = datetime.datetime.utcnow()
-        hour_ago = now - datetime.timedelta(hours=1)
+        now = datetime.now(timezone.utc)
+        hour_ago = now - timedelta(hours=1)
 
         # Check failed logins
         if action == "login_failed" and (user_id or ip_address):
@@ -363,7 +363,7 @@ class AuditService:
 
     def _check_account_sharing(self, user_id: int, ip_address: str):
         """Check for account sharing (multiple IPs in short time)."""
-        hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+        hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
 
         unique_ips = self.db.query(func.count(func.distinct(UserSession.ip_address))).filter(
             UserSession.user_id == user_id,
@@ -382,7 +382,7 @@ class AuditService:
 
     def _check_api_abuse(self, user_id: int, ip_address: Optional[str]):
         """Check for API abuse (scraping)."""
-        minute_ago = datetime.datetime.utcnow() - datetime.timedelta(minutes=1)
+        minute_ago = datetime.now(timezone.utc) - timedelta(minutes=1)
 
         api_calls = self.db.query(func.count(AuditLog.id)).filter(
             AuditLog.user_id == user_id,
@@ -409,7 +409,7 @@ class AuditService:
         details: Optional[Dict] = None
     ):
         """Create an abuse flag (avoid duplicates within 1 hour)."""
-        hour_ago = datetime.datetime.utcnow() - datetime.timedelta(hours=1)
+        hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
 
         # Check for existing unresolved flag of same type
         existing = self.db.query(AbuseFlag).filter(
@@ -483,7 +483,7 @@ class AuditService:
         if flag:
             flag.is_resolved = True
             flag.resolved_by = resolved_by
-            flag.resolved_at = datetime.datetime.utcnow()
+            flag.resolved_at = datetime.now(timezone.utc)
             flag.resolution_notes = notes
             self.db.commit()
 
@@ -498,7 +498,7 @@ class AuditService:
         increment: int = 1
     ):
         """Track a usage metric."""
-        today = datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
 
         metrics = self.db.query(UsageMetrics).filter(
             UsageMetrics.user_id == user_id,
@@ -522,7 +522,7 @@ class AuditService:
         days: int = 30
     ) -> List[Dict]:
         """Get usage metrics for a user."""
-        start_date = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         metrics = self.db.query(UsageMetrics).filter(
             UsageMetrics.user_id == user_id,
@@ -545,7 +545,7 @@ class AuditService:
 
     def get_system_metrics(self, days: int = 7) -> Dict:
         """Get system-wide metrics for admin dashboard."""
-        start_date = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+        start_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         # Aggregate metrics
         totals = self.db.query(

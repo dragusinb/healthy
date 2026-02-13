@@ -19,7 +19,7 @@ Generate keys using:
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session
 
@@ -92,7 +92,7 @@ class PushNotificationService:
             existing.device_name = device_name
             existing.is_active = True
             existing.failure_count = 0
-            existing.updated_at = datetime.utcnow()
+            existing.updated_at = datetime.now(timezone.utc)
             self.db.commit()
             logger.info(f"Updated push subscription for user {user_id}")
             return {"status": "updated", "subscription_id": existing.id}
@@ -255,7 +255,7 @@ class PushNotificationService:
             )
 
             # Update last used timestamp
-            subscription.last_used = datetime.utcnow()
+            subscription.last_used = datetime.now(timezone.utc)
             subscription.failure_count = 0
             return True
 

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from dotenv import load_dotenv
 import os
 import sys
@@ -54,6 +54,27 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "X-Vault-Token"],
 )
+
+
+# Security headers middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    # Prevent clickjacking
+    response.headers["X-Frame-Options"] = "DENY"
+    # Prevent MIME type sniffing
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    # XSS protection for older browsers
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    # Control referrer information
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    # Restrict browser features
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    # HSTS - only in production (when CORS_ORIGINS contains https://)
+    if any("https://" in o for o in origins):
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
+
 
 # Routers
 app.include_router(auth.router)
@@ -112,7 +133,7 @@ def health_check():
     Returns overall status: "healthy", "degraded", or "unhealthy"
     """
     import psutil
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     checks = {}
     issues = []
@@ -190,7 +211,7 @@ def health_check():
 
     return {
         "status": overall_status,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "checks": checks,
         "issues": issues if issues else None
     }

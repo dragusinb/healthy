@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
-import datetime
+from datetime import datetime, timezone
 import json
 import hashlib
 import os
@@ -1036,7 +1036,7 @@ def export_user_data(
         from models import Document, TestResult, HealthReport, Subscription, AuditLog, UserSession
 
     export_data = {
-        "export_date": datetime.datetime.utcnow().isoformat(),
+        "export_date": datetime.now(timezone.utc).isoformat(),
         "user_id": current_user.id,
         "account": {},
         "profile": {},

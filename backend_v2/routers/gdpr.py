@@ -7,7 +7,7 @@ import zipfile
 import shutil
 import tempfile
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from io import BytesIO
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
@@ -280,12 +280,12 @@ This ZIP file contains all your personal data stored in Analize.online.
 This export is provided in JSON format for easy import into other systems.
 
 Export date: {date}
-""".format(date=datetime.utcnow().isoformat())
+""".format(date=datetime.now(timezone.utc).isoformat())
         zip_file.writestr("README.txt", readme)
 
     zip_buffer.seek(0)
 
-    filename = f"analize_online_export_{current_user.id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.zip"
+    filename = f"analize_online_export_{current_user.id}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.zip"
 
     return StreamingResponse(
         zip_buffer,

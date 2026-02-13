@@ -10,7 +10,7 @@ Notification types:
 """
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 
@@ -175,7 +175,7 @@ class NotificationService:
 
         if success:
             notification.is_sent_email = True
-            notification.sent_at = datetime.utcnow()
+            notification.sent_at = datetime.now(timezone.utc)
             self.db.commit()
 
         return success

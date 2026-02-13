@@ -5,7 +5,7 @@ from sqlalchemy import func
 import psutil
 import os
 import subprocess
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 try:
     from backend_v2.database import get_db
@@ -34,7 +34,7 @@ def get_admin_stats(db: Session = Depends(get_db), admin: User = Depends(require
     # User stats
     total_users = db.query(User).count()
     active_users_24h = db.query(User).filter(
-        User.created_at > datetime.utcnow() - timedelta(hours=24)
+        User.created_at > datetime.now(timezone.utc) - timedelta(hours=24)
     ).count()
 
     # Document stats
@@ -56,10 +56,10 @@ def get_admin_stats(db: Session = Depends(get_db), admin: User = Depends(require
 
     # Recent sync jobs
     recent_syncs = db.query(SyncJob).filter(
-        SyncJob.created_at > datetime.utcnow() - timedelta(hours=24)
+        SyncJob.created_at > datetime.now(timezone.utc) - timedelta(hours=24)
     ).count()
     failed_syncs_24h = db.query(SyncJob).filter(
-        SyncJob.created_at > datetime.utcnow() - timedelta(hours=24),
+        SyncJob.created_at > datetime.now(timezone.utc) - timedelta(hours=24),
         SyncJob.status == "failed"
     ).count()
 
@@ -272,7 +272,7 @@ def set_user_admin(
 @router.post("/cleanup-limbo-documents")
 def cleanup_limbo_documents(db: Session = Depends(get_db), admin: User = Depends(require_admin)):
     """Clean up documents that are stuck in unprocessed state for too long."""
-    cutoff = datetime.utcnow() - timedelta(hours=1)
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
 
     # Find old unprocessed documents
     limbo_docs = db.query(Document).filter(
@@ -559,7 +559,7 @@ def get_sync_history(
     """Get sync job history for visual schedule display."""
     from sqlalchemy import func, cast, Date
 
-    cutoff = datetime.utcnow() - timedelta(days=days)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
     # Get all sync jobs in the period
     jobs = db.query(SyncJob).filter(SyncJob.created_at > cutoff).order_by(SyncJob.created_at).all()
@@ -1407,7 +1407,7 @@ def get_openai_daily_usage(
     except ImportError:
         from models import OpenAIUsageLog
 
-    cutoff = datetime.utcnow() - timedelta(days=days)
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
     daily = db.query(
         OpenAIUsageLog.date,

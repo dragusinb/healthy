@@ -5,7 +5,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException, Request, Form
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 try:
@@ -193,7 +193,7 @@ def simulate_payment_success(
         user_id=user_id,
         tier=tier,
         billing_cycle=billing_cycle,
-        stripe_subscription_id=f"test-{datetime.utcnow().timestamp()}"
+        stripe_subscription_id=f"test-{datetime.now(timezone.utc).timestamp()}"
     )
 
     return {

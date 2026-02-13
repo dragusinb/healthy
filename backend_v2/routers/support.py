@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 import os
 import base64
-import datetime
+from datetime import datetime, timezone
 import logging
 
 try:
@@ -416,13 +416,13 @@ def update_ticket_status(
         ticket.ai_response = request.ai_response
 
     if request.ai_status == "fixed":
-        ticket.ai_fixed_at = datetime.datetime.utcnow()
+        ticket.ai_fixed_at = datetime.now(timezone.utc)
         ticket.status = "resolved"
-        ticket.resolved_at = datetime.datetime.utcnow()
+        ticket.resolved_at = datetime.now(timezone.utc)
     elif request.ai_status == "skipped":
         ticket.status = "closed"
 
-    ticket.updated_at = datetime.datetime.utcnow()
+    ticket.updated_at = datetime.now(timezone.utc)
     db.commit()
 
     # Send email notification when ticket is resolved

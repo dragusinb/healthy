@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, field_validator
 import httpx
 import secrets
-import datetime
+from datetime import datetime, timedelta, timezone
 
 import json
 import logging
@@ -119,12 +119,12 @@ def register(
 
     # Generate verification token
     verification_token = generate_token()
-    token_expires = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+    token_expires = datetime.now(timezone.utc) + timedelta(hours=24)
 
     hashed_pw = get_password_hash(user.password)
 
     # Set consent timestamps if accepted
-    consent_time = datetime.datetime.utcnow() if user.accepted_terms else None
+    consent_time = datetime.now(timezone.utc) if user.accepted_terms else None
 
     new_user = User(
         email=user.email,
@@ -154,7 +154,7 @@ def register(
 
     # Store vault configuration in database
     new_user.vault_data = json.dumps(vault_result['vault_data'])
-    new_user.vault_setup_at = datetime.datetime.utcnow()
+    new_user.vault_setup_at = datetime.now(timezone.utc)
     db.commit()
 
     # Store unlocked vault in session
@@ -372,7 +372,7 @@ async def google_login(token_data: GoogleToken, request: Request, db: Session = 
         # They accept terms implicitly by using the service
         random_password = secrets.token_urlsafe(32)
         hashed_pw = get_password_hash(random_password)
-        consent_time = datetime.datetime.utcnow()
+        consent_time = datetime.now(timezone.utc)
         user = User(
             email=email,
             hashed_password=hashed_pw,
@@ -432,7 +432,7 @@ def verify_email(data: EmailVerifyRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=400, detail="Invalid verification token")
 
-    if user.verification_token_expires and user.verification_token_expires < datetime.datetime.utcnow():
+    if user.verification_token_expires and user.verification_token_expires < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Verification token expired")
 
     user.email_verified = True
@@ -462,7 +462,7 @@ def resend_verification(
     # Generate new token
     verification_token = generate_token()
     user.verification_token = verification_token
-    user.verification_token_expires = datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+    user.verification_token_expires = datetime.now(timezone.utc) + timedelta(hours=24)
     db.commit()
 
     # Send email
@@ -496,7 +496,7 @@ def forgot_password(
     # Generate reset token (expires in 1 hour)
     reset_token = generate_token()
     user.reset_token = reset_token
-    user.reset_token_expires = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    user.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
     db.commit()
 
     # Send email
@@ -541,7 +541,7 @@ def reset_password(
         )
         raise HTTPException(status_code=400, detail="Invalid reset token")
 
-    if user.reset_token_expires and user.reset_token_expires < datetime.datetime.utcnow():
+    if user.reset_token_expires and user.reset_token_expires < datetime.now(timezone.utc):
         audit.log_action(
             user_id=user.id,
             action="password_reset",
@@ -615,7 +615,7 @@ def reset_password_with_recovery(
         )
         raise HTTPException(status_code=400, detail="Invalid reset token")
 
-    if user.reset_token_expires and user.reset_token_expires < datetime.datetime.utcnow():
+    if user.reset_token_expires and user.reset_token_expires < datetime.now(timezone.utc):
         audit.log_action(
             user_id=user.id,
             action="password_reset_recovery",
@@ -695,7 +695,7 @@ def check_reset_token(
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
-    if user.reset_token_expires and user.reset_token_expires < datetime.datetime.utcnow():
+    if user.reset_token_expires and user.reset_token_expires < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
     return {
@@ -864,7 +864,7 @@ def setup_password(
 
     # Store vault configuration
     current_user.vault_data = json.dumps(vault_result['vault_data'])
-    current_user.vault_setup_at = datetime.datetime.utcnow()
+    current_user.vault_setup_at = datetime.now(timezone.utc)
     db.commit()
 
     # Store unlocked vault in session

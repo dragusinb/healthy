@@ -1,5 +1,5 @@
 """OpenAI API usage tracking service."""
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 # Model pricing per 1M tokens (as of Jan 2025)
@@ -56,8 +56,8 @@ def log_openai_call(
             cost = calculate_cost(model, tokens_input, tokens_output)
 
             log_entry = OpenAIUsageLog(
-                timestamp=datetime.utcnow(),
-                date=datetime.utcnow().strftime("%Y-%m-%d"),
+                timestamp=datetime.now(timezone.utc),
+                date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
                 model=model,
                 purpose=purpose,
                 tokens_input=tokens_input,
@@ -121,7 +121,6 @@ def get_usage_summary(days: int = 30) -> dict:
     Returns:
         Dictionary with usage statistics
     """
-    from datetime import timedelta
     from sqlalchemy import func
 
     try:
@@ -134,7 +133,7 @@ def get_usage_summary(days: int = 30) -> dict:
 
         db = SessionLocal()
         try:
-            cutoff = datetime.utcnow() - timedelta(days=days)
+            cutoff = datetime.now(timezone.utc) - timedelta(days=days)
 
             # Total stats
             totals = db.query(

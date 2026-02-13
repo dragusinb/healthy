@@ -3,7 +3,7 @@ Subscription management service.
 
 Handles tier limits, quota enforcement, and usage tracking.
 """
-import datetime
+from datetime import datetime, timezone
 from typing import Tuple, Optional, Dict, Any
 from sqlalchemy.orm import Session
 
@@ -90,7 +90,7 @@ class SubscriptionService:
         if not tracker:
             tracker = UsageTracker(
                 user_id=user_id,
-                month_start=datetime.datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                month_start=datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             )
             self.db.add(tracker)
             self.db.commit()
@@ -215,7 +215,7 @@ class SubscriptionService:
 
     def _check_and_reset_monthly_usage(self, tracker: UsageTracker):
         """Reset monthly usage if we're in a new month."""
-        now = datetime.datetime.utcnow()
+        now = datetime.now(timezone.utc)
         current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         if tracker.month_start < current_month_start:
@@ -278,7 +278,7 @@ class SubscriptionService:
         subscription.stripe_customer_id = stripe_customer_id
         subscription.stripe_subscription_id = stripe_subscription_id
         subscription.stripe_price_id = stripe_price_id
-        subscription.current_period_start = datetime.datetime.utcnow()
+        subscription.current_period_start = datetime.now(timezone.utc)
 
         # Set period end based on billing cycle
         if billing_cycle == "yearly":
