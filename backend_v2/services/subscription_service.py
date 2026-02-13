@@ -3,7 +3,7 @@ Subscription management service.
 
 Handles tier limits, quota enforcement, and usage tracking.
 """
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Tuple, Optional, Dict, Any
 from sqlalchemy.orm import Session
 
@@ -282,9 +282,9 @@ class SubscriptionService:
 
         # Set period end based on billing cycle
         if billing_cycle == "yearly":
-            subscription.current_period_end = subscription.current_period_start + datetime.timedelta(days=365)
+            subscription.current_period_end = subscription.current_period_start + timedelta(days=365)
         else:
-            subscription.current_period_end = subscription.current_period_start + datetime.timedelta(days=30)
+            subscription.current_period_end = subscription.current_period_start + timedelta(days=30)
 
         self.db.commit()
         self.db.refresh(subscription)

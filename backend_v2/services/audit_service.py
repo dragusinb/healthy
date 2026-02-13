@@ -105,8 +105,8 @@ class AuditService:
         limit: int = 100,
         offset: int = 0,
         action_filter: Optional[str] = None,
-        start_date: Optional[datetime.datetime] = None,
-        end_date: Optional[datetime.datetime] = None
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None
     ) -> List[AuditLog]:
         """Get audit logs for a user."""
         query = self.db.query(AuditLog).filter(AuditLog.user_id == user_id)
@@ -336,7 +336,7 @@ class AuditService:
         self,
         user_id: Optional[int],
         ip_address: Optional[str],
-        since: datetime.datetime
+        since: datetime
     ):
         """Check for brute force login attempts."""
         query = self.db.query(func.count(AuditLog.id)).filter(

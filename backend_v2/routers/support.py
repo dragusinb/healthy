@@ -76,8 +76,8 @@ class TicketResponse(BaseModel):
     status: str
     ai_status: str
     ai_response: Optional[str]
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime
+    updated_at: datetime
     attachments_count: int
 
     class Config:
@@ -97,10 +97,10 @@ class TicketDetailResponse(BaseModel):
     reporter_name: Optional[str]
     ai_status: str
     ai_response: Optional[str]
-    ai_fixed_at: Optional[datetime.datetime]
-    resolved_at: Optional[datetime.datetime]
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    ai_fixed_at: Optional[datetime]
+    resolved_at: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
     attachments: List[dict]
     replies: List[dict]
 
@@ -127,8 +127,8 @@ class AdminTicketResponse(BaseModel):
     reporter_name: Optional[str]
     ai_status: str
     ai_response: Optional[str]
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime
+    updated_at: datetime
     attachments_count: int
 
     class Config:

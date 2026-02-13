@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import datetime, date, timezone
 import json
 import hashlib
 import os
@@ -198,10 +198,10 @@ def get_profile_data(user: User) -> dict:
     dob_datetime = None
     if isinstance(date_of_birth, str):
         try:
-            dob_datetime = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d")
+            dob_datetime = datetime.strptime(date_of_birth, "%Y-%m-%d")
         except (ValueError, TypeError):
             pass
-    elif isinstance(date_of_birth, datetime.datetime):
+    elif isinstance(date_of_birth, datetime):
         dob_datetime = date_of_birth
         date_of_birth = date_of_birth.strftime("%Y-%m-%d")
 
@@ -223,9 +223,9 @@ def get_profile_data(user: User) -> dict:
     }
 
 
-def calculate_age(dob: datetime.datetime) -> int:
+def calculate_age(dob: datetime) -> int:
     """Calculate age from date of birth."""
-    today = datetime.date.today()
+    today = date.today()
     return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
 
@@ -268,7 +268,7 @@ def update_profile(
             current_user.date_of_birth = None
         else:
             try:
-                dob = datetime.datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
+                dob = datetime.strptime(profile.date_of_birth, "%Y-%m-%d")
                 if use_vault:
                     current_user.date_of_birth_enc = vault_helper.encrypt_data(profile.date_of_birth)
                     current_user.date_of_birth = None  # Clear legacy
@@ -558,7 +558,7 @@ def scan_profile_from_documents(
         # Try direct date_of_birth first
         if merged_profile.get("date_of_birth"):
             try:
-                dob = datetime.datetime.strptime(merged_profile["date_of_birth"], "%Y-%m-%d")
+                dob = datetime.strptime(merged_profile["date_of_birth"], "%Y-%m-%d")
                 dob_str = merged_profile["date_of_birth"]
                 updates_made.append("date_of_birth")
             except (ValueError, TypeError):
@@ -568,11 +568,11 @@ def scan_profile_from_documents(
             try:
                 age = int(merged_profile["age_years"])
                 # Use document date for accurate calculation, fallback to today
-                reference_date = age_document_date if age_document_date else datetime.date.today()
+                reference_date = age_document_date if age_document_date else date.today()
                 if hasattr(reference_date, 'year'):
                     birth_year = reference_date.year - age
                 else:
-                    birth_year = datetime.date.today().year - age
+                    birth_year = date.today().year - age
                 # Approximate birth date (use January 1st of birth year)
                 dob_str = f"{birth_year}-01-01"
                 updates_made.append("date_of_birth (estimated from age)")
@@ -584,7 +584,7 @@ def scan_profile_from_documents(
                 current_user.date_of_birth_enc = vault_helper.encrypt_data(dob_str)
                 current_user.date_of_birth = None  # Clear legacy
             else:
-                current_user.date_of_birth = datetime.datetime.strptime(dob_str, "%Y-%m-%d")
+                current_user.date_of_birth = datetime.strptime(dob_str, "%Y-%m-%d")
 
     if merged_profile.get("gender") and not current_gender:
         if merged_profile["gender"] in ["male", "female"]:
@@ -909,7 +909,7 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
                     file_hash=file_hash,
                     provider=provider_name,
                     document_date=doc_info["date"],
-                    upload_date=datetime.datetime.now(),
+                    upload_date=datetime.now(),
                     is_processed=False,
                     is_encrypted=True
                 )
@@ -963,7 +963,7 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
                     # Update document date from AI-extracted metadata
                     if "metadata" in parsed_data and parsed_data["metadata"].get("date"):
                         try:
-                            extracted_date = datetime.datetime.strptime(
+                            extracted_date = datetime.strptime(
                                 parsed_data["metadata"]["date"], "%Y-%m-%d"
                             )
                             new_doc.document_date = extracted_date
@@ -990,7 +990,7 @@ def run_sync_task(user_id: int, provider_name: str, account_id: int):
 
         # Update linked account status to success
         account.status = "ACTIVE"
-        account.last_sync = datetime.datetime.now()
+        account.last_sync = datetime.now()
         account.last_sync_error = None
         account.consecutive_failures = 0
         db.commit()
@@ -1162,7 +1162,7 @@ def export_user_data(
     return JSONResponse(
         content=export_data,
         headers={
-            "Content-Disposition": f"attachment; filename=analize_online_data_export_{datetime.datetime.now().strftime('%Y%m%d')}.json"
+            "Content-Disposition": f"attachment; filename=analize_online_data_export_{datetime.now().strftime('%Y%m%d')}.json"
         }
     )
 

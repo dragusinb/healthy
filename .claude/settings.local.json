@@ -117,7 +117,10 @@
       "Bash(for file in /opt/claude-dev-hub/projects/da6bb609-3d8a-4a38-8d52-c1538d88b775/frontend_v2/src/pages/{Dashboard,Documents,Biomarkers,Profile,LinkedAccounts,HealthReports}.jsx)",
       "Bash(chmod:*)",
       "Bash(openssl s_client:*)",
-      "Bash(openssl x509:*)"
+      "Bash(openssl x509:*)",
+      "Bash(npm install:*)",
+      "Bash(npm audit:*)",
+      "Bash(pip check:*)"
     ]
   }
 }
