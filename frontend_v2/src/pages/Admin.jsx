@@ -7,8 +7,7 @@ import {
     Trash2, RotateCcw, Play, Brain, Power,
     Clock, XCircle, UserSearch, Calendar,
     Zap, X, KeyRound, Wifi, Timer, Bug, Download, User,
-    Lock, Unlock, ShieldCheck, ShieldOff, Crown, Star, Users2,
-    DollarSign, TrendingUp, Cpu
+    Crown, Star, Users2, DollarSign, TrendingUp, Cpu
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -300,7 +299,6 @@ const Admin = () => {
     const [selectedJob, setSelectedJob] = useState(null); // For error modal
     const [syncHistory, setSyncHistory] = useState(null);
     const [schedulerStatus, setSchedulerStatus] = useState(null);
-    const [vaultStatus, setVaultStatus] = useState(null);
     const [openaiUsage, setOpenaiUsage] = useState(null);
 
     useEffect(() => {
@@ -311,14 +309,13 @@ const Admin = () => {
         setLoading(true);
         setError(null);
         try {
-            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes, vaultRes, openaiRes] = await Promise.all([
+            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes, openaiRes] = await Promise.all([
                 api.get('/admin/stats'),
                 api.get('/admin/server'),
                 api.get('/admin/users'),
                 api.get('/admin/sync-jobs?limit=20'),
                 api.get('/admin/sync-history?days=14'),
                 api.get('/admin/scheduler-status'),
-                api.get('/admin/vault/status'),
                 api.get('/admin/openai-usage?days=30').catch(() => ({ data: null }))
             ]);
             setStats(statsRes.data);
@@ -327,7 +324,6 @@ const Admin = () => {
             setSyncJobs(jobsRes.data);
             setSyncHistory(historyRes.data);
             setSchedulerStatus(schedulerRes.data);
-            setVaultStatus(vaultRes.data);
             setOpenaiUsage(openaiRes.data);
         } catch (e) {
             console.error("Failed to fetch admin data", e);
@@ -406,21 +402,6 @@ const Admin = () => {
         }
     };
 
-    const handleLockVault = async () => {
-        if (!confirm(t('vault.lockConfirm') || 'Are you sure you want to lock the vault? All encrypted data will become inaccessible until the vault is unlocked again.')) {
-            return;
-        }
-        setActionLoading('lockvault');
-        try {
-            await api.post('/admin/vault/lock');
-            alert(t('vault.lockedSuccess') || 'Vault locked successfully');
-            fetchData();
-        } catch (e) {
-            alert(e.response?.data?.detail || "Failed to lock vault");
-        } finally {
-            setActionLoading(null);
-        }
-    };
 
     const handleTriggerSync = async () => {
         setActionLoading('triggersync');
@@ -555,62 +536,8 @@ const Admin = () => {
                 </div>
             )}
 
-            {/* System Vault Status - Admin only, legacy support */}
-            {vaultStatus && (
-                <div className="card p-6 border border-slate-200">
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-xl bg-slate-100 text-slate-600">
-                                <ShieldCheck size={28} />
-                            </div>
-                            <div>
-                                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                    {t('vault.systemVaultTitle') || 'System Vault (Admin)'}
-                                    <span className={cn(
-                                        "text-xs px-2 py-0.5 rounded-full",
-                                        vaultStatus.ready
-                                            ? "bg-teal-100 text-teal-700"
-                                            : "bg-slate-100 text-slate-600"
-                                    )}>
-                                        {vaultStatus.ready
-                                            ? t('vault.unlocked') || 'Unlocked'
-                                            : t('vault.locked') || 'Locked'}
-                                    </span>
-                                </h2>
-                                <p className="text-sm text-slate-500">
-                                    {t('vault.systemVaultDescription') || 'Legacy vault for admin operations and data migration'}
-                                </p>
-                                <p className="text-sm text-teal-600 mt-1">
-                                    {t('vault.perUserVaultInfo') || 'User data is encrypted with individual per-user vaults (auto-unlocked on login)'}
-                                </p>
-                            </div>
-                        </div>
-                        {vaultStatus.ready && (
-                            <button
-                                onClick={handleLockVault}
-                                disabled={actionLoading === 'lockvault'}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-500 text-white hover:bg-slate-600 rounded-lg transition-colors disabled:opacity-50 font-medium"
-                            >
-                                {actionLoading === 'lockvault' ? (
-                                    <Loader2 size={18} className="animate-spin" />
-                                ) : (
-                                    <Lock size={18} />
-                                )}
-                                {t('vault.lockButton') || 'Lock Vault'}
-                            </button>
-                        )}
-                        {!vaultStatus.ready && (
-                            <a
-                                href="/vault-unlock"
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-500 text-white hover:bg-slate-600 rounded-lg transition-colors font-medium"
-                            >
-                                <Unlock size={18} />
-                                {t('vault.unlockButton') || 'Unlock Vault'}
-                            </a>
-                        )}
-                    </div>
-                </div>
-            )}
+            {/* Legacy System Vault - Hidden by default, only for data migration if needed */}
+            {/* Access /vault-unlock directly if legacy data migration is required */}
 
             {/* OpenAI Usage Monitoring */}
             {openaiUsage && openaiUsage.totals && (
