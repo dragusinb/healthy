@@ -4,19 +4,20 @@ Process user feedback tickets and fix reported issues.
 
 ## Workflow
 
-1. **List pending tickets**
+1. **List pending tickets** (run on production server)
    ```bash
-   cd /opt/healthy && python backend_v2/scripts/tickets.py list --status=pending
+   ssh root@62.171.163.23 "cd /opt/healthy && /opt/healthy/backend_v2/venv/bin/python backend_v2/scripts/tickets.py list --status=pending"
    ```
 
 2. **For each pending ticket, show details**
    ```bash
-   python backend_v2/scripts/tickets.py show <id>
+   ssh root@62.171.163.23 "cd /opt/healthy && /opt/healthy/backend_v2/venv/bin/python backend_v2/scripts/tickets.py show <id>"
    ```
 
 3. **View screenshot if available**
-   - Screenshots are stored at: `data/uploads/support/<ticket_id>/screenshot.png`
-   - Use the Read tool to view the screenshot image
+   - Screenshots are stored on production at: `/opt/healthy/data/uploads/support/<ticket_id>/screenshot.png`
+   - Copy to local and view: `scp root@62.171.163.23:/opt/healthy/data/uploads/support/<ticket_id>/screenshot.png /tmp/`
+   - Use the Read tool to view: `/tmp/screenshot.png`
 
 4. **Map page_url to source files**
    - `/` → `frontend_v2/src/pages/Dashboard.jsx`
@@ -38,31 +39,36 @@ Process user feedback tickets and fix reported issues.
    - Make the fix using Edit tool
    - Test locally if possible
 
-6. **Resolve the ticket**
+6. **Resolve the ticket** (after deploying the fix)
    ```bash
-   python backend_v2/scripts/tickets.py resolve <id> "Description of what was fixed"
+   ssh root@62.171.163.23 "cd /opt/healthy && /opt/healthy/backend_v2/venv/bin/python backend_v2/scripts/tickets.py resolve <id> 'Description of what was fixed'"
    ```
 
 ## Commands Reference
 
+All commands run on the production server via SSH:
+
 ```bash
+# Shorthand for running ticket commands
+TICKETS="ssh root@62.171.163.23 'cd /opt/healthy && /opt/healthy/backend_v2/venv/bin/python backend_v2/scripts/tickets.py'"
+
 # List all pending tickets
-python backend_v2/scripts/tickets.py list --status=pending
+$TICKETS list --status=pending
 
 # Show ticket details
-python backend_v2/scripts/tickets.py show <id>
+$TICKETS show <id>
 
-# Mark as fixed
-python backend_v2/scripts/tickets.py resolve <id> "Fixed by updating..."
+# Mark as fixed (sends email notification to user)
+$TICKETS resolve <id> "Fixed by updating..."
 
 # Skip if not actionable
-python backend_v2/scripts/tickets.py skip <id> "Not a bug, user error"
+$TICKETS skip <id> "Not a bug, user error"
 
 # Escalate if needs human
-python backend_v2/scripts/tickets.py escalate <id> "Requires database change"
+$TICKETS escalate <id> "Requires database change"
 
 # View statistics
-python backend_v2/scripts/tickets.py stats
+$TICKETS stats
 ```
 
 ## Guidelines

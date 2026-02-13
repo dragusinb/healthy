@@ -39,9 +39,11 @@ from sqlalchemy.orm import sessionmaker
 try:
     from backend_v2.models import SupportTicket, SupportTicketAttachment
     from backend_v2.database import DATABASE_URL
+    from backend_v2.services.email_service import get_email_service
 except ImportError:
     from models import SupportTicket, SupportTicketAttachment
     from database import DATABASE_URL
+    from services.email_service import get_email_service
 
 
 def get_db_session():
@@ -152,6 +154,27 @@ def resolve_ticket(ticket_id, response):
 
     db.commit()
     print(f"Ticket {ticket.ticket_number} marked as FIXED")
+
+    # Send email notification
+    if ticket.reporter_email:
+        try:
+            email_service = get_email_service()
+            if email_service.is_configured():
+                sent = email_service.send_ticket_resolved_email(
+                    to_email=ticket.reporter_email,
+                    ticket_number=ticket.ticket_number,
+                    resolution_message=response,
+                    language="ro"
+                )
+                if sent:
+                    print(f"Email notification sent to {ticket.reporter_email}")
+                else:
+                    print(f"Warning: Failed to send email notification")
+            else:
+                print("Warning: Email service not configured, notification not sent")
+        except Exception as e:
+            print(f"Warning: Failed to send email: {e}")
+
     db.close()
 
 
