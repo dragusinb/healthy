@@ -112,6 +112,39 @@ class SnapshotResponse(BaseModel):
     message: str
 
 
+class AdminTicketResponse(BaseModel):
+    id: int
+    ticket_number: str
+    subject: str
+    description: str
+    page_url: str
+    type: str
+    priority: str
+    status: str
+    reporter_email: str
+    reporter_name: Optional[str]
+    ai_status: str
+    ai_response: Optional[str]
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+    attachments_count: int
+
+    class Config:
+        from_attributes = True
+
+
+class UpdateTicketStatusRequest(BaseModel):
+    ai_status: str  # pending, processing, fixed, skipped, escalated
+    ai_response: Optional[str] = None
+
+
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Require the current user to be an admin."""
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+
 @router.post("/snapshot", response_model=SnapshotResponse)
 def create_snapshot_ticket(
     request: SnapshotRequest,
@@ -268,3 +301,124 @@ def get_ticket(
             "created_at": r.created_at.isoformat() if r.created_at else None
         } for r in ticket.replies]
     )
+
+
+# ============================================================================
+# Admin Endpoints
+# ============================================================================
+
+@router.get("/admin/tickets", response_model=List[AdminTicketResponse])
+def list_all_tickets(
+    status: Optional[str] = None,
+    ai_status: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """List all support tickets (admin only)."""
+    query = db.query(SupportTicket).order_by(SupportTicket.created_at.desc())
+
+    if status:
+        query = query.filter(SupportTicket.status == status)
+    if ai_status:
+        query = query.filter(SupportTicket.ai_status == ai_status)
+
+    tickets = query.all()
+
+    return [AdminTicketResponse(
+        id=t.id,
+        ticket_number=t.ticket_number,
+        subject=t.subject,
+        description=t.description,
+        page_url=t.page_url,
+        type=t.type,
+        priority=t.priority,
+        status=t.status,
+        reporter_email=t.reporter_email,
+        reporter_name=t.reporter_name,
+        ai_status=t.ai_status,
+        ai_response=t.ai_response,
+        created_at=t.created_at,
+        updated_at=t.updated_at,
+        attachments_count=len(t.attachments)
+    ) for t in tickets]
+
+
+@router.get("/admin/tickets/{ticket_id}", response_model=TicketDetailResponse)
+def get_ticket_admin(
+    ticket_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Get detailed information about any ticket (admin only)."""
+    ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    return TicketDetailResponse(
+        id=ticket.id,
+        ticket_number=ticket.ticket_number,
+        subject=ticket.subject,
+        description=ticket.description,
+        page_url=ticket.page_url,
+        type=ticket.type,
+        priority=ticket.priority,
+        status=ticket.status,
+        reporter_email=ticket.reporter_email,
+        reporter_name=ticket.reporter_name,
+        ai_status=ticket.ai_status,
+        ai_response=ticket.ai_response,
+        ai_fixed_at=ticket.ai_fixed_at,
+        resolved_at=ticket.resolved_at,
+        created_at=ticket.created_at,
+        updated_at=ticket.updated_at,
+        attachments=[{
+            "id": a.id,
+            "file_name": a.file_name,
+            "file_path": a.file_path,
+            "file_type": a.file_type,
+            "file_size": a.file_size,
+            "created_at": a.created_at.isoformat() if a.created_at else None
+        } for a in ticket.attachments],
+        replies=[{
+            "id": r.id,
+            "message": r.message,
+            "author_email": r.author_email,
+            "author_name": r.author_name,
+            "created_at": r.created_at.isoformat() if r.created_at else None
+        } for r in ticket.replies]
+    )
+
+
+@router.patch("/admin/tickets/{ticket_id}/status")
+def update_ticket_status(
+    ticket_id: int,
+    request: UpdateTicketStatusRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Update ticket AI status (admin only)."""
+    ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    valid_statuses = ["pending", "processing", "fixed", "skipped", "escalated"]
+    if request.ai_status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+
+    ticket.ai_status = request.ai_status
+    if request.ai_response:
+        ticket.ai_response = request.ai_response
+
+    if request.ai_status == "fixed":
+        ticket.ai_fixed_at = datetime.datetime.utcnow()
+        ticket.status = "resolved"
+        ticket.resolved_at = datetime.datetime.utcnow()
+    elif request.ai_status == "skipped":
+        ticket.status = "closed"
+
+    ticket.updated_at = datetime.datetime.utcnow()
+    db.commit()
+
+    return {"success": True, "message": f"Ticket status updated to {request.ai_status}"}

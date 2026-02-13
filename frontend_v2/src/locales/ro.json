@@ -639,7 +639,10 @@
     "systemVaultUnlocked": "Seiful Sistem este Deblocat",
     "personalVaultInfo": "Cauti datele tale personale?",
     "personalVaultDescription": "Seiful tau personal se deblocheaza automat la autentificare. Daca vezi erori \"seif blocat\", te rugam sa te deconectezi si sa te conectezi din nou.",
-    "adminOnly": "Aceasta pagina este doar pentru administratorii sistemului"
+    "adminOnly": "Aceasta pagina este doar pentru administratorii sistemului",
+    "systemVaultTitle": "Seif Sistem (Admin)",
+    "systemVaultDescription": "Seif legacy pentru operatiuni admin si migrare date",
+    "perUserVaultInfo": "Datele utilizatorilor sunt criptate cu seifuri individuale (deblocate automat la login)"
   },
   "notifications": {
     "title": "Notificari",
@@ -753,13 +756,21 @@
     "noTickets": "Niciun tichet inca",
     "noTicketsHint": "Feedback-ul trimis va aparea aici",
     "yourTickets": "Tichetele Tale",
+    "allTickets": "Toate Tichetele",
     "selectTicket": "Selecteaza un tichet pentru detalii",
     "submittedOn": "Trimis pe",
     "pageUrl": "Pagina",
     "description": "Descriere",
     "aiResponse": "Raspuns",
     "fixedOn": "Rezolvat pe",
-    "attachments": "Atasamente"
+    "attachments": "Atasamente",
+    "reporter": "Raportat de",
+    "markForFix": "De reparat",
+    "markFixed": "Rezolvat",
+    "markSkipped": "Ignorat",
+    "updateStatus": "Actualizeaza Status",
+    "responseNote": "Nota/Raspuns",
+    "statusUpdated": "Status actualizat"
   },
   "feedback": {
     "buttonTitle": "Trimite Feedback",

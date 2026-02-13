@@ -555,55 +555,41 @@ const Admin = () => {
                 </div>
             )}
 
-            {/* Vault Status */}
+            {/* System Vault Status - Admin only, legacy support */}
             {vaultStatus && (
-                <div className={cn(
-                    "card p-6 border-2",
-                    vaultStatus.is_unlocked
-                        ? "border-teal-200 bg-gradient-to-r from-teal-50 to-emerald-50"
-                        : "border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50"
-                )}>
+                <div className="card p-6 border border-slate-200">
                     <div className="flex items-center justify-between flex-wrap gap-4">
                         <div className="flex items-center gap-4">
-                            <div className={cn(
-                                "p-3 rounded-xl",
-                                vaultStatus.is_unlocked
-                                    ? "bg-teal-500 text-white"
-                                    : "bg-amber-500 text-white"
-                            )}>
-                                {vaultStatus.is_unlocked ? <ShieldCheck size={28} /> : <ShieldOff size={28} />}
+                            <div className="p-3 rounded-xl bg-slate-100 text-slate-600">
+                                <ShieldCheck size={28} />
                             </div>
                             <div>
                                 <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                    {t('vault.title') || 'Encryption Vault'}
+                                    {t('vault.systemVaultTitle') || 'System Vault (Admin)'}
                                     <span className={cn(
                                         "text-xs px-2 py-0.5 rounded-full",
-                                        vaultStatus.is_unlocked
+                                        vaultStatus.ready
                                             ? "bg-teal-100 text-teal-700"
-                                            : "bg-amber-100 text-amber-700"
+                                            : "bg-slate-100 text-slate-600"
                                     )}>
-                                        {vaultStatus.is_unlocked
+                                        {vaultStatus.ready
                                             ? t('vault.unlocked') || 'Unlocked'
                                             : t('vault.locked') || 'Locked'}
                                     </span>
                                 </h2>
                                 <p className="text-sm text-slate-500">
-                                    {vaultStatus.is_unlocked
-                                        ? t('vault.unlockedDescription') || 'Encrypted data is accessible'
-                                        : t('vault.lockedDescription') || 'Encrypted data is inaccessible'}
+                                    {t('vault.systemVaultDescription') || 'Legacy vault for admin operations and data migration'}
                                 </p>
-                                {!vaultStatus.is_configured && (
-                                    <p className="text-sm text-amber-600 font-medium mt-1">
-                                        {t('vault.notConfigured') || 'Vault not initialized - visit /vault-unlock to set up'}
-                                    </p>
-                                )}
+                                <p className="text-sm text-teal-600 mt-1">
+                                    {t('vault.perUserVaultInfo') || 'User data is encrypted with individual per-user vaults (auto-unlocked on login)'}
+                                </p>
                             </div>
                         </div>
-                        {vaultStatus.is_unlocked && vaultStatus.is_configured && (
+                        {vaultStatus.ready && (
                             <button
                                 onClick={handleLockVault}
                                 disabled={actionLoading === 'lockvault'}
-                                className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white hover:bg-amber-600 rounded-lg transition-colors disabled:opacity-50 font-medium"
+                                className="flex items-center gap-2 px-4 py-2 bg-slate-500 text-white hover:bg-slate-600 rounded-lg transition-colors disabled:opacity-50 font-medium"
                             >
                                 {actionLoading === 'lockvault' ? (
                                     <Loader2 size={18} className="animate-spin" />
@@ -613,10 +599,10 @@ const Admin = () => {
                                 {t('vault.lockButton') || 'Lock Vault'}
                             </button>
                         )}
-                        {!vaultStatus.is_unlocked && vaultStatus.is_configured && (
+                        {!vaultStatus.ready && (
                             <a
                                 href="/vault-unlock"
-                                className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white hover:bg-teal-600 rounded-lg transition-colors font-medium"
+                                className="flex items-center gap-2 px-4 py-2 bg-slate-500 text-white hover:bg-slate-600 rounded-lg transition-colors font-medium"
                             >
                                 <Unlock size={18} />
                                 {t('vault.unlockButton') || 'Unlock Vault'}

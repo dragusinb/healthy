@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageSquare, Clock, CheckCircle, AlertCircle, ChevronRight, ExternalLink, Image } from 'lucide-react';
+import { MessageSquare, Clock, CheckCircle, AlertCircle, ChevronRight, ExternalLink, Image, Wrench, X, Loader2 } from 'lucide-react';
 import api from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 const statusColors = {
     open: 'bg-blue-100 text-blue-700',
@@ -29,20 +30,26 @@ const StatusBadge = ({ status, type = 'status' }) => {
 
 export default function SupportTickets() {
     const { t } = useTranslation();
+    const { user } = useAuth();
+    const isAdmin = user?.is_admin;
+
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [ticketDetail, setTicketDetail] = useState(null);
     const [loadingDetail, setLoadingDetail] = useState(false);
+    const [updatingStatus, setUpdatingStatus] = useState(false);
+    const [statusResponse, setStatusResponse] = useState('');
 
     useEffect(() => {
         fetchTickets();
-    }, []);
+    }, [isAdmin]);
 
     const fetchTickets = async () => {
         try {
-            const response = await api.get('/support/tickets');
+            const endpoint = isAdmin ? '/support/admin/tickets' : '/support/tickets';
+            const response = await api.get(endpoint);
             setTickets(response.data);
         } catch (err) {
             setError(t('common.error'));
@@ -54,8 +61,10 @@ export default function SupportTickets() {
     const fetchTicketDetail = async (ticketId) => {
         setLoadingDetail(true);
         try {
-            const response = await api.get(`/support/tickets/${ticketId}`);
+            const endpoint = isAdmin ? `/support/admin/tickets/${ticketId}` : `/support/tickets/${ticketId}`;
+            const response = await api.get(endpoint);
             setTicketDetail(response.data);
+            setStatusResponse(response.data.ai_response || '');
         } catch (err) {
             console.error('Failed to fetch ticket detail:', err);
         } finally {
@@ -66,6 +75,25 @@ export default function SupportTickets() {
     const handleTicketClick = (ticket) => {
         setSelectedTicket(ticket.id);
         fetchTicketDetail(ticket.id);
+    };
+
+    const updateTicketStatus = async (newStatus) => {
+        if (!ticketDetail) return;
+
+        setUpdatingStatus(true);
+        try {
+            await api.patch(`/support/admin/tickets/${ticketDetail.id}/status`, {
+                ai_status: newStatus,
+                ai_response: statusResponse || null
+            });
+            // Refresh data
+            await fetchTickets();
+            await fetchTicketDetail(ticketDetail.id);
+        } catch (err) {
+            console.error('Failed to update ticket status:', err);
+        } finally {
+            setUpdatingStatus(false);
+        }
     };
 
     const formatDate = (dateStr) => {
@@ -86,11 +114,13 @@ export default function SupportTickets() {
         <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary-100 rounded-xl">
-                    <MessageSquare size={24} className="text-primary-600" />
+                <div className={`p-3 rounded-xl ${isAdmin ? 'bg-amber-100' : 'bg-primary-100'}`}>
+                    <MessageSquare size={24} className={isAdmin ? 'text-amber-600' : 'text-primary-600'} />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">{t('tickets.title')}</h1>
+                    <h1 className="text-2xl font-bold text-slate-800">
+                        {isAdmin ? t('tickets.allTickets') : t('tickets.title')}
+                    </h1>
                     <p className="text-slate-500">{t('tickets.subtitle')}</p>
                 </div>
             </div>
@@ -114,7 +144,9 @@ export default function SupportTickets() {
                     {/* Tickets List */}
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="p-4 border-b border-slate-100">
-                            <h2 className="font-semibold text-slate-700">{t('tickets.yourTickets')} ({tickets.length})</h2>
+                            <h2 className="font-semibold text-slate-700">
+                                {isAdmin ? t('tickets.allTickets') : t('tickets.yourTickets')} ({tickets.length})
+                            </h2>
                         </div>
                         <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
                             {tickets.map((ticket) => (
@@ -139,6 +171,11 @@ export default function SupportTickets() {
                                                     <span className="flex items-center gap-1">
                                                         <Image size={12} />
                                                         {ticket.attachments_count}
+                                                    </span>
+                                                )}
+                                                {isAdmin && ticket.reporter_email && (
+                                                    <span className="text-slate-500">
+                                                        {ticket.reporter_email}
                                                     </span>
                                                 )}
                                             </div>
@@ -226,6 +263,63 @@ export default function SupportTickets() {
                                                     </div>
                                                 </div>
                                             ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Admin Controls */}
+                                {isAdmin && (
+                                    <div className="border-t border-slate-200 pt-4 mt-4">
+                                        <label className="block text-xs font-medium text-slate-400 uppercase mb-2">
+                                            {t('tickets.updateStatus')}
+                                        </label>
+
+                                        {/* Response textarea */}
+                                        <textarea
+                                            value={statusResponse}
+                                            onChange={(e) => setStatusResponse(e.target.value)}
+                                            rows={3}
+                                            className="w-full px-3 py-2 mb-3 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500"
+                                            placeholder={t('tickets.responseNote')}
+                                        />
+
+                                        {/* Status buttons */}
+                                        <div className="flex flex-wrap gap-2">
+                                            <button
+                                                onClick={() => updateTicketStatus('pending')}
+                                                disabled={updatingStatus || ticketDetail.ai_status === 'pending'}
+                                                className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200 disabled:opacity-50 flex items-center gap-1"
+                                            >
+                                                <Clock size={14} />
+                                                Pending
+                                            </button>
+                                            <button
+                                                onClick={() => updateTicketStatus('processing')}
+                                                disabled={updatingStatus || ticketDetail.ai_status === 'processing'}
+                                                className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 disabled:opacity-50 flex items-center gap-1"
+                                            >
+                                                <Wrench size={14} />
+                                                {t('tickets.markForFix')}
+                                            </button>
+                                            <button
+                                                onClick={() => updateTicketStatus('fixed')}
+                                                disabled={updatingStatus || ticketDetail.ai_status === 'fixed'}
+                                                className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 disabled:opacity-50 flex items-center gap-1"
+                                            >
+                                                <CheckCircle size={14} />
+                                                {t('tickets.markFixed')}
+                                            </button>
+                                            <button
+                                                onClick={() => updateTicketStatus('skipped')}
+                                                disabled={updatingStatus || ticketDetail.ai_status === 'skipped'}
+                                                className="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-medium hover:bg-orange-200 disabled:opacity-50 flex items-center gap-1"
+                                            >
+                                                <X size={14} />
+                                                {t('tickets.markSkipped')}
+                                            </button>
+                                            {updatingStatus && (
+                                                <Loader2 size={20} className="animate-spin text-slate-400" />
+                                            )}
                                         </div>
                                     </div>
                                 )}

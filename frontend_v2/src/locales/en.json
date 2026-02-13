@@ -588,7 +588,10 @@
     "systemVaultUnlocked": "System Vault is Unlocked",
     "personalVaultInfo": "Looking for your personal data?",
     "personalVaultDescription": "Your personal vault unlocks automatically when you log in. If you see \"vault locked\" errors, please log out and log back in.",
-    "adminOnly": "This page is for system administrators only"
+    "adminOnly": "This page is for system administrators only",
+    "systemVaultTitle": "System Vault (Admin)",
+    "systemVaultDescription": "Legacy vault for admin operations and data migration",
+    "perUserVaultInfo": "User data is encrypted with individual per-user vaults (auto-unlocked on login)"
   },
   "notifications": {
     "title": "Notifications",
@@ -702,13 +705,21 @@
     "noTickets": "No tickets yet",
     "noTicketsHint": "Feedback you submit will appear here",
     "yourTickets": "Your Tickets",
+    "allTickets": "All Tickets",
     "selectTicket": "Select a ticket to view details",
     "submittedOn": "Submitted on",
     "pageUrl": "Page",
     "description": "Description",
     "aiResponse": "Response",
     "fixedOn": "Fixed on",
-    "attachments": "Attachments"
+    "attachments": "Attachments",
+    "reporter": "Reported by",
+    "markForFix": "Mark for Fix",
+    "markFixed": "Mark Fixed",
+    "markSkipped": "Mark Skipped",
+    "updateStatus": "Update Status",
+    "responseNote": "Response Note",
+    "statusUpdated": "Status updated"
   },
   "feedback": {
     "buttonTitle": "Send Feedback",
