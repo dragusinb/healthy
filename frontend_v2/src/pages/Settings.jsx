@@ -335,19 +335,34 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Push Notifications */}
-      {pushSupported && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-          <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <BellRing className="w-5 h-5 text-gray-600" />
-              <h2 className="font-semibold text-gray-800">{t('notifications.pushSettings') || 'Push Notifications'}</h2>
-            </div>
-            <p className="text-sm text-gray-500 mt-1">{t('notifications.pushSettingsDesc') || 'Receive instant notifications in your browser'}</p>
+      {/* Push Notifications - Coming Soon */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6 opacity-75">
+        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <BellRing className="w-5 h-5 text-gray-400" />
+            <h2 className="font-semibold text-gray-600">{t('notifications.pushSettings', 'Notificări Push')}</h2>
+            <span className="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs font-medium rounded-full">
+              {t('common.comingSoon', 'În curând')}
+            </span>
           </div>
+        </div>
+        <div className="px-6 py-4">
+          <div className="flex items-center gap-3 text-gray-500">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Bell className="w-5 h-5 text-gray-400" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-600">{t('notifications.pushMobileOnly', 'Disponibil în aplicația mobilă')}</p>
+              <p className="text-sm text-gray-400">{t('notifications.pushMobileDesc', 'Notificările push vor fi disponibile în aplicația mobilă. Între timp, primești notificări prin email.')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
+      {/* Legacy push code - hidden */}
+      {false && pushSupported && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
           <div className="divide-y divide-gray-100">
-            {/* Enable/Disable Push */}
             <div className="px-6 py-4">
               {!pushSubscribed ? (
                 <div className="flex items-center justify-between">
