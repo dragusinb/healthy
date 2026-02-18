@@ -124,7 +124,7 @@ const HealthReports = () => {
             setError(null);
         } catch (e) {
             console.error("Failed to fetch health data", e);
-            setError("Failed to load health reports");
+            setError(t('healthReports.loadFailed', 'Failed to load health reports'));
         } finally {
             setLoading(false);
         }

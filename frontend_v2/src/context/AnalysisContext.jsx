@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useRef, useCallback } from 'react';
 import api from '../api/client';
+import i18n from '../i18n';
 
 const AnalysisContext = createContext(null);
 
@@ -86,7 +87,7 @@ export const AnalysisProvider = ({ children }) => {
                 cancelSteps();
                 setHealthAnalyzing(false);
                 setHealthStep(0);
-                const errorMsg = error.response?.data?.detail || "Analysis failed. Please try again.";
+                const errorMsg = error.response?.data?.detail || i18n.t('healthReports.analysisFailed', 'Analysis failed. Please try again.');
                 setHealthError(errorMsg);
                 healthPromiseRef.current = null;
                 if (healthCallbackRef.current) {
@@ -121,7 +122,7 @@ export const AnalysisProvider = ({ children }) => {
             })
             .catch((error) => {
                 setScreeningsAnalyzing(false);
-                const errorMsg = error.response?.data?.detail || "Analysis failed. Please try again.";
+                const errorMsg = error.response?.data?.detail || i18n.t('healthReports.analysisFailed', 'Analysis failed. Please try again.');
                 setScreeningsError(errorMsg);
                 screeningsPromiseRef.current = null;
                 if (screeningsCallbackRef.current) {

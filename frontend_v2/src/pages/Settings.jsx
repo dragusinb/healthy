@@ -238,19 +238,25 @@ export default function Settings() {
         </div>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
-          <AlertCircle className="w-5 h-5" />
-          {error}
-        </div>
-      )}
+      {/* Toast notifications - fixed position to avoid layout shift */}
+      <div className="fixed bottom-4 right-4 z-50 space-y-2">
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 shadow-lg animate-in slide-in-from-right">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <span className="flex-1">{error}</span>
+            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
-      {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700">
-          <Check className="w-5 h-5" />
-          {t('common.success')}
-        </div>
-      )}
+        {success && (
+          <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700 shadow-lg animate-in slide-in-from-right">
+            <Check className="w-5 h-5 flex-shrink-0" />
+            <span>{t('common.success')}</span>
+          </div>
+        )}
+      </div>
 
       {/* Email Notification Toggles */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">

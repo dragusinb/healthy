@@ -269,6 +269,8 @@
     "noReportYet": "Niciun raport inca",
     "reportHistory": "Istoric Rapoarte",
     "comparisonFailed": "Compararea rapoartelor a esuat",
+    "analysisFailed": "Analiza a esuat. Te rugam sa incerci din nou.",
+    "loadFailed": "Incarcarea rapoartelor a esuat",
     "disclaimer": "Aceasta analiza AI este doar informativa si nu inlocuieste sfatul medical profesional. Consulta intotdeauna un medic pentru decizii medicale.",
     "analysisInProgress": "Analiza AI in Curs",
     "analysisSteps": {

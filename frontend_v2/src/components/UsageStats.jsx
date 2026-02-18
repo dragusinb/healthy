@@ -57,7 +57,7 @@ export default function UsageStats({ compact = false }) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden mb-6">
       <div className="px-4 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
         <h3 className="font-semibold text-gray-800">{t('subscription.usage')}</h3>
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${

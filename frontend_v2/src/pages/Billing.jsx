@@ -177,9 +177,11 @@ export default function Billing() {
                 <h2 className="text-lg font-semibold text-slate-800">
                   {tier === 'family' ? 'Family' : tier === 'premium' ? 'Premium' : 'Free'}
                 </h2>
-                <p className="text-slate-500">
-                  {subscription?.billing_cycle === 'yearly' ? t('billing.yearlyPlan') : t('billing.monthlyPlan')}
-                </p>
+                {isPremium && (
+                  <p className="text-slate-500">
+                    {subscription?.billing_cycle === 'yearly' ? t('billing.yearlyPlan') : t('billing.monthlyPlan')}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -231,9 +233,7 @@ export default function Billing() {
       </div>
 
       {/* Usage Stats */}
-      <div className="mb-6">
-        <UsageStats />
-      </div>
+      <UsageStats />
 
       {/* Upgrade Options (for free users) */}
       {!isPremium && (
