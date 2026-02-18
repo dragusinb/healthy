@@ -30,7 +30,13 @@ from datetime import datetime, timezone
 import argparse
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, backend_dir)
+
+# Load .env file before importing database module
+from dotenv import load_dotenv
+env_path = os.path.join(backend_dir, '.env')
+load_dotenv(env_path)
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
