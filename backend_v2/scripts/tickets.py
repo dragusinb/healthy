@@ -184,7 +184,7 @@ def resolve_ticket(ticket_id, response):
     db.close()
 
 
-def skip_ticket(ticket_id, reason):
+def skip_ticket(ticket_id, reason, send_email=True):
     """Mark a ticket as skipped (won't fix)."""
     db = get_db_session()
 
@@ -197,10 +197,32 @@ def skip_ticket(ticket_id, reason):
 
     ticket.ai_status = "skipped"
     ticket.ai_response = f"Skipped: {reason}"
+    ticket.status = "closed"
     ticket.updated_at = datetime.now(timezone.utc)
 
     db.commit()
     print(f"Ticket {ticket.ticket_number} marked as SKIPPED")
+
+    # Send email notification
+    if send_email and ticket.reporter_email:
+        try:
+            email_service = get_email_service()
+            if email_service.is_configured():
+                sent = email_service.send_ticket_resolved_email(
+                    to_email=ticket.reporter_email,
+                    ticket_number=ticket.ticket_number,
+                    resolution_message=reason,
+                    language="ro"
+                )
+                if sent:
+                    print(f"Email notification sent to {ticket.reporter_email}")
+                else:
+                    print(f"Warning: Failed to send email notification")
+            else:
+                print("Warning: Email service not configured, notification not sent")
+        except Exception as e:
+            print(f"Warning: Failed to send email: {e}")
+
     db.close()
 
 
