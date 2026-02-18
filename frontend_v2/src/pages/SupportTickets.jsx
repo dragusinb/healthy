@@ -42,6 +42,7 @@ export default function SupportTickets() {
     const [updatingStatus, setUpdatingStatus] = useState(false);
     const [statusResponse, setStatusResponse] = useState('');
     const [viewMode, setViewMode] = useState('mine'); // 'mine' or 'all' (admin only)
+    const [imageModal, setImageModal] = useState(null); // { url, name } for full-screen image view
 
     useEffect(() => {
         fetchTickets();
@@ -286,16 +287,42 @@ export default function SupportTickets() {
                                 {ticketDetail.attachments && ticketDetail.attachments.length > 0 && (
                                     <div>
                                         <label className="block text-xs font-medium text-slate-400 uppercase mb-2">{t('tickets.attachments')}</label>
-                                        <div className="space-y-2">
-                                            {ticketDetail.attachments.map((att) => (
-                                                <div key={att.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                                                    <Image size={20} className="text-slate-400" />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-700">{att.file_name}</p>
-                                                        <p className="text-xs text-slate-400">{Math.round(att.file_size / 1024)} KB</p>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {ticketDetail.attachments.map((att) => {
+                                                const isImage = att.file_type?.startsWith('image/');
+                                                const imageUrl = att.url || `/api/support/attachments/${att.id}`;
+                                                return (
+                                                    <div
+                                                        key={att.id}
+                                                        className={`relative group bg-slate-50 rounded-lg overflow-hidden border border-slate-200 ${isImage ? 'cursor-pointer hover:border-primary-400' : ''}`}
+                                                        onClick={() => isImage && setImageModal({ url: imageUrl, name: att.file_name })}
+                                                    >
+                                                        {isImage ? (
+                                                            <>
+                                                                <img
+                                                                    src={imageUrl}
+                                                                    alt={att.file_name}
+                                                                    className="w-full h-32 object-cover"
+                                                                />
+                                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                                                                    <ExternalLink size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <div className="flex items-center gap-3 p-3">
+                                                                <Image size={20} className="text-slate-400" />
+                                                                <div>
+                                                                    <p className="text-sm font-medium text-slate-700">{att.file_name}</p>
+                                                                    <p className="text-xs text-slate-400">{Math.round(att.file_size / 1024)} KB</p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                                            <p className="text-xs text-white truncate">{att.file_name}</p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -358,6 +385,29 @@ export default function SupportTickets() {
                                 )}
                             </div>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Image Modal */}
+            {imageModal && (
+                <div
+                    className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+                    onClick={() => setImageModal(null)}
+                >
+                    <button
+                        onClick={() => setImageModal(null)}
+                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                    >
+                        <X size={24} className="text-white" />
+                    </button>
+                    <div className="max-w-4xl max-h-[90vh] relative" onClick={(e) => e.stopPropagation()}>
+                        <img
+                            src={imageModal.url}
+                            alt={imageModal.name}
+                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                        />
+                        <p className="text-white text-center mt-2 text-sm">{imageModal.name}</p>
                     </div>
                 </div>
             )}

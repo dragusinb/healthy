@@ -1,5 +1,6 @@
 """Support ticket router for feedback button functionality."""
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import List, Optional
@@ -293,6 +294,7 @@ def get_ticket(
             "file_path": a.file_path,
             "file_type": a.file_type,
             "file_size": a.file_size,
+            "url": f"/api/support/attachments/{a.id}",
             "created_at": a.created_at.isoformat() if a.created_at else None
         } for a in ticket.attachments],
         replies=[{
@@ -380,6 +382,7 @@ def get_ticket_admin(
             "file_path": a.file_path,
             "file_type": a.file_type,
             "file_size": a.file_size,
+            "url": f"/api/support/attachments/{a.id}",
             "created_at": a.created_at.isoformat() if a.created_at else None
         } for a in ticket.attachments],
         replies=[{
@@ -442,3 +445,33 @@ def update_ticket_status(
         background_tasks.add_task(send_resolution_email)
 
     return {"success": True, "message": f"Ticket status updated to {request.ai_status}"}
+
+
+@router.get("/attachments/{attachment_id}")
+def get_attachment(
+    attachment_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Download a ticket attachment (owner or admin only)."""
+    attachment = db.query(SupportTicketAttachment).filter(
+        SupportTicketAttachment.id == attachment_id
+    ).first()
+
+    if not attachment:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+
+    # Check access: owner of ticket or admin
+    ticket = attachment.ticket
+    if ticket.reporter_id != current_user.id and not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    # Verify file exists
+    if not os.path.exists(attachment.file_path):
+        raise HTTPException(status_code=404, detail="File not found")
+
+    return FileResponse(
+        attachment.file_path,
+        media_type=attachment.file_type or "application/octet-stream",
+        filename=attachment.file_name
+    )

@@ -374,9 +374,13 @@ class ReginaMariaCrawler(BaseCrawler):
             logger.exception("CAPTCHA solving failed")
             return False
 
-    def _check_authenticated(self, page: Page) -> bool:
+    def _check_authenticated(self, page: Page, wait_for_spa: bool = True) -> bool:
         """Check if we're actually logged in by looking for authenticated UI elements."""
         try:
+            # Wait for SPA to render if requested
+            if wait_for_spa:
+                page.wait_for_timeout(2000)
+
             content = page.content()
 
             # Check for login page elements (means NOT authenticated)
@@ -385,7 +389,9 @@ class ReginaMariaCrawler(BaseCrawler):
                 "Creeaza cont nou",
                 "Ai uitat parola",
                 "input-username",
-                "input-password"
+                "input-password",
+                "Autentificare",
+                "g-recaptcha"
             ]
             for indicator in login_indicators:
                 if indicator in content:
@@ -398,22 +404,42 @@ class ReginaMariaCrawler(BaseCrawler):
                 "Programarile mele",
                 "Rezultate analize",
                 "Dosarul meu",
-                "Bun venit"
+                "Bun venit",
+                "Contul meu",
+                "Profil",
+                "Ieșire",
+                "Iesire"
             ]
             for indicator in auth_indicators:
                 if indicator in content:
+                    self.log(f"Authenticated: found '{indicator}'")
                     return True
 
             # Also check URL patterns that indicate authenticated state
             url = page.url.lower()
-            if any(x in url for x in ["pacient", "dashboard"]) and "login" not in url:
-                # Double-check by looking for logout button
-                logout_btn = page.locator("text=Deconectare, text=Logout, text=Iesire").first
-                if logout_btn.count() > 0:
-                    return True
+            if any(x in url for x in ["pacient", "dashboard", "contulmeu"]) and "login" not in url and "autentificare" not in url:
+                # Check for user menu or profile indicators via selectors
+                try:
+                    # Wait for any dynamic content to load
+                    page.wait_for_timeout(1000)
+
+                    # Check for user avatar/menu (common in authenticated SPAs)
+                    user_elements = page.locator("[class*='user'], [class*='avatar'], [class*='profile'], [data-testid*='user']")
+                    if user_elements.count() > 0:
+                        self.log("Authenticated: found user elements")
+                        return True
+
+                    # Check for logout button variants
+                    logout_btn = page.locator("text=Deconectare, text=Logout, text=Iesire, text=Ieșire").first
+                    if logout_btn.count() > 0:
+                        self.log("Authenticated: found logout button")
+                        return True
+                except:
+                    pass
 
             return False
-        except:
+        except Exception as e:
+            self.log(f"Auth check error: {e}")
             return False
 
     def navigate_to_records_sync(self, page: Page):
