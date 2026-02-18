@@ -534,11 +534,14 @@ class ReginaMariaCrawler(BaseCrawler):
             return extracted
 
         # If we found download buttons, process them
-        self.log(f"Processing {len(download_btns)} download buttons...")
+        total_docs = len(download_btns)
+        self.log(f"Processing {total_docs} download buttons...")
 
         for i, btn in enumerate(download_btns):
             try:
-                self.log(f"Processing document {i+1}/{len(download_btns)}...")
+                current = i + 1
+                self.log(f"Processing document {current}/{total_docs}...")
+                self.update_status("downloading", f"Downloading {current}/{total_docs}", current, total_docs)
 
                 # Scroll to the button
                 btn.scroll_into_view_if_needed()
@@ -637,12 +640,15 @@ class ReginaMariaCrawler(BaseCrawler):
                 self.log(f" - Button: {txt.strip() if txt else '(empty)'}")
             return extracted
 
-        self.log(f"Found {len(detail_btns)} detail page buttons to process.")
+        total_docs = min(len(detail_btns), 20)
+        self.log(f"Found {len(detail_btns)} detail page buttons to process (limit: {total_docs}).")
 
         # Process each detail page
         for i, btn in enumerate(detail_btns[:20]):  # Limit to 20
             try:
-                self.log(f"Accessing detail page {i+1}/{min(len(detail_btns), 20)}...")
+                current = i + 1
+                self.log(f"Accessing detail page {current}/{total_docs}...")
+                self.update_status("downloading", f"Downloading {current}/{total_docs}", current, total_docs)
 
                 btn.scroll_into_view_if_needed()
                 page.wait_for_timeout(500)

@@ -290,7 +290,10 @@ Full document text (for context only - prefer header):
            - Culture results: "Streptococcus pyogenes - prezent", "Flora normala", etc.
            - Descriptive: "Reactive", "Non-reactive", "Detected", "Not detected"
         3. Detect Provider: If text contains "Regina Maria" or "Centrul Medical Unirea", provider="Regina Maria". If "Synevo", provider="Synevo". Else "Unknown".
-        4. Extract Date: Find date in format DD.MM.YYYY or YYYY-MM-DD (e.g. from "Data cerere", "Data rezultatului", "Data recoltarii"). Convert to YYYY-MM-DD.
+        4. Extract Date: Find the ACTUAL TEST DATE (when the blood/sample was collected or analyzed).
+           Look for dates labeled: "Data recoltarii", "Data rezultatului", "Data analizei", "Data testarii".
+           IMPORTANT: Do NOT use "Data cerere" (request date) or "Data emitere" (report print date) - these are NOT the test date.
+           Format: Convert to YYYY-MM-DD.
         5. For flags:
            - Numeric values: Compare to reference_range. If outside range, set "HIGH" or "LOW". If within range, set "NORMAL".
            - Qualitative tests: "Pozitiv"/"Prezent"/"Detected"/"Reactive" = "ABNORMAL". "Negativ"/"Absent"/"Not detected"/"Non-reactive" = "NORMAL".

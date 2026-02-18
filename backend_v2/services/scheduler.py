@@ -517,24 +517,10 @@ def process_sync_documents(db, user_id, provider_name, docs, sync_job):
                     except:
                         pass
 
-                # Fallback: extract date from filename if AI didn't provide one
-                if not new_doc.document_date or (new_doc.document_date and new_doc.upload_date and
-                    abs((new_doc.document_date - new_doc.upload_date).total_seconds()) < 60):
-                    # Try to extract date from filename pattern like Buletin_analize_2026_02_13_030.pdf
-                    import re
-                    filename = doc_info.get("filename", new_doc.filename or "")
-                    # Match patterns: YYYY_MM_DD, YYYY.MM.DD, YYYY-MM-DD
-                    date_match = re.search(r'(\d{4})[._-](\d{2})[._-](\d{2})', filename)
-                    if date_match:
-                        try:
-                            year, month, day = date_match.groups()
-                            filename_date = dt.datetime(int(year), int(month), int(day))
-                            # Only use if it's a reasonable date (not in the future, not too old)
-                            if filename_date <= dt.datetime.now() and filename_date.year >= 2000:
-                                new_doc.document_date = filename_date
-                                logger.info(f"Used filename date for {filename}: {filename_date}")
-                        except:
-                            pass
+                # NOTE: Date must ALWAYS come from PDF content (AI extraction).
+                # Never fall back to filename date - the filename date is often just
+                # the download date, not the actual test date.
+                # If AI didn't extract a date, leave document_date as None.
 
                 new_doc.is_processed = True
                 db.commit()

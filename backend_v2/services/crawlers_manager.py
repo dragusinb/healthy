@@ -30,7 +30,7 @@ async def run_regina_async(username, password, headless=True, user_id=None):
 
     # Set up status callback
     if user_id:
-        crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+        crawler.set_status_callback(lambda stage, msg, progress=0, total=0: _update_status(user_id, provider, stage, msg, progress, total))
 
     try:
         result = await crawler.run({"username": username, "password": password})
@@ -61,7 +61,7 @@ async def run_regina_async(username, password, headless=True, user_id=None):
             # Retry with visible browser
             crawler = ReginaMariaCrawler(headless=False, user_id=user_id)
             if user_id:
-                crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+                crawler.set_status_callback(lambda stage, msg, progress=0, total=0: _update_status(user_id, provider, stage, msg, progress, total))
 
             try:
                 result = await crawler.run({"username": username, "password": password})
@@ -99,7 +99,7 @@ async def run_synevo_async(username, password, headless=True, user_id=None):
 
     # Set up status callback
     if user_id:
-        crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+        crawler.set_status_callback(lambda stage, msg, progress=0, total=0: _update_status(user_id, provider, stage, msg, progress, total))
 
     try:
         result = await crawler.run({"username": username, "password": password})
@@ -137,7 +137,7 @@ async def run_medlife_async(username, password, headless=True, user_id=None):
 
     # Set up status callback
     if user_id:
-        crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+        crawler.set_status_callback(lambda stage, msg, progress=0, total=0: _update_status(user_id, provider, stage, msg, progress, total))
 
     try:
         result = await crawler.run({"username": username, "password": password})
@@ -164,7 +164,7 @@ async def run_medlife_async(username, password, headless=True, user_id=None):
             # Retry with visible browser
             crawler = MedLifeCrawler(headless=False, user_id=user_id)
             if user_id:
-                crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+                crawler.set_status_callback(lambda stage, msg, progress=0, total=0: _update_status(user_id, provider, stage, msg, progress, total))
 
             try:
                 result = await crawler.run({"username": username, "password": password})
@@ -204,7 +204,7 @@ async def run_sanador_async(username, password, headless=True, user_id=None):
 
     # Set up status callback
     if user_id:
-        crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+        crawler.set_status_callback(lambda stage, msg, progress=0, total=0: _update_status(user_id, provider, stage, msg, progress, total))
 
     try:
         result = await crawler.run({"username": username, "password": password})
@@ -231,7 +231,7 @@ async def run_sanador_async(username, password, headless=True, user_id=None):
             # Retry with visible browser
             crawler = SanadorCrawler(headless=False, user_id=user_id)
             if user_id:
-                crawler.set_status_callback(lambda stage, msg: _update_status(user_id, provider, stage, msg))
+                crawler.set_status_callback(lambda stage, msg, progress=0, total=0: _update_status(user_id, provider, stage, msg, progress, total))
 
             try:
                 result = await crawler.run({"username": username, "password": password})
@@ -255,8 +255,8 @@ async def run_sanador_async(username, password, headless=True, user_id=None):
         return {"status": "error", "message": f"Sanador Failed: {str(e)}"}
 
 
-def _update_status(user_id: int, provider: str, stage: str, message: str):
-    """Helper to update sync status."""
+def _update_status(user_id: int, provider: str, stage: str, message: str, progress: int = 0, total: int = 0):
+    """Helper to update sync status with optional progress tracking."""
     if stage == "login":
         sync_status.status_logging_in(user_id, provider)
     elif stage == "logged_in":
@@ -266,8 +266,11 @@ def _update_status(user_id: int, provider: str, stage: str, message: str):
     elif stage == "scanning":
         sync_status.status_scanning(user_id, provider)
     elif stage == "downloading":
-        # Parse progress from message if available
-        sync_status.set_status(user_id, provider, "downloading", message)
+        # Use progress-aware status if progress info available
+        if progress > 0 and total > 0:
+            sync_status.status_downloading(user_id, provider, progress, total)
+        else:
+            sync_status.set_status(user_id, provider, "downloading", message)
     else:
-        sync_status.set_status(user_id, provider, stage, message)
+        sync_status.set_status(user_id, provider, stage, message, progress, total)
 

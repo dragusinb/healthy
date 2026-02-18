@@ -458,7 +458,8 @@ class MedLifeCrawler(BaseCrawler):
             self.log("No download elements found. Trying detail page approach...")
             return self._extract_from_detail_pages(page)
 
-        self.log(f"Processing {len(download_elements)} download elements...")
+        total_docs = min(len(download_elements), 50)
+        self.log(f"Processing {len(download_elements)} download elements (limit: {total_docs})...")
 
         # Process unique elements
         processed_urls = set()
@@ -471,7 +472,9 @@ class MedLifeCrawler(BaseCrawler):
                 if href:
                     processed_urls.add(href)
 
-                self.log(f"Processing document {i+1}...")
+                current = i + 1
+                self.log(f"Processing document {current}/{total_docs}...")
+                self.update_status("downloading", f"Downloading {current}/{total_docs}", current, total_docs)
 
                 filename = f"medlife_doc_{i}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
                 target_path = os.path.join(self.download_dir, filename)
@@ -570,10 +573,13 @@ class MedLifeCrawler(BaseCrawler):
             return extracted
 
         results_url = page.url
+        total_detail_docs = min(len(detail_elements), 30)
 
         for i, elem in enumerate(detail_elements[:30]):  # Limit to 30
             try:
-                self.log(f"Opening detail page {i+1}/{min(len(detail_elements), 30)}...")
+                current = i + 1
+                self.log(f"Opening detail page {current}/{total_detail_docs}...")
+                self.update_status("downloading", f"Downloading {current}/{total_detail_docs}", current, total_detail_docs)
 
                 elem.scroll_into_view_if_needed()
                 page.wait_for_timeout(500)

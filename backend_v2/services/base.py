@@ -25,13 +25,13 @@ class BaseCrawler(ABC):
         self._status_callback = None
 
     def set_status_callback(self, callback):
-        """Set callback for status updates. Callback signature: (stage: str, message: str)"""
+        """Set callback for status updates. Callback signature: (stage: str, message: str, progress: int, total: int)"""
         self._status_callback = callback
 
-    def update_status(self, stage: str, message: str):
+    def update_status(self, stage: str, message: str, progress: int = 0, total: int = 0):
         """Update status via callback if set."""
         if self._status_callback:
-            self._status_callback(stage, message)
+            self._status_callback(stage, message, progress, total)
 
     def log(self, msg: str):
         """Log message to console and file."""

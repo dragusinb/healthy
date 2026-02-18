@@ -177,7 +177,8 @@ class SynevoCrawler(BaseCrawler):
                     href = f"https://webresults.synevo.ro{href}"
                 pdf_urls.append(href)
 
-        self.log(f"Collected {len(pdf_urls)} PDF URLs.")
+        total_docs = len(pdf_urls)
+        self.log(f"Collected {total_docs} PDF URLs.")
 
         # Get cookies from the browser context for authenticated requests
         cookies = page.context.cookies()
@@ -185,7 +186,9 @@ class SynevoCrawler(BaseCrawler):
 
         for i, pdf_url in enumerate(pdf_urls):
             try:
-                self.log(f"Processing document {i+1}/{len(pdf_urls)}...")
+                current = i + 1
+                self.log(f"Processing document {current}/{total_docs}...")
+                self.update_status("downloading", f"Downloading {current}/{total_docs}", current, total_docs)
 
                 # Extract filename from URL
                 url_parts = pdf_url.rstrip("/").split("/")
