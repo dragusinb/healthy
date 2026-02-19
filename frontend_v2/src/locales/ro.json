@@ -249,7 +249,11 @@
       "thyroid": "Tiroida",
       "vitamins": "Vitamine & Minerale",
       "other": "Alte Teste"
-    }
+    },
+    "downloadBiomarker": "Descarca documentele cu acest biomarker",
+    "downloadCategory": "Descarca documentele din aceasta categorie",
+    "downloading": "Se descarca...",
+    "noDocumentsFound": "Nu s-au gasit documente"
   },
   "healthReports": {
     "title": "Analiza AI Sanatate",

@@ -20,6 +20,7 @@ try:
     from backend_v2.services.vault import VaultLockedError
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.services.audit_service import AuditService
+    from backend_v2.services.biomarker_categories import get_category_keywords, get_all_categories
 except ImportError:
     from database import get_db
     from models import User, Document, TestResult, HealthReport
@@ -30,6 +31,7 @@ except ImportError:
     from services.vault import VaultLockedError
     from services.subscription_service import SubscriptionService
     from services.audit_service import AuditService
+    from services.biomarker_categories import get_category_keywords, get_all_categories
 
 
 def get_encrypted_storage_path() -> Path:
@@ -236,6 +238,145 @@ def download_all_documents(db: Session = Depends(get_db), current_user: User = D
         zip_buffer,
         media_type="application/zip",
         headers={"Content-Disposition": f"attachment; filename=medical_documents_{current_user.id}.zip"}
+    )
+
+
+@router.get("/download-by-biomarker/{biomarker_name}")
+def download_documents_by_biomarker(
+    biomarker_name: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Download documents containing a specific biomarker as a ZIP archive."""
+    import zipfile
+    from fastapi.responses import StreamingResponse
+    import io
+    from urllib.parse import unquote
+
+    # Decode URL-encoded biomarker name
+    decoded_name = unquote(biomarker_name)
+
+    # Find document IDs with matching biomarkers
+    matching_results = db.query(TestResult.document_id).join(Document).filter(
+        Document.user_id == current_user.id
+    ).filter(
+        (TestResult.canonical_name.ilike(f"%{decoded_name}%")) |
+        (TestResult.test_name.ilike(f"%{decoded_name}%"))
+    ).distinct().all()
+
+    doc_ids = [r.document_id for r in matching_results]
+
+    if not doc_ids:
+        raise HTTPException(status_code=404, detail="No documents found with this biomarker")
+
+    # Get the documents
+    docs = db.query(Document).filter(
+        Document.id.in_(doc_ids),
+        Document.user_id == current_user.id
+    ).all()
+
+    if not docs:
+        raise HTTPException(status_code=404, detail="No documents found")
+
+    # Create a ZIP file in memory
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for doc in docs:
+            try:
+                content = read_document_content(doc, current_user.id)
+                date_str = doc.document_date.strftime("%Y-%m-%d") if doc.document_date else "unknown"
+                provider = doc.provider or "Unknown"
+                safe_name = f"{date_str}_{provider}_{doc.filename}"
+                safe_name = "".join(c for c in safe_name if c.isalnum() or c in "._- ")
+                zip_file.writestr(safe_name, content)
+            except Exception as e:
+                logging.warning(f"Could not include document {doc.id} in ZIP: {e}")
+                continue
+
+    zip_buffer.seek(0)
+
+    # Create safe filename for the biomarker
+    safe_biomarker = "".join(c for c in decoded_name if c.isalnum() or c in "_- ").replace(" ", "_")
+
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename=analize_{safe_biomarker}.zip"}
+    )
+
+
+@router.get("/download-by-category/{category}")
+def download_documents_by_category(
+    category: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Download documents containing biomarkers from a specific category as a ZIP archive."""
+    import zipfile
+    from fastapi.responses import StreamingResponse
+    import io
+    from sqlalchemy import or_
+
+    # Validate category
+    valid_categories = get_all_categories()
+    if category.lower() not in valid_categories:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid category. Valid categories: {', '.join(valid_categories)}"
+        )
+
+    # Get keywords for the category
+    keywords = get_category_keywords(category)
+
+    if not keywords:
+        raise HTTPException(status_code=400, detail="Category has no keywords defined")
+
+    # Build filter conditions for each keyword
+    keyword_filters = []
+    for kw in keywords:
+        keyword_filters.append(TestResult.canonical_name.ilike(f"%{kw}%"))
+        keyword_filters.append(TestResult.test_name.ilike(f"%{kw}%"))
+
+    # Find document IDs with matching biomarkers
+    matching_results = db.query(TestResult.document_id).join(Document).filter(
+        Document.user_id == current_user.id
+    ).filter(or_(*keyword_filters)).distinct().all()
+
+    doc_ids = [r.document_id for r in matching_results]
+
+    if not doc_ids:
+        raise HTTPException(status_code=404, detail="No documents found for this category")
+
+    # Get the documents
+    docs = db.query(Document).filter(
+        Document.id.in_(doc_ids),
+        Document.user_id == current_user.id
+    ).all()
+
+    if not docs:
+        raise HTTPException(status_code=404, detail="No documents found")
+
+    # Create a ZIP file in memory
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for doc in docs:
+            try:
+                content = read_document_content(doc, current_user.id)
+                date_str = doc.document_date.strftime("%Y-%m-%d") if doc.document_date else "unknown"
+                provider = doc.provider or "Unknown"
+                safe_name = f"{date_str}_{provider}_{doc.filename}"
+                safe_name = "".join(c for c in safe_name if c.isalnum() or c in "._- ")
+                zip_file.writestr(safe_name, content)
+            except Exception as e:
+                logging.warning(f"Could not include document {doc.id} in ZIP: {e}")
+                continue
+
+    zip_buffer.seek(0)
+
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename=analize_{category}.zip"}
     )
 
 

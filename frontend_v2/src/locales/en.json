@@ -217,7 +217,11 @@
       "thyroid": "Thyroid",
       "vitamins": "Vitamins & Minerals",
       "other": "Other Tests"
-    }
+    },
+    "downloadBiomarker": "Download documents with this biomarker",
+    "downloadCategory": "Download documents in this category",
+    "downloading": "Downloading...",
+    "noDocumentsFound": "No documents found"
   },
   "healthReports": {
     "title": "AI Health Analysis",

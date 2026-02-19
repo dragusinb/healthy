@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
-import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye, History, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye, History, TrendingUp, TrendingDown, Minus, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 
@@ -130,7 +130,7 @@ const openPdf = async (documentId, e, errorMessage, vaultLockedMessage, onError)
 };
 
 // Biomarker row with expandable history - Mobile responsive
-const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssues, onPdfError }) => {
+const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssues, onPdfError, downloading, onDownload }) => {
     const latest = group.latest;
     const historyCount = group.history.length;
     const isExpanded = expandedHistory.has(group.canonical_name);
@@ -207,7 +207,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                 <div className="col-span-2 text-xs text-slate-500">
                     {new Date(latest.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
                 </div>
-                <div className="col-span-1 text-center">
+                <div className="col-span-1 text-center flex items-center justify-center gap-1">
                     {latest.document_id && (
                         <button
                             onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
@@ -217,6 +217,19 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             <Eye size={14} aria-hidden="true" />
                         </button>
                     )}
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDownload('biomarker', group.canonical_name); }}
+                        disabled={downloading === `biomarker:${group.canonical_name}`}
+                        className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
+                        aria-label={t('biomarkers.downloadBiomarker')}
+                        title={t('biomarkers.downloadBiomarker')}
+                    >
+                        {downloading === `biomarker:${group.canonical_name}` ? (
+                            <Loader2 size={14} className="animate-spin" aria-hidden="true" />
+                        ) : (
+                            <Download size={14} aria-hidden="true" />
+                        )}
+                    </button>
                 </div>
                 <div className="col-span-1 text-right pr-2">
                     {latest.status === 'normal' ? (
@@ -291,6 +304,18 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                                 <Eye size={16} />
                             </button>
                         )}
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onDownload('biomarker', group.canonical_name); }}
+                            disabled={downloading === `biomarker:${group.canonical_name}`}
+                            className="p-2 text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50"
+                            title={t('biomarkers.downloadBiomarker')}
+                        >
+                            {downloading === `biomarker:${group.canonical_name}` ? (
+                                <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                                <Download size={16} />
+                            )}
+                        </button>
                         {latest.status === 'normal' ? (
                             <span className="inline-block w-3 h-3 bg-teal-500 rounded-full" title={t('biomarkers.normal')} />
                         ) : (
@@ -397,7 +422,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
     );
 };
 
-const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, expandedHistory, onToggleHistory, showOnlyIssues, onPdfError }) => {
+const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, expandedHistory, onToggleHistory, showOnlyIssues, onPdfError, downloading, onDownload }) => {
     const category = CATEGORIES[categoryKey];
     const colors = COLOR_CLASSES[category.color];
     const Icon = category.icon;
@@ -430,6 +455,18 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                             {issueCount} {issueCount > 1 ? t('biomarkers.issuesCount') : t('biomarkers.issue')}
                         </span>
                     )}
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onDownload('category', categoryKey); }}
+                        disabled={downloading === `category:${categoryKey}`}
+                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
+                        title={t('biomarkers.downloadCategory')}
+                    >
+                        {downloading === `category:${categoryKey}` ? (
+                            <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                            <Download size={16} />
+                        )}
+                    </button>
                     {expanded ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
                 </div>
             </button>
@@ -459,6 +496,8 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                                 onToggleHistory={onToggleHistory}
                                 showOnlyIssues={showOnlyIssues}
                                 onPdfError={onPdfError}
+                                downloading={downloading}
+                                onDownload={onDownload}
                             />
                         ))}
                     </div>
@@ -484,6 +523,7 @@ const Biomarkers = () => {
     const [sortBy, setSortBy] = useState('issues');
     const [expandedCategories, setExpandedCategories] = useState(new Set());
     const [expandedHistory, setExpandedHistory] = useState(new Set());
+    const [downloading, setDownloading] = useState(null); // 'biomarker:name' or 'category:key'
 
     useEffect(() => {
         if (docId) {
@@ -576,6 +616,37 @@ const Biomarkers = () => {
 
     const expandAll = () => setExpandedCategories(new Set(Object.keys(CATEGORIES)));
     const collapseAll = () => setExpandedCategories(new Set());
+
+    const handleDownload = async (type, name) => {
+        setDownloading(`${type}:${name}`);
+        try {
+            const endpoint = type === 'biomarker'
+                ? `/documents/download-by-biomarker/${encodeURIComponent(name)}`
+                : `/documents/download-by-category/${name}`;
+            const response = await api.get(endpoint, { responseType: 'blob' });
+
+            // Create download link and trigger
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `analize_${name.replace(/[^a-z0-9]/gi, '_')}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Download failed:', err);
+            if (err.response?.status === 404) {
+                setPdfError(t('biomarkers.noDocumentsFound'));
+            } else if (err.response?.status === 503) {
+                setPdfError(t('documents.vaultLocked'));
+            } else {
+                setPdfError(t('common.error'));
+            }
+        } finally {
+            setDownloading(null);
+        }
+    };
 
     const groupedByCategory = useMemo(() => {
         // Filter groups based on search and filter
@@ -739,6 +810,8 @@ const Biomarkers = () => {
                                 onToggleHistory={toggleHistory}
                                 showOnlyIssues={filter === 'out_of_range'}
                                 onPdfError={setPdfError}
+                                downloading={downloading}
+                                onDownload={handleDownload}
                             />
                         );
                     })}
