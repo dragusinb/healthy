@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import api from '../api/client';
+import api, { VAULT_LOCKED_EVENT } from '../api/client';
 
 const AuthContext = createContext();
 
@@ -14,9 +14,22 @@ export const AuthProvider = ({ children }) => {
     // Google OAuth flow state
     const [pendingGoogleSetup, setPendingGoogleSetup] = useState(null); // {needs_password_setup, needs_vault_unlock}
 
+    // Vault locked state - triggers unlock modal on 503 errors
+    const [vaultLocked, setVaultLocked] = useState(false);
+
     useEffect(() => {
         checkUser();
         loadGoogleScript();
+
+        // Listen for vault locked events from API client
+        const handleVaultLocked = () => {
+            // Only trigger if user is logged in
+            if (localStorage.getItem('token')) {
+                setVaultLocked(true);
+            }
+        };
+        window.addEventListener(VAULT_LOCKED_EVENT, handleVaultLocked);
+        return () => window.removeEventListener(VAULT_LOCKED_EVENT, handleVaultLocked);
     }, []);
 
     const loadGoogleScript = () => {
@@ -150,6 +163,21 @@ export const AuthProvider = ({ children }) => {
     const unlockData = async (password) => {
         await api.post('/auth/unlock-data', { password });
         setPendingGoogleSetup(null);
+        setVaultLocked(false);
+    };
+
+    // Unlock vault when session was lost (e.g., server restart)
+    const unlockVault = async (password) => {
+        await api.post('/auth/unlock-data', { password });
+        setVaultLocked(false);
+    };
+
+    const triggerVaultUnlock = () => {
+        setVaultLocked(true);
+    };
+
+    const dismissVaultUnlock = () => {
+        setVaultLocked(false);
     };
 
     const clearPendingSetup = () => {
@@ -173,7 +201,12 @@ export const AuthProvider = ({ children }) => {
             pendingGoogleSetup,
             setupPassword,
             unlockData,
-            clearPendingSetup
+            clearPendingSetup,
+            // Vault session recovery
+            vaultLocked,
+            unlockVault,
+            triggerVaultUnlock,
+            dismissVaultUnlock
         }}>
             {children}
         </AuthContext.Provider>

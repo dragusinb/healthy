@@ -6,6 +6,7 @@ import api from '../api/client';
 import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare } from 'lucide-react';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
+import VaultUnlockModal from './VaultUnlockModal';
 
 const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
     <NavLink
@@ -351,6 +352,9 @@ const Layout = ({ children }) => {
 
             {/* Feedback Button - Only show for authenticated users */}
             <FeedbackButton />
+
+            {/* Vault Unlock Modal - Shows when session expired but JWT still valid */}
+            <VaultUnlockModal />
         </div>
     );
 };
