@@ -218,7 +218,12 @@ class SubscriptionService:
         now = datetime.now(timezone.utc)
         current_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-        if tracker.month_start < current_month_start:
+        # Make tracker.month_start timezone-aware if it's naive (from DB)
+        tracker_month_start = tracker.month_start
+        if tracker_month_start.tzinfo is None:
+            tracker_month_start = tracker_month_start.replace(tzinfo=timezone.utc)
+
+        if tracker_month_start < current_month_start:
             tracker.ai_analyses_this_month = 0
             tracker.month_start = current_month_start
             self.db.commit()

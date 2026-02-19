@@ -294,7 +294,7 @@ def get_ticket(
             "file_path": a.file_path,
             "file_type": a.file_type,
             "file_size": a.file_size,
-            "url": f"/api/support/attachments/{a.id}",
+            "url": f"/support/attachments/{a.id}",
             "created_at": a.created_at.isoformat() if a.created_at else None
         } for a in ticket.attachments],
         replies=[{
@@ -382,7 +382,7 @@ def get_ticket_admin(
             "file_path": a.file_path,
             "file_type": a.file_type,
             "file_size": a.file_size,
-            "url": f"/api/support/attachments/{a.id}",
+            "url": f"/support/attachments/{a.id}",
             "created_at": a.created_at.isoformat() if a.created_at else None
         } for a in ticket.attachments],
         replies=[{

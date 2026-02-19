@@ -43,10 +43,53 @@ export default function SupportTickets() {
     const [statusResponse, setStatusResponse] = useState('');
     const [viewMode, setViewMode] = useState('mine'); // 'mine' or 'all' (admin only)
     const [imageModal, setImageModal] = useState(null); // { url, name } for full-screen image view
+    const [attachmentUrls, setAttachmentUrls] = useState({}); // { attachmentId: blobUrl }
+    const [attachmentErrors, setAttachmentErrors] = useState({}); // { attachmentId: true } for failed loads
 
     useEffect(() => {
         fetchTickets();
     }, [isAdmin, viewMode]);
+
+    // Fetch attachment images with authentication and convert to blob URLs
+    useEffect(() => {
+        if (!ticketDetail?.attachments || ticketDetail.attachments.length === 0) return;
+
+        let isCancelled = false;
+        const urlsToCleanup = [];
+
+        const fetchAttachmentImages = async () => {
+            for (const att of ticketDetail.attachments) {
+                if (isCancelled) break;
+                if (att.file_type?.startsWith('image/')) {
+                    try {
+                        // Construct the API path (without /api prefix since axios baseURL handles routing)
+                        const attachmentUrl = `/support/attachments/${att.id}`;
+                        const response = await api.get(attachmentUrl, {
+                            responseType: 'blob'
+                        });
+                        if (!isCancelled) {
+                            const blobUrl = URL.createObjectURL(response.data);
+                            urlsToCleanup.push(blobUrl);
+                            setAttachmentUrls(prev => ({ ...prev, [att.id]: blobUrl }));
+                        }
+                    } catch (err) {
+                        console.error(`Failed to fetch attachment ${att.id}:`, err);
+                        if (!isCancelled) {
+                            setAttachmentErrors(prev => ({ ...prev, [att.id]: true }));
+                        }
+                    }
+                }
+            }
+        };
+
+        fetchAttachmentImages();
+
+        // Cleanup blob URLs when effect is re-run or component unmounts
+        return () => {
+            isCancelled = true;
+            urlsToCleanup.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [ticketDetail?.id]); // Only re-fetch when ticket changes
 
     const fetchTickets = async () => {
         setLoading(true);
@@ -82,6 +125,8 @@ export default function SupportTickets() {
 
     const handleTicketClick = (ticket) => {
         setSelectedTicket(ticket.id);
+        setAttachmentUrls({}); // Reset attachment URLs when switching tickets
+        setAttachmentErrors({}); // Reset errors too
         fetchTicketDetail(ticket.id);
     };
 
@@ -290,24 +335,35 @@ export default function SupportTickets() {
                                         <div className="grid grid-cols-2 gap-2">
                                             {ticketDetail.attachments.map((att) => {
                                                 const isImage = att.file_type?.startsWith('image/');
-                                                const imageUrl = att.url || `/api/support/attachments/${att.id}`;
+                                                const imageUrl = attachmentUrls[att.id];
                                                 return (
                                                     <div
                                                         key={att.id}
-                                                        className={`relative group bg-slate-50 rounded-lg overflow-hidden border border-slate-200 ${isImage ? 'cursor-pointer hover:border-primary-400' : ''}`}
-                                                        onClick={() => isImage && setImageModal({ url: imageUrl, name: att.file_name })}
+                                                        className={`relative group bg-slate-50 rounded-lg overflow-hidden border border-slate-200 ${isImage && imageUrl ? 'cursor-pointer hover:border-primary-400' : ''}`}
+                                                        onClick={() => isImage && imageUrl && setImageModal({ url: imageUrl, name: att.file_name })}
                                                     >
                                                         {isImage ? (
-                                                            <>
-                                                                <img
-                                                                    src={imageUrl}
-                                                                    alt={att.file_name}
-                                                                    className="w-full h-32 object-cover"
-                                                                />
-                                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                                                                    <ExternalLink size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                            imageUrl ? (
+                                                                <>
+                                                                    <img
+                                                                        src={imageUrl}
+                                                                        alt={att.file_name}
+                                                                        className="w-full h-32 object-cover"
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                                                                        <ExternalLink size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                    </div>
+                                                                </>
+                                                            ) : attachmentErrors[att.id] ? (
+                                                                <div className="w-full h-32 flex flex-col items-center justify-center text-slate-400">
+                                                                    <AlertCircle size={24} />
+                                                                    <span className="text-xs mt-1">{t('common.error')}</span>
                                                                 </div>
-                                                            </>
+                                                            ) : (
+                                                                <div className="w-full h-32 flex items-center justify-center">
+                                                                    <Loader2 size={24} className="animate-spin text-slate-400" />
+                                                                </div>
+                                                            )
                                                         ) : (
                                                             <div className="flex items-center gap-3 p-3">
                                                                 <Image size={20} className="text-slate-400" />
