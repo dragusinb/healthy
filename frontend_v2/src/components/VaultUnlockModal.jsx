@@ -28,10 +28,10 @@ const VaultUnlockModal = () => {
             await unlockVault(password);
             setSuccess(true);
             setPassword('');
-            // Auto-close after success
+            // Reload page after success to refresh all data
             setTimeout(() => {
-                setSuccess(false);
-            }, 1500);
+                window.location.reload();
+            }, 1000);
         } catch (err) {
             setError(err.response?.data?.detail || t('auth.invalidCredentials'));
         } finally {
