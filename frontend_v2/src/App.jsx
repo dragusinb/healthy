@@ -23,6 +23,7 @@ const Evolution = lazy(() => import('./pages/Evolution'));
 const LinkedAccounts = lazy(() => import('./pages/LinkedAccounts'));
 const HealthReports = lazy(() => import('./pages/HealthReports'));
 const Screenings = lazy(() => import('./pages/Screenings'));
+const Lifestyle = lazy(() => import('./pages/Lifestyle'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Admin = lazy(() => import('./pages/Admin'));
@@ -151,6 +152,9 @@ const App = () => {
                                 } />
                                 <Route path="/screenings" element={
                                     <PrivateLayoutRoute><Screenings /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/lifestyle" element={
+                                    <PrivateLayoutRoute><Lifestyle /></PrivateLayoutRoute>
                                 } />
                                 <Route path="/admin" element={
                                     <PrivateLayoutRoute><Admin /></PrivateLayoutRoute>

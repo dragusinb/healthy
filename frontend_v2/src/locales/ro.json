@@ -39,6 +39,7 @@
     "biomarkers": "Biomarkeri",
     "doctorAI": "Doctor AI",
     "screenings": "Screeninguri Recomandate",
+    "lifestyle": "Stil de Viata",
     "healthReports": "Rapoarte Sanatate",
     "evolution": "Evolutie",
     "profile": "Profil",
@@ -801,6 +802,59 @@
     "descriptionRequired": "Te rugam sa descrii problema sau sugestia",
     "submitFailed": "Nu am putut trimite feedback-ul. Te rugam sa incerci din nou.",
     "viewTickets": "Vezi tichetele tale"
+  },
+  "lifestyle": {
+    "title": "Stil de Viata",
+    "subtitle": "Sfaturi personalizate de nutritie si exercitii bazate pe analizele tale",
+    "getAdvice": "Obtine Sfaturi",
+    "refreshAdvice": "Reactualizeaza Sfaturile",
+    "tabs": {
+      "nutrition": "Nutritie",
+      "exercise": "Exercitii"
+    },
+    "analysisSteps": {
+      "loading": "Se incarca biomarkerii tai...",
+      "nutrition": "Se genereaza recomandarile nutritionale...",
+      "exercise": "Se creeaza planul de exercitii...",
+      "saving": "Se salveaza planul personalizat...",
+      "finishing": "Se finalizeaza recomandarile..."
+    },
+    "nutrition": {
+      "summary": "Rezumat Nutritie",
+      "dailyTargets": "Obiective Zilnice",
+      "calories": "Calorii",
+      "hydration": "Hidratare",
+      "mealFrequency": "Frecventa Meselor",
+      "priorityFoods": "Alimente Prioritare",
+      "foodsToReduce": "Alimente de Redus",
+      "alternatives": "Incearca in schimb",
+      "mealTiming": "Ghid Programare Mese",
+      "supplements": "Suplimente de Discutat cu Medicul"
+    },
+    "exercise": {
+      "summary": "Rezumat Exercitii",
+      "assessment": "Evaluare Curenta",
+      "activityLevel": "Nivel Activitate",
+      "healthFactors": "Factori de Sanatate Cheie",
+      "exerciseReadiness": "Pregatire pentru Exercitii",
+      "weeklyPlan": "Plan Saptamanal de Exercitii",
+      "frequency": "Frecventa",
+      "duration": "Durata",
+      "intensity": "Intensitate",
+      "biomarkerBenefit": "Ajuta la imbunatatirea",
+      "dailyHabits": "Obiceiuri Zilnice de Miscare",
+      "progression": "Plan de Progresie",
+      "currentWeek": "Saptamana Aceasta",
+      "week4": "Saptamana 4",
+      "week8": "Saptamana 8",
+      "precautions": "Precautii"
+    },
+    "warnings": "Avertismente Importante",
+    "disclaimer": "Aceste recomandari de stil de viata sunt generate de AI pe baza analizelor si profilului tau. Nu sunt un substitut pentru sfatul medical, nutritional sau de fitness profesional. Consulta intotdeauna specialistii calificati inainte de a face schimbari semnificative in dieta sau rutina de exercitii.",
+    "profileIncomplete": "Completeaza-ti profilul pentru recomandari mai personalizate",
+    "noAnalysisYet": "Niciun Sfat de Stil de Viata Inca",
+    "noAnalysisHint": "Obtine recomandari personalizate de nutritie si exercitii bazate pe biomarkerii si profilul tau de sanatate.",
+    "target": "Obiectiv"
   },
   "billing": {
     "title": "Abonament și Facturare",

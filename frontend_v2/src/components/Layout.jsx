@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf } from 'lucide-react';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
 import VaultUnlockModal from './VaultUnlockModal';
@@ -84,6 +84,7 @@ const Layout = ({ children }) => {
         if (path.startsWith('/health')) return t('nav.doctorAI');
         if (path.startsWith('/screenings')) return t('nav.screenings');
         if (path.startsWith('/family')) return t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family');
+        if (path.startsWith('/lifestyle')) return t('lifestyle.title');
         if (path.startsWith('/profile')) return t('profile.title');
         if (path.startsWith('/linked-accounts')) return t('linkedAccounts.title');
         if (path.startsWith('/settings')) return t('notifications.preferences');
@@ -111,6 +112,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/biomarkers" icon={Activity} label={t('nav.biomarkers')} />
                         <SidebarItem to="/health" icon={Brain} label={t('nav.doctorAI')} />
                         <SidebarItem to="/screenings" icon={ClipboardList} label={t('nav.screenings')} />
+                        <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} />
                         <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
                         <div className="pt-3 mt-3 border-t border-slate-100"></div>
                         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
@@ -234,6 +236,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/biomarkers" icon={Activity} label={t('nav.biomarkers')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/health" icon={Brain} label={t('nav.doctorAI')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/screenings" icon={ClipboardList} label={t('nav.screenings')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} onClick={closeMobileMenu} />
                                     <div className="pt-4 mt-4 border-t border-slate-100"></div>
                                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>

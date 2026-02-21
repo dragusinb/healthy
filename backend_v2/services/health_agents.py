@@ -581,6 +581,356 @@ IMPORTANT: Write a REAL, personalized summary for this specific patient - do NOT
         return "\n".join(parts)
 
 
+def format_profile_context(profile: Dict[str, Any]) -> str:
+    """Format user profile data for AI context. Used by both health and lifestyle services."""
+    if not profile:
+        return ""
+
+    parts = ["Patient Profile:"]
+
+    if profile.get("full_name"):
+        parts.append(f"- Name: {profile['full_name']}")
+
+    if profile.get("age"):
+        parts.append(f"- Age: {profile['age']} years")
+    elif profile.get("date_of_birth"):
+        parts.append(f"- Date of Birth: {profile['date_of_birth']}")
+
+    if profile.get("gender"):
+        parts.append(f"- Gender: {profile['gender']}")
+
+    if profile.get("height_cm"):
+        parts.append(f"- Height: {profile['height_cm']} cm")
+
+    if profile.get("weight_kg"):
+        parts.append(f"- Weight: {profile['weight_kg']} kg")
+
+    if profile.get("bmi"):
+        bmi = profile['bmi']
+        bmi_category = "underweight" if bmi < 18.5 else "normal" if bmi < 25 else "overweight" if bmi < 30 else "obese"
+        parts.append(f"- BMI: {bmi} ({bmi_category})")
+
+    if profile.get("blood_type"):
+        parts.append(f"- Blood Type: {profile['blood_type']}")
+
+    if profile.get("smoking_status"):
+        parts.append(f"- Smoking: {profile['smoking_status']}")
+
+    if profile.get("alcohol_consumption"):
+        parts.append(f"- Alcohol: {profile['alcohol_consumption']}")
+
+    if profile.get("physical_activity"):
+        parts.append(f"- Physical Activity: {profile['physical_activity']}")
+
+    if profile.get("allergies") and len(profile['allergies']) > 0:
+        parts.append(f"- Allergies: {', '.join(profile['allergies'])}")
+
+    if profile.get("chronic_conditions") and len(profile['chronic_conditions']) > 0:
+        parts.append(f"- Chronic Conditions: {', '.join(profile['chronic_conditions'])}")
+
+    if profile.get("current_medications") and len(profile['current_medications']) > 0:
+        parts.append(f"- Current Medications: {', '.join(profile['current_medications'])}")
+
+    if len(parts) == 1:
+        return ""
+
+    return "\n".join(parts)
+
+
+class NutritionAgent(HealthAgent):
+    """AI agent focused on personalized nutrition recommendations based on biomarkers."""
+
+    SYSTEM_PROMPT = """You are an AI nutrition advisor. Your role is to provide personalized dietary
+recommendations based on a patient's lab results, profile, and health context.
+
+You are NOT a doctor or registered dietitian. Your recommendations are for educational purposes only.
+
+Your analysis should:
+1. Identify nutritional deficiencies from biomarkers (iron, vitamin D, B12, folate, etc.)
+2. Assess metabolic markers for blood sugar management (glucose, HbA1c, insulin)
+3. Review lipid profile for cardiovascular diet recommendations (cholesterol, LDL, HDL, triglycerides)
+4. Consider BMI and caloric needs based on height, weight, and activity level
+5. Account for allergies and medication interactions
+6. Recommend specific foods with portions (not vague advice)
+7. Consider meal timing for optimal results
+
+DATA TIMELINE AWARENESS:
+- Focus on the most recent lab results for current recommendations
+- Note improvements in markers that were previously abnormal
+- For old data (> 1 year), note that recommendations may need updating
+
+Be specific and actionable. Instead of "eat more vegetables", say "aim for 2 cups of dark leafy greens daily (spinach, kale, Swiss chard)".
+
+Respond in JSON format:
+{
+    "summary": "2-3 sentence overview of nutritional priorities based on lab results",
+    "daily_targets": {
+        "calories": "estimated daily calorie target or range",
+        "hydration": "daily water intake recommendation",
+        "meal_frequency": "recommended number of meals/snacks per day"
+    },
+    "priority_foods": [
+        {
+            "category": "Food category (e.g., Iron-Rich Foods, Omega-3 Sources)",
+            "reason": "Why this category matters based on biomarkers",
+            "foods": ["Specific food 1 with portion", "Specific food 2 with portion"],
+            "target": "How often to eat these (e.g., daily, 3x/week)"
+        }
+    ],
+    "foods_to_reduce": [
+        {
+            "category": "Food category to limit",
+            "reason": "Why based on biomarkers",
+            "alternatives": ["Healthier alternative 1", "Alternative 2"]
+        }
+    ],
+    "meal_timing": [
+        {
+            "meal": "Meal name (e.g., Breakfast, Post-workout snack)",
+            "timing": "When to eat",
+            "focus": "What to prioritize at this meal"
+        }
+    ],
+    "supplements_to_discuss": [
+        {
+            "supplement": "Supplement name",
+            "reason": "Why it may be relevant based on biomarkers",
+            "note": "Important considerations or interactions"
+        }
+    ],
+    "warnings": ["Any important dietary warnings based on medications, conditions, or lab results"]
+}"""
+
+    def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
+        """Generate personalized nutrition recommendations from biomarkers."""
+        if not biomarkers:
+            return {
+                "summary": "No biomarker data available for nutrition analysis.",
+                "daily_targets": {},
+                "priority_foods": [],
+                "foods_to_reduce": [],
+                "meal_timing": [],
+                "supplements_to_discuss": [],
+                "warnings": []
+            }
+
+        biomarker_text = self._format_biomarkers(biomarkers)
+
+        profile_section = ""
+        if profile_context:
+            profile_section = f"""{profile_context}
+
+Consider the patient's profile when making nutrition recommendations. BMI, activity level, allergies, medications, and chronic conditions are critical for dietary advice.
+
+"""
+
+        user_prompt = f"""{profile_section}Based on these lab results, provide personalized nutrition and dietary recommendations:
+
+{biomarker_text}
+
+Focus on actionable, specific food recommendations tied to the biomarker findings. Provide your analysis in JSON format."""
+
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="nutrition_analysis")
+
+        try:
+            json_str = response
+            if "```json" in response:
+                json_str = response.split("```json")[1].split("```")[0]
+            elif "```" in response:
+                json_str = response.split("```")[1].split("```")[0]
+            return json.loads(json_str)
+        except json.JSONDecodeError:
+            return {
+                "summary": response[:500],
+                "daily_targets": {},
+                "priority_foods": [],
+                "foods_to_reduce": [],
+                "meal_timing": [],
+                "supplements_to_discuss": [],
+                "warnings": [],
+                "raw_response": response
+            }
+
+    def _format_biomarkers(self, biomarkers: List[Dict]) -> str:
+        """Format biomarkers for nutrition analysis."""
+        from collections import defaultdict
+        by_date = defaultdict(list)
+        for bio in biomarkers:
+            date = bio.get('date', 'Unknown')
+            by_date[date].append(bio)
+
+        lines = []
+        for date in sorted(by_date.keys(), reverse=True):
+            lines.append(f"\n=== {date} ===")
+            for bio in by_date[date]:
+                status = "⚠️" if bio.get('status') != 'normal' else "✓"
+                value = bio.get('value', 'N/A')
+                unit = bio.get('unit', '')
+                ref_range = bio.get('range', 'N/A')
+                lines.append(f"  {status} {bio.get('name', 'Unknown')}: {value} {unit} (ref: {ref_range})")
+        return "\n".join(lines)
+
+
+class ExerciseAgent(HealthAgent):
+    """AI agent focused on personalized exercise recommendations based on biomarkers."""
+
+    SYSTEM_PROMPT = """You are an AI exercise and physical activity advisor. Your role is to provide
+personalized exercise recommendations based on a patient's lab results, profile, and health context.
+
+You are NOT a doctor or certified trainer. Your recommendations are for educational purposes only.
+
+Your analysis should:
+1. Assess cardiovascular exercise needs based on lipid profile and CRP/inflammation markers
+2. Recommend post-meal walking for glucose/HbA1c management
+3. Adjust intensity based on BMI, current activity level, and fitness markers
+4. Consider age-appropriate exercise (joint health, bone density for older adults)
+5. Account for medications that affect heart rate or energy (beta-blockers, statins)
+6. Provide a progressive plan (not jumping to intense exercise immediately)
+7. Include both structured exercise and daily movement habits
+
+DATA TIMELINE AWARENESS:
+- Focus on the most recent lab results for current recommendations
+- Note improvements that may allow exercise progression
+- For old data (> 1 year), note that fitness assessment may need updating
+
+Be specific: instead of "exercise regularly", say "walk briskly for 30 minutes, 5 days per week, at a pace where you can talk but not sing".
+
+Respond in JSON format:
+{
+    "summary": "2-3 sentence overview of exercise priorities based on lab results and profile",
+    "current_assessment": {
+        "activity_level": "Assessment of current fitness based on profile",
+        "key_health_factors": ["Factor 1 affecting exercise", "Factor 2"],
+        "exercise_readiness": "Overall readiness for exercise (good/moderate/cautious)"
+    },
+    "weekly_plan": [
+        {
+            "activity": "Exercise name",
+            "frequency": "How many times per week",
+            "duration": "How long per session",
+            "intensity": "Low/Moderate/Moderate-High",
+            "details": "Specific instructions and form tips",
+            "biomarker_benefit": "Which biomarkers this helps improve"
+        }
+    ],
+    "daily_habits": [
+        {
+            "habit": "Daily movement habit",
+            "when": "When to do it",
+            "benefit": "Why it matters"
+        }
+    ],
+    "progression": {
+        "current_week": "What to focus on now",
+        "week_4": "How to progress after 4 weeks",
+        "week_8": "Target level after 8 weeks"
+    },
+    "precautions": [
+        {
+            "concern": "Health concern",
+            "recommendation": "What to watch for or avoid"
+        }
+    ],
+    "warnings": ["Important exercise warnings based on health conditions, medications, or lab results"]
+}"""
+
+    def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
+        """Generate personalized exercise recommendations from biomarkers."""
+        if not biomarkers:
+            return {
+                "summary": "No biomarker data available for exercise analysis.",
+                "current_assessment": {},
+                "weekly_plan": [],
+                "daily_habits": [],
+                "progression": {},
+                "precautions": [],
+                "warnings": []
+            }
+
+        biomarker_text = self._format_biomarkers(biomarkers)
+
+        profile_section = ""
+        if profile_context:
+            profile_section = f"""{profile_context}
+
+Consider the patient's profile when making exercise recommendations. Age, BMI, current activity level, chronic conditions, and medications are critical for safe exercise prescription.
+
+"""
+
+        user_prompt = f"""{profile_section}Based on these lab results, provide personalized exercise and physical activity recommendations:
+
+{biomarker_text}
+
+Focus on safe, progressive exercise tied to the biomarker findings. Provide your analysis in JSON format."""
+
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="exercise_analysis")
+
+        try:
+            json_str = response
+            if "```json" in response:
+                json_str = response.split("```json")[1].split("```")[0]
+            elif "```" in response:
+                json_str = response.split("```")[1].split("```")[0]
+            return json.loads(json_str)
+        except json.JSONDecodeError:
+            return {
+                "summary": response[:500],
+                "current_assessment": {},
+                "weekly_plan": [],
+                "daily_habits": [],
+                "progression": {},
+                "precautions": [],
+                "warnings": [],
+                "raw_response": response
+            }
+
+    def _format_biomarkers(self, biomarkers: List[Dict]) -> str:
+        """Format biomarkers for exercise analysis."""
+        from collections import defaultdict
+        by_date = defaultdict(list)
+        for bio in biomarkers:
+            date = bio.get('date', 'Unknown')
+            by_date[date].append(bio)
+
+        lines = []
+        for date in sorted(by_date.keys(), reverse=True):
+            lines.append(f"\n=== {date} ===")
+            for bio in by_date[date]:
+                status = "⚠️" if bio.get('status') != 'normal' else "✓"
+                value = bio.get('value', 'N/A')
+                unit = bio.get('unit', '')
+                ref_range = bio.get('range', 'N/A')
+                lines.append(f"  {status} {bio.get('name', 'Unknown')}: {value} {unit} (ref: {ref_range})")
+        return "\n".join(lines)
+
+
+class LifestyleAnalysisService:
+    """Service to run lifestyle analysis (nutrition + exercise) from biomarkers."""
+
+    def __init__(self, language: str = "en", profile: Dict[str, Any] = None):
+        self.language = language
+        self.profile = profile or {}
+
+    def run_full_lifestyle_analysis(self, biomarkers: List[Dict]) -> Dict[str, Any]:
+        """Run both nutrition and exercise analyses sequentially."""
+        profile_context = format_profile_context(self.profile)
+
+        nutrition_agent = NutritionAgent(language=self.language)
+        nutrition_result = nutrition_agent.analyze(biomarkers, profile_context)
+
+        exercise_agent = ExerciseAgent(language=self.language)
+        exercise_result = exercise_agent.analyze(biomarkers, profile_context)
+
+        return {
+            "nutrition": nutrition_result,
+            "exercise": exercise_result,
+            "analyzed_at": datetime.now().isoformat(),
+            "language": self.language,
+            "profile_used": bool(profile_context),
+            "biomarkers_count": len(biomarkers)
+        }
+
+
 class HealthAnalysisService:
     """Service to run health analysis across all agents."""
 
@@ -591,58 +941,7 @@ class HealthAnalysisService:
 
     def _format_profile_context(self) -> str:
         """Format user profile data for AI context."""
-        if not self.profile:
-            return ""
-
-        parts = ["Patient Profile:"]
-
-        if self.profile.get("full_name"):
-            parts.append(f"- Name: {self.profile['full_name']}")
-
-        if self.profile.get("age"):
-            parts.append(f"- Age: {self.profile['age']} years")
-        elif self.profile.get("date_of_birth"):
-            parts.append(f"- Date of Birth: {self.profile['date_of_birth']}")
-
-        if self.profile.get("gender"):
-            parts.append(f"- Gender: {self.profile['gender']}")
-
-        if self.profile.get("height_cm"):
-            parts.append(f"- Height: {self.profile['height_cm']} cm")
-
-        if self.profile.get("weight_kg"):
-            parts.append(f"- Weight: {self.profile['weight_kg']} kg")
-
-        if self.profile.get("bmi"):
-            bmi = self.profile['bmi']
-            bmi_category = "underweight" if bmi < 18.5 else "normal" if bmi < 25 else "overweight" if bmi < 30 else "obese"
-            parts.append(f"- BMI: {bmi} ({bmi_category})")
-
-        if self.profile.get("blood_type"):
-            parts.append(f"- Blood Type: {self.profile['blood_type']}")
-
-        if self.profile.get("smoking_status"):
-            parts.append(f"- Smoking: {self.profile['smoking_status']}")
-
-        if self.profile.get("alcohol_consumption"):
-            parts.append(f"- Alcohol: {self.profile['alcohol_consumption']}")
-
-        if self.profile.get("physical_activity"):
-            parts.append(f"- Physical Activity: {self.profile['physical_activity']}")
-
-        if self.profile.get("allergies") and len(self.profile['allergies']) > 0:
-            parts.append(f"- Allergies: {', '.join(self.profile['allergies'])}")
-
-        if self.profile.get("chronic_conditions") and len(self.profile['chronic_conditions']) > 0:
-            parts.append(f"- Chronic Conditions: {', '.join(self.profile['chronic_conditions'])}")
-
-        if self.profile.get("current_medications") and len(self.profile['current_medications']) > 0:
-            parts.append(f"- Current Medications: {', '.join(self.profile['current_medications'])}")
-
-        if len(parts) == 1:
-            return ""
-
-        return "\n".join(parts)
+        return format_profile_context(self.profile)
 
     def _is_recent(self, biomarker: Dict, max_age_days: int = 365) -> bool:
         """Check if a biomarker is from recent data (within max_age_days)."""
