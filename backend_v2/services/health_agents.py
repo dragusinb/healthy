@@ -34,7 +34,7 @@ class HealthAgent:
         """Get the language instruction for prompts."""
         return self.LANGUAGE_INSTRUCTIONS.get(self.language, self.LANGUAGE_INSTRUCTIONS["en"])
 
-    def _call_ai(self, system_prompt: str, user_prompt: str, purpose: str = "health_analysis") -> str:
+    def _call_ai(self, system_prompt: str, user_prompt: str, purpose: str = "health_analysis", max_tokens: int = 2000) -> str:
         """Make an API call to OpenAI."""
         # Add language instruction to system prompt
         full_system_prompt = f"{system_prompt}\n\n{self._get_language_instruction()}"
@@ -47,7 +47,7 @@ class HealthAgent:
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.3,
-                max_tokens=2000
+                max_tokens=max_tokens
             )
 
             # Track OpenAI usage
@@ -640,8 +640,8 @@ def format_profile_context(profile: Dict[str, Any]) -> str:
 class NutritionAgent(HealthAgent):
     """AI agent focused on personalized nutrition recommendations based on biomarkers."""
 
-    SYSTEM_PROMPT = """You are an AI nutrition advisor. Your role is to provide personalized dietary
-recommendations based on a patient's lab results, profile, and health context.
+    SYSTEM_PROMPT = """You are an expert AI nutrition advisor. Your role is to create a DETAILED, SPECIFIC
+meal plan based on a patient's lab results, profile, and health context.
 
 You are NOT a doctor or registered dietitian. Your recommendations are for educational purposes only.
 
@@ -651,7 +651,7 @@ Your analysis should:
 3. Review lipid profile for cardiovascular diet recommendations (cholesterol, LDL, HDL, triglycerides)
 4. Consider BMI and caloric needs based on height, weight, and activity level
 5. Account for allergies and medication interactions
-6. Recommend specific foods with portions (not vague advice)
+6. Create a CONCRETE 7-day meal plan with exact foods, portions, and preparation notes
 7. Consider meal timing for optimal results
 
 DATA TIMELINE AWARENESS:
@@ -659,21 +659,68 @@ DATA TIMELINE AWARENESS:
 - Note improvements in markers that were previously abnormal
 - For old data (> 1 year), note that recommendations may need updating
 
-Be specific and actionable. Instead of "eat more vegetables", say "aim for 2 cups of dark leafy greens daily (spinach, kale, Swiss chard)".
+BE EXTREMELY SPECIFIC AND ACTIONABLE:
+- Instead of "eat more vegetables", say "200g steamed broccoli with 1 tbsp olive oil and lemon juice"
+- Instead of "eat iron-rich foods", say "150g grilled beef liver" or "200g spinach salad with lemon dressing (vitamin C enhances iron absorption)"
+- Include exact gram/ml portions, cooking methods, and meal combinations
+- Name specific dishes that are easy to prepare at home
 
 Respond in JSON format:
 {
     "summary": "2-3 sentence overview of nutritional priorities based on lab results",
     "daily_targets": {
         "calories": "estimated daily calorie target or range",
+        "protein": "daily protein target in grams",
         "hydration": "daily water intake recommendation",
         "meal_frequency": "recommended number of meals/snacks per day"
     },
+    "meal_plan": [
+        {
+            "day": "Day 1 (Monday)",
+            "meals": [
+                {
+                    "meal": "Breakfast",
+                    "time": "7:00-8:00",
+                    "items": ["2 boiled eggs", "1 slice whole grain bread with 1 tbsp avocado", "200ml green tea"],
+                    "calories": "~350 kcal",
+                    "notes": "Eggs provide B12 and choline; avocado adds healthy fats for cholesterol balance"
+                },
+                {
+                    "meal": "Snack",
+                    "time": "10:30",
+                    "items": ["150g Greek yogurt with 30g walnuts and 1 tsp honey"],
+                    "calories": "~250 kcal",
+                    "notes": "Walnuts are rich in omega-3; yogurt provides calcium and probiotics"
+                },
+                {
+                    "meal": "Lunch",
+                    "time": "13:00",
+                    "items": ["150g grilled salmon", "200g quinoa", "Mixed salad (spinach, tomatoes, cucumber) with olive oil dressing"],
+                    "calories": "~550 kcal",
+                    "notes": "Salmon provides omega-3 for cardiovascular health; quinoa is a complete protein"
+                },
+                {
+                    "meal": "Snack",
+                    "time": "16:00",
+                    "items": ["1 apple with 2 tbsp almond butter"],
+                    "calories": "~200 kcal",
+                    "notes": "Fiber from apple helps with blood sugar regulation"
+                },
+                {
+                    "meal": "Dinner",
+                    "time": "19:00",
+                    "items": ["200g grilled chicken breast", "200g steamed broccoli", "150g brown rice"],
+                    "calories": "~450 kcal",
+                    "notes": "Light dinner with lean protein; broccoli provides vitamin K and folate"
+                }
+            ]
+        }
+    ],
     "priority_foods": [
         {
             "category": "Food category (e.g., Iron-Rich Foods, Omega-3 Sources)",
             "reason": "Why this category matters based on biomarkers",
-            "foods": ["Specific food 1 with portion", "Specific food 2 with portion"],
+            "foods": ["Specific food 1 with exact portion (e.g., 150g grilled salmon)", "Specific food 2 with portion"],
             "target": "How often to eat these (e.g., daily, 3x/week)"
         }
     ],
@@ -681,25 +728,32 @@ Respond in JSON format:
         {
             "category": "Food category to limit",
             "reason": "Why based on biomarkers",
-            "alternatives": ["Healthier alternative 1", "Alternative 2"]
-        }
-    ],
-    "meal_timing": [
-        {
-            "meal": "Meal name (e.g., Breakfast, Post-workout snack)",
-            "timing": "When to eat",
-            "focus": "What to prioritize at this meal"
+            "examples": ["Specific food to avoid with reason"],
+            "alternatives": ["Specific healthier alternative with portion"]
         }
     ],
     "supplements_to_discuss": [
         {
-            "supplement": "Supplement name",
+            "supplement": "Supplement name with specific dosage to discuss",
             "reason": "Why it may be relevant based on biomarkers",
-            "note": "Important considerations or interactions"
+            "note": "Important considerations, timing, or interactions"
+        }
+    ],
+    "shopping_list": [
+        {
+            "category": "Produce / Protein / Dairy / Grains / Other",
+            "items": ["Item 1 with weekly quantity", "Item 2 with weekly quantity"]
         }
     ],
     "warnings": ["Any important dietary warnings based on medications, conditions, or lab results"]
-}"""
+}
+
+IMPORTANT:
+- Provide a FULL 7-day meal plan (Day 1 through Day 7) with 4-5 meals per day each
+- Each meal must have specific items with portions in grams/ml
+- Include a weekly shopping list organized by category
+- Vary the meals across days - don't repeat the same meals every day
+- Make meals realistic and easy to prepare at home"""
 
     def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
         """Generate personalized nutrition recommendations from biomarkers."""
@@ -707,10 +761,11 @@ Respond in JSON format:
             return {
                 "summary": "No biomarker data available for nutrition analysis.",
                 "daily_targets": {},
+                "meal_plan": [],
                 "priority_foods": [],
                 "foods_to_reduce": [],
-                "meal_timing": [],
                 "supplements_to_discuss": [],
+                "shopping_list": [],
                 "warnings": []
             }
 
@@ -724,13 +779,13 @@ Consider the patient's profile when making nutrition recommendations. BMI, activ
 
 """
 
-        user_prompt = f"""{profile_section}Based on these lab results, provide personalized nutrition and dietary recommendations:
+        user_prompt = f"""{profile_section}Based on these lab results, create a detailed 7-day meal plan with specific foods, portions, and preparation notes. Include a shopping list.
 
 {biomarker_text}
 
-Focus on actionable, specific food recommendations tied to the biomarker findings. Provide your analysis in JSON format."""
+Every meal must name exact foods with gram portions. Provide your complete plan in JSON format."""
 
-        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="nutrition_analysis")
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="nutrition_analysis", max_tokens=4000)
 
         try:
             json_str = response
@@ -743,10 +798,11 @@ Focus on actionable, specific food recommendations tied to the biomarker finding
             return {
                 "summary": response[:500],
                 "daily_targets": {},
+                "meal_plan": [],
                 "priority_foods": [],
                 "foods_to_reduce": [],
-                "meal_timing": [],
                 "supplements_to_discuss": [],
+                "shopping_list": [],
                 "warnings": [],
                 "raw_response": response
             }
@@ -774,8 +830,8 @@ Focus on actionable, specific food recommendations tied to the biomarker finding
 class ExerciseAgent(HealthAgent):
     """AI agent focused on personalized exercise recommendations based on biomarkers."""
 
-    SYSTEM_PROMPT = """You are an AI exercise and physical activity advisor. Your role is to provide
-personalized exercise recommendations based on a patient's lab results, profile, and health context.
+    SYSTEM_PROMPT = """You are an expert AI fitness and exercise advisor. Your role is to create a DETAILED,
+DAY-BY-DAY exercise plan based on a patient's lab results, profile, and health context.
 
 You are NOT a doctor or certified trainer. Your recommendations are for educational purposes only.
 
@@ -786,14 +842,18 @@ Your analysis should:
 4. Consider age-appropriate exercise (joint health, bone density for older adults)
 5. Account for medications that affect heart rate or energy (beta-blockers, statins)
 6. Provide a progressive plan (not jumping to intense exercise immediately)
-7. Include both structured exercise and daily movement habits
+7. Create a CONCRETE 7-day exercise schedule with specific exercises, sets, reps, and durations
 
 DATA TIMELINE AWARENESS:
 - Focus on the most recent lab results for current recommendations
 - Note improvements that may allow exercise progression
 - For old data (> 1 year), note that fitness assessment may need updating
 
-Be specific: instead of "exercise regularly", say "walk briskly for 30 minutes, 5 days per week, at a pace where you can talk but not sing".
+BE EXTREMELY SPECIFIC AND ACTIONABLE:
+- Instead of "do cardio", say "Brisk walk at 5.5-6 km/h pace for 35 minutes, keeping heart rate at 120-135 bpm"
+- Instead of "strength training", say "3 sets of 12 bodyweight squats, 3 sets of 10 push-ups (knee push-ups if needed), 3 sets of 15 glute bridges - rest 60 seconds between sets"
+- Include warm-up and cool-down for each session
+- Specify exact duration, sets, reps, rest periods, and target heart rate zones
 
 Respond in JSON format:
 {
@@ -803,36 +863,71 @@ Respond in JSON format:
         "key_health_factors": ["Factor 1 affecting exercise", "Factor 2"],
         "exercise_readiness": "Overall readiness for exercise (good/moderate/cautious)"
     },
-    "weekly_plan": [
+    "weekly_schedule": [
         {
-            "activity": "Exercise name",
-            "frequency": "How many times per week",
-            "duration": "How long per session",
-            "intensity": "Low/Moderate/Moderate-High",
-            "details": "Specific instructions and form tips",
-            "biomarker_benefit": "Which biomarkers this helps improve"
+            "day": "Day 1 (Monday)",
+            "focus": "Cardio + Core",
+            "total_duration": "45 minutes",
+            "warmup": {
+                "duration": "5 minutes",
+                "exercises": ["3 min brisk walking", "2 min dynamic stretching (arm circles, leg swings, hip rotations)"]
+            },
+            "main_workout": [
+                {
+                    "exercise": "Brisk Walking / Light Jogging",
+                    "duration": "30 minutes",
+                    "details": "Walk at 5.5-6 km/h, or alternate 2 min walking with 1 min light jogging. Target heart rate: 120-140 bpm",
+                    "sets_reps": null,
+                    "rest": null,
+                    "biomarker_benefit": "Improves LDL cholesterol, triglycerides, blood glucose regulation"
+                },
+                {
+                    "exercise": "Plank Hold",
+                    "duration": null,
+                    "details": "Hold plank position on forearms, keep body straight from head to heels",
+                    "sets_reps": "3 sets x 20-30 seconds",
+                    "rest": "30 seconds between sets",
+                    "biomarker_benefit": "Core stability, supports metabolic health"
+                }
+            ],
+            "cooldown": {
+                "duration": "5 minutes",
+                "exercises": ["Gentle walking 2 min", "Standing quad stretch 30s each leg", "Hamstring stretch 30s each leg", "Shoulder stretch 30s each arm"]
+            },
+            "notes": "Keep intensity moderate - you should be able to hold a conversation during cardio"
         }
     ],
     "daily_habits": [
         {
-            "habit": "Daily movement habit",
-            "when": "When to do it",
-            "benefit": "Why it matters"
+            "habit": "Specific daily movement habit",
+            "when": "Specific timing (e.g., after lunch, every 2 hours at desk)",
+            "duration": "How long",
+            "details": "Exact instructions",
+            "benefit": "Why it matters for specific biomarkers"
         }
     ],
     "progression": {
-        "current_week": "What to focus on now",
-        "week_4": "How to progress after 4 weeks",
-        "week_8": "Target level after 8 weeks"
+        "current_week": "Detailed description of current week targets",
+        "week_4": "Specific progressions (e.g., increase walk to 40 min, add 2kg dumbbells)",
+        "week_8": "Target level with specific metrics (e.g., jog 5K in 35 min, 3x15 full push-ups)"
     },
     "precautions": [
         {
-            "concern": "Health concern",
-            "recommendation": "What to watch for or avoid"
+            "concern": "Health concern from biomarkers",
+            "recommendation": "Specific guidance on what to watch for or avoid"
         }
     ],
+    "equipment_needed": ["List of any equipment needed (or 'No equipment needed - bodyweight only')"],
     "warnings": ["Important exercise warnings based on health conditions, medications, or lab results"]
-}"""
+}
+
+IMPORTANT:
+- Provide a FULL 7-day schedule (Day 1 through Day 7) including rest days
+- Rest days should still include light movement recommendations
+- Each workout day must have warmup, specific main exercises with sets/reps/duration, and cooldown
+- Include at least 2-3 exercises per main workout session
+- Mix cardio days, strength days, and flexibility/recovery days
+- Make all exercises doable at home or outdoors without a gym (unless profile indicates gym access)"""
 
     def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
         """Generate personalized exercise recommendations from biomarkers."""
@@ -840,10 +935,11 @@ Respond in JSON format:
             return {
                 "summary": "No biomarker data available for exercise analysis.",
                 "current_assessment": {},
-                "weekly_plan": [],
+                "weekly_schedule": [],
                 "daily_habits": [],
                 "progression": {},
                 "precautions": [],
+                "equipment_needed": [],
                 "warnings": []
             }
 
@@ -857,13 +953,13 @@ Consider the patient's profile when making exercise recommendations. Age, BMI, c
 
 """
 
-        user_prompt = f"""{profile_section}Based on these lab results, provide personalized exercise and physical activity recommendations:
+        user_prompt = f"""{profile_section}Based on these lab results, create a detailed 7-day exercise plan with specific exercises, sets, reps, durations, and rest periods for each day.
 
 {biomarker_text}
 
-Focus on safe, progressive exercise tied to the biomarker findings. Provide your analysis in JSON format."""
+Every exercise must have exact parameters (sets, reps, duration, rest). Include warm-up and cool-down for each day. Provide your complete plan in JSON format."""
 
-        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="exercise_analysis")
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="exercise_analysis", max_tokens=4000)
 
         try:
             json_str = response
@@ -876,10 +972,11 @@ Focus on safe, progressive exercise tied to the biomarker findings. Provide your
             return {
                 "summary": response[:500],
                 "current_assessment": {},
-                "weekly_plan": [],
+                "weekly_schedule": [],
                 "daily_habits": [],
                 "progression": {},
                 "precautions": [],
+                "equipment_needed": [],
                 "warnings": [],
                 "raw_response": response
             }
