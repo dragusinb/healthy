@@ -71,8 +71,19 @@ const Lifestyle = () => {
         setAnalyzing(true);
         setError(null);
         try {
-            await api.post('/lifestyle/analyze');
-            await fetchData();
+            const res = await api.post('/lifestyle/analyze');
+            // Use response data directly (fresher than re-fetching from DB)
+            if (res.data?.nutrition || res.data?.exercise) {
+                setLatestData({
+                    has_report: true,
+                    nutrition: res.data.nutrition,
+                    exercise: res.data.exercise,
+                    created_at: res.data.analyzed_at
+                });
+                setExpandedDays({ 'meal-0': true, 'exercise-0': true });
+            } else {
+                await fetchData();
+            }
         } catch (e) {
             console.error("Lifestyle analysis failed", e);
             const detail = e.response?.data?.detail;

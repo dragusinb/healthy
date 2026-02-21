@@ -84,20 +84,13 @@ def run_lifestyle_analysis(
         risk_level="normal",
         biomarkers_analyzed=len(biomarkers)
     )
-    save_report_content(
-        nutrition_report,
-        summary=nutrition_data.get("summary", ""),
-        findings=nutrition_data.get("priority_foods", []),
-        recommendations=nutrition_data.get("foods_to_reduce", []),
-        user_id=current_user.id
-    )
-    # Store full nutrition data in content_enc if vault available, else in summary
     vault_helper = get_vault_helper(current_user.id)
     if vault_helper.is_available:
+        # Store full data encrypted
         nutrition_report.content_enc = vault_helper.encrypt_json(nutrition_data)
-        nutrition_report.summary = None
-        nutrition_report.findings = None
-        nutrition_report.recommendations = None
+    else:
+        # No vault - store full JSON in summary field so we can parse it back
+        nutrition_report.summary = json.dumps(nutrition_data)
     db.add(nutrition_report)
 
     # Save exercise report
@@ -109,18 +102,10 @@ def run_lifestyle_analysis(
         risk_level="normal",
         biomarkers_analyzed=len(biomarkers)
     )
-    save_report_content(
-        exercise_report,
-        summary=exercise_data.get("summary", ""),
-        findings=exercise_data.get("weekly_plan", []),
-        recommendations=exercise_data.get("precautions", []),
-        user_id=current_user.id
-    )
     if vault_helper.is_available:
         exercise_report.content_enc = vault_helper.encrypt_json(exercise_data)
-        exercise_report.summary = None
-        exercise_report.findings = None
-        exercise_report.recommendations = None
+    else:
+        exercise_report.summary = json.dumps(exercise_data)
     db.add(exercise_report)
 
     db.commit()
@@ -157,6 +142,7 @@ def run_lifestyle_analysis(
 
 def _get_lifestyle_report_content(report: HealthReport, user_id: int) -> dict:
     """Get full lifestyle report content, preferring vault-encrypted."""
+    # Try vault-encrypted full data first
     if report.content_enc and user_id:
         vault_helper = get_vault_helper(user_id)
         if vault_helper.is_available:
@@ -165,9 +151,15 @@ def _get_lifestyle_report_content(report: HealthReport, user_id: int) -> dict:
             except Exception:
                 pass
 
-    # Fall back to standard report content structure
-    content = get_report_content(report, user_id)
-    return content
+    # Try JSON stored in summary field (non-vault fallback)
+    if report.summary:
+        try:
+            return json.loads(report.summary)
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    # Last resort: return basic structure with summary text
+    return {"summary": report.summary or ""}
 
 
 @router.get("/latest")
