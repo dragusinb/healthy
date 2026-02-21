@@ -12,8 +12,8 @@ import { cn } from '../lib/utils';
 
 const ANALYSIS_STEPS = [
     { key: 'loading', duration: 800 },
-    { key: 'nutrition', duration: 15000 },
-    { key: 'exercise', duration: 15000 },
+    { key: 'nutrition', duration: 30000 },
+    { key: 'exercise', duration: 30000 },
     { key: 'saving', duration: 1000 },
     { key: 'finishing', duration: 1000 },
 ];

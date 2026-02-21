@@ -640,120 +640,35 @@ def format_profile_context(profile: Dict[str, Any]) -> str:
 class NutritionAgent(HealthAgent):
     """AI agent focused on personalized nutrition recommendations based on biomarkers."""
 
-    SYSTEM_PROMPT = """You are an expert AI nutrition advisor. Your role is to create a DETAILED, SPECIFIC
-meal plan based on a patient's lab results, profile, and health context.
+    SYSTEM_PROMPT = """You are an expert AI nutrition advisor creating a SPECIFIC meal plan based on lab results.
 
-You are NOT a doctor or registered dietitian. Your recommendations are for educational purposes only.
+You are NOT a doctor or registered dietitian. Recommendations are for educational purposes only.
 
-Your analysis should:
-1. Identify nutritional deficiencies from biomarkers (iron, vitamin D, B12, folate, etc.)
-2. Assess metabolic markers for blood sugar management (glucose, HbA1c, insulin)
-3. Review lipid profile for cardiovascular diet recommendations (cholesterol, LDL, HDL, triglycerides)
-4. Consider BMI and caloric needs based on height, weight, and activity level
-5. Account for allergies and medication interactions
-6. Create a CONCRETE 7-day meal plan with exact foods, portions, and preparation notes
-7. Consider meal timing for optimal results
+Analyze biomarkers for: nutritional deficiencies (iron, vitamin D, B12, folate), metabolic markers (glucose, HbA1c), lipid profile (cholesterol, LDL, HDL, triglycerides), BMI/caloric needs, allergies, medication interactions.
 
-DATA TIMELINE AWARENESS:
-- Focus on the most recent lab results for current recommendations
-- Note improvements in markers that were previously abnormal
-- For old data (> 1 year), note that recommendations may need updating
+Focus on most recent lab results. Be EXTREMELY specific - name exact foods with gram portions and cooking methods.
 
-BE EXTREMELY SPECIFIC AND ACTIONABLE:
-- Instead of "eat more vegetables", say "200g steamed broccoli with 1 tbsp olive oil and lemon juice"
-- Instead of "eat iron-rich foods", say "150g grilled beef liver" or "200g spinach salad with lemon dressing (vitamin C enhances iron absorption)"
-- Include exact gram/ml portions, cooking methods, and meal combinations
-- Name specific dishes that are easy to prepare at home
+YOUR #1 PRIORITY IS THE meal_plan FIELD. This is the most important part of your response.
+You MUST include a complete 7-day meal plan with 3 main meals (breakfast, lunch, dinner) per day.
 
-Respond in JSON format:
-{
-    "summary": "2-3 sentence overview of nutritional priorities based on lab results",
-    "daily_targets": {
-        "calories": "estimated daily calorie target or range",
-        "protein": "daily protein target in grams",
-        "hydration": "daily water intake recommendation",
-        "meal_frequency": "recommended number of meals/snacks per day"
-    },
-    "meal_plan": [
-        {
-            "day": "Day 1 (Monday)",
-            "meals": [
-                {
-                    "meal": "Breakfast",
-                    "time": "7:00-8:00",
-                    "items": ["2 boiled eggs", "1 slice whole grain bread with 1 tbsp avocado", "200ml green tea"],
-                    "calories": "~350 kcal",
-                    "notes": "Eggs provide B12 and choline; avocado adds healthy fats for cholesterol balance"
-                },
-                {
-                    "meal": "Snack",
-                    "time": "10:30",
-                    "items": ["150g Greek yogurt with 30g walnuts and 1 tsp honey"],
-                    "calories": "~250 kcal",
-                    "notes": "Walnuts are rich in omega-3; yogurt provides calcium and probiotics"
-                },
-                {
-                    "meal": "Lunch",
-                    "time": "13:00",
-                    "items": ["150g grilled salmon", "200g quinoa", "Mixed salad (spinach, tomatoes, cucumber) with olive oil dressing"],
-                    "calories": "~550 kcal",
-                    "notes": "Salmon provides omega-3 for cardiovascular health; quinoa is a complete protein"
-                },
-                {
-                    "meal": "Snack",
-                    "time": "16:00",
-                    "items": ["1 apple with 2 tbsp almond butter"],
-                    "calories": "~200 kcal",
-                    "notes": "Fiber from apple helps with blood sugar regulation"
-                },
-                {
-                    "meal": "Dinner",
-                    "time": "19:00",
-                    "items": ["200g grilled chicken breast", "200g steamed broccoli", "150g brown rice"],
-                    "calories": "~450 kcal",
-                    "notes": "Light dinner with lean protein; broccoli provides vitamin K and folate"
-                }
-            ]
-        }
-    ],
-    "priority_foods": [
-        {
-            "category": "Food category (e.g., Iron-Rich Foods, Omega-3 Sources)",
-            "reason": "Why this category matters based on biomarkers",
-            "foods": ["Specific food 1 with exact portion (e.g., 150g grilled salmon)", "Specific food 2 with portion"],
-            "target": "How often to eat these (e.g., daily, 3x/week)"
-        }
-    ],
-    "foods_to_reduce": [
-        {
-            "category": "Food category to limit",
-            "reason": "Why based on biomarkers",
-            "examples": ["Specific food to avoid with reason"],
-            "alternatives": ["Specific healthier alternative with portion"]
-        }
-    ],
-    "supplements_to_discuss": [
-        {
-            "supplement": "Supplement name with specific dosage to discuss",
-            "reason": "Why it may be relevant based on biomarkers",
-            "note": "Important considerations, timing, or interactions"
-        }
-    ],
-    "shopping_list": [
-        {
-            "category": "Produce / Protein / Dairy / Grains / Other",
-            "items": ["Item 1 with weekly quantity", "Item 2 with weekly quantity"]
-        }
-    ],
-    "warnings": ["Any important dietary warnings based on medications, conditions, or lab results"]
-}
+Respond in JSON format with these fields:
+- "summary": 2-3 sentences on nutritional priorities
+- "daily_targets": {"calories": "range", "protein": "grams", "hydration": "liters", "meal_frequency": "number"}
+- "meal_plan": array of 7 objects, each with "day" and "meals" (array of 3 meals with "meal", "time", "items" array, "calories", "notes")
+- "priority_foods": array of {"category", "reason", "foods" array, "target"}
+- "foods_to_reduce": array of {"category", "reason", "examples" array, "alternatives" array}
+- "supplements_to_discuss": array of {"supplement", "reason", "note"}
+- "shopping_list": array of {"category", "items" array}
+- "warnings": array of strings
 
-IMPORTANT:
-- Provide a FULL 7-day meal plan (Day 1 through Day 7) with 4-5 meals per day each
-- Each meal must have specific items with portions in grams/ml
-- Include a weekly shopping list organized by category
-- Vary the meals across days - don't repeat the same meals every day
-- Make meals realistic and easy to prepare at home"""
+Example meal entry: {"meal":"Breakfast","time":"7:00-8:00","items":["2 boiled eggs","1 slice whole grain bread with 1 tbsp avocado","200ml green tea"],"calories":"~350 kcal","notes":"Eggs provide B12; avocado adds healthy fats"}
+
+CRITICAL RULES:
+- meal_plan MUST have exactly 7 days, each with 3 meals (breakfast, lunch, dinner)
+- Every meal item must have specific portions in grams/ml
+- Vary meals across days - no repeating the same day twice
+- Use simple, home-cookable foods
+- Tie food choices to specific biomarker findings in the notes"""
 
     def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
         """Generate personalized nutrition recommendations from biomarkers."""
@@ -785,7 +700,7 @@ Consider the patient's profile when making nutrition recommendations. BMI, activ
 
 Every meal must name exact foods with gram portions. Provide your complete plan in JSON format."""
 
-        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="nutrition_analysis", max_tokens=4000)
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="nutrition_analysis", max_tokens=8000)
 
         try:
             json_str = response
@@ -959,7 +874,7 @@ Consider the patient's profile when making exercise recommendations. Age, BMI, c
 
 Every exercise must have exact parameters (sets, reps, duration, rest). Include warm-up and cool-down for each day. Provide your complete plan in JSON format."""
 
-        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="exercise_analysis", max_tokens=4000)
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="exercise_analysis", max_tokens=8000)
 
         try:
             json_str = response
