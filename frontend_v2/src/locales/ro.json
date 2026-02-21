@@ -854,7 +854,12 @@
     "profileIncomplete": "Completeaza-ti profilul pentru recomandari mai personalizate",
     "noAnalysisYet": "Niciun Sfat de Stil de Viata Inca",
     "noAnalysisHint": "Obtine recomandari personalizate de nutritie si exercitii bazate pe biomarkerii si profilul tau de sanatate.",
-    "target": "Obiectiv"
+    "target": "Obiectiv",
+    "analysisFailed": "Analiza a esuat. Te rugam sa incerci din nou.",
+    "loadFailed": "Nu am putut incarca datele de stil de viata.",
+    "noBiomarkers": "Nu exista biomarkeri disponibili pentru analiza. Te rugam sa incarci rezultatele analizelor mai intai.",
+    "quotaExceeded": "Limita lunara de analize atinsa. Upgradeaza abonamentul pentru mai multe analize.",
+    "disclaimer_label": "Avertisment"
   },
   "billing": {
     "title": "Abonament și Facturare",

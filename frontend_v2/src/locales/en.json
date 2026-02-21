@@ -801,7 +801,12 @@
     "profileIncomplete": "Complete your profile for more personalized recommendations",
     "noAnalysisYet": "No Lifestyle Advice Yet",
     "noAnalysisHint": "Get personalized nutrition and exercise recommendations based on your biomarkers and health profile.",
-    "target": "Target"
+    "target": "Target",
+    "analysisFailed": "Analysis failed. Please try again.",
+    "loadFailed": "Failed to load lifestyle data.",
+    "noBiomarkers": "No biomarkers available for analysis. Please upload lab results first.",
+    "quotaExceeded": "Monthly analysis limit reached. Upgrade your subscription for more analyses.",
+    "disclaimer_label": "Disclaimer"
   },
   "billing": {
     "title": "Subscription & Billing",

@@ -51,7 +51,7 @@ const Lifestyle = () => {
             setError(null);
         } catch (e) {
             console.error("Failed to fetch lifestyle data", e);
-            setError("Failed to load lifestyle data");
+            setError(t('lifestyle.loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -65,7 +65,14 @@ const Lifestyle = () => {
             await fetchData();
         } catch (e) {
             console.error("Lifestyle analysis failed", e);
-            setError(e.response?.data?.detail || "Analysis failed. Please try again.");
+            const detail = e.response?.data?.detail;
+            if (detail?.includes('quota') || detail?.includes('limit')) {
+                setError(t('lifestyle.quotaExceeded'));
+            } else if (detail?.includes('biomarker') || detail?.includes('No biomarkers')) {
+                setError(t('lifestyle.noBiomarkers'));
+            } else {
+                setError(detail || t('lifestyle.analysisFailed'));
+            }
         } finally {
             setAnalyzing(false);
         }
@@ -600,7 +607,7 @@ const Lifestyle = () => {
             <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-500">
                 <Shield size={20} className="shrink-0 mt-0.5" />
                 <p>
-                    <strong>{t('common.disclaimer') || 'Disclaimer'}:</strong> {t('lifestyle.disclaimer')}
+                    <strong>{t('lifestyle.disclaimer_label')}:</strong> {t('lifestyle.disclaimer')}
                 </p>
             </div>
         </div>
