@@ -951,3 +951,397 @@ def compare_reports(
             "biomarkers_change": report_2.biomarkers_analyzed - report_1.biomarkers_analyzed if report_1.biomarkers_analyzed is not None and report_2.biomarkers_analyzed is not None else None
         }
     }
+
+
+@router.get("/export-pdf")
+def export_health_report_pdf(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Export the latest health report session (general + specialists) as a PDF file."""
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.units import cm, mm
+        from reportlab.lib.colors import HexColor
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.platypus import (
+            SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+            HRFlowable, KeepTogether
+        )
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+    except ImportError:
+        raise HTTPException(
+            status_code=500,
+            detail="PDF generation is not available. The 'reportlab' library is not installed on the server."
+        )
+
+    import io
+    from fastapi.responses import StreamingResponse
+    from datetime import timedelta
+
+    # --- Fetch the latest general report ---
+    general_report = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id)\
+        .filter(HealthReport.report_type == "general")\
+        .order_by(desc(HealthReport.created_at))\
+        .first()
+
+    if not general_report:
+        raise HTTPException(status_code=404, detail="No health report found. Run a health analysis first.")
+
+    general_content = get_report_content(general_report, current_user.id)
+
+    # --- Fetch specialist reports from the same session (within 5 minutes) ---
+    session_start = general_report.created_at - timedelta(minutes=1)
+    session_end = general_report.created_at + timedelta(minutes=5)
+
+    specialist_reports = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id)\
+        .filter(HealthReport.report_type != "general")\
+        .filter(HealthReport.report_type != "gap_analysis")\
+        .filter(HealthReport.created_at >= session_start)\
+        .filter(HealthReport.created_at <= session_end)\
+        .all()
+
+    # --- Fetch health score ---
+    try:
+        from backend_v2.services.health_score import calculate_health_score
+    except ImportError:
+        from services.health_score import calculate_health_score
+
+    vault_helper = get_vault_helper(current_user.id)
+    health_score_data = calculate_health_score(current_user, db, vault_helper)
+
+    # --- Get user profile for the name ---
+    user_profile = get_user_profile(current_user)
+    user_name = user_profile.get("full_name", current_user.email)
+
+    # --- Build the PDF ---
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=2 * cm,
+        leftMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2 * cm
+    )
+
+    # Color palette
+    COLOR_PRIMARY = HexColor("#1976D2")
+    COLOR_DARK = HexColor("#212121")
+    COLOR_SECONDARY = HexColor("#757575")
+    COLOR_LIGHT_BG = HexColor("#F5F5F5")
+    COLOR_GREEN = HexColor("#388E3C")
+    COLOR_YELLOW = HexColor("#F9A825")
+    COLOR_ORANGE = HexColor("#EF6C00")
+    COLOR_RED = HexColor("#D32F2F")
+    COLOR_LINE = HexColor("#E0E0E0")
+
+    risk_colors = {
+        "normal": COLOR_GREEN,
+        "attention": COLOR_YELLOW,
+        "concern": COLOR_ORANGE,
+        "urgent": COLOR_RED,
+    }
+
+    grade_colors = {
+        "excellent": COLOR_GREEN,
+        "good": COLOR_GREEN,
+        "fair": COLOR_YELLOW,
+        "needs_attention": COLOR_ORANGE,
+        "critical": COLOR_RED,
+    }
+
+    # Styles
+    styles = getSampleStyleSheet()
+
+    style_title = ParagraphStyle(
+        "ReportTitle",
+        parent=styles["Title"],
+        fontSize=22,
+        leading=26,
+        textColor=COLOR_PRIMARY,
+        spaceAfter=4,
+    )
+    style_subtitle = ParagraphStyle(
+        "ReportSubtitle",
+        parent=styles["Normal"],
+        fontSize=10,
+        textColor=COLOR_SECONDARY,
+        alignment=TA_CENTER,
+        spaceAfter=12,
+    )
+    style_section = ParagraphStyle(
+        "SectionHeading",
+        parent=styles["Heading2"],
+        fontSize=14,
+        leading=18,
+        textColor=COLOR_PRIMARY,
+        spaceBefore=16,
+        spaceAfter=6,
+        borderPadding=(0, 0, 2, 0),
+    )
+    style_subsection = ParagraphStyle(
+        "SubSectionHeading",
+        parent=styles["Heading3"],
+        fontSize=12,
+        leading=15,
+        textColor=COLOR_DARK,
+        spaceBefore=10,
+        spaceAfter=4,
+    )
+    style_body = ParagraphStyle(
+        "BodyText",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14,
+        textColor=COLOR_DARK,
+        spaceAfter=6,
+    )
+    style_bullet = ParagraphStyle(
+        "BulletItem",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14,
+        textColor=COLOR_DARK,
+        leftIndent=16,
+        spaceAfter=3,
+        bulletIndent=6,
+    )
+    style_disclaimer = ParagraphStyle(
+        "Disclaimer",
+        parent=styles["Normal"],
+        fontSize=8,
+        leading=10,
+        textColor=COLOR_SECONDARY,
+        spaceBefore=20,
+        spaceAfter=0,
+    )
+    style_label = ParagraphStyle(
+        "Label",
+        parent=styles["Normal"],
+        fontSize=9,
+        textColor=COLOR_SECONDARY,
+        spaceAfter=2,
+    )
+    style_score_number = ParagraphStyle(
+        "ScoreNumber",
+        parent=styles["Normal"],
+        fontSize=36,
+        leading=40,
+        alignment=TA_CENTER,
+        spaceAfter=2,
+    )
+    style_score_grade = ParagraphStyle(
+        "ScoreGrade",
+        parent=styles["Normal"],
+        fontSize=12,
+        alignment=TA_CENTER,
+        spaceAfter=6,
+    )
+
+    elements = []
+
+    # --- Header ---
+    report_date = general_report.created_at.strftime("%d %B %Y") if general_report.created_at else datetime.now().strftime("%d %B %Y")
+    elements.append(Paragraph("Health Report", style_title))
+    elements.append(Paragraph(f"analize.online  |  {report_date}", style_subtitle))
+    elements.append(HRFlowable(width="100%", thickness=1, color=COLOR_LINE, spaceAfter=10))
+
+    # --- Patient info ---
+    elements.append(Paragraph(f"<b>Patient:</b> {_escape_xml(user_name)}", style_body))
+    if user_profile.get("age"):
+        age_gender = f"Age {user_profile['age']}"
+        if user_profile.get("gender"):
+            age_gender += f" | {user_profile['gender'].capitalize()}"
+        elements.append(Paragraph(age_gender, style_label))
+    elements.append(Spacer(1, 6))
+
+    # --- Health Score Section ---
+    elements.append(Paragraph("Health Score", style_section))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_LINE, spaceAfter=8))
+
+    score_val = health_score_data.get("score", 0)
+    grade_val = health_score_data.get("grade", "fair")
+    grade_display = grade_val.replace("_", " ").title()
+    score_color = grade_colors.get(grade_val, COLOR_DARK)
+
+    score_style = ParagraphStyle("ScoreDynamic", parent=style_score_number, textColor=score_color)
+    grade_style = ParagraphStyle("GradeDynamic", parent=style_score_grade, textColor=score_color)
+
+    elements.append(Paragraph(f"<b>{score_val}</b> / 100", score_style))
+    elements.append(Paragraph(grade_display, grade_style))
+
+    # Score components table
+    components = health_score_data.get("components", {})
+    if components:
+        comp_data = [["Component", "Score", "Detail"]]
+        for key, comp in components.items():
+            comp_data.append([
+                comp.get("label", key),
+                f"{comp.get('score', 0)}%",
+                comp.get("detail", "")
+            ])
+
+        comp_table = Table(comp_data, colWidths=[5.5 * cm, 2 * cm, 9 * cm])
+        comp_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), COLOR_PRIMARY),
+            ("TEXTCOLOR", (0, 0), (-1, 0), HexColor("#FFFFFF")),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ALIGN", (1, 0), (1, -1), "CENTER"),
+            ("BACKGROUND", (0, 1), (-1, -1), COLOR_LIGHT_BG),
+            ("GRID", (0, 0), (-1, -1), 0.5, COLOR_LINE),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ]))
+        elements.append(comp_table)
+    elements.append(Spacer(1, 8))
+
+    # --- General Analysis Section ---
+    risk_level = general_report.risk_level or "normal"
+    risk_color = risk_colors.get(risk_level, COLOR_DARK)
+
+    elements.append(Paragraph("General Analysis", style_section))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_LINE, spaceAfter=8))
+
+    risk_label = risk_level.replace("_", " ").upper()
+    risk_style = ParagraphStyle("RiskLevel", parent=style_body, textColor=risk_color, fontSize=11)
+    elements.append(Paragraph(f"<b>Risk Level:</b> {risk_label}", risk_style))
+
+    if general_report.biomarkers_analyzed:
+        elements.append(Paragraph(
+            f"<b>Biomarkers Analyzed:</b> {general_report.biomarkers_analyzed}",
+            style_body
+        ))
+
+    # Summary
+    summary = general_content.get("summary", "")
+    if summary:
+        elements.append(Spacer(1, 4))
+        elements.append(Paragraph("<b>Summary</b>", style_subsection))
+        # Split long text into paragraphs for readability
+        for para in summary.split("\n"):
+            para = para.strip()
+            if para:
+                elements.append(Paragraph(_escape_xml(para), style_body))
+
+    # Key Findings
+    findings = general_content.get("findings", [])
+    if findings:
+        elements.append(Paragraph("<b>Key Findings</b>", style_subsection))
+        for finding in findings:
+            if isinstance(finding, dict):
+                text = finding.get("finding", finding.get("text", str(finding)))
+            else:
+                text = str(finding)
+            elements.append(Paragraph(f"\u2022  {_escape_xml(text)}", style_bullet))
+
+    # Recommendations
+    recommendations = general_content.get("recommendations", [])
+    if recommendations:
+        elements.append(Paragraph("<b>Recommendations</b>", style_subsection))
+        for rec in recommendations:
+            if isinstance(rec, dict):
+                text = rec.get("recommendation", rec.get("text", str(rec)))
+            else:
+                text = str(rec)
+            elements.append(Paragraph(f"\u2022  {_escape_xml(text)}", style_bullet))
+
+    # --- Specialist Reports ---
+    if specialist_reports:
+        elements.append(Spacer(1, 10))
+        elements.append(Paragraph("Specialist Reports", style_section))
+        elements.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_LINE, spaceAfter=8))
+
+        for spec_report in specialist_reports:
+            spec_content = get_report_content(spec_report, current_user.id)
+            spec_risk = spec_report.risk_level or "normal"
+            spec_risk_color = risk_colors.get(spec_risk, COLOR_DARK)
+
+            # Specialist heading with risk badge
+            spec_title = spec_report.title or spec_report.report_type.replace("_", " ").title()
+            spec_risk_label = spec_risk.replace("_", " ").upper()
+
+            heading_style = ParagraphStyle("SpecHead", parent=style_subsection, fontSize=12, spaceBefore=12)
+            elements.append(Paragraph(f"<b>{_escape_xml(spec_title)}</b>", heading_style))
+
+            spec_risk_style = ParagraphStyle("SpecRisk", parent=style_label, textColor=spec_risk_color)
+            elements.append(Paragraph(f"Risk: {spec_risk_label}", spec_risk_style))
+
+            # Summary
+            spec_summary = spec_content.get("summary", "")
+            if spec_summary:
+                for para in spec_summary.split("\n"):
+                    para = para.strip()
+                    if para:
+                        elements.append(Paragraph(_escape_xml(para), style_body))
+
+            # Findings
+            spec_findings = spec_content.get("findings", [])
+            if spec_findings:
+                elements.append(Paragraph("<i>Findings:</i>", style_label))
+                for finding in spec_findings:
+                    if isinstance(finding, dict):
+                        text = finding.get("finding", finding.get("text", str(finding)))
+                    else:
+                        text = str(finding)
+                    elements.append(Paragraph(f"\u2022  {_escape_xml(text)}", style_bullet))
+
+            # Recommendations
+            spec_recs = spec_content.get("recommendations", [])
+            if spec_recs:
+                elements.append(Paragraph("<i>Recommendations:</i>", style_label))
+                for rec in spec_recs:
+                    if isinstance(rec, dict):
+                        text = rec.get("recommendation", rec.get("text", str(rec)))
+                    else:
+                        text = str(rec)
+                    elements.append(Paragraph(f"\u2022  {_escape_xml(text)}", style_bullet))
+
+            elements.append(Spacer(1, 4))
+
+    # --- Disclaimer ---
+    elements.append(Spacer(1, 16))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_LINE, spaceAfter=6))
+    elements.append(Paragraph(
+        "DISCLAIMER: This report is generated by an AI-based health analysis system and is intended "
+        "for informational purposes only. It does not constitute medical advice, diagnosis, or treatment. "
+        "Always consult a qualified healthcare professional for medical decisions. "
+        "The analysis is based on the biomarkers available in your account at the time of generation.",
+        style_disclaimer
+    ))
+    elements.append(Paragraph(
+        f"Generated by analize.online on {report_date}.",
+        style_disclaimer
+    ))
+
+    # Build the PDF
+    doc.build(elements)
+    buffer.seek(0)
+
+    # Generate filename
+    date_str = general_report.created_at.strftime("%Y-%m-%d") if general_report.created_at else datetime.now().strftime("%Y-%m-%d")
+    filename = f"health_report_{date_str}.pdf"
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+
+def _escape_xml(text: str) -> str:
+    """Escape special XML characters for ReportLab Paragraph markup."""
+    if not text:
+        return ""
+    text = str(text)
+    text = text.replace("&", "&amp;")
+    text = text.replace("<", "&lt;")
+    text = text.replace(">", "&gt;")
+    # Also replace any stray quotes that might break attributes
+    text = text.replace('"', "&quot;")
+    return text

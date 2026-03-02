@@ -3,7 +3,8 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
 import VaultUnlockModal from './VaultUnlockModal';
@@ -15,13 +16,13 @@ const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
         className={({ isActive }) => cn(
             "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 font-medium text-sm group",
             isActive
-                ? "bg-primary-50 text-primary-700 shadow-sm"
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                ? "bg-primary-50 text-primary-700 shadow-sm dark:bg-primary-900/30 dark:text-primary-300"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-slate-200"
         )}
     >
         {({ isActive }) => (
             <>
-                <Icon size={18} className={isActive ? "text-primary-600" : "text-slate-400 group-hover:text-slate-600"} />
+                <Icon size={18} className={isActive ? "text-primary-600 dark:text-primary-400" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"} />
                 <span>{label}</span>
             </>
         )}
@@ -33,6 +34,7 @@ const Layout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { t, i18n } = useTranslation();
+    const { theme, toggleTheme } = useTheme();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [verificationState, setVerificationState] = useState('idle'); // idle, sending, sent, error
     const [bannerDismissed, setBannerDismissed] = useState(() => {
@@ -95,15 +97,15 @@ const Layout = ({ children }) => {
     }
 
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
+        <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
             {/* Modern Sidebar */}
-            <aside className="w-72 bg-white border-r border-slate-200 flex flex-col hidden md:flex h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
+            <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col hidden md:flex h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
                 <div className="p-6 pb-2">
                     <div className="flex items-center gap-3 text-primary-600 mb-6">
                         <div className="p-2 bg-primary-100 rounded-xl">
                             <HeartPulse size={24} className="text-primary-600" />
                         </div>
-                        <h1 className="text-xl font-bold tracking-tight text-slate-800">Analize<span className="text-primary-500">.online</span></h1>
+                        <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></h1>
                     </div>
 
                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">Menu</div>
@@ -116,7 +118,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} />
                         <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} />
                         <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
-                        <div className="pt-3 mt-3 border-t border-slate-100"></div>
+                        <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700"></div>
                         <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
@@ -129,13 +131,13 @@ const Layout = ({ children }) => {
                     </nav>
                 </div>
 
-                <div className="mt-auto p-6 border-t border-slate-100">
-                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 mb-2">
-                        <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 overflow-hidden border-2 border-white shadow-sm">
+                <div className="mt-auto p-6 border-t border-slate-100 dark:border-slate-700">
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 mb-2">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 overflow-hidden border-2 border-white dark:border-slate-500 shadow-sm">
                             <User size={20} />
                         </div>
                         <div className="overflow-hidden flex-1">
-                            <p className="text-sm font-semibold text-slate-700 truncate">{user?.email?.split('@')[0]}</p>
+                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{user?.email?.split('@')[0]}</p>
                             <p className="text-xs text-slate-400 truncate font-medium">
                                 {user?.is_admin ? 'Admin' : 'Free Plan'}
                             </p>
@@ -144,22 +146,29 @@ const Layout = ({ children }) => {
                     <div className="flex gap-2">
                         <button
                             onClick={toggleLanguage}
-                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors font-medium border border-slate-200"
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors font-medium border border-slate-200 dark:border-slate-700"
                             title={t('settings.language')}
                         >
                             <Globe size={16} />
                             {i18n.language.toUpperCase()}
                         </button>
                         <button
+                            onClick={toggleTheme}
+                            className="flex items-center justify-center px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors font-medium border border-slate-200 dark:border-slate-700"
+                            title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+                        >
+                            {theme === 'dark' ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+                        </button>
+                        <button
                             onClick={handleLogout}
-                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors font-medium"
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors font-medium"
                         >
                             <LogOut size={16} />
                             {t('nav.logout')}
                         </button>
                     </div>
                     {/* Legal Links */}
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex justify-center gap-3 text-xs text-slate-400">
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-400">
                         <a href="/terms" target="_blank" className="hover:text-primary-600 transition-colors">
                             {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                         </a>
@@ -174,7 +183,7 @@ const Layout = ({ children }) => {
             {/* Main Content Area */}
             <main className="flex-1 overflow-y-auto relative scroll-smooth">
                 {/* Top Header for Mobile & Title */}
-                <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between md:hidden">
+                <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between md:hidden">
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setMobileMenuOpen(true)}
@@ -187,18 +196,25 @@ const Layout = ({ children }) => {
                         <div className="p-2 bg-primary-50 rounded-lg">
                             <HeartPulse size={20} className="text-primary-600" />
                         </div>
-                        <span className="font-bold text-slate-800">Analize.online</span>
+                        <span className="font-bold text-slate-800 dark:text-slate-100">Analize.online</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <button
+                            onClick={toggleTheme}
+                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
+                            aria-label={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+                        >
+                            {theme === 'dark' ? <Sun size={18} className="text-amber-400" aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
+                        </button>
+                        <button
                             onClick={toggleLanguage}
-                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
                             aria-label={t('settings.language') || 'Change language'}
                         >
                             <Globe size={18} aria-hidden="true" />
                             <span className="text-xs font-medium ml-1">{i18n.language.toUpperCase()}</span>
                         </button>
-                        <button onClick={handleLogout} className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" aria-label={t('nav.logout')}>
+                        <button onClick={handleLogout} className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors" aria-label={t('nav.logout')}>
                             <LogOut size={18} aria-hidden="true" />
                         </button>
                     </div>
@@ -213,14 +229,14 @@ const Layout = ({ children }) => {
                             onClick={closeMobileMenu}
                         />
                         {/* Drawer */}
-                        <aside className="absolute left-0 top-0 h-full w-72 max-w-[calc(100vw-3rem)] bg-white shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
+                        <aside className="absolute left-0 top-0 h-full w-72 max-w-[calc(100vw-3rem)] bg-white dark:bg-slate-800 shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
                             <div className="p-6 pb-4">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-3 text-primary-600">
                                         <div className="p-2.5 bg-primary-100 rounded-xl">
                                             <HeartPulse size={28} className="text-primary-600" />
                                         </div>
-                                        <h1 className="text-2xl font-bold tracking-tight text-slate-800">Analize<span className="text-primary-500">.online</span></h1>
+                                        <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></h1>
                                     </div>
                                     <button
                                         onClick={closeMobileMenu}
@@ -241,7 +257,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} onClick={closeMobileMenu} />
-                                    <div className="pt-4 mt-4 border-t border-slate-100"></div>
+                                    <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-700"></div>
                                     <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
@@ -254,13 +270,13 @@ const Layout = ({ children }) => {
                                 </nav>
                             </div>
 
-                            <div className="mt-auto p-6 border-t border-slate-100">
-                                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 mb-2">
-                                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 overflow-hidden border-2 border-white shadow-sm">
+                            <div className="mt-auto p-6 border-t border-slate-100 dark:border-slate-700">
+                                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 mb-2">
+                                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 overflow-hidden border-2 border-white dark:border-slate-500 shadow-sm">
                                         <User size={20} />
                                     </div>
                                     <div className="overflow-hidden flex-1">
-                                        <p className="text-sm font-semibold text-slate-700 truncate">{user?.email?.split('@')[0]}</p>
+                                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{user?.email?.split('@')[0]}</p>
                                         <p className="text-xs text-slate-400 truncate font-medium">
                                             {user?.is_admin ? 'Admin' : 'Free Plan'}
                                         </p>
@@ -269,22 +285,29 @@ const Layout = ({ children }) => {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => { toggleLanguage(); closeMobileMenu(); }}
-                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors font-medium border border-slate-200"
+                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors font-medium border border-slate-200 dark:border-slate-700"
                                         title={t('settings.language')}
                                     >
                                         <Globe size={16} />
                                         {i18n.language.toUpperCase()}
                                     </button>
                                     <button
+                                        onClick={() => { toggleTheme(); closeMobileMenu(); }}
+                                        className="flex items-center justify-center px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors font-medium border border-slate-200 dark:border-slate-700"
+                                        title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+                                    >
+                                        {theme === 'dark' ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+                                    </button>
+                                    <button
                                         onClick={() => { handleLogout(); closeMobileMenu(); }}
-                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors font-medium"
+                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors font-medium"
                                     >
                                         <LogOut size={16} />
                                         {t('nav.logout')}
                                     </button>
                                 </div>
                                 {/* Legal Links */}
-                                <div className="mt-3 pt-3 border-t border-slate-100 flex justify-center gap-3 text-xs text-slate-400">
+                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-400">
                                     <a href="/terms" target="_blank" className="hover:text-primary-600 transition-colors">
                                         {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                                     </a>
@@ -348,7 +371,7 @@ const Layout = ({ children }) => {
 
                     {/* Dynamic Page Header */}
                     <div className="mb-8 hidden md:block">
-                        <h2 className="text-3xl font-bold text-slate-800 tracking-tight">{getPageTitle()}</h2>
+                        <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">{getPageTitle()}</h2>
                         <div className="h-1 w-20 bg-primary-500 rounded-full mt-2 opacity-20"></div>
                     </div>
 

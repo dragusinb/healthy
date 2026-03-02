@@ -229,6 +229,7 @@
     "title": "AI Health Analysis",
     "subtitle": "AI-powered insights from your biomarkers",
     "runNewAnalysis": "Run New Analysis",
+    "exportPdf": "Export PDF",
     "noAnalysisYet": "No Analysis Yet",
     "noAnalysisHint": "Run your first AI health analysis to get personalized insights from your biomarkers.",
     "runAnalysis": "Run Analysis",
@@ -942,6 +943,37 @@
       "runAnalysis": "Run AI Health Analysis",
       "runAnalysisDesc": "Cardiologist, Endocrinologist, Hematologist & more"
     }
+  },
+  "emptyStates": {
+    "documents": {
+      "title": "No Documents Yet",
+      "description": "Connect your medical provider account or upload lab results to get started with your health tracking journey.",
+      "action": "Connect Provider"
+    },
+    "biomarkers": {
+      "title": "No Biomarkers Found",
+      "description": "Upload lab results or sync from your medical provider. Our AI will automatically extract and track your biomarkers.",
+      "action": "Upload Results"
+    },
+    "healthReports": {
+      "title": "No AI Analysis Yet",
+      "description": "Run your first AI health analysis to get personalized insights from specialist virtual doctors.",
+      "action": "Run Analysis"
+    },
+    "medications": {
+      "title": "No Medications Tracked",
+      "description": "Add your medications and supplements to track daily adherence and build healthy habits."
+    },
+    "screenings": {
+      "title": "No Screenings Recommended Yet",
+      "description": "Run an AI health analysis first. Our specialists will recommend appropriate health screenings based on your results.",
+      "action": "Run Analysis"
+    }
+  },
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "toggle": "Toggle theme"
   },
   "sharing": {
     "title": "Share with Doctor",

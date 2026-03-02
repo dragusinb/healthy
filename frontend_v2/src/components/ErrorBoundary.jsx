@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Sentry from '@sentry/react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
@@ -13,6 +14,7 @@ class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, errorInfo) {
         console.error('Error caught by boundary:', error, errorInfo);
+        Sentry.captureException(error, { extra: { componentStack: errorInfo?.componentStack } });
     }
 
     handleReload = () => {

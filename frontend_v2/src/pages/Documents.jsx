@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { FileText, Upload, Calendar, Building, CheckCircle, Clock, AlertCircle, Loader2, Download, Activity, Eye, Trash2, X, Brain, User, RefreshCw } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { DocumentsEmpty } from '../components/EmptyState';
+import { ListSkeleton } from '../components/Skeleton';
 
 const Documents = () => {
     const { t } = useTranslation();
@@ -389,19 +391,9 @@ const Documents = () => {
                 </div>
 
                 {loading ? (
-                    <div className="h-64 flex justify-center items-center text-slate-400">
-                        <Loader2 className="animate-spin text-primary-500" size={32} />
-                    </div>
+                    <ListSkeleton rows={5} />
                 ) : filteredDocuments.length === 0 ? (
-                    <div className="h-64 flex flex-col items-center justify-center text-center p-8">
-                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-400">
-                            <FileText size={32} />
-                        </div>
-                        <h3 className="text-lg font-medium text-slate-900">{t('documents.noDocuments')}</h3>
-                        <p className="text-slate-500 mt-2 max-w-sm">
-                            {t('documents.uploadHint')}
-                        </p>
-                    </div>
+                    <DocumentsEmpty />
                 ) : (
                     <div className="divide-y divide-slate-50">
                         {filteredDocuments.map((doc) => (

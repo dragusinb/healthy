@@ -261,6 +261,7 @@
     "title": "Analiza AI Sanatate",
     "subtitle": "Informatii bazate pe AI din biomarkerii tai",
     "runNewAnalysis": "Ruleaza Analiza Noua",
+    "exportPdf": "Exporta PDF",
     "noAnalysisYet": "Nicio Analiza Inca",
     "noAnalysisHint": "Ruleaza prima ta analiza AI de sanatate pentru a obtine informatii personalizate din biomarkerii tai.",
     "runAnalysis": "Ruleaza Analiza",
@@ -1022,6 +1023,37 @@
       "runAnalysis": "Ruleaza Analiza AI",
       "runAnalysisDesc": "Cardiolog, Endocrinolog, Hematolog si altii"
     }
+  },
+  "emptyStates": {
+    "documents": {
+      "title": "Niciun Document Inca",
+      "description": "Conecteaza-ti contul de la furnizorul medical sau incarca rezultatele de laborator pentru a incepe monitorizarea sanatatii.",
+      "action": "Conecteaza Furnizor"
+    },
+    "biomarkers": {
+      "title": "Niciun Biomarker Gasit",
+      "description": "Incarca rezultatele de laborator sau sincronizeaza de la furnizorul medical. AI-ul nostru va extrage si urmari automat biomarkerii.",
+      "action": "Incarca Rezultate"
+    },
+    "healthReports": {
+      "title": "Nicio Analiza AI Inca",
+      "description": "Ruleaza prima ta analiza AI de sanatate pentru a primi informatii personalizate de la medici specialisti virtuali.",
+      "action": "Ruleaza Analiza"
+    },
+    "medications": {
+      "title": "Niciun Medicament Urmarit",
+      "description": "Adauga medicamentele si suplimentele tale pentru a urmari aderenta zilnica si a-ti forma obiceiuri sanatoase."
+    },
+    "screenings": {
+      "title": "Nicio Recomandare de Screening Inca",
+      "description": "Ruleaza mai intai o analiza AI de sanatate. Specialistii nostri vor recomanda screeninguri adecvate pe baza rezultatelor tale.",
+      "action": "Ruleaza Analiza"
+    }
+  },
+  "theme": {
+    "light": "Mod luminos",
+    "dark": "Mod intunecat",
+    "toggle": "Schimba tema"
   },
   "sharing": {
     "title": "Partajeaza cu Medicul",

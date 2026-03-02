@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import { AnalysisProvider } from './context/AnalysisContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageLoader from './components/PageLoader';
 import CookieConsent from './components/CookieConsent';
@@ -114,6 +115,7 @@ const HomeOrDashboard = () => {
 const App = () => {
     return (
         <ErrorBoundary>
+            <ThemeProvider>
             <AuthProvider>
                 <SubscriptionProvider>
                     <AnalysisProvider>
@@ -196,6 +198,7 @@ const App = () => {
                     </AnalysisProvider>
                 </SubscriptionProvider>
             </AuthProvider>
+            </ThemeProvider>
         </ErrorBoundary>
     );
 };

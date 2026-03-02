@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import api from '../api/client';
+import { ListSkeleton } from '../components/Skeleton';
+import { MedicationsEmpty } from '../components/EmptyState';
 
 const TIME_ICONS = {
   morning: '🌅',
@@ -231,21 +233,7 @@ export default function Medications() {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map(i => (
-          <div key={i} className="card p-4 animate-pulse">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-slate-100" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-slate-100 rounded w-1/3" />
-                <div className="h-3 bg-slate-100 rounded w-1/4" />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return <ListSkeleton rows={4} />;
   }
 
   const takenCount = medications.filter(m => m.taken_today).length;
@@ -320,17 +308,7 @@ export default function Medications() {
         )}
 
         {medications.length === 0 && !showAdd ? (
-          <div className="text-center py-12">
-            <Pill size={40} className="mx-auto mb-3 text-slate-300" />
-            <p className="text-lg font-medium text-slate-500">{t('medications.noMedications')}</p>
-            <p className="text-sm text-slate-400 mt-1">{t('medications.noMedicationsHint')}</p>
-            <button
-              onClick={() => setShowAdd(true)}
-              className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
-            >
-              <Plus size={16} className="inline mr-1" /> {t('medications.addFirst')}
-            </button>
-          </div>
+          <MedicationsEmpty />
         ) : (
           <div className="space-y-2">
             {medications.map(med => (

@@ -11,6 +11,7 @@ import HealthScoreCard from '../components/HealthScoreCard';
 import HealthTimeline from '../components/HealthTimeline';
 import OnboardingWizard from '../components/OnboardingWizard';
 import InstallBanner from '../components/InstallBanner';
+import { DashboardSkeleton } from '../components/Skeleton';
 
 const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to }) => {
     const content = (
@@ -51,6 +52,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to })
 
 const Dashboard = () => {
     const { t } = useTranslation();
+    const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ documents_count: 0, biomarkers_count: 0, alerts_count: 0 });
     const [recentBiomarkers, setRecentBiomarkers] = useState([]);
     const [accountErrors, setAccountErrors] = useState([]);
@@ -85,6 +87,8 @@ const Dashboard = () => {
                 setAccountErrors(errors);
             } catch (e) {
                 console.error("Failed to fetch dashboard data", e);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -118,6 +122,8 @@ const Dashboard = () => {
         };
         return messages[errorType] || messages.unknown;
     };
+
+    if (loading) return <DashboardSkeleton />;
 
     return (
         <div>

@@ -5,6 +5,8 @@ import api from '../api/client';
 import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye, History, TrendingUp, TrendingDown, Minus, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
+import { BiomarkersSkeleton } from '../components/Skeleton';
+import { BiomarkersEmpty } from '../components/EmptyState';
 
 // Biomarker category definitions
 const CATEGORIES = {
@@ -788,9 +790,7 @@ const Biomarkers = () => {
 
             {/* Loading */}
             {loading ? (
-                <div className="flex items-center justify-center h-64">
-                    <Loader2 className="animate-spin text-primary-500" size={32} />
-                </div>
+                <BiomarkersSkeleton />
             ) : (
                 /* Category Sections */
                 <div className="space-y-4">
@@ -817,10 +817,8 @@ const Biomarkers = () => {
                     })}
 
                     {totalFiltered === 0 && (
-                        <div className="card p-12 text-center">
-                            <Activity size={40} className="mx-auto mb-3 text-slate-300" />
-                            <p className="text-lg font-medium text-slate-600">{t('biomarkers.noBiomarkers')}</p>
-                            <p className="text-sm text-slate-400 mt-1">{t('biomarkers.adjustFilters')}</p>
+                        <div className="card">
+                            <BiomarkersEmpty />
                         </div>
                     )}
                 </div>

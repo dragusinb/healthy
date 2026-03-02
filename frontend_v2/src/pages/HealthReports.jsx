@@ -6,10 +6,11 @@ import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
     RefreshCw, TrendingUp, Shield, X, Eye,
-    History, GitCompare, TrendingDown, Minus, Share2
+    History, GitCompare, TrendingDown, Minus, Share2, Download
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ShareReportModal from '../components/ShareReportModal';
+import { HealthReportsSkeleton } from '../components/Skeleton';
 
 const SPECIALTY_ICONS = {
     cardiology: Heart,
@@ -208,11 +209,7 @@ const HealthReports = () => {
     const getRiskStyle = (level) => RISK_COLORS[level] || RISK_COLORS.normal;
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="animate-spin text-primary-500" size={32} />
-            </div>
-        );
+        return <HealthReportsSkeleton />;
     }
 
     return (
@@ -231,13 +228,40 @@ const HealthReports = () => {
 
                 <div className="flex items-center gap-2">
                     {latestReport?.has_report && (
-                        <button
-                            onClick={() => setShowShareModal(true)}
-                            className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
-                        >
-                            <Share2 size={20} />
-                            <span className="hidden sm:inline">{t('sharing.shareWithDoctor')}</span>
-                        </button>
+                        <>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const token = localStorage.getItem('token');
+                                        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+                                        const res = await fetch(`${baseUrl}/health/export-pdf`, {
+                                            headers: { Authorization: `Bearer ${token}` }
+                                        });
+                                        if (!res.ok) throw new Error('Export failed');
+                                        const blob = await res.blob();
+                                        const url = URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.href = url;
+                                        a.download = `health_report_${new Date().toISOString().split('T')[0]}.pdf`;
+                                        a.click();
+                                        URL.revokeObjectURL(url);
+                                    } catch (e) {
+                                        console.error('PDF export failed:', e);
+                                    }
+                                }}
+                                className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                            >
+                                <Download size={20} />
+                                <span className="hidden sm:inline">{t('healthReports.exportPdf')}</span>
+                            </button>
+                            <button
+                                onClick={() => setShowShareModal(true)}
+                                className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                            >
+                                <Share2 size={20} />
+                                <span className="hidden sm:inline">{t('sharing.shareWithDoctor')}</span>
+                            </button>
+                        </>
                     )}
                     <button
                         onClick={runAnalysis}

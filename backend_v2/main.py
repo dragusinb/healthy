@@ -26,6 +26,21 @@ except ImportError:
     from routers.auth import seed_default_user
     from services.scheduler import init_scheduler, shutdown_scheduler
 
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
+sentry_dsn = os.environ.get("SENTRY_DSN")
+if sentry_dsn:
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        integrations=[FastApiIntegration(), SqlalchemyIntegration()],
+        traces_sample_rate=0.1,
+        profiles_sample_rate=0.1,
+        environment=os.environ.get("ENVIRONMENT", "production"),
+        send_default_pii=False,
+    )
+
 # Create Tables
 Base.metadata.create_all(bind=engine)
 

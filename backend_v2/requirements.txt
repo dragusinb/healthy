@@ -19,3 +19,5 @@ apscheduler
 psutil
 pywebpush
 py-vapid
+sentry-sdk[fastapi]
+reportlab
