@@ -48,7 +48,8 @@
     "logout": "Logout",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "family": "My Family"
+    "family": "My Family",
+    "medications": "Medications"
   },
   "auth": {
     "login": "Login",
@@ -846,5 +847,130 @@
     "memberOf": "Member of {{name}}",
     "securePayment": "Secure payment via Netopia",
     "paymentDisclaimer": "Payment is securely processed by Netopia. We don't store your card details."
+  },
+  "pwa": {
+    "installTitle": "Install Analize.Online",
+    "installDescription": "Add to your home screen for quick access",
+    "install": "Install"
+  },
+  "healthScore": {
+    "title": "Health Score",
+    "excellent": "Excellent",
+    "good": "Good",
+    "fair": "Fair",
+    "needsAttention": "Needs Attention",
+    "critical": "Critical",
+    "noData": "Upload lab results to see your health score",
+    "insights": "Insights & Tips",
+    "biomarkers": "Biomarkers",
+    "profile": "Profile",
+    "screening": "Screenings",
+    "lifestyle": "Lifestyle",
+    "trends": "Trends",
+    "insight_biomarkers_attention": "Some biomarkers are out of range. Consult your doctor.",
+    "insight_biomarkers_perfect": "All your biomarkers are within normal range!",
+    "insight_no_biomarkers": "Upload your lab results to start tracking your health.",
+    "insight_incomplete_profile": "Complete your profile for more accurate health insights.",
+    "insight_overdue_screenings": "You have overdue health screenings. Check the Screenings page.",
+    "insight_declining_trends": "Some biomarkers are trending in the wrong direction.",
+    "insight_improving_trends": "Great news! Some of your biomarkers are improving."
+  },
+  "healthTimeline": {
+    "title": "Health Timeline",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "noEvents": "No health events yet",
+    "showMore": "Show more"
+  },
+  "medications": {
+    "title": "Medications & Supplements",
+    "todayChecklist": "Today's Checklist",
+    "addNew": "Add Medication / Supplement",
+    "namePlaceholder": "Name (e.g., Vitamin D)",
+    "dosagePlaceholder": "Dosage (e.g., 2000 IU)",
+    "notesPlaceholder": "Notes (optional)",
+    "noMedications": "No medications or supplements",
+    "noMedicationsHint": "Track your daily medications and supplements to build healthy habits.",
+    "addFirst": "Add your first medication",
+    "taken": "taken",
+    "takenToday": "Taken today",
+    "streakDays": "Day streak",
+    "adherence30d": "30-day adherence",
+    "activeMeds": "Active medications",
+    "adherenceHistory": "Adherence History",
+    "undo": "Undo",
+    "frequencies": {
+      "daily": "Daily",
+      "twiceDaily": "Twice daily",
+      "weekly": "Weekly",
+      "asNeeded": "As needed"
+    },
+    "times": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "bedtime": "Bedtime"
+    }
+  },
+  "onboarding": {
+    "step": "Step",
+    "done": "Get Started",
+    "welcome": {
+      "title": "Welcome to Analize.Online!",
+      "description": "Your personal health dashboard. Let's get you set up in a few easy steps.",
+      "sync": "Auto-sync from labs",
+      "analyze": "AI health analysis",
+      "track": "Track biomarkers over time"
+    },
+    "connect": {
+      "title": "Connect Your Lab",
+      "description": "Link your medical provider account to automatically download your lab results, or upload a PDF manually.",
+      "linkAccount": "Connect a medical account",
+      "linkAccountDesc": "Synevo, Regina Maria, MedLife, Sanador",
+      "uploadPdf": "Upload a PDF report",
+      "uploadPdfDesc": "Upload lab results from any provider"
+    },
+    "profile": {
+      "title": "Complete Your Profile",
+      "description": "Your age, height, weight, and health history help the AI provide more accurate and personalized insights.",
+      "completeProfile": "Complete your profile",
+      "completeProfileDesc": "Age, height, weight, medical history"
+    },
+    "analyze": {
+      "title": "Get Your First Analysis",
+      "description": "Once you have lab results uploaded, run an AI health analysis to get insights from virtual specialists.",
+      "runAnalysis": "Run AI Health Analysis",
+      "runAnalysisDesc": "Cardiologist, Endocrinologist, Hematologist & more"
+    }
+  },
+  "sharing": {
+    "title": "Share with Doctor",
+    "description": "Create a secure, time-limited link to share your health report with your doctor.",
+    "expiresIn": "Link expires in",
+    "day": "day",
+    "days": "days",
+    "passwordProtect": "Password protect",
+    "passwordPlaceholder": "Enter password",
+    "createLink": "Create Share Link",
+    "linkCreated": "Share link created!",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "expiresOn": "Expires",
+    "passwordRequired": "Password protected",
+    "reportsIncluded": "reports included",
+    "sharedReport": "Shared Health Report",
+    "readOnly": "Read-only view shared by the patient",
+    "wrongPassword": "Incorrect password. Please try again.",
+    "expired": "This share link has expired.",
+    "notFound": "Share link not found or has been revoked.",
+    "errorTitle": "Cannot Access Report",
+    "viewReport": "View Report",
+    "enterPassword": "This report is password protected. Enter the password to view.",
+    "poweredBy": "Powered by",
+    "shareWithDoctor": "Share with Doctor",
+    "myLinks": "My Share Links",
+    "revoke": "Revoke",
+    "views": "views",
+    "noLinks": "No share links yet"
   }
 }

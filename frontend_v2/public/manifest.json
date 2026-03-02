@@ -1,0 +1,50 @@
+{
+  "name": "Analize.Online - Platforma ta de sănătate",
+  "short_name": "Analize.Online",
+  "description": "All your medical tests in one place. Powered by AI.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "categories": ["health", "medical"],
+  "lang": "ro",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "url": "/",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    },
+    {
+      "name": "Biomarkers",
+      "url": "/biomarkers",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    },
+    {
+      "name": "AI Analysis",
+      "url": "/health",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    }
+  ]
+}

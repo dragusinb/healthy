@@ -6,9 +6,10 @@ import {
     Activity, Brain, Heart, Droplets, FlaskConical, Stethoscope,
     AlertTriangle, CheckCircle, Clock, ChevronRight, Loader2,
     RefreshCw, TrendingUp, Shield, X, Eye,
-    History, GitCompare, TrendingDown, Minus
+    History, GitCompare, TrendingDown, Minus, Share2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import ShareReportModal from '../components/ShareReportModal';
 
 const SPECIALTY_ICONS = {
     cardiology: Heart,
@@ -84,6 +85,7 @@ const HealthReports = () => {
     const [selectedForCompare, setSelectedForCompare] = useState([]);
     const [comparisonData, setComparisonData] = useState(null);
     const [showHistory, setShowHistory] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
 
     // Handle analysis completion callback
     const handleAnalysisComplete = useCallback((err, result) => {
@@ -227,28 +229,39 @@ const HealthReports = () => {
                     <p className="text-slate-500 mt-1">{t('healthReports.subtitle')}</p>
                 </div>
 
-                <button
-                    onClick={runAnalysis}
-                    disabled={analyzing}
-                    className={cn(
-                        "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md",
-                        analyzing
-                            ? "bg-primary-100 text-primary-600 cursor-wait"
-                            : "bg-primary-600 text-white hover:bg-primary-700 shadow-primary-500/30"
+                <div className="flex items-center gap-2">
+                    {latestReport?.has_report && (
+                        <button
+                            onClick={() => setShowShareModal(true)}
+                            className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                        >
+                            <Share2 size={20} />
+                            <span className="hidden sm:inline">{t('sharing.shareWithDoctor')}</span>
+                        </button>
                     )}
-                >
-                    {analyzing ? (
-                        <>
-                            <Loader2 className="animate-spin" size={20} />
-                            {getStepLabel(ANALYSIS_STEPS[analysisStep]?.key) || t('common.loading')}
-                        </>
-                    ) : (
-                        <>
-                            <RefreshCw size={20} />
-                            {t('healthReports.runNewAnalysis')}
-                        </>
-                    )}
-                </button>
+                    <button
+                        onClick={runAnalysis}
+                        disabled={analyzing}
+                        className={cn(
+                            "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md",
+                            analyzing
+                                ? "bg-primary-100 text-primary-600 cursor-wait"
+                                : "bg-primary-600 text-white hover:bg-primary-700 shadow-primary-500/30"
+                        )}
+                    >
+                        {analyzing ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} />
+                                {getStepLabel(ANALYSIS_STEPS[analysisStep]?.key) || t('common.loading')}
+                            </>
+                        ) : (
+                            <>
+                                <RefreshCw size={20} />
+                                {t('healthReports.runNewAnalysis')}
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* Analysis Progress */}
@@ -882,6 +895,17 @@ const HealthReports = () => {
                     <strong>{t('common.disclaimer') || 'Disclaimer'}:</strong> {t('healthReports.disclaimer')}
                 </p>
             </div>
+
+            {/* Share Report Modal */}
+            {showShareModal && (
+                <ShareReportModal
+                    reportIds={reportHistory.length > 0
+                        ? [reportHistory[0].general.id, ...reportHistory[0].specialists.map(s => s.id)]
+                        : latestReport?.report_id ? [latestReport.report_id] : []
+                    }
+                    onClose={() => setShowShareModal(false)}
+                />
+            )}
         </div>
     );
 };

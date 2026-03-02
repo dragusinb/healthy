@@ -10,6 +10,18 @@
 // Service worker version for cache busting
 const SW_VERSION = '1.0.0';
 
+// Cache names
+const CACHE_NAME = 'analize-v1';
+const STATIC_ASSETS = [
+  '/',
+  '/manifest.json',
+  '/healthy.svg',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
+];
+
+// Install event - pre-cache static assets
+
 // Handle push notification events
 self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received');
@@ -117,15 +129,67 @@ self.addEventListener('notificationclose', (event) => {
 // Service worker installation
 self.addEventListener('install', (event) => {
   console.log('[SW] Service Worker installed, version:', SW_VERSION);
-  // Skip waiting to activate immediately
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('[SW] Pre-caching static assets');
+      return cache.addAll(STATIC_ASSETS);
+    })
+  );
   self.skipWaiting();
 });
 
 // Service worker activation
 self.addEventListener('activate', (event) => {
   console.log('[SW] Service Worker activated, version:', SW_VERSION);
-  // Claim all clients immediately
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    }).then(() => clients.claim())
+  );
+});
+
+// Fetch event - network first with cache fallback for navigation, cache first for static assets
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests
+  if (request.method !== 'GET') return;
+
+  // Skip API calls and external resources
+  if (url.pathname.startsWith('/api/') || url.origin !== self.location.origin) return;
+
+  // For navigation requests (HTML pages), use network-first
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/')))
+    );
+    return;
+  }
+
+  // For static assets, use cache-first
+  if (url.pathname.match(/\.(js|css|svg|png|jpg|jpeg|gif|woff2?|ttf|eot)$/)) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          return response;
+        });
+      })
+    );
+    return;
+  }
 });
 
 // Log any errors

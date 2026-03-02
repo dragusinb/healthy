@@ -586,3 +586,108 @@ def get_health_overview(db: Session = Depends(get_db), current_user: User = Depe
         "ai_summary": ai_summary,  # Full AI doctor summary
         "profile_complete": bool(profile.get("full_name") and profile.get("date_of_birth") and profile.get("gender"))
     }
+
+
+@router.get("/health-score")
+def get_health_score(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """Calculate and return the user's health score (0-100)."""
+    try:
+        from services.health_score import calculate_health_score
+    except ImportError:
+        from backend_v2.services.health_score import calculate_health_score
+
+    vault_helper = get_vault_helper(current_user.id)
+    return calculate_health_score(current_user, db, vault_helper)
+
+
+@router.get("/timeline")
+def get_health_timeline(
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get a chronological timeline of health events for the dashboard.
+    Events include: document syncs, AI analyses, biomarker changes, screenings.
+    """
+    from collections import defaultdict
+
+    events = []
+
+    # --- Documents synced/uploaded ---
+    docs = db.query(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .order_by(Document.upload_date.desc())\
+        .limit(20)\
+        .all()
+
+    for doc in docs:
+        events.append({
+            "type": "document",
+            "icon": "file",
+            "title": doc.filename or "Document",
+            "subtitle": doc.provider or "Upload",
+            "date": doc.upload_date.isoformat() if doc.upload_date else None,
+            "link": "/documents"
+        })
+
+    # --- AI Analyses completed ---
+    reports = db.query(HealthReport)\
+        .filter(HealthReport.user_id == current_user.id, HealthReport.report_type == "general")\
+        .order_by(HealthReport.created_at.desc())\
+        .limit(10)\
+        .all()
+
+    for report in reports:
+        events.append({
+            "type": "analysis",
+            "icon": "brain",
+            "title": "AI Health Analysis",
+            "subtitle": f"{report.biomarkers_analyzed} biomarkers analyzed" if report.biomarkers_analyzed else "Analysis complete",
+            "date": report.created_at.isoformat() if report.created_at else None,
+            "link": "/health",
+            "risk_level": report.risk_level
+        })
+
+    # --- Biomarker improvements (abnormal -> normal) ---
+    # Get biomarkers with multiple readings
+    results = db.query(TestResult).join(Document)\
+        .filter(Document.user_id == current_user.id)\
+        .order_by(Document.document_date.asc())\
+        .all()
+
+    history = defaultdict(list)
+    for r in results:
+        key = r.canonical_name or r.test_name
+        history[key].append({
+            "flags": r.flags,
+            "date": r.document.document_date.isoformat() if r.document.document_date else None
+        })
+
+    for name, readings in history.items():
+        if len(readings) >= 2:
+            prev = readings[-2]
+            current = readings[-1]
+            if prev["flags"] != "NORMAL" and current["flags"] == "NORMAL":
+                events.append({
+                    "type": "improvement",
+                    "icon": "trending_up",
+                    "title": f"{name} returned to normal",
+                    "subtitle": f"Was {prev['flags'].lower()}, now normal",
+                    "date": current["date"],
+                    "link": f"/evolution/{name}"
+                })
+            elif prev["flags"] == "NORMAL" and current["flags"] != "NORMAL":
+                events.append({
+                    "type": "alert",
+                    "icon": "alert",
+                    "title": f"{name} went out of range",
+                    "subtitle": f"Now {current['flags'].lower()}",
+                    "date": current["date"],
+                    "link": f"/evolution/{name}"
+                })
+
+    # Sort all events by date descending
+    events.sort(key=lambda e: e.get("date") or "0000", reverse=True)
+
+    return events[:limit]

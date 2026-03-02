@@ -34,6 +34,8 @@ const Privacy = lazy(() => import('./pages/Privacy'));
 const JoinFamily = lazy(() => import('./pages/JoinFamily'));
 const Family = lazy(() => import('./pages/Family'));
 const SupportTickets = lazy(() => import('./pages/SupportTickets'));
+const Medications = lazy(() => import('./pages/Medications'));
+const SharedReport = lazy(() => import('./pages/SharedReport'));
 const Layout = lazy(() => import('./components/Layout'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -171,6 +173,12 @@ const App = () => {
                                 <Route path="/support" element={
                                     <PrivateLayoutRoute><SupportTickets /></PrivateLayoutRoute>
                                 } />
+                                <Route path="/medications" element={
+                                    <PrivateLayoutRoute><Medications /></PrivateLayoutRoute>
+                                } />
+
+                                {/* Public shared report (no auth) */}
+                                <Route path="/shared/:token" element={<SharedReport />} />
 
                                 {/* Optional layout routes (show layout for logged-in users) */}
                                 <Route path="/terms" element={

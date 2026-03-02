@@ -561,6 +561,62 @@ class SupportTicketAttachment(Base):
     reply = relationship("SupportTicketReply", back_populates="attachments")
 
 
+class Medication(Base):
+    """Track medications and supplements."""
+    __tablename__ = "medications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    name = Column(String, nullable=False)
+    dosage = Column(String, nullable=True)  # e.g., "500mg"
+    frequency = Column(String, default="daily")  # daily, twice_daily, weekly, as_needed
+    time_of_day = Column(String, nullable=True)  # morning, afternoon, evening, bedtime
+    notes = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True)
+    source = Column(String, default="manual")  # manual, ai_recommendation
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+    user = relationship("User", back_populates="medications")
+    logs = relationship("MedicationLog", back_populates="medication", cascade="all, delete-orphan")
+
+
+class MedicationLog(Base):
+    """Daily medication adherence log."""
+    __tablename__ = "medication_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    medication_id = Column(Integer, ForeignKey("medications.id"), index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    taken_at = Column(DateTime, default=utc_now)
+    date = Column(String, index=True)  # YYYY-MM-DD for easy daily grouping
+    time_slot = Column(String, nullable=True)  # morning, afternoon, evening
+
+    medication = relationship("Medication", back_populates="logs")
+
+    __table_args__ = (
+        Index('ix_medication_log_user_date', 'user_id', 'date'),
+    )
+
+
+class SharedReport(Base):
+    """Shareable health report links for sharing with doctors."""
+    __tablename__ = "shared_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    token = Column(String, unique=True, index=True, nullable=False)  # URL token
+    report_ids = Column(Text, nullable=False)  # JSON list of report IDs to share
+    password_hash = Column(String, nullable=True)  # Optional password protection
+    expires_at = Column(DateTime, nullable=False)
+    max_views = Column(Integer, default=10)
+    view_count = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=utc_now)
+
+    user = relationship("User", back_populates="shared_reports")
+
+
 # Add relationships to User model
 User.health_reports = relationship("HealthReport", back_populates="user")
 User.notifications = relationship("Notification", back_populates="user")
@@ -575,3 +631,5 @@ User.abuse_flags = relationship("AbuseFlag", foreign_keys="AbuseFlag.user_id", b
 User.usage_metrics = relationship("UsageMetrics", back_populates="user")
 User.push_subscriptions = relationship("PushSubscription", back_populates="user")
 User.support_tickets = relationship("SupportTicket", back_populates="reporter")
+User.medications = relationship("Medication", back_populates="user")
+User.shared_reports = relationship("SharedReport", back_populates="user")

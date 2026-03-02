@@ -7,6 +7,10 @@ import {
     User, Calendar, Clock, Heart, Droplets, Bell, CheckCircle2, AlertCircle, Sparkles
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import HealthScoreCard from '../components/HealthScoreCard';
+import HealthTimeline from '../components/HealthTimeline';
+import OnboardingWizard from '../components/OnboardingWizard';
+import InstallBanner from '../components/InstallBanner';
 
 const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to }) => {
     const content = (
@@ -52,6 +56,9 @@ const Dashboard = () => {
     const [accountErrors, setAccountErrors] = useState([]);
     const [dismissedErrors, setDismissedErrors] = useState([]);
     const [healthOverview, setHealthOverview] = useState(null);
+    const [showOnboarding, setShowOnboarding] = useState(() => {
+        return !localStorage.getItem('onboardingCompleted');
+    });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -114,6 +121,14 @@ const Dashboard = () => {
 
     return (
         <div>
+            {/* PWA Install Banner */}
+            <InstallBanner />
+
+            {/* Onboarding Wizard for new users */}
+            {showOnboarding && stats.documents_count === 0 && (
+                <OnboardingWizard onDismiss={() => setShowOnboarding(false)} />
+            )}
+
             {/* Provider Error Notifications */}
             {visibleErrors.length > 0 && (
                 <div className="mb-6 space-y-3">
@@ -325,6 +340,11 @@ const Dashboard = () => {
                 </div>
             )}
 
+            {/* Health Score */}
+            <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+                <HealthScoreCard />
+            </div>
+
             {/* Quick Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <StatCard
@@ -418,6 +438,17 @@ const Dashboard = () => {
                         <p className="text-sm mt-1">{t('dashboard.runAnalysisHint') || 'Run your first AI health analysis to see findings'}</p>
                     </Link>
                 )}
+            </div>
+
+            {/* Health Timeline */}
+            <div className="card p-6 mt-8">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <span className="p-1.5 bg-primary-50 text-primary-600 rounded-lg"><Clock size={18} /></span>
+                        {t('healthTimeline.title')}
+                    </h3>
+                </div>
+                <HealthTimeline limit={8} />
             </div>
         </div>
     );

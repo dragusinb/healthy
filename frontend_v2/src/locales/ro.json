@@ -51,7 +51,8 @@
     "logout": "Deconectare",
     "openMenu": "Deschide meniul",
     "closeMenu": "Închide meniul",
-    "family": "Familia Mea"
+    "family": "Familia Mea",
+    "medications": "Medicamente"
   },
   "auth": {
     "login": "Autentificare",
@@ -926,5 +927,130 @@
     "familyBenefit2": "Toate beneficiile Premium",
     "familyBenefit3": "Un singur abonament",
     "familyPrice": "RON / lună"
+  },
+  "pwa": {
+    "installTitle": "Instaleaza Analize.Online",
+    "installDescription": "Adauga pe ecranul principal pentru acces rapid",
+    "install": "Instaleaza"
+  },
+  "healthScore": {
+    "title": "Scor Sanatate",
+    "excellent": "Excelent",
+    "good": "Bun",
+    "fair": "Satisfacator",
+    "needsAttention": "Necesita Atentie",
+    "critical": "Critic",
+    "noData": "Incarca analize pentru a vedea scorul de sanatate",
+    "insights": "Sfaturi si Observatii",
+    "biomarkers": "Biomarkeri",
+    "profile": "Profil",
+    "screening": "Screeninguri",
+    "lifestyle": "Stil de viata",
+    "trends": "Tendinte",
+    "insight_biomarkers_attention": "Unii biomarkeri sunt in afara intervalului. Consulta medicul.",
+    "insight_biomarkers_perfect": "Toti biomarkerii sunt in intervalul normal!",
+    "insight_no_biomarkers": "Incarca analizele pentru a incepe monitorizarea sanatatii.",
+    "insight_incomplete_profile": "Completeaza-ti profilul pentru informatii mai precise.",
+    "insight_overdue_screenings": "Ai screeninguri de sanatate intarziate. Verifica pagina Screeninguri.",
+    "insight_declining_trends": "Unii biomarkeri au o tendinta in directia gresita.",
+    "insight_improving_trends": "Vesti bune! Unii biomarkeri se imbunatatesc."
+  },
+  "healthTimeline": {
+    "title": "Cronologie Sanatate",
+    "today": "Astazi",
+    "yesterday": "Ieri",
+    "noEvents": "Niciun eveniment de sanatate inca",
+    "showMore": "Arata mai multe"
+  },
+  "medications": {
+    "title": "Medicamente si Suplimente",
+    "todayChecklist": "Lista de Azi",
+    "addNew": "Adauga Medicament / Supliment",
+    "namePlaceholder": "Nume (ex: Vitamina D)",
+    "dosagePlaceholder": "Doza (ex: 2000 UI)",
+    "notesPlaceholder": "Note (optional)",
+    "noMedications": "Niciun medicament sau supliment",
+    "noMedicationsHint": "Urmareste medicamentele si suplimentele zilnice pentru obiceiuri sanatoase.",
+    "addFirst": "Adauga primul medicament",
+    "taken": "luate",
+    "takenToday": "Luate astazi",
+    "streakDays": "Zile consecutive",
+    "adherence30d": "Aderenta 30 zile",
+    "activeMeds": "Medicamente active",
+    "adherenceHistory": "Istoric Aderenta",
+    "undo": "Anuleaza",
+    "frequencies": {
+      "daily": "Zilnic",
+      "twiceDaily": "De doua ori pe zi",
+      "weekly": "Saptamanal",
+      "asNeeded": "La nevoie"
+    },
+    "times": {
+      "morning": "Dimineata",
+      "afternoon": "Dupa-amiaza",
+      "evening": "Seara",
+      "bedtime": "Inainte de culcare"
+    }
+  },
+  "onboarding": {
+    "step": "Pas",
+    "done": "Incepe",
+    "welcome": {
+      "title": "Bine ai venit pe Analize.Online!",
+      "description": "Panoul tau personal de sanatate. Hai sa te configuram in cativa pasi simpli.",
+      "sync": "Sincronizare automata din laboratoare",
+      "analyze": "Analiza AI a sanatatii",
+      "track": "Urmareste biomarkerii in timp"
+    },
+    "connect": {
+      "title": "Conecteaza Laboratorul",
+      "description": "Conecteaza contul furnizorului medical pentru a descarca automat analizele, sau incarca un PDF manual.",
+      "linkAccount": "Conecteaza un cont medical",
+      "linkAccountDesc": "Synevo, Regina Maria, MedLife, Sanador",
+      "uploadPdf": "Incarca un raport PDF",
+      "uploadPdfDesc": "Incarca analize de la orice furnizor"
+    },
+    "profile": {
+      "title": "Completeaza Profilul",
+      "description": "Varsta, inaltimea, greutatea si istoricul medical ajuta AI sa ofere informatii mai precise si personalizate.",
+      "completeProfile": "Completeaza-ti profilul",
+      "completeProfileDesc": "Varsta, inaltime, greutate, istoric medical"
+    },
+    "analyze": {
+      "title": "Prima Ta Analiza",
+      "description": "Odata ce ai analize incarcate, ruleaza o analiza AI pentru a primi informatii de la specialisti virtuali.",
+      "runAnalysis": "Ruleaza Analiza AI",
+      "runAnalysisDesc": "Cardiolog, Endocrinolog, Hematolog si altii"
+    }
+  },
+  "sharing": {
+    "title": "Partajeaza cu Medicul",
+    "description": "Creeaza un link securizat, cu termen limitat, pentru a partaja raportul de sanatate cu medicul tau.",
+    "expiresIn": "Link-ul expira in",
+    "day": "zi",
+    "days": "zile",
+    "passwordProtect": "Protejare cu parola",
+    "passwordPlaceholder": "Introdu parola",
+    "createLink": "Creeaza Link de Partajare",
+    "linkCreated": "Link de partajare creat!",
+    "copy": "Copiaza",
+    "copied": "Copiat!",
+    "expiresOn": "Expira",
+    "passwordRequired": "Protejat cu parola",
+    "reportsIncluded": "rapoarte incluse",
+    "sharedReport": "Raport de Sanatate Partajat",
+    "readOnly": "Vizualizare doar citire partajata de pacient",
+    "wrongPassword": "Parola incorecta. Te rugam sa incerci din nou.",
+    "expired": "Acest link de partajare a expirat.",
+    "notFound": "Link de partajare negasit sau a fost revocat.",
+    "errorTitle": "Nu se Poate Accesa Raportul",
+    "viewReport": "Vezi Raportul",
+    "enterPassword": "Acest raport este protejat cu parola. Introdu parola pentru a vizualiza.",
+    "poweredBy": "Oferit de",
+    "shareWithDoctor": "Partajeaza cu Medicul",
+    "myLinks": "Link-urile Mele",
+    "revoke": "Revoca",
+    "views": "vizualizari",
+    "noLinks": "Niciun link de partajare inca"
   }
 }
