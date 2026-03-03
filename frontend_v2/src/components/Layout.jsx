@@ -98,6 +98,13 @@ const Layout = ({ children }) => {
 
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
+            {/* Skip Navigation Link */}
+            <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg"
+            >
+                {t('nav.skipToContent') || 'Skip to main content'}
+            </a>
             {/* Modern Sidebar */}
             <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col hidden md:flex h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
                 <div className="p-6 pb-2">
@@ -199,21 +206,6 @@ const Layout = ({ children }) => {
                         <span className="font-bold text-slate-800 dark:text-slate-100">Analize.online</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <button
-                            onClick={toggleTheme}
-                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
-                            aria-label={theme === 'dark' ? t('theme.light') : t('theme.dark')}
-                        >
-                            {theme === 'dark' ? <Sun size={18} className="text-amber-400" aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
-                        </button>
-                        <button
-                            onClick={toggleLanguage}
-                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors"
-                            aria-label={t('settings.language') || 'Change language'}
-                        >
-                            <Globe size={18} aria-hidden="true" />
-                            <span className="text-xs font-medium ml-1">{i18n.language.toUpperCase()}</span>
-                        </button>
                         <button onClick={handleLogout} className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors" aria-label={t('nav.logout')}>
                             <LogOut size={18} aria-hidden="true" />
                         </button>
@@ -321,7 +313,7 @@ const Layout = ({ children }) => {
                     </div>
                 )}
 
-                <div className="max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div id="main-content" className="max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Email Verification Banner */}
                     {showVerificationBanner && (
                         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">

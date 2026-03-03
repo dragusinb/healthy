@@ -135,7 +135,7 @@ export default function Billing() {
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">{t('billing.title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">{t('billing.title')}</h1>
           <p className="text-slate-600">{t('billing.subtitle')}</p>
         </div>
       </div>

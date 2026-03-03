@@ -116,7 +116,7 @@ const Lifestyle = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
                         <div className="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
                             <Leaf size={24} />
                         </div>

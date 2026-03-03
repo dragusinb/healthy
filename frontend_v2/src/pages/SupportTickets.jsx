@@ -171,7 +171,7 @@ export default function SupportTickets() {
                     <MessageSquare size={24} className={isAdmin && viewMode === 'all' ? 'text-amber-600' : 'text-primary-600'} />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
                         {t('tickets.title')}
                     </h1>
                     <p className="text-slate-500">{t('tickets.subtitle')}</p>

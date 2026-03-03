@@ -245,13 +245,13 @@ const Profile = () => {
     return (
         <div className="max-w-3xl mx-auto">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-3 bg-primary-100 rounded-xl">
+                    <div className="p-3 bg-primary-100 rounded-xl shrink-0">
                         <User size={24} className="text-primary-600" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-800">{t('profile.title') || 'Your Profile'}</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold text-slate-800">{t('profile.title') || 'Your Profile'}</h1>
                         <p className="text-slate-500 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
                     </div>
                 </div>
@@ -274,7 +274,7 @@ const Profile = () => {
                         onClick={handleScanFromDocuments}
                         disabled={scanning}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all min-w-[200px]",
+                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all min-w-0 sm:min-w-[200px]",
                             scanning
                                 ? "bg-violet-100 text-violet-600 cursor-wait"
                                 : "bg-violet-100 text-violet-700 hover:bg-violet-200"
@@ -282,7 +282,7 @@ const Profile = () => {
                         title={t('profile.scanTooltip') || 'Scan your medical documents to auto-fill profile data'}
                     >
                         {scanning ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                        <span className={scanning ? "animate-pulse" : ""}>
+                        <span className={cn("truncate", scanning && "animate-pulse")}>
                             {scanning ? scanStages[scanStage] : (t('profile.scanFromDocs') || 'Scan from Documents')}
                         </span>
                     </button>

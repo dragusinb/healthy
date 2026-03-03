@@ -177,7 +177,7 @@ const Evolution = () => {
                 <button onClick={() => navigate(-1)} className="mb-4 text-blue-600 hover:underline flex items-center justify-center gap-2">
                     <ArrowLeft size={16} /> {t('common.back')}
                 </button>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">{name}</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">{name}</h2>
                 <p className="text-gray-500">{t('evolution.noHistory')}</p>
             </div>
         );
@@ -194,7 +194,7 @@ const Evolution = () => {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+                    <h2 className="text-xl sm:text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
                         <div className="p-2 bg-blue-100 text-blue-600 rounded-xl">
                             <Activity size={24} />
                         </div>

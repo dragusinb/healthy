@@ -233,7 +233,7 @@ export default function Settings() {
       <div className="flex items-center gap-3 mb-6">
         <Bell className="w-8 h-8 text-cyan-500" />
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">{t('notifications.preferences')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('notifications.preferences')}</h1>
           <p className="text-gray-600">{t('notifications.preferencesDesc')}</p>
         </div>
       </div>

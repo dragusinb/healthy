@@ -128,7 +128,7 @@ const Screenings = () => {
                         <ArrowLeft size={20} className="text-slate-500" />
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <h1 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
                             <div className="p-2 bg-violet-100 text-violet-600 rounded-xl">
                                 <ClipboardList size={24} />
                             </div>

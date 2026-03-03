@@ -21,9 +21,13 @@ i18n
     }
   });
 
-// Save language preference when changed
+// Save language preference and update HTML lang attribute when changed
 i18n.on('languageChanged', (lng) => {
   localStorage.setItem('language', lng);
+  document.documentElement.lang = lng;
 });
+
+// Set initial HTML lang attribute
+document.documentElement.lang = savedLanguage;
 
 export default i18n;
