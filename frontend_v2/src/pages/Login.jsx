@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe, CheckSquare, Square, Key, Copy, CheckCircle, AlertTriangle, X, Shield, Unlock } from 'lucide-react';
 import api from '../api/client';
 
@@ -516,7 +516,8 @@ const Login = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [isRegisterMode, setIsRegisterMode] = useState(false);
+    const [searchParams] = useSearchParams();
+    const [isRegisterMode, setIsRegisterMode] = useState(searchParams.get('mode') === 'register');
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const { login, register, loginWithGoogle, pendingGoogleSetup, clearPendingSetup } = useAuth();
     const navigate = useNavigate();

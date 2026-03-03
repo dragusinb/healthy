@@ -43,9 +43,15 @@ export default function Home() {
             </Link>
             <Link
               to="/login"
+              className="text-slate-600 hover:text-slate-800 font-medium hidden sm:block"
+            >
+              {isRomanian ? 'Autentificare' : 'Login'}
+            </Link>
+            <Link
+              to="/login?mode=register"
               className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md shadow-cyan-500/20"
             >
-              {isRomanian ? 'Începe Gratuit' : 'Start Free'}
+              {isRomanian ? 'Înregistrare' : 'Sign Up'}
             </Link>
           </div>
         </div>
