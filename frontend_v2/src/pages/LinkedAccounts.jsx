@@ -261,7 +261,16 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                                     {syncing ? t('linkedAccounts.syncing') : t('linkedAccounts.syncNow')}
                                 </button>
                                 {syncing && getStatusDisplay()}
-                                {!syncing && <p className="text-xs text-center text-slate-400 mt-2">{t('linkedAccounts.clickToSync')}</p>}
+                                {!syncing && (
+                                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 mt-2">
+                                        <Clock size={12} />
+                                        {account?.last_sync ? (
+                                            <span>{t('linkedAccounts.lastSync')}: {new Date(account.last_sync).toLocaleString()}</span>
+                                        ) : (
+                                            <span>{t('linkedAccounts.clickToSync')}</span>
+                                        )}
+                                    </div>
+                                )}
                             </>
                         ) : (
                             <form onSubmit={(e) => { e.preventDefault(); onLink(name, creds); setIsEditing(false); }} className="space-y-4 animate-in slide-in-from-top-2">
@@ -314,7 +323,7 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                         {!showForm ? (
                             <button
                                 onClick={() => setShowForm(true)}
-                                className="w-full py-2.5 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                                className="w-full py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-all shadow-md shadow-primary-500/20 active:scale-95 flex items-center justify-center gap-2"
                             >
                                 <LinkIcon size={18} />
                                 {t('linkedAccounts.connectAccount')}

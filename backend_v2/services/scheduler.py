@@ -218,7 +218,11 @@ def should_sync(account, now):
     if not account.last_sync:
         return True  # Never synced, should sync
 
-    time_since_sync = now - account.last_sync
+    # Ensure last_sync is timezone-aware for comparison with now (UTC)
+    last_sync = account.last_sync
+    if last_sync.tzinfo is None:
+        last_sync = last_sync.replace(tzinfo=timezone.utc)
+    time_since_sync = now - last_sync
 
     if account.sync_frequency == "daily":
         return time_since_sync > timedelta(hours=23)

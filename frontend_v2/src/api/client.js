@@ -9,7 +9,7 @@ export const VAULT_LOCKED_EVENT = 'vault-locked';
 
 // Request interceptor - add auth token
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,8 +24,7 @@ api.interceptors.response.use(
         // Do NOT logout on 403 (Forbidden = authenticated but not authorized for this resource)
         if (error.response?.status === 401) {
             // Clear invalid token and redirect to login
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
             // Only redirect if not already on login page
             if (!window.location.pathname.includes('/login')) {
                 window.location.href = '/login';

@@ -269,68 +269,78 @@ export default function Settings() {
 
         <div className="divide-y divide-gray-100">
           {/* New Documents */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800">{t('notifications.newDocuments')}</p>
               <p className="text-sm text-gray-500">{t('notifications.newDocumentsDesc')}</p>
             </div>
-            <Toggle
-              checked={preferences?.email_new_documents}
-              onChange={(v) => updatePreference('email_new_documents', v)}
-              disabled={saving}
-            />
+            <div className="flex-shrink-0">
+              <Toggle
+                checked={preferences?.email_new_documents}
+                onChange={(v) => updatePreference('email_new_documents', v)}
+                disabled={saving}
+              />
+            </div>
           </div>
 
           {/* Abnormal Biomarkers */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800">{t('notifications.abnormalBiomarkers')}</p>
               <p className="text-sm text-gray-500">{t('notifications.abnormalBiomarkersDesc')}</p>
             </div>
-            <Toggle
-              checked={preferences?.email_abnormal_biomarkers}
-              onChange={(v) => updatePreference('email_abnormal_biomarkers', v)}
-              disabled={saving}
-            />
+            <div className="flex-shrink-0">
+              <Toggle
+                checked={preferences?.email_abnormal_biomarkers}
+                onChange={(v) => updatePreference('email_abnormal_biomarkers', v)}
+                disabled={saving}
+              />
+            </div>
           </div>
 
           {/* Analysis Complete */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800">{t('notifications.analysisComplete')}</p>
               <p className="text-sm text-gray-500">{t('notifications.analysisCompleteDesc')}</p>
             </div>
-            <Toggle
-              checked={preferences?.email_analysis_complete}
-              onChange={(v) => updatePreference('email_analysis_complete', v)}
-              disabled={saving}
-            />
+            <div className="flex-shrink-0">
+              <Toggle
+                checked={preferences?.email_analysis_complete}
+                onChange={(v) => updatePreference('email_analysis_complete', v)}
+                disabled={saving}
+              />
+            </div>
           </div>
 
           {/* Sync Failed */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800">{t('notifications.syncFailed')}</p>
               <p className="text-sm text-gray-500">{t('notifications.syncFailedDesc')}</p>
             </div>
-            <Toggle
-              checked={preferences?.email_sync_failed}
-              onChange={(v) => updatePreference('email_sync_failed', v)}
-              disabled={saving}
-            />
+            <div className="flex-shrink-0">
+              <Toggle
+                checked={preferences?.email_sync_failed}
+                onChange={(v) => updatePreference('email_sync_failed', v)}
+                disabled={saving}
+              />
+            </div>
           </div>
 
           {/* Reminders */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800">{t('notifications.reminders')}</p>
               <p className="text-sm text-gray-500">{t('notifications.remindersDesc')}</p>
             </div>
-            <Toggle
-              checked={preferences?.email_reminders}
-              onChange={(v) => updatePreference('email_reminders', v)}
-              disabled={saving}
-            />
+            <div className="flex-shrink-0">
+              <Toggle
+                checked={preferences?.email_reminders}
+                onChange={(v) => updatePreference('email_reminders', v)}
+                disabled={saving}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -511,7 +521,7 @@ export default function Settings() {
         </div>
 
         <div className="px-6 py-4">
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             {['immediate', 'daily', 'weekly'].map((freq) => (
               <button
                 key={freq}
@@ -583,8 +593,8 @@ export default function Settings() {
 
         <div className="divide-y divide-gray-100">
           {/* Export Data */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800">{t('settings.exportData') || 'Export My Data'}</p>
               <p className="text-sm text-gray-500">{t('settings.exportDataDesc') || 'Download all your personal data as JSON'}</p>
             </div>
@@ -599,8 +609,8 @@ export default function Settings() {
           </div>
 
           {/* Delete Account */}
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div>
+          <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
               <p className="font-medium text-rose-600">{t('settings.deleteAccount') || 'Delete Account'}</p>
               <p className="text-sm text-gray-500">{t('settings.deleteAccountDesc') || 'Permanently delete your account and all data'}</p>
             </div>

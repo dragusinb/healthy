@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         // Listen for vault locked events from API client
         const handleVaultLocked = () => {
             // Only trigger if user is logged in
-            if (localStorage.getItem('token')) {
+            if (sessionStorage.getItem('token')) {
                 setVaultLocked(true);
             }
         };
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const checkUser = async () => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (token) {
             try {
                 const res = await api.get('/users/me');
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
                     is_admin: res.data.is_admin || false
                 });
             } catch (e) {
-                localStorage.removeItem('token');
+                sessionStorage.removeItem('token');
                 setUser(null);
             }
         }
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         formData.append('password', password);
 
         const res = await api.post('/auth/token', formData);
-        localStorage.setItem('token', res.data.access_token);
+        sessionStorage.setItem('token', res.data.access_token);
         await checkUser();
         // Return response data so caller can check for recovery_key (legacy user migration)
         return res.data;
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
             terms_version: '1.0',
             privacy_version: '1.0'
         });
-        localStorage.setItem('token', res.data.access_token);
+        sessionStorage.setItem('token', res.data.access_token);
         await checkUser();
         // Return the response so caller can access recovery_key
         return res.data;
@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }) => {
                             const res = await api.post('/auth/google', {
                                 access_token: response.access_token
                             });
-                            localStorage.setItem('token', res.data.access_token);
+                            sessionStorage.setItem('token', res.data.access_token);
 
                             // Check if user needs to complete setup or unlock data
                             if (res.data.needs_password_setup) {
@@ -185,7 +185,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         setUser(null);
     };
 

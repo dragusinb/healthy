@@ -22,7 +22,7 @@ const VaultUnlock = () => {
         setCheckingStatus(true);
         try {
             // Check if user is logged in
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             setIsLoggedIn(!!token);
 
             const res = await api.get('/admin/vault/status');
@@ -105,7 +105,7 @@ const VaultUnlock = () => {
                             </Link>
                             <button
                                 onClick={() => {
-                                    localStorage.removeItem('token');
+                                    sessionStorage.removeItem('token');
                                     navigate('/login');
                                 }}
                                 className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-slate-700 text-slate-200 font-semibold rounded-xl hover:bg-slate-600 transition-all"

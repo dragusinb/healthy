@@ -115,7 +115,7 @@ const Layout = ({ children }) => {
                         <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></h1>
                     </div>
 
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">Menu</div>
+                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-2">Menu</div>
                     <nav className="space-y-0.5">
                         <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} />
                         <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} />
@@ -126,7 +126,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} />
                         <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
                         <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-700"></div>
-                        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
+                        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
                         <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} />
@@ -239,7 +239,7 @@ const Layout = ({ children }) => {
                                     </button>
                                 </div>
 
-                                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">Menu</div>
+                                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-2">Menu</div>
                                 <nav className="space-y-1.5">
                                     <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} onClick={closeMobileMenu} />
@@ -250,7 +250,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} onClick={closeMobileMenu} />
                                     <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-700"></div>
-                                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
+                                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} onClick={closeMobileMenu} />
@@ -313,7 +313,7 @@ const Layout = ({ children }) => {
                     </div>
                 )}
 
-                <div id="main-content" className="max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Email Verification Banner */}
                     {showVerificationBanner && (
                         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">

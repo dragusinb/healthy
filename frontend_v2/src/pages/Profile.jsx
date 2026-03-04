@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import {
-    User, Loader2, CheckCircle, AlertCircle,
+    User, Loader2, CheckCircle, AlertCircle, Save,
     Calendar, Ruler, Scale, Droplets, Heart, Pill,
     Activity, Wine, Cigarette, AlertTriangle, Sparkles, Users
 } from 'lucide-react';
@@ -256,20 +256,26 @@ const Profile = () => {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    {/* Auto-save status */}
-                    <div className="flex items-center gap-1.5 text-sm">
+                    {/* Save button */}
+                    <button
+                        onClick={autoSave}
+                        disabled={saving}
+                        className={cn(
+                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                            saved
+                                ? "bg-teal-100 text-teal-700"
+                                : "bg-primary-600 text-white hover:bg-primary-700 shadow-sm"
+                        )}
+                    >
                         {saving ? (
-                            <>
-                                <Loader2 size={14} className="animate-spin text-slate-400" />
-                                <span className="text-slate-500">{t('profile.saving') || 'Saving...'}</span>
-                            </>
+                            <Loader2 size={16} className="animate-spin" />
                         ) : saved ? (
-                            <>
-                                <CheckCircle size={14} className="text-teal-500" />
-                                <span className="text-teal-600">{t('profile.saved') || 'Saved'}</span>
-                            </>
-                        ) : null}
-                    </div>
+                            <CheckCircle size={16} />
+                        ) : (
+                            <Save size={16} />
+                        )}
+                        {saving ? (t('profile.saving') || 'Saving...') : saved ? (t('profile.saved') || 'Saved') : (t('common.save') || 'Save')}
+                    </button>
                     <button
                         onClick={handleScanFromDocuments}
                         disabled={scanning}

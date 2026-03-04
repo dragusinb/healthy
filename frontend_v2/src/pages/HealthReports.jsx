@@ -36,7 +36,7 @@ const RISK_COLORS = {
 
 const openPdf = async (documentId) => {
     try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         const response = await fetch(`${baseUrl}/documents/${documentId}/download`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -232,7 +232,7 @@ const HealthReports = () => {
                             <button
                                 onClick={async () => {
                                     try {
-                                        const token = localStorage.getItem('token');
+                                        const token = sessionStorage.getItem('token');
                                         const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
                                         const res = await fetch(`${baseUrl}/health/export-pdf`, {
                                             headers: { Authorization: `Bearer ${token}` }

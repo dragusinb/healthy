@@ -88,7 +88,7 @@ const openPdf = async (documentId, e, errorMessage, vaultLockedMessage, onError)
         e.stopPropagation();
     }
     try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
         const response = await fetch(`${baseUrl}/documents/${documentId}/download`, {
             headers: { Authorization: `Bearer ${token}` }
