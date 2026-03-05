@@ -9,7 +9,7 @@ python-dotenv
 pdfplumber
 openai
 pandas
-playwright
+playwright==1.56.0  # 1.57+ breaks Frame.fill/type methods
 requests
 pypdf
 httpx
