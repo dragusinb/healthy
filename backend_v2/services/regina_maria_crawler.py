@@ -379,6 +379,12 @@ class ReginaMariaCrawler(BaseCrawler):
             if wait_for_spa:
                 page.wait_for_timeout(2000)
 
+            # Check URL first - certain URLs definitively mean we're authenticated
+            url = page.url.lower()
+            if "pacient/dashboard" in url or "pacient/rezultate" in url or "pacient/programari" in url:
+                self.log(f"Authenticated: URL confirms login ({page.url})")
+                return True
+
             content = page.content()
 
             # Check for login page elements (means NOT authenticated)
@@ -414,7 +420,6 @@ class ReginaMariaCrawler(BaseCrawler):
                     return True
 
             # Also check URL patterns that indicate authenticated state
-            url = page.url.lower()
             if any(x in url for x in ["pacient", "dashboard", "contulmeu"]) and "login" not in url and "autentificare" not in url:
                 # Check for user menu or profile indicators via selectors
                 try:
