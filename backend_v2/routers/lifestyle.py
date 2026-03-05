@@ -18,7 +18,7 @@ try:
         get_user_biomarkers, get_user_profile,
         get_report_content, save_report_content
     )
-    from backend_v2.services.health_agents import LifestyleAnalysisService
+    from backend_v2.services.health_agents import LifestyleAnalysisService, NutritionAgent, format_profile_context
     from backend_v2.services.vault_helper import get_vault_helper
     from backend_v2.services.subscription_service import SubscriptionService
     from backend_v2.services.audit_service import AuditService
@@ -30,7 +30,7 @@ except ImportError:
         get_user_biomarkers, get_user_profile,
         get_report_content, save_report_content
     )
-    from services.health_agents import LifestyleAnalysisService
+    from services.health_agents import LifestyleAnalysisService, NutritionAgent, format_profile_context
     from services.vault_helper import get_vault_helper
     from services.subscription_service import SubscriptionService
     from services.audit_service import AuditService
@@ -83,6 +83,23 @@ def _get_food_pref_lists(db: Session, user_id: int) -> dict:
             elif p.preference == "disliked":
                 disliked.append(name)
     return {"liked": liked, "disliked": disliked}
+
+def _extract_previous_foods(db: Session, user_id: int, limit: int = 3) -> list:
+    """Extract all food items from the last N nutrition reports for variety."""
+    reports = db.query(HealthReport)\
+        .filter(HealthReport.user_id == user_id, HealthReport.report_type == "nutrition")\
+        .order_by(desc(HealthReport.created_at))\
+        .limit(limit).all()
+
+    foods = set()
+    for report in reports:
+        data = _get_lifestyle_report_content(report, user_id)
+        for day in data.get("meal_plan", []):
+            for meal in day.get("meals", []):
+                for item in meal.get("items", []):
+                    foods.add(item.lower())
+    return list(foods)
+
 
 router = APIRouter(prefix="/lifestyle", tags=["lifestyle"])
 
@@ -256,6 +273,104 @@ def run_lifestyle_analysis(
         "nutrition": nutrition_data,
         "exercise": exercise_data,
         "analyzed_at": analysis.get("analyzed_at")
+    }
+
+
+@router.post("/new-menu")
+def regenerate_menu(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Regenerate only the nutrition/meal plan with new, different foods."""
+    audit = AuditService(db)
+    ip_address = request.client.host if request.client else None
+    user_agent = request.headers.get("user-agent")
+
+    # Check subscription quota (counts as 1 analysis)
+    subscription_service = SubscriptionService(db)
+    can_analyze, message = subscription_service.check_can_run_analysis(current_user.id, "general")
+    if not can_analyze:
+        audit.log_action(
+            user_id=current_user.id,
+            action="new_menu",
+            resource_type="report",
+            details={"reason": "quota_exceeded"},
+            ip_address=ip_address,
+            user_agent=user_agent,
+            status="blocked"
+        )
+        raise HTTPException(status_code=403, detail=message)
+
+    biomarkers = get_user_biomarkers(db, current_user.id)
+    if not biomarkers:
+        raise HTTPException(status_code=400, detail="No biomarkers available for analysis")
+
+    user_language = current_user.language if current_user.language else "ro"
+    user_profile = get_user_profile(current_user)
+
+    # Get food preferences
+    food_prefs = _get_food_pref_lists(db, current_user.id)
+
+    # Get previously used foods for variety
+    previous_foods = _extract_previous_foods(db, current_user.id, limit=3)
+
+    previous_foods_context = ""
+    if previous_foods:
+        foods_list = "\n".join(f"- {f}" for f in previous_foods[:100])  # Cap at 100 items
+        previous_foods_context = f"PREVIOUS MEAL PLANS (DO NOT repeat these — create entirely new meals):\n{foods_list}"
+
+    try:
+        service = LifestyleAnalysisService(language=user_language, profile=user_profile, food_preferences=food_prefs)
+        profile_context = format_profile_context(user_profile) if user_profile else ""
+        food_pref_context = service._format_food_pref_context()
+
+        nutrition_agent = NutritionAgent(language=user_language)
+        nutrition_data = nutrition_agent.analyze(biomarkers, profile_context, food_pref_context, previous_foods_context)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Menu generation failed: {str(e)}")
+
+    # Save as new nutrition report
+    nutrition_report = HealthReport(
+        user_id=current_user.id,
+        report_type="nutrition",
+        title="Nutrition Recommendations",
+        risk_level="normal",
+        biomarkers_analyzed=len(biomarkers)
+    )
+    vault_helper = get_vault_helper(current_user.id)
+    if vault_helper.is_available:
+        nutrition_report.content_enc = vault_helper.encrypt_json(nutrition_data)
+    else:
+        nutrition_report.summary = json.dumps(nutrition_data)
+    db.add(nutrition_report)
+    db.commit()
+
+    # Increment AI usage counter
+    subscription_service.increment_ai_usage(current_user.id)
+
+    audit.log_action(
+        user_id=current_user.id,
+        action="new_menu",
+        resource_type="report",
+        resource_id=nutrition_report.id,
+        details={
+            "biomarkers_analyzed": len(biomarkers),
+            "previous_foods_count": len(previous_foods),
+            "nutrition_report_id": nutrition_report.id
+        },
+        ip_address=ip_address,
+        user_agent=user_agent,
+        status="success"
+    )
+
+    audit.track_usage(current_user.id, "ai_analyses_run", 1)
+    audit.track_usage(current_user.id, "reports_generated", 1)
+
+    return {
+        "status": "success",
+        "nutrition": nutrition_data,
+        "created_at": datetime.now().isoformat()
     }
 
 

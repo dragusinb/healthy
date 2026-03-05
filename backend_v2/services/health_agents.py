@@ -674,9 +674,16 @@ FOOD PREFERENCES RULE:
 If the patient has food preferences, you MUST:
 - STRICTLY AVOID all disliked foods - never include them in any meal, shopping list, or recommendation. Use suitable alternatives instead.
 - FAVOR liked foods - include them more often in the meal plan when nutritionally appropriate.
-- Do NOT mention that a food was avoided because the patient dislikes it - just use alternatives naturally."""
+- Do NOT mention that a food was avoided because the patient dislikes it - just use alternatives naturally.
 
-    def analyze(self, biomarkers: List[Dict], profile_context: str = "", food_pref_context: str = "") -> Dict[str, Any]:
+VARIETY RULE:
+If the user has previous meal plans, you MUST create a COMPLETELY DIFFERENT menu.
+- Do NOT reuse the same dishes or combinations from previous plans.
+- Use different proteins, grains, and vegetables than before.
+- Try cuisines or cooking styles not yet explored.
+- You may reuse LIKED foods but prepare them differently (different cooking method, different combination)."""
+
+    def analyze(self, biomarkers: List[Dict], profile_context: str = "", food_pref_context: str = "", previous_foods_context: str = "") -> Dict[str, Any]:
         """Generate personalized nutrition recommendations from biomarkers."""
         if not biomarkers:
             return {
@@ -706,7 +713,13 @@ Consider the patient's profile when making nutrition recommendations. BMI, activ
 
 """
 
-        user_prompt = f"""{profile_section}{food_pref_section}Based on these lab results, create a detailed 7-day meal plan with specific foods, portions, and preparation notes. Include a shopping list.
+        previous_foods_section = ""
+        if previous_foods_context:
+            previous_foods_section = f"""{previous_foods_context}
+
+"""
+
+        user_prompt = f"""{profile_section}{food_pref_section}{previous_foods_section}Based on these lab results, create a detailed 7-day meal plan with specific foods, portions, and preparation notes. Include a shopping list.
 
 {biomarker_text}
 

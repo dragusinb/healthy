@@ -820,6 +820,9 @@
     "analysisFailed": "Analysis failed. Please try again.",
     "loadFailed": "Failed to load lifestyle data.",
     "noBiomarkers": "No biomarkers available for analysis. Please upload lab results first.",
+    "newMenu": "New Menu",
+    "newMenuHint": "Generate a fresh meal plan with new foods",
+    "generatingMenu": "Creating new menu...",
     "quotaExceeded": "Monthly analysis limit reached. Upgrade your subscription for more analyses.",
     "disclaimer_label": "Disclaimer",
     "foodPref": {

@@ -872,6 +872,9 @@
     "analysisFailed": "Analiza a eșuat. Te rugăm să încerci din nou.",
     "loadFailed": "Nu am putut încărca datele de stil de viață.",
     "noBiomarkers": "Nu există biomarkeri disponibili pentru analiză. Te rugăm să încarci rezultatele analizelor mai întâi.",
+    "newMenu": "Meniu Nou",
+    "newMenuHint": "Generează un plan alimentar cu alimente noi",
+    "generatingMenu": "Se creează meniul nou...",
     "quotaExceeded": "Limita lunară de analize atinsă. Upgradează abonamentul pentru mai multe analize.",
     "disclaimer_label": "Avertisment",
     "foodPref": {

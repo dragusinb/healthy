@@ -6,7 +6,7 @@ import {
     Leaf, Apple, Dumbbell, Loader2, RefreshCw, CheckCircle,
     AlertTriangle, Shield, Droplets, Clock, Flame, Target,
     TrendingUp, ChevronRight, ChevronDown, User, UtensilsCrossed, Footprints,
-    ShoppingCart, Calendar, Play, Pause, ThumbsUp, ThumbsDown, X
+    ShoppingCart, Calendar, Play, Pause, ThumbsUp, ThumbsDown, X, Shuffle
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -27,6 +27,7 @@ const Lifestyle = () => {
     const [analysisStep, setAnalysisStep] = useState(0);
     const [error, setError] = useState(null);
     const [expandedDays, setExpandedDays] = useState({});
+    const [generatingMenu, setGeneratingMenu] = useState(false);
     const [foodPreferences, setFoodPreferences] = useState({});  // {food_name_lower: "liked"|"disliked"}
     const [savingPref, setSavingPref] = useState(null);  // food name being saved
 
@@ -195,6 +196,34 @@ const Lifestyle = () => {
             }
         } finally {
             setAnalyzing(false);
+        }
+    };
+
+    const generateNewMenu = async () => {
+        setGeneratingMenu(true);
+        setError(null);
+        try {
+            const res = await api.post('/lifestyle/new-menu');
+            if (res.data?.nutrition) {
+                setLatestData(prev => ({
+                    ...prev,
+                    nutrition: res.data.nutrition,
+                    created_at: res.data.created_at
+                }));
+                setExpandedDays(prev => ({ ...prev, 'meal-0': true }));
+            }
+        } catch (e) {
+            console.error("New menu generation failed", e);
+            const detail = e.response?.data?.detail;
+            if (detail?.includes('quota') || detail?.includes('limit')) {
+                setError(t('lifestyle.quotaExceeded'));
+            } else if (detail?.includes('biomarker') || detail?.includes('No biomarkers')) {
+                setError(t('lifestyle.noBiomarkers'));
+            } else {
+                setError(detail || t('lifestyle.analysisFailed'));
+            }
+        } finally {
+            setGeneratingMenu(false);
         }
     };
 
@@ -378,6 +407,33 @@ const Lifestyle = () => {
                                     </div>
                                 </div>
                             )}
+
+                            {/* New Menu Button */}
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={generateNewMenu}
+                                    disabled={generatingMenu || analyzing}
+                                    className={cn(
+                                        "flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all border",
+                                        generatingMenu
+                                            ? "bg-emerald-50 text-emerald-600 border-emerald-200 cursor-wait"
+                                            : "bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50 hover:border-emerald-400"
+                                    )}
+                                >
+                                    {generatingMenu ? (
+                                        <>
+                                            <Loader2 className="animate-spin" size={16} />
+                                            {t('lifestyle.generatingMenu')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Shuffle size={16} />
+                                            {t('lifestyle.newMenu')}
+                                        </>
+                                    )}
+                                </button>
+                                <span className="text-xs text-slate-400">{t('lifestyle.newMenuHint')}</span>
+                            </div>
 
                             {/* Summary */}
                             <div className="card p-6">
