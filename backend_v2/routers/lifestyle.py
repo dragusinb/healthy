@@ -5,12 +5,14 @@ Provides nutrition and exercise recommendations based on user's biomarkers.
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
+from pydantic import BaseModel
 import json
+import hashlib
 from datetime import datetime, timedelta
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.models import User, HealthReport
+    from backend_v2.models import User, HealthReport, FoodPreference
     from backend_v2.routers.documents import get_current_user
     from backend_v2.routers.health import (
         get_user_biomarkers, get_user_profile,
@@ -22,7 +24,7 @@ try:
     from backend_v2.services.audit_service import AuditService
 except ImportError:
     from database import get_db
-    from models import User, HealthReport
+    from models import User, HealthReport, FoodPreference
     from routers.documents import get_current_user
     from routers.health import (
         get_user_biomarkers, get_user_profile,
@@ -33,7 +35,121 @@ except ImportError:
     from services.subscription_service import SubscriptionService
     from services.audit_service import AuditService
 
+
+class FoodPreferenceRequest(BaseModel):
+    food_name: str
+    preference: str  # "liked" or "disliked"
+    source: str = "meal_plan"
+
+
+def _hash_food_name(name: str) -> str:
+    """Create SHA-256 hash of normalized food name for dedup lookup."""
+    return hashlib.sha256(name.strip().lower().encode("utf-8")).hexdigest()
+
+
+def _get_food_name(pref: FoodPreference, user_id: int) -> str:
+    """Decrypt food name from preference, with plaintext fallback."""
+    if pref.food_name_enc:
+        vault = get_vault_helper(user_id)
+        if vault.is_available:
+            try:
+                return vault.decrypt_data(pref.food_name_enc)
+            except Exception:
+                pass
+    return pref.food_name or ""
+
+
+def _get_user_food_preferences(db: Session, user_id: int) -> dict:
+    """Get all food preferences for a user as {food_name_lower: preference}."""
+    prefs = db.query(FoodPreference).filter(FoodPreference.user_id == user_id).all()
+    result = {}
+    for p in prefs:
+        name = _get_food_name(p, user_id)
+        if name:
+            result[name.lower()] = p.preference
+    return result
+
+
+def _get_food_pref_lists(db: Session, user_id: int) -> dict:
+    """Get food preferences grouped into liked/disliked lists."""
+    prefs = db.query(FoodPreference).filter(FoodPreference.user_id == user_id).all()
+    liked = []
+    disliked = []
+    for p in prefs:
+        name = _get_food_name(p, user_id)
+        if name:
+            if p.preference == "liked":
+                liked.append(name)
+            elif p.preference == "disliked":
+                disliked.append(name)
+    return {"liked": liked, "disliked": disliked}
+
 router = APIRouter(prefix="/lifestyle", tags=["lifestyle"])
+
+
+@router.get("/food-preferences")
+def get_food_preferences(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get all food preferences for the current user."""
+    prefs = db.query(FoodPreference).filter(FoodPreference.user_id == current_user.id).all()
+    items = []
+    for p in prefs:
+        name = _get_food_name(p, current_user.id)
+        if name:
+            items.append({
+                "food_name": name,
+                "preference": p.preference,
+                "source": p.source
+            })
+    return {"preferences": items}
+
+
+@router.post("/food-preferences")
+def set_food_preference(
+    body: FoodPreferenceRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Set/toggle a food preference. Same preference = remove (toggle off)."""
+    if body.preference not in ("liked", "disliked"):
+        raise HTTPException(status_code=400, detail="preference must be 'liked' or 'disliked'")
+
+    name_hash = _hash_food_name(body.food_name)
+
+    existing = db.query(FoodPreference).filter(
+        FoodPreference.user_id == current_user.id,
+        FoodPreference.food_name_hash == name_hash
+    ).first()
+
+    if existing:
+        if existing.preference == body.preference:
+            # Same preference clicked again → toggle off (remove)
+            db.delete(existing)
+            db.commit()
+            return {"action": "removed", "food_name": body.food_name}
+        else:
+            # Different preference → update
+            existing.preference = body.preference
+            existing.source = body.source
+            db.commit()
+            return {"action": "updated", "food_name": body.food_name, "preference": body.preference}
+    else:
+        # New preference
+        vault = get_vault_helper(current_user.id)
+        pref = FoodPreference(
+            user_id=current_user.id,
+            food_name_hash=name_hash,
+            food_name=body.food_name.strip(),
+            preference=body.preference,
+            source=body.source
+        )
+        if vault.is_available:
+            pref.food_name_enc = vault.encrypt_data(body.food_name.strip())
+        db.add(pref)
+        db.commit()
+        return {"action": "created", "food_name": body.food_name, "preference": body.preference}
 
 
 @router.post("/analyze")
@@ -69,8 +185,11 @@ def run_lifestyle_analysis(
     user_language = current_user.language if current_user.language else "ro"
     user_profile = get_user_profile(current_user)
 
+    # Get food preferences for AI context
+    food_prefs = _get_food_pref_lists(db, current_user.id)
+
     try:
-        service = LifestyleAnalysisService(language=user_language, profile=user_profile)
+        service = LifestyleAnalysisService(language=user_language, profile=user_profile, food_preferences=food_prefs)
         analysis = service.run_full_lifestyle_analysis(biomarkers)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Lifestyle analysis failed: {str(e)}")
@@ -180,10 +299,13 @@ def get_latest_lifestyle(
         .order_by(desc(HealthReport.created_at))\
         .first()
 
-    if not nutrition_report and not exercise_report:
-        return {"has_report": False}
+    # Always include food preferences
+    food_prefs = _get_user_food_preferences(db, current_user.id)
 
-    result = {"has_report": True}
+    if not nutrition_report and not exercise_report:
+        return {"has_report": False, "food_preferences": food_prefs}
+
+    result = {"has_report": True, "food_preferences": food_prefs}
 
     if nutrition_report:
         result["nutrition"] = _get_lifestyle_report_content(nutrition_report, current_user.id)

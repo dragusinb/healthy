@@ -873,7 +873,16 @@
     "loadFailed": "Nu am putut încărca datele de stil de viață.",
     "noBiomarkers": "Nu există biomarkeri disponibili pentru analiză. Te rugăm să încarci rezultatele analizelor mai întâi.",
     "quotaExceeded": "Limita lunară de analize atinsă. Upgradează abonamentul pentru mai multe analize.",
-    "disclaimer_label": "Avertisment"
+    "disclaimer_label": "Avertisment",
+    "foodPref": {
+      "like": "Imi place",
+      "dislike": "Nu imi place",
+      "yourPreferences": "Preferintele Tale Alimentare",
+      "liked": "Preferate",
+      "disliked": "Evitate",
+      "hint": "Aceste preferinte vor fi folosite la generarea urmatorului plan alimentar",
+      "noPreferences": "Nicio preferinta alimentara setata. Foloseste iconitele like/dislike de langa alimente pentru a seta preferintele."
+    }
   },
   "billing": {
     "title": "Abonament și Facturare",

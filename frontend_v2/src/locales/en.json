@@ -821,7 +821,16 @@
     "loadFailed": "Failed to load lifestyle data.",
     "noBiomarkers": "No biomarkers available for analysis. Please upload lab results first.",
     "quotaExceeded": "Monthly analysis limit reached. Upgrade your subscription for more analyses.",
-    "disclaimer_label": "Disclaimer"
+    "disclaimer_label": "Disclaimer",
+    "foodPref": {
+      "like": "I like this",
+      "dislike": "I don't like this",
+      "yourPreferences": "Your Food Preferences",
+      "liked": "Liked",
+      "disliked": "Avoided",
+      "hint": "These preferences will be used in your next meal plan",
+      "noPreferences": "No food preferences set yet. Use the thumbs up/down icons next to foods to set your preferences."
+    }
   },
   "billing": {
     "title": "Subscription & Billing",

@@ -6,7 +6,7 @@ import {
     Leaf, Apple, Dumbbell, Loader2, RefreshCw, CheckCircle,
     AlertTriangle, Shield, Droplets, Clock, Flame, Target,
     TrendingUp, ChevronRight, ChevronDown, User, UtensilsCrossed, Footprints,
-    ShoppingCart, Calendar, Play, Pause
+    ShoppingCart, Calendar, Play, Pause, ThumbsUp, ThumbsDown, X
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -27,11 +27,106 @@ const Lifestyle = () => {
     const [analysisStep, setAnalysisStep] = useState(0);
     const [error, setError] = useState(null);
     const [expandedDays, setExpandedDays] = useState({});
+    const [foodPreferences, setFoodPreferences] = useState({});  // {food_name_lower: "liked"|"disliked"}
+    const [savingPref, setSavingPref] = useState(null);  // food name being saved
 
     const getStepLabel = (key) => t(`lifestyle.analysisSteps.${key}`) || key;
 
     const toggleDay = (key) => {
         setExpandedDays(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    // Extract base food name from text like "200g steamed broccoli" → "broccoli"
+    const extractFoodName = (text) => {
+        if (!text) return text;
+        // Remove quantities (200g, 2 cups, 1 tbsp, 100ml, etc.)
+        let name = text.replace(/^\d+\s*(g|kg|ml|l|cups?|tbsp|tsp|slices?|pieces?|cloves?|bunch|handful)\b\s*/i, '');
+        // Remove cooking methods at the start
+        name = name.replace(/^(steamed|boiled|grilled|baked|fried|roasted|raw|fresh|canned|frozen|sliced|chopped|diced|minced|whole|crushed|ground|dried|smoked|cured|pickled|marinated)\s+/i, '');
+        // Remove "with ..." suffix
+        name = name.replace(/\s+with\s+.*/i, '');
+        // Remove "cu ..." suffix (Romanian)
+        name = name.replace(/\s+cu\s+.*/i, '');
+        return name.trim() || text;
+    };
+
+    const toggleFoodPref = async (foodName, preference, source = 'meal_plan') => {
+        const key = foodName.toLowerCase();
+        const prev = foodPreferences[key];
+        // Optimistic update
+        const newPrefs = { ...foodPreferences };
+        if (prev === preference) {
+            delete newPrefs[key];
+        } else {
+            newPrefs[key] = preference;
+        }
+        setFoodPreferences(newPrefs);
+        setSavingPref(key);
+        try {
+            await api.post('/lifestyle/food-preferences', { food_name: foodName, preference, source });
+        } catch (e) {
+            // Rollback on error
+            if (prev) {
+                setFoodPreferences(p => ({ ...p, [key]: prev }));
+            } else {
+                setFoodPreferences(p => { const copy = { ...p }; delete copy[key]; return copy; });
+            }
+            console.error('Failed to save food preference', e);
+        } finally {
+            setSavingPref(null);
+        }
+    };
+
+    const removeFoodPref = async (foodName) => {
+        const key = foodName.toLowerCase();
+        const prev = foodPreferences[key];
+        if (!prev) return;
+        // Optimistic remove
+        setFoodPreferences(p => { const copy = { ...p }; delete copy[key]; return copy; });
+        setSavingPref(key);
+        try {
+            // Send the same preference to toggle it off
+            await api.post('/lifestyle/food-preferences', { food_name: foodName, preference: prev, source: 'summary' });
+        } catch (e) {
+            setFoodPreferences(p => ({ ...p, [key]: prev }));
+            console.error('Failed to remove food preference', e);
+        } finally {
+            setSavingPref(null);
+        }
+    };
+
+    // Inline FoodPrefButtons component
+    const FoodPrefButtons = ({ text, source = 'meal_plan' }) => {
+        const food = extractFoodName(text);
+        const key = food.toLowerCase();
+        const pref = foodPreferences[key];
+        const isSaving = savingPref === key;
+        return (
+            <span className="inline-flex items-center gap-0.5 ml-1">
+                <button
+                    onClick={(e) => { e.stopPropagation(); toggleFoodPref(food, 'liked', source); }}
+                    disabled={isSaving}
+                    title={t('lifestyle.foodPref.like')}
+                    className={cn(
+                        "p-0.5 rounded transition-colors",
+                        pref === 'liked' ? "text-emerald-600" : "text-slate-300 hover:text-emerald-400"
+                    )}
+                >
+                    <ThumbsUp size={13} />
+                </button>
+                <button
+                    onClick={(e) => { e.stopPropagation(); toggleFoodPref(food, 'disliked', source); }}
+                    disabled={isSaving}
+                    title={t('lifestyle.foodPref.dislike')}
+                    className={cn(
+                        "p-0.5 rounded transition-colors",
+                        pref === 'disliked' ? "text-rose-500" : "text-slate-300 hover:text-rose-400"
+                    )}
+                >
+                    <ThumbsDown size={13} />
+                </button>
+            </span>
+        );
     };
 
     useEffect(() => { fetchData(); }, []);
@@ -55,6 +150,10 @@ const Lifestyle = () => {
             const res = await api.get('/lifestyle/latest');
             setLatestData(res.data);
             setError(null);
+            // Load food preferences from response
+            if (res.data?.food_preferences) {
+                setFoodPreferences(res.data.food_preferences);
+            }
             // Auto-expand first day
             if (res.data?.has_report) {
                 setExpandedDays({ 'meal-0': true, 'exercise-0': true });
@@ -244,6 +343,42 @@ const Lifestyle = () => {
                     {/* ==================== NUTRITION TAB ==================== */}
                     {activeTab === 'nutrition' && nutrition && (
                         <div className="space-y-6">
+                            {/* Food Preferences Summary */}
+                            {Object.keys(foodPreferences).length > 0 && (
+                                <div className="card p-4 border-emerald-200 bg-emerald-50/50">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                                            <ThumbsUp size={15} className="text-emerald-600" />
+                                            {t('lifestyle.foodPref.yourPreferences')}
+                                        </h3>
+                                        <span className="text-xs text-slate-400">{t('lifestyle.foodPref.hint')}</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {Object.entries(foodPreferences).map(([name, pref]) => (
+                                            <span
+                                                key={name}
+                                                className={cn(
+                                                    "inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium",
+                                                    pref === 'liked'
+                                                        ? "bg-emerald-100 border-emerald-300 text-emerald-800"
+                                                        : "bg-rose-100 border-rose-300 text-rose-800"
+                                                )}
+                                            >
+                                                {pref === 'liked' ? <ThumbsUp size={11} /> : <ThumbsDown size={11} />}
+                                                {name}
+                                                <button
+                                                    onClick={() => removeFoodPref(name)}
+                                                    className="ml-0.5 hover:opacity-70"
+                                                    title="Remove"
+                                                >
+                                                    <X size={11} />
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Summary */}
                             <div className="card p-6">
                                 <div className="flex items-center gap-3 mb-3">
@@ -337,6 +472,7 @@ const Lifestyle = () => {
                                                                             <li key={k} className="text-sm text-slate-700 flex items-start gap-1.5">
                                                                                 <CheckCircle size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                                                                                 <span>{item}</span>
+                                                                                <FoodPrefButtons text={item} source="meal_plan" />
                                                                             </li>
                                                                         ))}
                                                                     </ul>
@@ -375,6 +511,7 @@ const Lifestyle = () => {
                                                         <span key={j} className="inline-flex items-center gap-1 text-sm bg-white px-3 py-1.5 rounded-lg border border-emerald-200 text-slate-700">
                                                             <CheckCircle size={14} className="text-emerald-500 shrink-0" />
                                                             {food}
+                                                            <FoodPrefButtons text={food} source="priority_foods" />
                                                         </span>
                                                     ))}
                                                 </div>
@@ -396,8 +533,9 @@ const Lifestyle = () => {
                                                 {item.examples?.length > 0 && (
                                                     <div className="flex items-center gap-2 flex-wrap mb-2">
                                                         {item.examples.map((ex, j) => (
-                                                            <span key={j} className="text-xs bg-amber-100 px-2 py-1 rounded border border-amber-200 text-amber-800">
+                                                            <span key={j} className="inline-flex items-center gap-1 text-xs bg-amber-100 px-2 py-1 rounded border border-amber-200 text-amber-800">
                                                                 {ex}
+                                                                <FoodPrefButtons text={ex} source="foods_to_reduce" />
                                                             </span>
                                                         ))}
                                                     </div>
@@ -406,8 +544,9 @@ const Lifestyle = () => {
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="text-xs text-emerald-600 font-medium">{t('lifestyle.nutrition.alternatives')}:</span>
                                                         {item.alternatives.map((alt, j) => (
-                                                            <span key={j} className="text-xs bg-white px-2 py-1 rounded border border-emerald-200 text-emerald-700">
+                                                            <span key={j} className="inline-flex items-center gap-1 text-xs bg-white px-2 py-1 rounded border border-emerald-200 text-emerald-700">
                                                                 {alt}
+                                                                <FoodPrefButtons text={alt} source="alternatives" />
                                                             </span>
                                                         ))}
                                                     </div>
@@ -454,7 +593,8 @@ const Lifestyle = () => {
                                                     {cat.items?.map((item, j) => (
                                                         <li key={j} className="text-sm text-slate-600 flex items-start gap-1.5">
                                                             <span className="text-emerald-400 shrink-0">-</span>
-                                                            {item}
+                                                            <span>{item}</span>
+                                                            <FoodPrefButtons text={item} source="shopping_list" />
                                                         </li>
                                                     ))}
                                                 </ul>

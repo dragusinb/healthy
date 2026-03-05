@@ -668,9 +668,15 @@ CRITICAL RULES:
 - Every meal item must have specific portions in grams/ml
 - Vary meals across days - no repeating the same day twice
 - Use simple, home-cookable foods
-- Tie food choices to specific biomarker findings in the notes"""
+- Tie food choices to specific biomarker findings in the notes
 
-    def analyze(self, biomarkers: List[Dict], profile_context: str = "") -> Dict[str, Any]:
+FOOD PREFERENCES RULE:
+If the patient has food preferences, you MUST:
+- STRICTLY AVOID all disliked foods - never include them in any meal, shopping list, or recommendation. Use suitable alternatives instead.
+- FAVOR liked foods - include them more often in the meal plan when nutritionally appropriate.
+- Do NOT mention that a food was avoided because the patient dislikes it - just use alternatives naturally."""
+
+    def analyze(self, biomarkers: List[Dict], profile_context: str = "", food_pref_context: str = "") -> Dict[str, Any]:
         """Generate personalized nutrition recommendations from biomarkers."""
         if not biomarkers:
             return {
@@ -694,7 +700,13 @@ Consider the patient's profile when making nutrition recommendations. BMI, activ
 
 """
 
-        user_prompt = f"""{profile_section}Based on these lab results, create a detailed 7-day meal plan with specific foods, portions, and preparation notes. Include a shopping list.
+        food_pref_section = ""
+        if food_pref_context:
+            food_pref_section = f"""{food_pref_context}
+
+"""
+
+        user_prompt = f"""{profile_section}{food_pref_section}Based on these lab results, create a detailed 7-day meal plan with specific foods, portions, and preparation notes. Include a shopping list.
 
 {biomarker_text}
 
@@ -919,16 +931,31 @@ Every exercise must have exact parameters (sets, reps, duration, rest). Include 
 class LifestyleAnalysisService:
     """Service to run lifestyle analysis (nutrition + exercise) from biomarkers."""
 
-    def __init__(self, language: str = "en", profile: Dict[str, Any] = None):
+    def __init__(self, language: str = "en", profile: Dict[str, Any] = None, food_preferences: Dict[str, list] = None):
         self.language = language
         self.profile = profile or {}
+        self.food_preferences = food_preferences or {}
+
+    def _format_food_pref_context(self) -> str:
+        """Format food preferences into a context string for the AI prompt."""
+        liked = self.food_preferences.get("liked", [])
+        disliked = self.food_preferences.get("disliked", [])
+        if not liked and not disliked:
+            return ""
+        parts = ["Food Preferences (from the patient):"]
+        if liked:
+            parts.append(f"- LIKED foods (include when possible): {', '.join(liked)}")
+        if disliked:
+            parts.append(f"- DISLIKED foods (AVOID completely, use alternatives): {', '.join(disliked)}")
+        return "\n".join(parts)
 
     def run_full_lifestyle_analysis(self, biomarkers: List[Dict]) -> Dict[str, Any]:
         """Run both nutrition and exercise analyses sequentially."""
         profile_context = format_profile_context(self.profile)
+        food_pref_context = self._format_food_pref_context()
 
         nutrition_agent = NutritionAgent(language=self.language)
-        nutrition_result = nutrition_agent.analyze(biomarkers, profile_context)
+        nutrition_result = nutrition_agent.analyze(biomarkers, profile_context, food_pref_context)
 
         exercise_agent = ExerciseAgent(language=self.language)
         exercise_result = exercise_agent.analyze(biomarkers, profile_context)

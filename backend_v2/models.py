@@ -599,6 +599,27 @@ class MedicationLog(Base):
     )
 
 
+class FoodPreference(Base):
+    """User food preferences (liked/disliked) for AI meal plan personalization."""
+    __tablename__ = "food_preferences"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    food_name_hash = Column(String(64), nullable=False)  # SHA-256 of normalized name for dedup
+    food_name_enc = Column(LargeBinary, nullable=True)  # Vault-encrypted food name
+    food_name = Column(String, nullable=True)  # Plaintext fallback
+    preference = Column(String, nullable=False)  # "liked" or "disliked"
+    source = Column(String, default="meal_plan")  # where it was set: meal_plan, priority_foods, etc.
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+    user = relationship("User", back_populates="food_preferences")
+
+    __table_args__ = (
+        Index('ix_food_pref_user_hash', 'user_id', 'food_name_hash', unique=True),
+    )
+
+
 class SharedReport(Base):
     """Shareable health report links for sharing with doctors."""
     __tablename__ = "shared_reports"
@@ -633,3 +654,4 @@ User.push_subscriptions = relationship("PushSubscription", back_populates="user"
 User.support_tickets = relationship("SupportTicket", back_populates="reporter")
 User.medications = relationship("Medication", back_populates="user")
 User.shared_reports = relationship("SharedReport", back_populates="user")
+User.food_preferences = relationship("FoodPreference", back_populates="user", cascade="all, delete-orphan")
