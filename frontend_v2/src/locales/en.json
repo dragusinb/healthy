@@ -359,6 +359,7 @@
     },
     "connectionError": "Connection Error",
     "updateCredentials": "Update Password",
+    "backToAccounts": "Back to Accounts",
     "credentialsUpdatedSyncing": "Credentials updated, sync started automatically",
     "errors": {
       "wrongPassword": "Invalid Credentials",

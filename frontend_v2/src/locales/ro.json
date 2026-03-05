@@ -404,6 +404,7 @@
     },
     "connectionError": "Eroare Conexiune",
     "updateCredentials": "Actualizează Parola",
+    "backToAccounts": "Conturi conectate",
     "credentialsUpdatedSyncing": "Credențiale actualizate, sincronizarea a început automat",
     "errors": {
       "wrongPassword": "Credențiale Invalide",

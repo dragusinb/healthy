@@ -116,25 +116,29 @@ const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t })
                     </div>
 
                     <div className="mt-6 flex gap-3">
-                        {errorType === 'wrong_password' && (
+                        {errorType === 'wrong_password' ? (
+                            <>
+                                <button
+                                    onClick={() => { onUpdateCredentials(account); onClose(); }}
+                                    className="flex-1 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors"
+                                >
+                                    {t('linkedAccounts.updateCredentials') || 'Update Password'}
+                                </button>
+                                <button
+                                    onClick={handleAcknowledge}
+                                    className="flex-1 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                                >
+                                    {t('common.close') || 'Dismiss'}
+                                </button>
+                            </>
+                        ) : (
                             <button
-                                onClick={() => { onUpdateCredentials(account); onClose(); }}
+                                onClick={handleAcknowledge}
                                 className="flex-1 py-2.5 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors"
                             >
-                                {t('linkedAccounts.updateCredentials') || 'Update Password'}
+                                {t('linkedAccounts.backToAccounts') || 'Back to Accounts'}
                             </button>
                         )}
-                        <button
-                            onClick={handleAcknowledge}
-                            className={cn(
-                                "py-2.5 rounded-xl font-medium transition-colors",
-                                errorType === 'wrong_password'
-                                    ? "flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200"
-                                    : "flex-1 bg-primary-600 text-white hover:bg-primary-700"
-                            )}
-                        >
-                            {t('common.close') || 'Dismiss'}
-                        </button>
                     </div>
                 </div>
             </div>

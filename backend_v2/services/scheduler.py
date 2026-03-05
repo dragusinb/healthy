@@ -54,7 +54,8 @@ def classify_sync_error(error_msg: str) -> str:
     if any(phrase in error_lower for phrase in [
         "xserver", "x server", "xvfb", "display", "headed browser",
         "no display", "cannot open display", "browser launch",
-        "playwright", "chromium", "browser error", "browser crash"
+        "playwright", "chromium", "browser error", "browser crash",
+        "frame.type", "missing 1 required positional argument"
     ]):
         return "server_error"
 

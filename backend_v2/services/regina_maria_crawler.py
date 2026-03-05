@@ -87,14 +87,12 @@ class ReginaMariaCrawler(BaseCrawler):
         # Fill username
         username_input = page.locator("#input-username")
         username_input.click(timeout=5000)
-        username_input.fill("")
-        username_input.press_sequentially(credentials["username"], delay=50)
+        username_input.fill(credentials["username"])
 
         # Fill password
         password_input = page.locator("#input-password")
         password_input.click(timeout=5000)
-        password_input.fill("")
-        password_input.press_sequentially(credentials["password"], delay=50)
+        password_input.fill(credentials["password"])
 
         page.screenshot(path=f"{self.download_dir}/pre_login_filled.png")
 
