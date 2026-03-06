@@ -740,7 +740,7 @@ const Biomarkers = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200/50">
                             <button
                                 onClick={() => setFilter('all')}

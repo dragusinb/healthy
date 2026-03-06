@@ -878,13 +878,13 @@
     "quotaExceeded": "Limita lunară de analize atinsă. Upgradează abonamentul pentru mai multe analize.",
     "disclaimer_label": "Avertisment",
     "foodPref": {
-      "like": "Imi place",
-      "dislike": "Nu imi place",
-      "yourPreferences": "Preferintele Tale Alimentare",
+      "like": "Îmi place",
+      "dislike": "Nu îmi place",
+      "yourPreferences": "Preferințele Tale Alimentare",
       "liked": "Preferate",
       "disliked": "Evitate",
-      "hint": "Aceste preferinte vor fi folosite la generarea urmatorului plan alimentar",
-      "noPreferences": "Nicio preferinta alimentara setata. Foloseste iconitele like/dislike de langa alimente pentru a seta preferintele."
+      "hint": "Aceste preferințe vor fi folosite la generarea următorului plan alimentar",
+      "noPreferences": "Nicio preferință alimentară setată. Folosește iconițele like/dislike de lângă alimente pentru a seta preferințele."
     }
   },
   "billing": {

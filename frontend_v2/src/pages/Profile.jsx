@@ -255,7 +255,7 @@ const Profile = () => {
                         <p className="text-slate-500 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     {/* Save button */}
                     <button
                         onClick={autoSave}
@@ -280,14 +280,14 @@ const Profile = () => {
                         onClick={handleScanFromDocuments}
                         disabled={scanning}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all min-w-0 sm:min-w-[200px]",
+                            "flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all max-w-full",
                             scanning
                                 ? "bg-violet-100 text-violet-600 cursor-wait"
                                 : "bg-violet-100 text-violet-700 hover:bg-violet-200"
                         )}
                         title={t('profile.scanTooltip') || 'Scan your medical documents to auto-fill profile data'}
                     >
-                        {scanning ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                        {scanning ? <Loader2 size={16} className="animate-spin shrink-0" /> : <Sparkles size={16} className="shrink-0" />}
                         <span className={cn("truncate", scanning && "animate-pulse")}>
                             {scanning ? scanStages[scanStage] : (t('profile.scanFromDocs') || 'Scan from Documents')}
                         </span>

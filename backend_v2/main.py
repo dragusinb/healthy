@@ -150,7 +150,7 @@ def read_root():
 
 
 @app.get("/health")
-def health_check():
+def health_check(request: Request):
     """
     Comprehensive health check endpoint for monitoring.
 
@@ -161,6 +161,7 @@ def health_check():
     - Vault status
 
     Returns overall status: "healthy", "degraded", or "unhealthy"
+    Public requests only see status; internal requests get full details.
     """
     import psutil
     from datetime import datetime, timezone
@@ -239,12 +240,24 @@ def health_check():
     else:
         overall_status = "healthy"
 
-    return {
-        "status": overall_status,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "checks": checks,
-        "issues": issues if issues else None
-    }
+    # Only return detailed info for internal/monitoring requests (localhost)
+    is_internal = False
+    if request.client:
+        client_ip = request.client.host
+        is_internal = client_ip in ("127.0.0.1", "::1", "localhost")
+
+    if is_internal:
+        return {
+            "status": overall_status,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "checks": checks,
+            "issues": issues if issues else None
+        }
+    else:
+        return {
+            "status": overall_status,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
 
 
 @app.get("/metrics")
