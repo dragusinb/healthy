@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Cookie, X, Settings, Check } from 'lucide-react';
 
@@ -14,6 +14,7 @@ const CookieConsent = () => {
         analytics: false,
         marketing: false
     });
+    const bannerRef = useRef(null);
 
     useEffect(() => {
         // Check if user has already made a choice
@@ -34,6 +35,25 @@ const CookieConsent = () => {
             }
         }
     }, []);
+
+    // Add padding-bottom to body so content isn't hidden behind the banner
+    useEffect(() => {
+        if (showBanner && bannerRef.current) {
+            const updatePadding = () => {
+                const height = bannerRef.current?.offsetHeight || 0;
+                document.body.style.paddingBottom = `${height}px`;
+            };
+            updatePadding();
+            // Update on resize in case banner height changes
+            window.addEventListener('resize', updatePadding);
+            return () => {
+                document.body.style.paddingBottom = '';
+                window.removeEventListener('resize', updatePadding);
+            };
+        } else {
+            document.body.style.paddingBottom = '';
+        }
+    }, [showBanner]);
 
     const saveConsent = (prefs) => {
         localStorage.setItem(COOKIE_CONSENT_KEY, 'true');
@@ -77,7 +97,7 @@ const CookieConsent = () => {
 
             {/* Settings Modal */}
             {showSettings && (
-                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl z-[9999] p-6">
+                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl z-[9999] p-6 mx-4">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-slate-800">
                             {t('cookies.settings')}
@@ -156,22 +176,23 @@ const CookieConsent = () => {
             )}
 
             {/* Cookie Banner */}
-            <div className="fixed bottom-0 left-0 right-0 z-[9997] p-4 animate-in slide-in-from-bottom duration-300">
-                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 md:p-6">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+            <div ref={bannerRef} className="fixed bottom-0 left-0 right-0 z-[9997] p-3 sm:p-4 animate-in slide-in-from-bottom duration-300">
+                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-slate-200 p-3 sm:p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-4">
                         <div className="flex items-start gap-3 flex-1">
-                            <div className="p-2 bg-primary-50 rounded-lg shrink-0">
-                                <Cookie size={24} className="text-primary-600" />
+                            <div className="p-1.5 sm:p-2 bg-primary-50 rounded-lg shrink-0">
+                                <Cookie size={20} className="text-primary-600 sm:w-6 sm:h-6" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-slate-800 mb-1">
+                                <h3 className="font-semibold text-slate-800 text-sm sm:text-base mb-0.5 sm:mb-1">
                                     {t('cookies.title')}
                                 </h3>
-                                <p className="text-sm text-slate-600">
+                                <p className="text-xs sm:text-sm text-slate-600 leading-snug">
                                     {t('cookies.description')}{' '}
                                     <a
                                         href="/privacy"
                                         target="_blank"
+                                        rel="noopener noreferrer"
                                         className="text-primary-600 hover:text-primary-700 underline"
                                     >
                                         {t('cookies.learnMore')}
@@ -182,20 +203,20 @@ const CookieConsent = () => {
                         <div className="flex flex-wrap gap-2 md:shrink-0">
                             <button
                                 onClick={() => setShowSettings(true)}
-                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                             >
-                                <Settings size={16} />
+                                <Settings size={14} />
                                 {t('cookies.customize')}
                             </button>
                             <button
                                 onClick={acceptEssential}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                             >
                                 {t('cookies.essentialOnly')}
                             </button>
                             <button
                                 onClick={acceptAll}
-                                className="px-4 py-2 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg transition-colors"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg transition-colors"
                             >
                                 {t('cookies.acceptAll')}
                             </button>

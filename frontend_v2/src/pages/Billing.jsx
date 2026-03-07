@@ -127,17 +127,9 @@ export default function Billing() {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-3 sm:gap-4 mb-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <div className="min-w-0">
-          <h1 className="text-lg sm:text-2xl font-bold text-slate-800">{t('billing.title')}</h1>
-          <p className="text-sm sm:text-base text-slate-600">{t('billing.subtitle')}</p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-lg sm:text-2xl font-bold text-slate-800">{t('billing.title')}</h1>
+        <p className="text-sm sm:text-base text-slate-600">{t('billing.subtitle')}</p>
       </div>
 
       {/* Status Messages */}

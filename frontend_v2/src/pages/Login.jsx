@@ -600,7 +600,13 @@ const Login = () => {
                     }, 1500);
                 }
             } catch (err) {
-                setError(t('auth.invalidCredentials'));
+                const status = err.response?.status;
+                const detail = err.response?.data?.detail;
+                if (status === 429) {
+                    setError(detail || t('auth.tooManyAttempts'));
+                } else {
+                    setError(t('auth.invalidCredentials'));
+                }
                 setLoading(false);
             }
         }

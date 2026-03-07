@@ -442,12 +442,12 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                     expanded ? colors.bg : "hover:bg-slate-50"
                 )}
             >
-                <div className="flex items-center gap-3">
-                    <div className={cn("p-2 rounded-lg", colors.bg, colors.border, "border")}>
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className={cn("p-2 rounded-lg shrink-0", colors.bg, colors.border, "border")}>
                         <Icon size={20} className={colors.icon} />
                     </div>
-                    <div className="text-left">
-                        <h3 className="font-semibold text-slate-800">{t(category.nameKey)}</h3>
+                    <div className="text-left min-w-0">
+                        <h3 className="font-semibold text-slate-800 text-sm sm:text-base">{t(category.nameKey)}</h3>
                         <p className="text-xs text-slate-500">{visibleCount} {t('biomarkers.tests')}</p>
                     </div>
                 </div>

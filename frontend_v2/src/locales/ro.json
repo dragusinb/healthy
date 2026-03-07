@@ -73,6 +73,7 @@
     "passwordMinLength": "Minim 6 caractere",
     "passwordsNoMatch": "Parolele nu coincid",
     "invalidCredentials": "Email sau parolă invalidă",
+    "tooManyAttempts": "Prea multe încercări de autentificare. Te rugăm să încerci mai târziu.",
     "emailRegistered": "Emailul este deja înregistrat",
     "trackHealthJourney": "Toate analizele tale într-un singur loc",
     "dataSecure": "Datele tale sunt criptate și securizate",

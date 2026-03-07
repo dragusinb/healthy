@@ -70,6 +70,7 @@
     "passwordMinLength": "Must be at least 6 characters",
     "passwordsNoMatch": "Passwords do not match",
     "invalidCredentials": "Invalid email or password",
+    "tooManyAttempts": "Too many login attempts. Please try again later.",
     "emailRegistered": "Email already registered",
     "trackHealthJourney": "All your lab results in one place",
     "dataSecure": "Your health data is encrypted and secure",
