@@ -85,6 +85,7 @@ export default function ShareReportModal({ onClose, reportIds = [] }) {
                 <input
                   type="text" value={password} onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('sharing.passwordPlaceholder')}
+                  aria-label={t('sharing.passwordProtect') || 'Password'}
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm mt-2"
                 />
               )}
@@ -119,6 +120,7 @@ export default function ShareReportModal({ onClose, reportIds = [] }) {
                 type="text"
                 readOnly
                 value={`${window.location.origin}/shared/${shareData.token}`}
+                aria-label={t('sharing.shareLink') || 'Share link'}
                 className="flex-1 bg-transparent text-sm text-slate-600 outline-none"
               />
               <button onClick={handleCopy}

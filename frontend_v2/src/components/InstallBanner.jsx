@@ -69,8 +69,9 @@ export default function InstallBanner() {
       <button
         onClick={handleDismiss}
         className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors shrink-0"
+        aria-label={t('common.close') || 'Dismiss'}
       >
-        <X size={16} />
+        <X size={16} aria-hidden="true" />
       </button>
     </div>
   );

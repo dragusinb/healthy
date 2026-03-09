@@ -342,8 +342,9 @@ const Profile = () => {
                         <button
                             onClick={() => setMultiPatientWarning(null)}
                             className="p-1 hover:bg-amber-100 rounded-lg text-amber-600 transition-colors"
+                            aria-label={t('common.close') || 'Dismiss'}
                         >
-                            <AlertCircle size={16} />
+                            <AlertCircle size={16} aria-hidden="true" />
                         </button>
                     </div>
                 </div>
@@ -465,6 +466,7 @@ const Profile = () => {
                             <select
                                 value={profile.smoking_status}
                                 onChange={(e) => setProfile({ ...profile, smoking_status: e.target.value })}
+                                aria-label={t('profile.smoking') || 'Smoking'}
                                 className="input"
                             >
                                 <option value="">{t('profile.select') || 'Select...'}</option>
@@ -478,6 +480,7 @@ const Profile = () => {
                             <select
                                 value={profile.alcohol_consumption}
                                 onChange={(e) => setProfile({ ...profile, alcohol_consumption: e.target.value })}
+                                aria-label={t('profile.alcohol') || 'Alcohol'}
                                 className="input"
                             >
                                 <option value="">{t('profile.select') || 'Select...'}</option>
@@ -492,6 +495,7 @@ const Profile = () => {
                             <select
                                 value={profile.physical_activity}
                                 onChange={(e) => setProfile({ ...profile, physical_activity: e.target.value })}
+                                aria-label={t('profile.physicalActivity') || 'Physical Activity'}
                                 className="input"
                             >
                                 <option value="">{t('profile.select') || 'Select...'}</option>

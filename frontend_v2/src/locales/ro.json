@@ -29,7 +29,9 @@
     "retry": "Reîncearcă",
     "days": "zile",
     "months": "luni",
-    "years": "ani"
+    "years": "ani",
+    "expand": "Extinde",
+    "collapse": "Restrânge"
   },
   "errors": {
     "pageNotFound": "Pagina nu a fost găsită",
@@ -73,6 +75,7 @@
     "noAccount": "Nu ai cont?",
     "hasAccount": "Ai deja cont?",
     "passwordMinLength": "Minim 6 caractere",
+    "acceptTerms": "Accept termenii și condițiile",
     "passwordsNoMatch": "Parolele nu coincid",
     "invalidCredentials": "Email sau parolă invalidă",
     "tooManyAttempts": "Prea multe încercări de autentificare. Te rugăm să încerci mai târziu.",

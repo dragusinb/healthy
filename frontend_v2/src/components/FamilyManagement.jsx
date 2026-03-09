@@ -368,6 +368,7 @@ export default function FamilyManagement({ familyInfo, tier, onRefresh }) {
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value)}
           placeholder={isRomanian ? 'Introdu codul de invitație' : 'Enter invite code'}
+          aria-label={isRomanian ? 'Cod de invitație' : 'Invite code'}
           className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
         />
         <button

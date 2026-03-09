@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /pricing
+Allow: /terms
+Allow: /privacy
+
+Disallow: /dashboard
+Disallow: /documents
+Disallow: /biomarkers
+Disallow: /evolution
+Disallow: /health
+Disallow: /screenings
+Disallow: /lifestyle
+Disallow: /medications
+Disallow: /profile
+Disallow: /linked-accounts
+Disallow: /settings
+Disallow: /billing
+Disallow: /admin
+Disallow: /family
+Disallow: /support
+Disallow: /vault-unlock
+Disallow: /verify-email
+Disallow: /api/
+
+Sitemap: https://analize.online/sitemap.xml

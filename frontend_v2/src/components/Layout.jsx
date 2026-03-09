@@ -136,7 +136,7 @@ const Layout = ({ children }) => {
                         <div className="p-2 bg-primary-100 rounded-xl">
                             <HeartPulse size={24} className="text-primary-600" />
                         </div>
-                        <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></h1>
+                        <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></span>
                     </div>
 
                     <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 px-2">Menu</div>
@@ -149,7 +149,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} />
                         <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} />
                         <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
-                        <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-600"></div>
+                        <hr className="mt-4 mb-2 border-slate-200 dark:border-slate-600" />
                         <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
@@ -252,7 +252,7 @@ const Layout = ({ children }) => {
                                         <div className="p-2.5 bg-primary-100 rounded-xl">
                                             <HeartPulse size={28} className="text-primary-600" />
                                         </div>
-                                        <h1 className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></h1>
+                                        <span className="text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></span>
                                     </div>
                                     <button
                                         onClick={closeMobileMenu}
@@ -273,7 +273,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} onClick={closeMobileMenu} />
-                                    <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-600"></div>
+                                    <hr className="mt-4 mb-2 border-slate-200 dark:border-slate-600" />
                                     <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
@@ -378,8 +378,9 @@ const Layout = ({ children }) => {
                                     onClick={dismissBanner}
                                     className="min-h-11 min-w-11 flex items-center justify-center text-amber-500 hover:text-amber-700 hover:bg-amber-100 rounded-lg transition-colors"
                                     title={t('common.close')}
+                                    aria-label={t('common.close') || 'Close'}
                                 >
-                                    <X size={18} />
+                                    <X size={18} aria-hidden="true" />
                                 </button>
                             </div>
                         </div>

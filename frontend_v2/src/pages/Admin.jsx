@@ -900,6 +900,7 @@ const Admin = () => {
                                             <select
                                                 value={user.subscription_tier || 'free'}
                                                 onChange={(e) => handleSetSubscription(user.id, e.target.value)}
+                                                aria-label={t('admin.subscriptionTier') || 'Subscription tier'}
                                                 className="text-xs border border-slate-200 rounded px-1 py-0.5 bg-white hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-primary-500"
                                             >
                                                 <option value="free">Free</option>

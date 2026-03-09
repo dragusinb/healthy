@@ -12,7 +12,11 @@ export default function Home() {
   const navigate = useNavigate();
   const isRomanian = i18n.language === 'ro';
 
-  useEffect(() => { document.title = 'Analize.Online - Toate analizele tale medicale, într-un singur loc'; }, []);
+  useEffect(() => {
+    document.title = isRomanian
+      ? 'Analize.Online - Toate analizele tale medicale, într-un singur loc'
+      : 'Analize.Online - All your medical tests, in one place';
+  }, [isRomanian]);
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'ro' ? 'en' : 'ro');
@@ -20,6 +24,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
+      <a href="#hero" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
+        {isRomanian ? 'Sari la conținut' : 'Skip to main content'}
+      </a>
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg z-50 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -60,7 +67,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 bg-gradient-to-b from-cyan-50 via-white to-white">
+      <section id="hero" className="pt-32 pb-20 px-6 bg-gradient-to-b from-cyan-50 via-white to-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>

@@ -168,8 +168,9 @@ export default function FeedbackButton() {
                             <button
                                 onClick={handleClose}
                                 className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                                aria-label={t('common.close') || 'Close'}
                             >
-                                <X size={20} />
+                                <X size={20} aria-hidden="true" />
                             </button>
                         </div>
 
@@ -235,8 +236,9 @@ export default function FeedbackButton() {
                                                 <button
                                                     onClick={removeScreenshot}
                                                     className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                                                    aria-label={t('common.delete') || 'Remove screenshot'}
                                                 >
-                                                    <X size={14} />
+                                                    <X size={14} aria-hidden="true" />
                                                 </button>
                                             </div>
                                         ) : (

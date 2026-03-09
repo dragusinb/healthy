@@ -562,8 +562,9 @@ export default function Settings() {
         <div className="px-6 py-4">
           <div className="flex items-center gap-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">{t('notifications.from')}</label>
+              <label htmlFor="quiet-hours-from" className="block text-sm text-gray-600 mb-1">{t('notifications.from')}</label>
               <select
+                id="quiet-hours-from"
                 value={preferences?.quiet_hours_start ?? ''}
                 onChange={(e) => updatePreference('quiet_hours_start', e.target.value ? parseInt(e.target.value) : null)}
                 disabled={saving}
@@ -576,8 +577,9 @@ export default function Settings() {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">{t('notifications.to')}</label>
+              <label htmlFor="quiet-hours-to" className="block text-sm text-gray-600 mb-1">{t('notifications.to')}</label>
               <select
+                id="quiet-hours-to"
                 value={preferences?.quiet_hours_end ?? ''}
                 onChange={(e) => updatePreference('quiet_hours_end', e.target.value ? parseInt(e.target.value) : null)}
                 disabled={saving}
@@ -664,15 +666,17 @@ export default function Settings() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="delete-password" className="block text-sm font-medium text-gray-700 mb-1">
                   {t('settings.enterPassword') || 'Enter your password to confirm'}
                 </label>
                 <input
+                  id="delete-password"
                   type="password"
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
                   placeholder="Password"
+                  autoComplete="current-password"
                 />
               </div>
 

@@ -318,6 +318,7 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
                                 placeholder="••••••••"
+                                autoComplete="new-password"
                                 required
                                 minLength={6}
                                 autoFocus
@@ -348,6 +349,7 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
                                 placeholder="••••••••"
+                                autoComplete="new-password"
                                 required
                             />
                         </div>
@@ -464,6 +466,7 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                                 placeholder={i18n.language === 'ro' ? 'Parola creată la înregistrare' : 'Password created at registration'}
+                                autoComplete="current-password"
                                 required
                                 autoFocus
                             />
@@ -670,6 +673,9 @@ const Login = () => {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50 pb-44 sm:pb-0">
+            <a href="#login-form" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
+                {t('nav.skipToContent') || 'Skip to main content'}
+            </a>
             {/* Login Success Modal - Vault Unlocked */}
             {loginSuccess && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" role="dialog" aria-modal="true">
@@ -811,7 +817,7 @@ const Login = () => {
                     </div>
 
                     {/* Email/Password Form */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.email')}</label>
                             <div className="relative">
@@ -823,6 +829,7 @@ const Login = () => {
                                     className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                     placeholder="you@example.com"
                                     aria-label="Email"
+                                    autoComplete="email"
                                     required
                                 />
                             </div>
@@ -838,6 +845,7 @@ const Login = () => {
                                     className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                     placeholder="••••••••"
                                     aria-label="Password"
+                                    autoComplete={isRegisterMode ? "new-password" : "current-password"}
                                     required
                                     minLength={isRegisterMode ? 6 : undefined}
                                 />
@@ -876,6 +884,7 @@ const Login = () => {
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                         placeholder="••••••••"
+                                        autoComplete="new-password"
                                         required
                                     />
                                     <button
@@ -930,8 +939,11 @@ const Login = () => {
                                     type="button"
                                     onClick={() => setAcceptedTerms(!acceptedTerms)}
                                     className={`mt-0.5 flex-shrink-0 ${acceptedTerms ? 'text-primary-600' : 'text-slate-400'}`}
+                                    role="checkbox"
+                                    aria-checked={acceptedTerms}
+                                    aria-label={t('auth.acceptTerms') || 'Accept terms and conditions'}
                                 >
-                                    {acceptedTerms ? <CheckSquare size={20} /> : <Square size={20} />}
+                                    {acceptedTerms ? <CheckSquare size={20} aria-hidden="true" /> : <Square size={20} aria-hidden="true" />}
                                 </button>
                                 <label className="text-sm text-slate-600 leading-relaxed">
                                     {i18n.language === 'ro' ? (

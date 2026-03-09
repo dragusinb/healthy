@@ -90,6 +90,8 @@ export default function SharedReport() {
             <input
               type="password" value={password} onChange={(e) => setPassword(e.target.value)}
               placeholder={t('sharing.passwordPlaceholder')}
+              aria-label={t('sharing.enterPassword') || 'Password'}
+              autoComplete="off"
               className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4"
               autoFocus
             />

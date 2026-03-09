@@ -250,15 +250,17 @@ const HealthReports = () => {
                                     }
                                 }}
                                 className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                                aria-label={t('healthReports.exportPdf') || 'Export PDF'}
                             >
-                                <Download size={20} />
+                                <Download size={20} aria-hidden="true" />
                                 <span className="hidden sm:inline">{t('healthReports.exportPdf')}</span>
                             </button>
                             <button
                                 onClick={() => setShowShareModal(true)}
                                 className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                                aria-label={t('sharing.shareWithDoctor') || 'Share with doctor'}
                             >
-                                <Share2 size={20} />
+                                <Share2 size={20} aria-hidden="true" />
                                 <span className="hidden sm:inline">{t('sharing.shareWithDoctor')}</span>
                             </button>
                         </>

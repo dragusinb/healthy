@@ -258,8 +258,9 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                                 <button
                                     onClick={() => onToggleHistory(group.canonical_name)}
                                     className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors flex-shrink-0"
+                                    aria-label={isExpanded ? t('common.collapse') || 'Collapse' : t('common.expand') || 'Expand'}
                                 >
-                                    {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                    {isExpanded ? <ChevronDown size={14} aria-hidden="true" /> : <ChevronRight size={14} aria-hidden="true" />}
                                 </button>
                             )}
                             <Link
@@ -302,8 +303,9 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                                 onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
                                 className="p-2 text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
                                 title={t('documents.viewPdf')}
+                                aria-label={t('documents.viewPdf') || 'View PDF'}
                             >
-                                <Eye size={16} />
+                                <Eye size={16} aria-hidden="true" />
                             </button>
                         )}
                         <button
@@ -356,8 +358,9 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             <button
                                 onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
                                 className="inline-flex items-center justify-center p-1 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                aria-label={t('documents.viewPdf') || 'View PDF'}
                             >
-                                <Eye size={12} />
+                                <Eye size={12} aria-hidden="true" />
                             </button>
                         )}
                     </div>
@@ -405,8 +408,9 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                                 <button
                                     onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
                                     className="p-1.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                    aria-label={t('documents.viewPdf') || 'View PDF'}
                                 >
-                                    <Eye size={14} />
+                                    <Eye size={14} aria-hidden="true" />
                                 </button>
                             )}
                             {bio.status === 'normal' ? (
@@ -697,8 +701,9 @@ const Biomarkers = () => {
                     <button
                         onClick={() => { setError(''); setPdfError(''); }}
                         className="p-1 text-red-500 hover:bg-red-100 rounded-lg"
+                        aria-label={t('common.close') || 'Close'}
                     >
-                        <X size={16} />
+                        <X size={16} aria-hidden="true" />
                     </button>
                 </div>
             )}

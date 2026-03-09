@@ -41,8 +41,9 @@ export default function UpgradePrompt({ isOpen, onClose, reason, feature }) {
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1 hover:bg-white/20 rounded-full transition-colors"
+            aria-label={t('common.close') || 'Close'}
           >
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
           <div className="flex items-center gap-3 mb-2">
             <Crown className="w-8 h-8" />
