@@ -37,7 +37,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to })
 
     if (to) {
         return (
-            <Link to={to} className={cn("group card p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards hover:ring-2 hover:ring-primary-500/20 hover:shadow-md transition-all cursor-pointer", delay)}>
+            <Link to={to} className={cn("group card p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700 fill-mode-backwards hover:ring-2 hover:ring-primary-500/20 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer", delay)}>
                 {content}
             </Link>
         );
@@ -176,7 +176,7 @@ const Dashboard = () => {
                     <div className="card p-6">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <h2 className="text-sm sm:text-lg font-bold text-slate-800 flex items-center gap-2">
                                 <span className="p-1.5 bg-primary-50 text-primary-600 rounded-lg"><Heart size={18} /></span>
                                 {t('dashboard.healthOverview') || 'Health Overview'}
                             </h2>
@@ -232,10 +232,19 @@ const Dashboard = () => {
                                                 : '-'}
                                         </span>
                                     </div>
-                                    {healthOverview.timeline?.tracking_duration && (
+                                    {healthOverview.timeline?.days_tracking != null && (
                                         <div className="flex items-center justify-between text-sm">
                                             <span className="text-slate-500">{t('dashboard.duration') || 'Duration'}</span>
-                                            <span className="font-medium text-primary-600">{healthOverview.timeline.tracking_duration}</span>
+                                            <span className="font-medium text-primary-600">
+                                                {(() => {
+                                                    const days = healthOverview.timeline.days_tracking;
+                                                    const yrs = Math.floor(days / 365);
+                                                    const mos = Math.floor((days % 365) / 30);
+                                                    if (days >= 365) return `${yrs} ${t('common.years') || 'years'}, ${mos} ${t('common.months') || 'months'}`;
+                                                    if (days >= 30) return `${Math.floor(days / 30)} ${t('common.months') || 'months'}`;
+                                                    return `${days} ${t('common.days') || 'days'}`;
+                                                })()}
+                                            </span>
                                         </div>
                                     )}
                                     <div className="flex items-center justify-between text-sm">

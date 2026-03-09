@@ -36,17 +36,20 @@ const AddMedicationForm = ({ onAdd, onCancel, t }) => {
         <input
           type="text" value={name} onChange={(e) => setName(e.target.value)}
           placeholder={t('medications.namePlaceholder')}
+          aria-label="Medication name"
           className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
           autoFocus required
         />
         <input
           type="text" value={dosage} onChange={(e) => setDosage(e.target.value)}
           placeholder={t('medications.dosagePlaceholder')}
+          aria-label="Dosage"
           className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
         <select value={frequency} onChange={(e) => setFrequency(e.target.value)}
+          aria-label="Frequency"
           className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none bg-white"
         >
           <option value="daily">{t('medications.frequencies.daily')}</option>
@@ -55,6 +58,7 @@ const AddMedicationForm = ({ onAdd, onCancel, t }) => {
           <option value="as_needed">{t('medications.frequencies.asNeeded')}</option>
         </select>
         <select value={timeOfDay} onChange={(e) => setTimeOfDay(e.target.value)}
+          aria-label="Time of day"
           className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none bg-white"
         >
           <option value="morning">{t('medications.times.morning')}</option>
@@ -66,6 +70,7 @@ const AddMedicationForm = ({ onAdd, onCancel, t }) => {
       <input
         type="text" value={notes} onChange={(e) => setNotes(e.target.value)}
         placeholder={t('medications.notesPlaceholder')}
+        aria-label="Notes"
         className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none mb-4"
       />
       <div className="flex gap-2 justify-end">
@@ -103,6 +108,7 @@ const MedicationItem = ({ med, onToggle, onDelete, onUndo, t }) => {
             ? "bg-emerald-500 border-emerald-500 text-white"
             : "border-slate-300 text-slate-300 hover:border-primary-500 hover:text-primary-500"
         )}
+        aria-label="Mark as taken"
       >
         <Check size={18} />
       </button>
@@ -128,6 +134,7 @@ const MedicationItem = ({ med, onToggle, onDelete, onUndo, t }) => {
         <button
           onClick={() => setShowActions(!showActions)}
           className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          aria-label="More actions"
         >
           <MoreVertical size={16} />
         </button>

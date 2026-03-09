@@ -27,7 +27,9 @@
     "backToDashboard": "Înapoi la Panou",
     "backToHome": "Înapoi la Acasă",
     "retry": "Reîncearcă",
-    "days": "zile"
+    "days": "zile",
+    "months": "luni",
+    "years": "ani"
   },
   "errors": {
     "pageNotFound": "Pagina nu a fost găsită",

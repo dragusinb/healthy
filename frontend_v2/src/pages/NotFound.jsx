@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Home, AlertTriangle } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 const NotFound = () => {
     const { t } = useTranslation();
+    usePageTitle('errors.pageNotFound', 'Page Not Found');
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">

@@ -3,9 +3,11 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { CheckCircle, XCircle, Loader2, Mail } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 const VerifyEmail = () => {
     const { t } = useTranslation();
+    usePageTitle('auth.verifyingEmail', 'Verify Email');
     const [searchParams] = useSearchParams();
     const [status, setStatus] = useState('verifying'); // verifying, success, error
     const [message, setMessage] = useState('');

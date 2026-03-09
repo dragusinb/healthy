@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import api from '../api/client';
+import usePageTitle from '../hooks/usePageTitle';
 
 const RISK_COLORS = {
   normal: 'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -18,6 +19,7 @@ const RISK_COLORS = {
 export default function SharedReport() {
   const { token } = useParams();
   const { t, i18n } = useTranslation();
+  usePageTitle('', 'Shared Report - Analize.Online');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

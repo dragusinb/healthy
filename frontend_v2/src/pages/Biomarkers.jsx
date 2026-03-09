@@ -738,6 +738,7 @@ const Biomarkers = () => {
                             className="pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all w-full md:w-80 shadow-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            aria-label={t('biomarkers.searchPlaceholder') || 'Search biomarkers'}
                         />
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -768,6 +769,7 @@ const Biomarkers = () => {
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                                 className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
+                                aria-label={t('biomarkers.sortBy') || 'Sort by'}
                             >
                                 <option value="issues">{t('biomarkers.issuesFirst')}</option>
                                 <option value="recent">{t('biomarkers.mostRecent')}</option>

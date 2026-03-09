@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { FileText, AlertTriangle, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function Terms() {
   const { i18n } = useTranslation();
   const { user } = useAuth();
+  usePageTitle('terms.title', 'Terms');
   const isRomanian = i18n.language === 'ro';
 
   // Last updated date

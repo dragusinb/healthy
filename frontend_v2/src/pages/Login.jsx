@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe, CheckSquare, Square, Key, Copy, CheckCircle, AlertTriangle, X, Shield, Unlock } from 'lucide-react';
 import api from '../api/client';
+import usePageTitle from '../hooks/usePageTitle';
 
 // Recovery Key Modal Component
 const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
@@ -526,6 +527,7 @@ const Login = () => {
     const [serverStatus, setServerStatus] = useState('checking'); // 'online', 'offline', 'checking'
     const [recoveryKey, setRecoveryKey] = useState(null); // For showing recovery key modal
     const [loginSuccess, setLoginSuccess] = useState(false); // For showing vault unlock success
+    usePageTitle('auth.signIn', 'Login');
 
     // Check server status on mount
     useEffect(() => {
@@ -820,6 +822,7 @@ const Login = () => {
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                     placeholder="you@example.com"
+                                    aria-label="Email"
                                     required
                                 />
                             </div>
@@ -834,6 +837,7 @@ const Login = () => {
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                     placeholder="••••••••"
+                                    aria-label="Password"
                                     required
                                     minLength={isRegisterMode ? 6 : undefined}
                                 />
@@ -933,22 +937,22 @@ const Login = () => {
                                     {i18n.language === 'ro' ? (
                                         <>
                                             Accept{' '}
-                                            <Link to="/terms" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                            <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">
                                                 Termenii și Condițiile
                                             </Link>
                                             {' '}și{' '}
-                                            <Link to="/privacy" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                            <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">
                                                 Politica de Confidențialitate
                                             </Link>
                                         </>
                                     ) : (
                                         <>
                                             I accept the{' '}
-                                            <Link to="/terms" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                            <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">
                                                 Terms and Conditions
                                             </Link>
                                             {' '}and{' '}
-                                            <Link to="/privacy" target="_blank" className="text-primary-600 hover:underline font-medium">
+                                            <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">
                                                 Privacy Policy
                                             </Link>
                                         </>
@@ -991,11 +995,11 @@ const Login = () => {
                 <div className="text-center text-sm text-slate-400 mt-6">
                     <p>{t('auth.dataSecure')}</p>
                     <div className="mt-2 space-x-3">
-                        <Link to="/terms" target="_blank" className="text-primary-600 hover:underline">
+                        <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
                             {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                         </Link>
                         <span>•</span>
-                        <Link to="/privacy" target="_blank" className="text-primary-600 hover:underline">
+                        <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
                             {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
                         </Link>
                     </div>

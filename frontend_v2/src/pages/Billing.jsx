@@ -128,7 +128,7 @@ export default function Billing() {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-lg sm:text-2xl font-bold text-slate-800">{t('billing.title')}</h1>
+        <h1 className="text-base sm:text-2xl font-bold text-slate-800">{t('billing.title')}</h1>
         <p className="text-sm sm:text-base text-slate-600">{t('billing.subtitle')}</p>
       </div>
 
@@ -254,7 +254,7 @@ export default function Billing() {
                   <p className="font-medium text-slate-800">
                     {isRomanian ? 'Specialiști AI dinamici' : 'Dynamic AI Specialists'}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 break-words">
                     {Object.keys(specialists).length > 0
                       ? Object.values(specialists).map(s => s.name).join(', ')
                       : (isRomanian ? 'Cardiolog, Endocrinolog, Hematolog și alții' : 'Cardiologist, Endocrinologist, Hematologist and more')}

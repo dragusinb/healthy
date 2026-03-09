@@ -238,6 +238,7 @@ const Documents = () => {
                             <select
                                 value={patientFilter}
                                 onChange={(e) => setPatientFilter(e.target.value)}
+                                aria-label="Filter by patient"
                                 className="px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                             >
                                 <option value="all">{t('documents.allPatients') || 'All Patients'}</option>

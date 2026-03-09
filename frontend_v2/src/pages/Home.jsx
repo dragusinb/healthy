@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,6 +11,8 @@ export default function Home() {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isRomanian = i18n.language === 'ro';
+
+  useEffect(() => { document.title = 'Analize.Online - Toate analizele tale medicale, într-un singur loc'; }, []);
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'ro' ? 'en' : 'ro');
@@ -508,10 +510,10 @@ export default function Home() {
               <span className="font-bold text-slate-800">Analize.Online</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-600">
-              <Link to="/terms" target="_blank" className="hover:text-cyan-600">
+              <Link to="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-600">
                 {isRomanian ? 'Termeni' : 'Terms'}
               </Link>
-              <Link to="/privacy" target="_blank" className="hover:text-cyan-600">
+              <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-600">
                 {isRomanian ? 'Confidențialitate' : 'Privacy'}
               </Link>
               <a href="mailto:contact@analize.online" className="hover:text-cyan-600">

@@ -46,6 +46,30 @@ const Layout = ({ children }) => {
         setMobileMenuOpen(false);
     }, [location.pathname]);
 
+    // Update document title based on current route
+    useEffect(() => {
+        const pageTitle = (() => {
+            const path = location.pathname;
+            if (path === '/') return t('nav.dashboard');
+            if (path.startsWith('/documents')) return t('nav.documents');
+            if (path.startsWith('/biomarkers')) return t('nav.biomarkers');
+            if (path.startsWith('/evolution')) return t('evolution.title');
+            if (path.startsWith('/health')) return t('nav.doctorAI');
+            if (path.startsWith('/screenings')) return t('nav.screenings');
+            if (path.startsWith('/family')) return t('nav.family');
+            if (path.startsWith('/lifestyle')) return t('lifestyle.title');
+            if (path.startsWith('/medications')) return t('medications.title');
+            if (path.startsWith('/profile')) return t('profile.title');
+            if (path.startsWith('/linked-accounts')) return t('linkedAccounts.title');
+            if (path.startsWith('/settings')) return t('notifications.preferences');
+            if (path.startsWith('/billing')) return t('billing.title');
+            if (path.startsWith('/admin')) return t('admin.title');
+            return '';
+        })();
+        const suffix = 'Analize.Online';
+        document.title = pageTitle ? `${pageTitle} - ${suffix}` : suffix;
+    }, [location.pathname, i18n.language]);
+
     const handleResendVerification = async () => {
         setVerificationState('sending');
         try {
@@ -115,7 +139,7 @@ const Layout = ({ children }) => {
                         <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Analize<span className="text-primary-500">.online</span></h1>
                     </div>
 
-                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 px-2">Menu</div>
+                    <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 px-2">Menu</div>
                     <nav className="space-y-0.5">
                         <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} />
                         <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} />
@@ -126,7 +150,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} />
                         <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
                         <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-600"></div>
-                        <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
+                        <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
                         <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} />
@@ -176,11 +200,11 @@ const Layout = ({ children }) => {
                     </div>
                     {/* Legal Links */}
                     <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-400">
-                        <a href="/terms" target="_blank" className="hover:text-primary-600 transition-colors">
+                        <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
                             {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                         </a>
                         <span>•</span>
-                        <a href="/privacy" target="_blank" className="hover:text-primary-600 transition-colors">
+                        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
                             {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
                         </a>
                     </div>
@@ -239,7 +263,7 @@ const Layout = ({ children }) => {
                                     </button>
                                 </div>
 
-                                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-2">Menu</div>
+                                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-4 px-2">Menu</div>
                                 <nav className="space-y-1.5">
                                     <SidebarItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/documents" icon={FileText} label={t('nav.documents')} onClick={closeMobileMenu} />
@@ -250,7 +274,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} onClick={closeMobileMenu} />
                                     <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-600"></div>
-                                    <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
+                                    <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} onClick={closeMobileMenu} />
@@ -300,11 +324,11 @@ const Layout = ({ children }) => {
                                 </div>
                                 {/* Legal Links */}
                                 <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-400">
-                                    <a href="/terms" target="_blank" className="hover:text-primary-600 transition-colors">
+                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
                                         {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                                     </a>
                                     <span>•</span>
-                                    <a href="/privacy" target="_blank" className="hover:text-primary-600 transition-colors">
+                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
                                         {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
                                     </a>
                                 </div>

@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Shield, Database, Lock, UserCheck, Trash2, Mail, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function Privacy() {
   const { i18n } = useTranslation();
   const { user } = useAuth();
+  usePageTitle('privacy.title', 'Privacy');
   const isRomanian = i18n.language === 'ro';
 
   const lastUpdated = '2 Februarie 2026';

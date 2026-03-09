@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 const ForgotPassword = () => {
     const { t } = useTranslation();
+    usePageTitle('auth.forgotPassword', 'Forgot Password');
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);

@@ -20,7 +20,8 @@ export default function UsageStats({ compact = false }) {
       current: usage.documents,
       limit: limits.max_documents,
       percent: usage.documents_percent,
-      color: 'cyan',
+      iconColor: 'text-cyan-500',
+      barColor: 'bg-cyan-500',
     },
     {
       icon: Link,
@@ -28,7 +29,8 @@ export default function UsageStats({ compact = false }) {
       current: usage.providers,
       limit: limits.max_providers > 100 ? '∞' : limits.max_providers,
       percent: limits.max_providers > 100 ? 0 : usage.providers_percent,
-      color: 'violet',
+      iconColor: 'text-violet-500',
+      barColor: 'bg-violet-500',
       hideBar: limits.max_providers > 100,
     },
     {
@@ -37,7 +39,8 @@ export default function UsageStats({ compact = false }) {
       current: usage.ai_analyses_this_month,
       limit: limits.ai_analyses_per_month,
       percent: usage.ai_analyses_percent,
-      color: 'amber',
+      iconColor: 'text-amber-500',
+      barColor: 'bg-amber-500',
     },
   ];
 
@@ -46,7 +49,7 @@ export default function UsageStats({ compact = false }) {
       <div className="flex gap-4 text-sm">
         {stats.map((stat, i) => (
           <div key={i} className="flex items-center gap-2">
-            <stat.icon className={`w-4 h-4 text-${stat.color}-500`} />
+            <stat.icon className={`w-4 h-4 ${stat.iconColor}`} />
             <span className="text-gray-600">
               {stat.current}/{stat.limit}
             </span>
@@ -76,7 +79,7 @@ export default function UsageStats({ compact = false }) {
           <div key={i}>
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
-                <stat.icon className={`w-4 h-4 text-${stat.color}-500`} />
+                <stat.icon className={`w-4 h-4 ${stat.iconColor}`} />
                 <span className="text-sm text-gray-600">{stat.label}</span>
               </div>
               <span className="text-sm font-medium text-gray-800">
@@ -91,7 +94,7 @@ export default function UsageStats({ compact = false }) {
                       ? 'bg-red-500'
                       : stat.percent >= 70
                         ? 'bg-amber-500'
-                        : `bg-${stat.color}-500`
+                        : stat.barColor
                   }`}
                   style={{ width: `${Math.min(100, stat.percent)}%` }}
                 />

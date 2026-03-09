@@ -405,6 +405,7 @@ const HealthReports = () => {
                                                                             onClick={() => openPdf(documentId)}
                                                                             className="p-0.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
                                                                             title="View source PDF"
+                                                                            aria-label="View source PDF"
                                                                         >
                                                                             <Eye size={12} />
                                                                         </button>
@@ -833,6 +834,7 @@ const HealthReports = () => {
                                                                     onClick={() => openPdf(documentId)}
                                                                     className="p-1 text-slate-400 hover:text-primary-600 hover:bg-white/50 rounded transition-colors"
                                                                     title="View source PDF"
+                                                                    aria-label="View source PDF"
                                                                 >
                                                                     <Eye size={14} />
                                                                 </button>
@@ -865,6 +867,7 @@ const HealthReports = () => {
                                                                                 onClick={() => openPdf(docId)}
                                                                                 className="p-0.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
                                                                                 title="View source PDF"
+                                                                                aria-label="View source PDF"
                                                                             >
                                                                                 <Eye size={12} />
                                                                             </button>

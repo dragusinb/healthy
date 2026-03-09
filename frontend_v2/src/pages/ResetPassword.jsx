@@ -3,9 +3,11 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { Lock, CheckCircle, XCircle, Loader2, Eye, EyeOff, Key, AlertTriangle } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 const ResetPassword = () => {
     const { t, i18n } = useTranslation();
+    usePageTitle('auth.resetPassword', 'Reset Password');
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [password, setPassword] = useState('');
@@ -226,6 +228,7 @@ const ResetPassword = () => {
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                aria-label="Toggle password visibility"
                             >
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>

@@ -251,7 +251,7 @@ const Profile = () => {
                         <User size={24} className="text-primary-600" />
                     </div>
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-slate-800">{t('profile.title') || 'Your Profile'}</h1>
+                        <h1 className="text-lg sm:text-2xl font-bold text-slate-800">{t('profile.title') || 'Your Profile'}</h1>
                         <p className="text-slate-500 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
                     </div>
                 </div>
@@ -532,7 +532,7 @@ const Profile = () => {
                             {profile.allergies.map((allergy, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-sm border border-rose-200">
                                     {allergy}
-                                    <button onClick={() => removeArrayItem('allergies', allergy)} className="hover:text-rose-900">×</button>
+                                    <button onClick={() => removeArrayItem('allergies', allergy)} className="hover:text-rose-900" aria-label="Remove">×</button>
                                 </span>
                             ))}
                         </div>
@@ -561,7 +561,7 @@ const Profile = () => {
                             {profile.chronic_conditions.map((condition, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-sm border border-amber-200">
                                     {condition}
-                                    <button onClick={() => removeArrayItem('chronic_conditions', condition)} className="hover:text-amber-900">×</button>
+                                    <button onClick={() => removeArrayItem('chronic_conditions', condition)} className="hover:text-amber-900" aria-label="Remove">×</button>
                                 </span>
                             ))}
                         </div>
@@ -590,7 +590,7 @@ const Profile = () => {
                             {profile.current_medications.map((med, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200">
                                     {med}
-                                    <button onClick={() => removeArrayItem('current_medications', med)} className="hover:text-blue-900">×</button>
+                                    <button onClick={() => removeArrayItem('current_medications', med)} className="hover:text-blue-900" aria-label="Remove">×</button>
                                 </span>
                             ))}
                         </div>

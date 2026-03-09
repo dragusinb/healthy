@@ -8,12 +8,14 @@ import {
 } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function Pricing() {
   const { t, i18n } = useTranslation();
   const isRomanian = i18n.language === 'ro';
   const navigate = useNavigate();
   const { user } = useAuth();
+  usePageTitle('pricing.title', 'Pricing');
   const [plans, setPlans] = useState([]);
   const [specialists, setSpecialists] = useState({});
   const [loading, setLoading] = useState(true);

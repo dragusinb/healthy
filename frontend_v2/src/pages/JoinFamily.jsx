@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Users, Check, AlertCircle, ArrowLeft, RefreshCw, UserPlus, LogIn } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function JoinFamily() {
   const { t, i18n } = useTranslation();
+  usePageTitle('family.joinFamily', 'Join Family');
   const isRomanian = i18n.language === 'ro';
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();

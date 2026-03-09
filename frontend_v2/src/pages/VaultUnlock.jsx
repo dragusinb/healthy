@@ -3,9 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Lock, Unlock, AlertTriangle, Shield, Key, LogOut, Info } from 'lucide-react';
 import api from '../api/client';
+import usePageTitle from '../hooks/usePageTitle';
 
 const VaultUnlock = () => {
     const { t } = useTranslation();
+    usePageTitle('vault.unlockVault', 'Unlock Vault');
     const navigate = useNavigate();
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');

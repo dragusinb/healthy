@@ -24,7 +24,9 @@
     "backToDashboard": "Back to Dashboard",
     "backToHome": "Back to Home",
     "retry": "Retry",
-    "days": "days"
+    "days": "days",
+    "months": "months",
+    "years": "years"
   },
   "errors": {
     "pageNotFound": "Page Not Found",

@@ -204,10 +204,13 @@ export default function Settings() {
     }
   };
 
-  const Toggle = ({ checked, onChange, disabled }) => (
+  const Toggle = ({ checked, onChange, disabled, 'aria-label': ariaLabel }) => (
     <button
       onClick={() => onChange(!checked)}
       disabled={disabled}
+      role="switch"
+      aria-checked={!!checked}
+      aria-label={ariaLabel}
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
         checked ? 'bg-cyan-500' : 'bg-gray-300'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -244,7 +247,7 @@ export default function Settings() {
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 shadow-lg animate-in slide-in-from-right">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <span className="flex-1">{error}</span>
-            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
+            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700" aria-label="Dismiss">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -279,6 +282,7 @@ export default function Settings() {
                 checked={preferences?.email_new_documents}
                 onChange={(v) => updatePreference('email_new_documents', v)}
                 disabled={saving}
+                aria-label="Toggle new documents notifications"
               />
             </div>
           </div>
@@ -294,6 +298,7 @@ export default function Settings() {
                 checked={preferences?.email_abnormal_biomarkers}
                 onChange={(v) => updatePreference('email_abnormal_biomarkers', v)}
                 disabled={saving}
+                aria-label="Toggle abnormal biomarkers notifications"
               />
             </div>
           </div>
@@ -309,6 +314,7 @@ export default function Settings() {
                 checked={preferences?.email_analysis_complete}
                 onChange={(v) => updatePreference('email_analysis_complete', v)}
                 disabled={saving}
+                aria-label="Toggle analysis complete notifications"
               />
             </div>
           </div>
@@ -324,6 +330,7 @@ export default function Settings() {
                 checked={preferences?.email_sync_failed}
                 onChange={(v) => updatePreference('email_sync_failed', v)}
                 disabled={saving}
+                aria-label="Toggle sync failed notifications"
               />
             </div>
           </div>
@@ -339,6 +346,7 @@ export default function Settings() {
                 checked={preferences?.email_reminders}
                 onChange={(v) => updatePreference('email_reminders', v)}
                 disabled={saving}
+                aria-label="Toggle reminder notifications"
               />
             </div>
           </div>
@@ -463,6 +471,7 @@ export default function Settings() {
                     checked={preferences?.push_new_documents !== false}
                     onChange={(v) => updatePreference('push_new_documents', v)}
                     disabled={saving}
+                    aria-label="Toggle push new documents notifications"
                   />
                 </div>
 
@@ -476,6 +485,7 @@ export default function Settings() {
                     checked={preferences?.push_abnormal_biomarkers !== false}
                     onChange={(v) => updatePreference('push_abnormal_biomarkers', v)}
                     disabled={saving}
+                    aria-label="Toggle push abnormal biomarkers notifications"
                   />
                 </div>
 
@@ -489,6 +499,7 @@ export default function Settings() {
                     checked={preferences?.push_analysis_complete !== false}
                     onChange={(v) => updatePreference('push_analysis_complete', v)}
                     disabled={saving}
+                    aria-label="Toggle push analysis complete notifications"
                   />
                 </div>
 
@@ -502,6 +513,7 @@ export default function Settings() {
                     checked={preferences?.push_sync_failed !== false}
                     onChange={(v) => updatePreference('push_sync_failed', v)}
                     disabled={saving}
+                    aria-label="Toggle push sync failed notifications"
                   />
                 </div>
               </>
@@ -616,7 +628,7 @@ export default function Settings() {
             </div>
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               <Trash2 className="w-4 h-4" />
               {t('settings.delete') || 'Delete'}

@@ -45,7 +45,7 @@ const ErrorModal = ({ job, onClose, t }) => {
                                 <p className="text-sm text-slate-500">{job.provider_name} - {job.user_email}</p>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg">
+                        <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg" aria-label="Close">
                             <X size={20} className="text-slate-400" />
                         </button>
                     </div>
