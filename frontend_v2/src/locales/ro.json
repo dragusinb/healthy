@@ -108,6 +108,7 @@
     "newPassword": "Parola nouă",
     "resetPassword": "Resetează parola",
     "mustAcceptTerms": "Trebuie să accepți Termenii și Condițiile și Politica de Confidențialitate",
+    "emailPlaceholder": "tu@exemplu.com",
     "verifyEmailBanner": "Te rugăm să îți verifici adresa de email",
     "verifyEmailBannerDesc": "Verifică inbox-ul pentru link-ul de verificare",
     "resendVerification": "Retrimite",
@@ -359,7 +360,8 @@
     "monthsAgo": "luni în urmă",
     "neverDone": "Niciodată făcut",
     "overdue": "Întârziat",
-    "upToDate": "La zi"
+    "upToDate": "La zi",
+    "yearsOld": "ani"
   },
   "linkedAccounts": {
     "title": "Conturi Conectate",

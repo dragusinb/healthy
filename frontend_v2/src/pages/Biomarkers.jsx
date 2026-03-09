@@ -314,6 +314,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             disabled={downloading === `biomarker:${group.canonical_name}`}
                             className="p-2 text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50"
                             title={t('biomarkers.downloadBiomarker')}
+                            aria-label={t('biomarkers.downloadBiomarker')}
                         >
                             {downloading === `biomarker:${group.canonical_name}` ? (
                                 <Loader2 size={16} className="animate-spin" />
@@ -467,6 +468,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         disabled={downloading === `category:${categoryKey}`}
                         className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
                         title={t('biomarkers.downloadCategory')}
+                        aria-label={t('biomarkers.downloadCategory')}
                     >
                         {downloading === `category:${categoryKey}` ? (
                             <Loader2 size={16} className="animate-spin" />
@@ -728,6 +730,7 @@ const Biomarkers = () => {
                         onClick={clearDocumentFilter}
                         className="p-2 text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
                         title={t('common.all')}
+                        aria-label={t('common.close') || 'Clear filter'}
                     >
                         <X size={18} />
                     </button>

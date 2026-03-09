@@ -217,12 +217,12 @@ const HealthReports = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
                         <div className="p-2 bg-primary-100 text-primary-600 rounded-xl">
                             <Brain size={24} />
                         </div>
                         {t('healthReports.title')}
-                    </h1>
+                    </h2>
                     <p className="text-slate-500 mt-1">{t('healthReports.subtitle')}</p>
                 </div>
 

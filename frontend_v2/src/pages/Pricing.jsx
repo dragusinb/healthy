@@ -359,7 +359,7 @@ export default function Pricing() {
           {/* Free Plan */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col">
             <div className="mb-6">
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Free</h3>
+              <h2 className="text-xl font-bold text-slate-800 mb-2">Free</h2>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold text-slate-800">0</span>
                 <span className="text-slate-500">RON</span>
@@ -419,7 +419,7 @@ export default function Pricing() {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <Crown className="w-5 h-5 text-amber-500" />
-                <h3 className="text-xl font-bold text-slate-800">Premium</h3>
+                <h2 className="text-xl font-bold text-slate-800">Premium</h2>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold text-slate-800">
@@ -499,7 +499,7 @@ export default function Pricing() {
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="w-5 h-5 text-purple-500" />
-                <h3 className="text-xl font-bold text-slate-800">Family</h3>
+                <h2 className="text-xl font-bold text-slate-800">Family</h2>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold text-slate-800">

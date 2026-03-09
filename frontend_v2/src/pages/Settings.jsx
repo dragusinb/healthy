@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import usePageTitle from '../hooks/usePageTitle';
-import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Smartphone, BellRing, Monitor, X } from 'lucide-react';
+import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Smartphone, BellRing, Monitor, X, Globe, Sun, Moon } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   isPushSupported,
   getPermissionStatus,
@@ -18,10 +19,11 @@ import {
 } from '../services/pushNotifications';
 
 export default function Settings() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   usePageTitle('notifications.preferences', 'Settings');
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -238,7 +240,7 @@ export default function Settings() {
       <div className="flex items-center gap-3 mb-6">
         <Bell className="w-8 h-8 text-cyan-500" />
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('notifications.preferences')}</h1>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">{t('notifications.preferences')}</h2>
           <p className="text-gray-600">{t('notifications.preferencesDesc')}</p>
         </div>
       </div>
@@ -261,6 +263,55 @@ export default function Settings() {
             <span>{t('common.success')}</span>
           </div>
         )}
+      </div>
+
+      {/* Language Selection */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden mb-6">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">
+          <div className="flex items-center gap-2">
+            <Globe className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('settings.language')}</h2>
+          </div>
+        </div>
+        <div className="px-6 py-4">
+          <div className="flex gap-3">
+            {['ro', 'en'].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => i18n.changeLanguage(lang)}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  i18n.language === lang
+                    ? 'bg-cyan-500 text-white border-cyan-500'
+                    : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-slate-600 hover:border-cyan-300'
+                }`}
+              >
+                {t(`settings.languages.${lang}`)}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Theme / Dark Mode */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden mb-6">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">
+          <div className="flex items-center gap-2">
+            {theme === 'dark' ? <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" /> : <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300" />}
+            <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('settings.theme')}</h2>
+          </div>
+        </div>
+        <div className="px-6 py-4 flex items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-gray-800 dark:text-gray-100">{t('theme.dark')}</p>
+          </div>
+          <div className="flex-shrink-0">
+            <Toggle
+              checked={theme === 'dark'}
+              onChange={toggleTheme}
+              aria-label={t('theme.toggle')}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Email Notification Toggles */}

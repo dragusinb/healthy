@@ -124,12 +124,12 @@ const Screenings = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-4">
                     <div>
-                        <h1 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <h2 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
                             <div className="p-2 bg-violet-100 text-violet-600 rounded-xl">
                                 <ClipboardList size={24} />
                             </div>
                             {t('screenings.title') || 'Recommended Screenings'}
-                        </h1>
+                        </h2>
                         <p className="text-slate-500 mt-1">
                             {t('screenings.subtitle') || 'Personalized health screening recommendations based on your profile'}
                         </p>
@@ -181,7 +181,7 @@ const Screenings = () => {
                             {profile.full_name && <span>{profile.full_name}</span>}
                             {profile.date_of_birth && (
                                 <span>
-                                    {Math.floor((new Date() - new Date(profile.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000))} years old
+                                    {Math.floor((new Date() - new Date(profile.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000))} {t('screenings.yearsOld') || t('common.years')}
                                 </span>
                             )}
                             {profile.gender && <span className="capitalize">{profile.gender}</span>}

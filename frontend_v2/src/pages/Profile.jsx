@@ -364,6 +364,7 @@ const Profile = () => {
                                 onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
                                 className="input"
                                 placeholder="John Doe"
+                                maxLength={100}
                             />
                         </ProfileField>
 
@@ -382,6 +383,7 @@ const Profile = () => {
                                 id="gender"
                                 value={profile.gender}
                                 onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
+                                aria-label={t('profile.gender') || 'Gender'}
                                 className="input"
                             >
                                 <option value="">{t('profile.selectGender') || 'Select...'}</option>
@@ -396,6 +398,7 @@ const Profile = () => {
                                 id="blood_type"
                                 value={profile.blood_type}
                                 onChange={(e) => setProfile({ ...profile, blood_type: e.target.value })}
+                                aria-label={t('profile.bloodType') || 'Blood Type'}
                                 className="input"
                             >
                                 <option value="">{t('profile.selectBloodType') || 'Select...'}</option>
@@ -463,8 +466,9 @@ const Profile = () => {
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.lifestyle') || 'Lifestyle'}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <ProfileField icon={Cigarette} label={t('profile.smoking') || 'Smoking'}>
+                        <ProfileField icon={Cigarette} label={t('profile.smoking') || 'Smoking'} htmlFor="smoking_status">
                             <select
+                                id="smoking_status"
                                 value={profile.smoking_status}
                                 onChange={(e) => setProfile({ ...profile, smoking_status: e.target.value })}
                                 aria-label={t('profile.smoking') || 'Smoking'}
@@ -477,8 +481,9 @@ const Profile = () => {
                             </select>
                         </ProfileField>
 
-                        <ProfileField icon={Wine} label={t('profile.alcohol') || 'Alcohol'}>
+                        <ProfileField icon={Wine} label={t('profile.alcohol') || 'Alcohol'} htmlFor="alcohol_consumption">
                             <select
+                                id="alcohol_consumption"
                                 value={profile.alcohol_consumption}
                                 onChange={(e) => setProfile({ ...profile, alcohol_consumption: e.target.value })}
                                 aria-label={t('profile.alcohol') || 'Alcohol'}
@@ -492,8 +497,9 @@ const Profile = () => {
                             </select>
                         </ProfileField>
 
-                        <ProfileField icon={Activity} label={t('profile.physicalActivity') || 'Physical Activity'}>
+                        <ProfileField icon={Activity} label={t('profile.physicalActivity') || 'Physical Activity'} htmlFor="physical_activity">
                             <select
+                                id="physical_activity"
                                 value={profile.physical_activity}
                                 onChange={(e) => setProfile({ ...profile, physical_activity: e.target.value })}
                                 aria-label={t('profile.physicalActivity') || 'Physical Activity'}
@@ -524,6 +530,7 @@ const Profile = () => {
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem('allergies', allergyInput, setAllergyInput))}
                                 className="input flex-1"
                                 placeholder={t('profile.allergiesPlaceholder') || 'Type and press Enter...'}
+                                maxLength={100}
                             />
                             <button
                                 type="button"
@@ -553,6 +560,7 @@ const Profile = () => {
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem('chronic_conditions', conditionInput, setConditionInput))}
                                 className="input flex-1"
                                 placeholder={t('profile.conditionsPlaceholder') || 'Type and press Enter...'}
+                                maxLength={100}
                             />
                             <button
                                 type="button"
@@ -582,6 +590,7 @@ const Profile = () => {
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem('current_medications', medicationInput, setMedicationInput))}
                                 className="input flex-1"
                                 placeholder={t('profile.medicationsPlaceholder') || 'Type and press Enter...'}
+                                maxLength={100}
                             />
                             <button
                                 type="button"

@@ -130,7 +130,7 @@ export default function Billing() {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-base sm:text-2xl font-bold text-slate-800">{t('billing.title')}</h1>
+        <h2 className="text-base sm:text-2xl font-bold text-slate-800">{t('billing.title')}</h2>
         <p className="text-sm sm:text-base text-slate-600">{t('billing.subtitle')}</p>
       </div>
 

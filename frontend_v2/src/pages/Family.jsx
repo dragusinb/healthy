@@ -12,9 +12,9 @@ export default function Family() {
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">
+        <h2 className="text-2xl font-bold text-slate-800">
           {isRomanian ? 'Familia Mea' : 'My Family'}
-        </h1>
+        </h2>
         <p className="text-slate-600">
           {isRomanian
             ? 'Vezi starea de sănătate a membrilor familiei'

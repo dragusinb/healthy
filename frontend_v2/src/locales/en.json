@@ -105,6 +105,7 @@
     "newPassword": "New password",
     "resetPassword": "Reset password",
     "mustAcceptTerms": "You must accept the Terms and Conditions and Privacy Policy",
+    "emailPlaceholder": "you@example.com",
     "verifyEmailBanner": "Please verify your email address",
     "verifyEmailBannerDesc": "Check your inbox for a verification link",
     "resendVerification": "Resend",
@@ -139,7 +140,15 @@
     "syncProviders": "Sync Providers",
     "connectMedicalAccounts": "Connect medical accounts",
     "normal": "Normal",
-    "attention": "Attention"
+    "attention": "Attention",
+    "healthOverview": "Health Overview",
+    "completeProfile": "Complete your profile",
+    "unknownPatient": "Unknown Patient",
+    "yearsOld": "years",
+    "trackingSince": "Tracking since",
+    "duration": "Duration",
+    "totalRecords": "Total records",
+    "healthStatus": "Health Status"
   },
   "documents": {
     "title": "Documents",
@@ -314,7 +323,8 @@
     "monthsAgo": "months ago",
     "neverDone": "Never done",
     "overdue": "Overdue",
-    "upToDate": "Up to date"
+    "upToDate": "Up to date",
+    "yearsOld": "years old"
   },
   "linkedAccounts": {
     "title": "Linked Accounts",

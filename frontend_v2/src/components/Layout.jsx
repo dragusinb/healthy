@@ -130,7 +130,7 @@ const Layout = ({ children }) => {
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>
             {/* Modern Sidebar */}
-            <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col hidden md:flex h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
+            <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col hidden md:flex print:hidden h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
                 <div className="p-6 pb-2">
                     <div className="flex items-center gap-3 text-primary-600 mb-6">
                         <div className="p-2 bg-primary-100 rounded-xl">
@@ -217,7 +217,7 @@ const Layout = ({ children }) => {
             {/* Main Content Area */}
             <main className="flex-1 overflow-y-auto relative scroll-smooth">
                 {/* Top Header for Mobile & Title */}
-                <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between md:hidden">
+                <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between md:hidden print:hidden">
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setMobileMenuOpen(true)}
@@ -398,7 +398,9 @@ const Layout = ({ children }) => {
             </main>
 
             {/* Feedback Button - Only show for authenticated users */}
-            <FeedbackButton />
+            <div className="print:hidden">
+                <FeedbackButton />
+            </div>
 
             {/* Vault Unlock Modal - Shows when session expired but JWT still valid */}
             <VaultUnlockModal />

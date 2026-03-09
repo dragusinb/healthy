@@ -168,7 +168,7 @@ const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
                             : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                     }`}
                 >
-                    {confirmed ? <CheckCircle size={20} /> : <Lock size={20} />}
+                    {confirmed ? <CheckCircle size={20} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
                     {i18n.language === 'ro' ? 'Am salvat cheia, continuă' : 'I saved the key, continue'}
                 </button>
             </div>
@@ -241,7 +241,7 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                 {/* Why This Matters Box */}
                 <div className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-4 mb-6">
                     <h4 className="font-bold text-teal-800 mb-3 flex items-center gap-2">
-                        <Lock size={18} />
+                        <Lock size={18} aria-hidden="true" />
                         {i18n.language === 'ro' ? 'De ce am nevoie de o parolă?' : 'Why do I need a password?'}
                     </h4>
                     <div className="space-y-3 text-sm text-teal-700">
@@ -311,7 +311,7 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                             {i18n.language === 'ro' ? 'Creează Parola' : 'Create Password'}
                         </label>
                         <div className="relative">
-                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
@@ -342,7 +342,7 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                             {i18n.language === 'ro' ? 'Confirmă Parola' : 'Confirm Password'}
                         </label>
                         <div className="relative">
-                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={confirmPassword}
@@ -459,7 +459,7 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
                             {i18n.language === 'ro' ? 'Parola de securitate' : 'Security Password'}
                         </label>
                         <div className="relative">
-                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
@@ -502,7 +502,7 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
                     </button>
 
                     <div className="text-center pt-2 border-t border-slate-100">
-                        <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 inline-flex items-center gap-1">
+                        <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700 underline inline-flex items-center gap-1">
                             <Key size={14} />
                             {i18n.language === 'ro' ? 'Am uitat parola (am nevoie de cheia de recuperare)' : 'Forgot password (need recovery key)'}
                         </Link>
@@ -523,7 +523,7 @@ const Login = () => {
     const [searchParams] = useSearchParams();
     const [isRegisterMode, setIsRegisterMode] = useState(searchParams.get('mode') === 'register');
     const [acceptedTerms, setAcceptedTerms] = useState(false);
-    const { login, register, loginWithGoogle, pendingGoogleSetup, clearPendingSetup } = useAuth();
+    const { login, register, loginWithGoogle, pendingGoogleSetup, clearPendingSetup, user } = useAuth();
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -531,6 +531,13 @@ const Login = () => {
     const [recoveryKey, setRecoveryKey] = useState(null); // For showing recovery key modal
     const [loginSuccess, setLoginSuccess] = useState(false); // For showing vault unlock success
     usePageTitle('auth.signIn', 'Login');
+
+    // Redirect authenticated users to dashboard
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [user, navigate]);
 
     // Check server status on mount
     useEffect(() => {
@@ -819,32 +826,32 @@ const Login = () => {
                     {/* Email/Password Form */}
                     <form id="login-form" onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.email')}</label>
+                            <label htmlFor="login-email" className="block text-sm font-medium text-slate-700 mb-1">{t('auth.email')}</label>
                             <div className="relative">
-                                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                                 <input
+                                    id="login-email"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
-                                    placeholder="you@example.com"
-                                    aria-label="Email"
+                                    placeholder={t('auth.emailPlaceholder') || 'you@example.com'}
                                     autoComplete="email"
                                     required
                                 />
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.password')}</label>
+                            <label htmlFor="login-password" className="block text-sm font-medium text-slate-700 mb-1">{t('auth.password')}</label>
                             <div className="relative">
-                                <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                                 <input
+                                    id="login-password"
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                                     placeholder="••••••••"
-                                    aria-label="Password"
                                     autoComplete={isRegisterMode ? "new-password" : "current-password"}
                                     required
                                     minLength={isRegisterMode ? 6 : undefined}
@@ -865,7 +872,7 @@ const Login = () => {
                                 <div className="text-right mt-1">
                                     <Link
                                         to="/forgot-password"
-                                        className="text-sm text-primary-600 hover:text-primary-700"
+                                        className="text-sm text-primary-600 hover:text-primary-700 underline"
                                     >
                                         {t('auth.forgotPassword')}
                                     </Link>
@@ -875,10 +882,11 @@ const Login = () => {
 
                         {isRegisterMode && (
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">{t('auth.confirmPassword')}</label>
+                                <label htmlFor="login-confirm-password" className="block text-sm font-medium text-slate-700 mb-1">{t('auth.confirmPassword')}</label>
                                 <div className="relative">
-                                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
                                     <input
+                                        id="login-confirm-password"
                                         type={showConfirmPassword ? "text" : "password"}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
