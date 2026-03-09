@@ -227,7 +227,7 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                                         </span>
                                     )
                                 ) : (
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                                         {t('linkedAccounts.notConnected')}
                                     </span>
                                 )}
@@ -250,7 +250,7 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                                             setCreds({ username: username, password: '' });
                                             setIsEditing(true);
                                         }}
-                                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                        className="p-1.5 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                                         title={t('linkedAccounts.editCredentials')}
                                     >
                                         <Pencil size={14} />
@@ -267,7 +267,7 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
                                 </button>
                                 {syncing && getStatusDisplay()}
                                 {!syncing && (
-                                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 mt-2">
+                                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mt-2">
                                         <Clock size={12} />
                                         {account?.last_sync ? (
                                             <span>{t('linkedAccounts.lastSync')}: {new Date(account.last_sync).toLocaleString()}</span>

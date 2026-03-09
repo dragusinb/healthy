@@ -253,10 +253,10 @@ export default function Billing() {
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
                 <Brain className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-800">
+                  <p className="font-medium text-slate-800 text-sm sm:text-base">
                     {isRomanian ? 'Specialiști AI dinamici' : 'Dynamic AI Specialists'}
                   </p>
-                  <p className="text-xs text-slate-500 break-words">
+                  <p className="text-xs text-slate-600 break-words whitespace-normal">
                     {Object.keys(specialists).length > 0
                       ? Object.values(specialists).map(s => s.name).join(', ')
                       : (isRomanian ? 'Cardiolog, Endocrinolog, Hematolog și alții' : 'Cardiologist, Endocrinologist, Hematologist and more')}
@@ -266,36 +266,36 @@ export default function Billing() {
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
                 <Stethoscope className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-800">{t('billing.benefit2Title', 'Analiza lacunelor în screening')}</p>
-                  <p className="text-xs text-slate-500">{t('billing.benefit2Desc', 'Ce analize ar trebui să faci, bazat pe profilul tău')}</p>
+                  <p className="font-medium text-slate-800 text-sm sm:text-base">{t('billing.benefit2Title', 'Analiza lacunelor în screening')}</p>
+                  <p className="text-xs text-slate-600">{t('billing.benefit2Desc', 'Ce analize ar trebui să faci, bazat pe profilul tău')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
                 <Download className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-800">{t('billing.benefit3Title', 'Export PDF')}</p>
-                  <p className="text-xs text-slate-500">{t('billing.benefit3Desc', 'Descarcă rapoartele pentru a le arăta medicului')}</p>
+                  <p className="font-medium text-slate-800 text-sm sm:text-base">{t('billing.benefit3Title', 'Export PDF')}</p>
+                  <p className="text-xs text-slate-600">{t('billing.benefit3Desc', 'Descarcă rapoartele pentru a le arăta medicului')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
                 <History className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-800">{t('billing.benefit4Title', 'Comparații istorice')}</p>
-                  <p className="text-xs text-slate-500">{t('billing.benefit4Desc', 'Compară analizele de acum cu cele din trecut')}</p>
+                  <p className="font-medium text-slate-800 text-sm sm:text-base">{t('billing.benefit4Title', 'Comparații istorice')}</p>
+                  <p className="text-xs text-slate-600">{t('billing.benefit4Desc', 'Compară analizele de acum cu cele din trecut')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
                 <Shield className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-800">{t('billing.benefit5Title', 'Conturi medicale nelimitate')}</p>
-                  <p className="text-xs text-slate-500">{t('billing.benefit5Desc', 'Conectează Regina Maria, Synevo, Medlife, etc.')}</p>
+                  <p className="font-medium text-slate-800 text-sm sm:text-base">{t('billing.benefit5Title', 'Conturi medicale nelimitate')}</p>
+                  <p className="text-xs text-slate-600">{t('billing.benefit5Desc', 'Conectează Regina Maria, Synevo, Medlife, etc.')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 bg-white/70 rounded-lg p-3">
                 <Zap className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-800">{t('billing.benefit6Title', '30 analize AI / lună')}</p>
-                  <p className="text-xs text-slate-500">{t('billing.benefit6Desc', 'De 10x mai multe decât planul gratuit')}</p>
+                  <p className="font-medium text-slate-800 text-sm sm:text-base">{t('billing.benefit6Title', '30 analize AI / lună')}</p>
+                  <p className="text-xs text-slate-600">{t('billing.benefit6Desc', 'De 10x mai multe decât planul gratuit')}</p>
                 </div>
               </div>
             </div>
@@ -311,7 +311,7 @@ export default function Billing() {
                   <span className="text-3xl font-bold text-slate-800">5</span>
                   <span className="text-slate-500">RON / lună</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-4">{t('billing.lessThanCoffee', 'Mai puțin decât o cafea')}</p>
+                <p className="text-xs text-slate-600 mb-4">{t('billing.lessThanCoffee', 'Mai puțin decât o cafea')}</p>
                 <button
                   onClick={() => handleCheckout('premium_monthly')}
                   disabled={checkoutLoading}
@@ -366,17 +366,17 @@ export default function Billing() {
               <div className="bg-white/70 rounded-lg p-3 text-center">
                 <Users className="w-6 h-6 text-purple-600 mx-auto mb-1" />
                 <p className="font-medium text-slate-800">{t('billing.upTo5', 'Până la 5 membri')}</p>
-                <p className="text-xs text-slate-500">{t('billing.familyMembers', 'Soț/soție, copii, părinți')}</p>
+                <p className="text-xs text-slate-600">{t('billing.familyMembers', 'Soț/soție, copii, părinți')}</p>
               </div>
               <div className="bg-white/70 rounded-lg p-3 text-center">
                 <Shield className="w-6 h-6 text-purple-600 mx-auto mb-1" />
                 <p className="font-medium text-slate-800">{t('billing.separateData', 'Date separate')}</p>
-                <p className="text-xs text-slate-500">{t('billing.privateAccounts', 'Fiecare cu contul său privat')}</p>
+                <p className="text-xs text-slate-600">{t('billing.privateAccounts', 'Fiecare cu contul său privat')}</p>
               </div>
               <div className="bg-white/70 rounded-lg p-3 text-center">
                 <Sparkles className="w-6 h-6 text-purple-600 mx-auto mb-1" />
                 <p className="font-medium text-slate-800">{t('billing.allPremium', 'Toate funcțiile Premium')}</p>
-                <p className="text-xs text-slate-500">{t('billing.forEachMember', 'Pentru fiecare membru')}</p>
+                <p className="text-xs text-slate-600">{t('billing.forEachMember', 'Pentru fiecare membru')}</p>
               </div>
             </div>
 
@@ -412,7 +412,7 @@ export default function Billing() {
           <CreditCard size={16} />
           <span>{t('billing.securePayment')}</span>
         </div>
-        <p className="text-xs text-slate-500 mt-2">{t('billing.paymentDisclaimer')}</p>
+        <p className="text-xs text-slate-600 mt-2">{t('billing.paymentDisclaimer')}</p>
       </div>
     </div>
   );

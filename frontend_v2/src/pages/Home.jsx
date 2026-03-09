@@ -173,10 +173,10 @@ export default function Home() {
             {isRomanian ? 'Se conectează cu furnizorii medicali din România' : 'Connects with medical providers in Romania'}
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60">
-            <span className="text-2xl font-bold text-slate-400">Regina Maria</span>
-            <span className="text-2xl font-bold text-slate-400">Synevo</span>
-            <span className="text-2xl font-bold text-slate-400">MedLife</span>
-            <span className="text-2xl font-bold text-slate-400">+alții</span>
+            <span className="text-2xl font-bold text-slate-600">Regina Maria</span>
+            <span className="text-2xl font-bold text-slate-600">Synevo</span>
+            <span className="text-2xl font-bold text-slate-600">MedLife</span>
+            <span className="text-2xl font-bold text-slate-600">+alții</span>
           </div>
         </div>
       </section>
@@ -369,7 +369,7 @@ export default function Home() {
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold mb-2">256-bit</p>
-                    <p className="text-slate-400">
+                    <p className="text-slate-300">
                       {isRomanian ? 'Criptare militară' : 'Military-grade encryption'}
                     </p>
                   </div>
@@ -398,15 +398,15 @@ export default function Home() {
               <div className="text-4xl font-bold text-slate-800 mb-6">0 <span className="text-lg font-normal text-slate-500">RON</span></div>
               <ul className="space-y-3 text-left mb-8">
                 <li className="flex items-center gap-2 text-slate-600">
-                  <CheckCircle size={16} className="text-slate-400" />
+                  <CheckCircle size={16} className="text-slate-500" />
                   <span>50 {isRomanian ? 'documente' : 'documents'}</span>
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
-                  <CheckCircle size={16} className="text-slate-400" />
+                  <CheckCircle size={16} className="text-slate-500" />
                   <span>3 {isRomanian ? 'analize AI/lună' : 'AI analyses/month'}</span>
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
-                  <CheckCircle size={16} className="text-slate-400" />
+                  <CheckCircle size={16} className="text-slate-500" />
                   <span>2 {isRomanian ? 'conturi medicale' : 'medical accounts'}</span>
                 </li>
               </ul>

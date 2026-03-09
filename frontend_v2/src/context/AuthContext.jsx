@@ -90,6 +90,10 @@ export const AuthProvider = ({ children }) => {
             terms_version: '1.0',
             privacy_version: '1.0'
         });
+        // If registration_pending, email already exists - return generic message without login
+        if (res.data.registration_pending) {
+            return res.data;
+        }
         sessionStorage.setItem('token', res.data.access_token);
         await checkUser();
         // Return the response so caller can access recovery_key

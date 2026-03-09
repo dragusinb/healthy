@@ -530,6 +530,7 @@ const Login = () => {
     const [serverStatus, setServerStatus] = useState('checking'); // 'online', 'offline', 'checking'
     const [recoveryKey, setRecoveryKey] = useState(null); // For showing recovery key modal
     const [loginSuccess, setLoginSuccess] = useState(false); // For showing vault unlock success
+    const [registrationMessage, setRegistrationMessage] = useState(''); // Generic registration message
     usePageTitle('auth.signIn', 'Login');
 
     // Redirect authenticated users to dashboard
@@ -565,6 +566,7 @@ const Login = () => {
 
         setLoading(true);
         setError('');
+        setRegistrationMessage('');
 
         if (isRegisterMode) {
             if (password.length < 6) {
@@ -584,15 +586,24 @@ const Login = () => {
             }
             try {
                 const result = await register(email, password, acceptedTerms);
-                // Check if registration returned a recovery key
-                if (result?.recovery_key) {
+                // If backend returned a generic message (email already exists),
+                // show it as a success-like message to prevent email enumeration
+                if (result?.registration_pending) {
+                    setError('');
+                    setIsRegisterMode(false);
+                    setPassword('');
+                    setConfirmPassword('');
+                    // Show generic success message
+                    setRegistrationMessage(t('auth.registrationPending'));
+                } else if (result?.recovery_key) {
+                    // Check if registration returned a recovery key
                     setRecoveryKey(result.recovery_key);
                     // Don't navigate yet - wait for user to save recovery key
                 } else {
                     navigate('/');
                 }
             } catch (err) {
-                setError(err.response?.data?.detail || t('auth.emailRegistered'));
+                setError(err.response?.data?.detail || t('common.error'));
             } finally {
                 setLoading(false);
             }
@@ -664,6 +675,7 @@ const Login = () => {
     const toggleMode = () => {
         setIsRegisterMode(!isRegisterMode);
         setError('');
+        setRegistrationMessage('');
         setConfirmPassword('');
         setAcceptedTerms(false);
     };
@@ -753,7 +765,7 @@ const Login = () => {
                 {/* Login/Register Card */}
                 <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
                     {/* Top Bar: Language Toggle & Server Status */}
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-6">
                         <button
                             onClick={toggleLanguage}
                             className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full bg-slate-50 text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors"
@@ -791,6 +803,13 @@ const Login = () => {
                     <h2 className="text-xl font-semibold text-slate-800 mb-6 text-center">
                         {isRegisterMode ? t('auth.signUp') : t('auth.signIn')}
                     </h2>
+
+                    {registrationMessage && (
+                        <div className="bg-teal-50 text-teal-700 p-3 rounded-xl mb-4 text-sm border border-teal-100 flex items-center gap-2">
+                            <CheckCircle size={16} className="flex-shrink-0" />
+                            {registrationMessage}
+                        </div>
+                    )}
 
                     {error && (
                         <div className="bg-rose-50 text-rose-600 p-3 rounded-xl mb-4 text-sm border border-rose-100">
@@ -866,7 +885,35 @@ const Login = () => {
                                 </button>
                             </div>
                             {isRegisterMode && (
+                                <>
                                 <p className="text-xs text-slate-400 mt-1">{t('auth.passwordMinLength')}</p>
+                                {password.length > 0 && (() => {
+                                    let strength = 0;
+                                    let label = '';
+                                    let color = '';
+                                    if (password.length < 6) {
+                                        strength = 1; label = t('auth.passwordWeak'); color = 'bg-rose-500';
+                                    } else if (password.length < 8) {
+                                        strength = 2; label = t('auth.passwordFair'); color = 'bg-orange-500';
+                                    } else if (/[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                                        strength = 4; label = t('auth.passwordStrong'); color = 'bg-teal-500';
+                                    } else {
+                                        strength = 3; label = t('auth.passwordMedium'); color = 'bg-yellow-500';
+                                    }
+                                    return (
+                                        <div className="mt-2">
+                                            <div className="flex gap-1">
+                                                {[1,2,3,4].map(i => (
+                                                    <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= strength ? color : 'bg-slate-200'}`} />
+                                                ))}
+                                            </div>
+                                            <p className={`text-xs mt-1 ${strength <= 1 ? 'text-rose-500' : strength === 2 ? 'text-orange-500' : strength === 3 ? 'text-yellow-600' : 'text-teal-600'}`}>
+                                                {label}
+                                            </p>
+                                        </div>
+                                    );
+                                })()}
+                                </>
                             )}
                             {!isRegisterMode && (
                                 <div className="text-right mt-1">

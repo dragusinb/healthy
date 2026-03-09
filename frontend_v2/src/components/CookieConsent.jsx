@@ -203,11 +203,9 @@ const CookieConsent = () => {
                         <div className="flex flex-wrap gap-2 md:shrink-0 items-center">
                             <button
                                 onClick={acceptEssential}
-                                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition-colors"
-                                aria-label={t('cookies.essentialOnly')}
-                                title={t('cookies.essentialOnly')}
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                             >
-                                <X size={18} />
+                                {t('cookies.essentialOnly')}
                             </button>
                             <button
                                 onClick={() => setShowSettings(true)}
@@ -215,12 +213,6 @@ const CookieConsent = () => {
                             >
                                 <Settings size={14} />
                                 {t('cookies.customize')}
-                            </button>
-                            <button
-                                onClick={acceptEssential}
-                                className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-                            >
-                                {t('cookies.essentialOnly')}
                             </button>
                             <button
                                 onClick={acceptAll}

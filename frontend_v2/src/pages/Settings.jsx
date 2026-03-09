@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import usePageTitle from '../hooks/usePageTitle';
-import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Smartphone, BellRing, Monitor, X, Globe, Sun, Moon } from 'lucide-react';
+import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Monitor, X, Globe, Sun, Moon } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -240,8 +240,8 @@ export default function Settings() {
       <div className="flex items-center gap-3 mb-6">
         <Bell className="w-8 h-8 text-cyan-500" />
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">{t('notifications.preferences')}</h2>
-          <p className="text-gray-600">{t('notifications.preferencesDesc')}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">{t('notifications.preferences')}</h2>
+          <p className="text-gray-600 dark:text-gray-400">{t('notifications.preferencesDesc')}</p>
         </div>
       </div>
 
@@ -260,7 +260,7 @@ export default function Settings() {
         {success && (
           <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700 shadow-lg animate-in slide-in-from-right">
             <Check className="w-5 h-5 flex-shrink-0" />
-            <span>{t('common.success')}</span>
+            <span>{t('settings.settingsSaved')}</span>
           </div>
         )}
       </div>
@@ -315,20 +315,20 @@ export default function Settings() {
       </div>
 
       {/* Email Notification Toggles */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden mb-6">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">
           <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-gray-600" />
-            <h2 className="font-semibold text-gray-800">{t('notifications.emailSettings')}</h2>
+            <Mail className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('notifications.emailSettings')}</h2>
           </div>
         </div>
 
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100 dark:divide-slate-700">
           {/* New Documents */}
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800">{t('notifications.newDocuments')}</p>
-              <p className="text-sm text-gray-500">{t('notifications.newDocumentsDesc')}</p>
+              <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.newDocuments')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.newDocumentsDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -343,8 +343,8 @@ export default function Settings() {
           {/* Abnormal Biomarkers */}
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800">{t('notifications.abnormalBiomarkers')}</p>
-              <p className="text-sm text-gray-500">{t('notifications.abnormalBiomarkersDesc')}</p>
+              <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.abnormalBiomarkers')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.abnormalBiomarkersDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -359,8 +359,8 @@ export default function Settings() {
           {/* Analysis Complete */}
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800">{t('notifications.analysisComplete')}</p>
-              <p className="text-sm text-gray-500">{t('notifications.analysisCompleteDesc')}</p>
+              <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.analysisComplete')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.analysisCompleteDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -375,8 +375,8 @@ export default function Settings() {
           {/* Sync Failed */}
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800">{t('notifications.syncFailed')}</p>
-              <p className="text-sm text-gray-500">{t('notifications.syncFailedDesc')}</p>
+              <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.syncFailed')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.syncFailedDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -391,8 +391,8 @@ export default function Settings() {
           {/* Reminders */}
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800">{t('notifications.reminders')}</p>
-              <p className="text-sm text-gray-500">{t('notifications.remindersDesc')}</p>
+              <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.reminders')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.remindersDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -406,29 +406,6 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Push Notifications - Coming Soon */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6 opacity-75">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <BellRing className="w-5 h-5 text-gray-400" />
-            <h2 className="font-semibold text-gray-600">{t('notifications.pushSettings', 'Notificări Push')}</h2>
-            <span className="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs font-medium rounded-full">
-              {t('common.comingSoon', 'În curând')}
-            </span>
-          </div>
-        </div>
-        <div className="px-6 py-4">
-          <div className="flex items-center gap-3 text-gray-500">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <Bell className="w-5 h-5 text-gray-400" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-600">{t('notifications.pushMobileOnly', 'Disponibil în aplicația mobilă')}</p>
-              <p className="text-sm text-gray-400">{t('notifications.pushMobileDesc', 'Notificările push vor fi disponibile în aplicația mobilă. Între timp, primești notificări prin email.')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Legacy push code - hidden */}
       {false && pushSupported && (
@@ -576,13 +553,13 @@ export default function Settings() {
       )}
 
       {/* Frequency Settings */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden mb-6">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">
           <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-gray-600" />
-            <h2 className="font-semibold text-gray-800">{t('notifications.frequency')}</h2>
+            <Clock className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('notifications.frequency')}</h2>
           </div>
-          <p className="text-sm text-gray-500 mt-1">{t('notifications.frequencyDesc')}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('notifications.frequencyDesc')}</p>
         </div>
 
         <div className="px-6 py-4">
@@ -595,7 +572,7 @@ export default function Settings() {
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   preferences?.email_frequency === freq
                     ? 'bg-cyan-500 text-white border-cyan-500'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-cyan-300'
+                    : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-slate-600 hover:border-cyan-300'
                 } ${saving ? 'opacity-50' : ''}`}
               >
                 {t(`notifications.${freq}`)}
@@ -606,22 +583,22 @@ export default function Settings() {
       </div>
 
       {/* Quiet Hours */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-800">{t('notifications.quietHours')}</h2>
-          <p className="text-sm text-gray-500 mt-1">{t('notifications.quietHoursDesc')}</p>
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">
+          <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('notifications.quietHours')}</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('notifications.quietHoursDesc')}</p>
         </div>
 
         <div className="px-6 py-4">
           <div className="flex items-center gap-4">
             <div>
-              <label htmlFor="quiet-hours-from" className="block text-sm text-gray-600 mb-1">{t('notifications.from')}</label>
+              <label htmlFor="quiet-hours-from" className="block text-sm text-gray-600 dark:text-gray-400 mb-1">{t('notifications.from')}</label>
               <select
                 id="quiet-hours-from"
                 value={preferences?.quiet_hours_start ?? ''}
                 onChange={(e) => updatePreference('quiet_hours_start', e.target.value ? parseInt(e.target.value) : null)}
                 disabled={saving}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="px-3 py-2 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
                 <option value="">--</option>
                 {Array.from({ length: 24 }, (_, i) => (
@@ -630,13 +607,13 @@ export default function Settings() {
               </select>
             </div>
             <div>
-              <label htmlFor="quiet-hours-to" className="block text-sm text-gray-600 mb-1">{t('notifications.to')}</label>
+              <label htmlFor="quiet-hours-to" className="block text-sm text-gray-600 dark:text-gray-400 mb-1">{t('notifications.to')}</label>
               <select
                 id="quiet-hours-to"
                 value={preferences?.quiet_hours_end ?? ''}
                 onChange={(e) => updatePreference('quiet_hours_end', e.target.value ? parseInt(e.target.value) : null)}
                 disabled={saving}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="px-3 py-2 border border-gray-200 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
                 <option value="">--</option>
                 {Array.from({ length: 24 }, (_, i) => (
@@ -649,21 +626,21 @@ export default function Settings() {
       </div>
 
       {/* Privacy & Data (GDPR) */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden mt-6">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-gray-600" />
-            <h2 className="font-semibold text-gray-800">{t('settings.privacyData') || 'Privacy & Data'}</h2>
+            <Shield className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('settings.privacyData') || 'Privacy & Data'}</h2>
           </div>
-          <p className="text-sm text-gray-500 mt-1">{t('settings.privacyDataDesc') || 'Manage your personal data'}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('settings.privacyDataDesc') || 'Manage your personal data'}</p>
         </div>
 
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100 dark:divide-slate-700">
           {/* Export Data */}
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800">{t('settings.exportData') || 'Export My Data'}</p>
-              <p className="text-sm text-gray-500">{t('settings.exportDataDesc') || 'Download all your personal data as JSON'}</p>
+              <p className="font-medium text-gray-800 dark:text-gray-100">{t('settings.exportData') || 'Export My Data'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.exportDataDesc') || 'Download all your personal data as JSON'}</p>
             </div>
             <button
               onClick={handleExportData}
@@ -679,7 +656,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-rose-600">{t('settings.deleteAccount') || 'Delete Account'}</p>
-              <p className="text-sm text-gray-500">{t('settings.deleteAccountDesc') || 'Permanently delete your account and all data'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.deleteAccountDesc') || 'Permanently delete your account and all data'}</p>
             </div>
             <button
               onClick={() => setShowDeleteModal(true)}

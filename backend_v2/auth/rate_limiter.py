@@ -83,10 +83,11 @@ class RateLimiter:
             # Check if locked out
             if self._is_locked_out(key):
                 remaining = int(self._lockouts[key] - time.time())
+                remaining_minutes = max(1, (remaining + 59) // 60)  # Round up to minutes
                 logger.warning(f"Rate limit lockout for {key}, {remaining}s remaining")
                 raise HTTPException(
                     status_code=429,
-                    detail=f"Too many attempts. Please try again in {remaining} seconds.",
+                    detail=f"Too many failed attempts. Please try again in {remaining_minutes} minute{'s' if remaining_minutes != 1 else ''}.",
                     headers={"Retry-After": str(remaining)}
                 )
 
@@ -100,10 +101,11 @@ class RateLimiter:
                 # Apply lockout if configured
                 if lockout_seconds > 0:
                     self._lockouts[key] = time.time() + lockout_seconds
+                    lockout_minutes = max(1, (lockout_seconds + 59) // 60)
                     logger.warning(f"Rate limit exceeded for {key}, locked out for {lockout_seconds}s")
                     raise HTTPException(
                         status_code=429,
-                        detail=f"Too many attempts. Please try again in {lockout_seconds} seconds.",
+                        detail=f"Too many failed attempts. Please try again in {lockout_minutes} minute{'s' if lockout_minutes != 1 else ''}.",
                         headers={"Retry-After": str(lockout_seconds)}
                     )
                 else:

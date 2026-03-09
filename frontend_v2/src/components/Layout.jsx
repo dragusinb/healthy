@@ -40,6 +40,19 @@ const Layout = ({ children }) => {
     const [bannerDismissed, setBannerDismissed] = useState(() => {
         return localStorage.getItem('emailBannerDismissed') === 'true';
     });
+    const [isOffline, setIsOffline] = useState(!navigator.onLine);
+
+    // Offline detection
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     // Close mobile menu when route changes
     useEffect(() => {
@@ -338,7 +351,15 @@ const Layout = ({ children }) => {
                     </div>
                 )}
 
-                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-6 pb-24 md:p-8 md:pb-24 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* Offline Indicator */}
+                {isOffline && (
+                    <div className="sticky top-0 md:top-0 z-30 bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium flex items-center justify-center gap-2">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                        {t('common.offlineMessage')}
+                    </div>
+                )}
+
+                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-6 pb-28 md:p-8 md:pb-28 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Email Verification Banner */}
                     {showVerificationBanner && (
                         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">

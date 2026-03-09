@@ -17,8 +17,8 @@ export default function Family() {
         </h2>
         <p className="text-slate-600">
           {isRomanian
-            ? 'Vezi starea de sănătate a membrilor familiei'
-            : 'View your family members health status'}
+            ? 'Gestionează și partajează datele de sănătate ale familiei'
+            : 'Manage and share health data with your family'}
         </p>
       </div>
 

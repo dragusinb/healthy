@@ -81,19 +81,19 @@ export default function FamilyDashboard() {
 
   if (!hasFamily) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
-        <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-slate-800 mb-2">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
+        <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+        <h3 className="text-lg font-semibold text-slate-800 mb-1">
           {isRomanian ? 'Nu faci parte dintr-o familie' : 'Not in a family group'}
         </h3>
-        <p className="text-slate-600 mb-4">
+        <p className="text-slate-600 mb-3">
           {isRomanian
             ? 'Alătură-te unei familii sau creează una pentru a vedea datele membrilor.'
             : 'Join a family or create one to view member data.'}
         </p>
         <button
           onClick={() => navigate('/billing')}
-          className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
           {isRomanian ? 'Gestionare Familie' : 'Manage Family'}
         </button>

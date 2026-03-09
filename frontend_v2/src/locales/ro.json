@@ -31,7 +31,8 @@
     "months": "luni",
     "years": "ani",
     "expand": "Extinde",
-    "collapse": "Restrânge"
+    "collapse": "Restrânge",
+    "offlineMessage": "Ești deconectat de la internet"
   },
   "errors": {
     "pageNotFound": "Pagina nu a fost găsită",
@@ -117,7 +118,12 @@
     "hidePassword": "Ascunde parola",
     "loginSuccess": "Te-ai conectat cu succes",
     "vaultUnlockedSuccess": "Datele tale criptate sunt acum accesibile",
-    "welcomeBack": "Bine ai revenit!"
+    "welcomeBack": "Bine ai revenit!",
+    "passwordWeak": "Slabă - prea scurtă",
+    "passwordFair": "Acceptabilă - încearcă mai lungă",
+    "passwordMedium": "Medie - adaugă majuscule, minuscule și cifre",
+    "passwordStrong": "Parolă puternică",
+    "registrationPending": "Dacă acest email nu este deja înregistrat, un email de verificare a fost trimis. Verifică inbox-ul."
   },
   "dashboard": {
     "title": "Panou Principal",
@@ -559,7 +565,8 @@
     "confirmDelete": "Înțeleg că aceasta va șterge permanent toate datele mele",
     "deleteForever": "Șterge Definitiv",
     "deleteFailed": "Ștergerea contului a eșuat",
-    "delete": "Șterge"
+    "delete": "Șterge",
+    "settingsSaved": "Setări salvate"
   },
   "profile": {
     "title": "Profilul Tău",

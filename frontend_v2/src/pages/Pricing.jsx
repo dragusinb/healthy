@@ -282,7 +282,7 @@ export default function Pricing() {
       return <Check className="w-5 h-5 text-green-500 mx-auto" />;
     }
     if (value === false) {
-      return <X className="w-5 h-5 text-slate-300 mx-auto" />;
+      return <X className="w-5 h-5 text-slate-400 mx-auto" />;
     }
     return <span className="text-slate-700 font-medium">{value}</span>;
   };
@@ -373,26 +373,26 @@ export default function Pricing() {
 
             <div className="space-y-3 mb-6 flex-grow">
               <div className="flex items-center gap-2 text-slate-600">
-                <Check className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
                 <span>50 {isRomanian ? 'documente' : 'documents'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
-                <Check className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
                 <span>2 {isRomanian ? 'conturi medicale' : 'medical accounts'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
-                <Check className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
                 <span>3 {isRomanian ? 'analize AI/luna' : 'AI analyses/month'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
-                <Check className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
                 <span>{isRomanian ? 'Doar analiza generala' : 'General analysis only'}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-400">
+              <div className="flex items-center gap-2 text-slate-500">
                 <X className="w-5 h-5 flex-shrink-0" />
                 <span className="line-through">{isRomanian ? 'Specialisti AI' : 'AI Specialists'}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-400">
+              <div className="flex items-center gap-2 text-slate-500">
                 <X className="w-5 h-5 flex-shrink-0" />
                 <span className="line-through">{isRomanian ? 'Export PDF' : 'PDF Export'}</span>
               </div>

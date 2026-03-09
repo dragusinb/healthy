@@ -115,7 +115,11 @@ def register(
             user_agent=user_agent,
             status="failed"
         )
-        raise HTTPException(status_code=400, detail="Email already registered")
+        # Return generic message to prevent email enumeration
+        return {
+            "message": "If this email is not already registered, a verification email has been sent.",
+            "registration_pending": True
+        }
 
     # Generate verification token
     verification_token = generate_token()

@@ -136,28 +136,30 @@ const Screenings = () => {
                     </div>
                 </div>
 
-                <button
-                    onClick={runGapAnalysis}
-                    disabled={analyzing}
-                    className={cn(
-                        "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md",
-                        analyzing
-                            ? "bg-violet-100 text-violet-600 cursor-wait"
-                            : "bg-violet-600 text-white hover:bg-violet-700 shadow-violet-500/30"
-                    )}
-                >
-                    {analyzing ? (
-                        <>
-                            <Loader2 className="animate-spin" size={20} />
-                            {t('common.analyzing') || 'Analyzing...'}
-                        </>
-                    ) : (
-                        <>
-                            <RefreshCw size={20} />
-                            {t('screenings.refresh') || 'Refresh Recommendations'}
-                        </>
-                    )}
-                </button>
+                {gapAnalysis && (
+                    <button
+                        onClick={runGapAnalysis}
+                        disabled={analyzing}
+                        className={cn(
+                            "flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md",
+                            analyzing
+                                ? "bg-violet-100 text-violet-600 cursor-wait"
+                                : "bg-violet-600 text-white hover:bg-violet-700 shadow-violet-500/30"
+                        )}
+                    >
+                        {analyzing ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} />
+                                {t('common.analyzing') || 'Analyzing...'}
+                            </>
+                        ) : (
+                            <>
+                                <RefreshCw size={20} />
+                                {t('screenings.refresh') || 'Refresh Recommendations'}
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
 
             {error && (

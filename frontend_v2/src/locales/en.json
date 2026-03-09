@@ -28,7 +28,8 @@
     "months": "months",
     "years": "years",
     "expand": "Expand",
-    "collapse": "Collapse"
+    "collapse": "Collapse",
+    "offlineMessage": "You are currently offline"
   },
   "errors": {
     "pageNotFound": "Page Not Found",
@@ -114,7 +115,12 @@
     "hidePassword": "Hide password",
     "loginSuccess": "Logged in successfully",
     "vaultUnlockedSuccess": "Your encrypted data is now accessible",
-    "welcomeBack": "Welcome back!"
+    "welcomeBack": "Welcome back!",
+    "passwordWeak": "Weak - too short",
+    "passwordFair": "Fair - try longer",
+    "passwordMedium": "Medium - add uppercase, lowercase & numbers",
+    "passwordStrong": "Strong password",
+    "registrationPending": "If this email is not already registered, a verification email has been sent. Please check your inbox."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -522,7 +528,8 @@
     "confirmDelete": "I understand that this will permanently delete all my data",
     "deleteForever": "Delete Forever",
     "deleteFailed": "Failed to delete account",
-    "delete": "Delete"
+    "delete": "Delete",
+    "settingsSaved": "Settings saved"
   },
   "profile": {
     "title": "Your Profile",
