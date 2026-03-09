@@ -1,9 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import usePageTitle from '../hooks/usePageTitle';
 import FamilyDashboard from '../components/FamilyDashboard';
 
 export default function Family() {
   const { t, i18n } = useTranslation();
+  usePageTitle('nav.family', 'My Family');
   const isRomanian = i18n.language === 'ro';
 
   return (

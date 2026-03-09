@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
 import { Activity, Search, AlertTriangle, ArrowUp, ArrowDown, Calendar, X, FileText, ChevronDown, ChevronRight, Heart, Droplets, FlaskConical, Stethoscope, Pill, Dna, Loader2, ArrowUpDown, Eye, History, TrendingUp, TrendingDown, Minus, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -451,7 +452,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         <Icon size={20} className={colors.icon} />
                     </div>
                     <div className="text-left min-w-0">
-                        <h3 className="font-semibold text-slate-800 text-sm sm:text-base">{t(category.nameKey)}</h3>
+                        <h3 className="font-semibold text-slate-800 text-sm sm:text-base truncate">{t(category.nameKey)}</h3>
                         <p className="text-xs text-slate-500">{visibleCount} {t('biomarkers.tests')}</p>
                     </div>
                 </div>
@@ -515,6 +516,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
 
 const Biomarkers = () => {
     const { t } = useTranslation();
+    usePageTitle('nav.biomarkers', 'Biomarkers');
     const [searchParams, setSearchParams] = useSearchParams();
     const docId = searchParams.get('doc');
 

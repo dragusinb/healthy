@@ -149,8 +149,10 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} />
                         <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} />
                         <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
-                        <hr className="mt-4 mb-2 border-slate-200 dark:border-slate-600" />
-                        <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
+                    </nav>
+                    <div className="my-4 mx-2 border-t-2 border-slate-300 dark:border-slate-500" />
+                    <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
+                    <nav className="space-y-0.5">
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
                         <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} />
@@ -193,8 +195,9 @@ const Layout = ({ children }) => {
                         <button
                             onClick={handleLogout}
                             className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors font-medium"
+                            aria-label={t('nav.logout') || 'Logout'}
                         >
-                            <LogOut size={16} />
+                            <LogOut size={16} aria-hidden="true" />
                             {t('nav.logout')}
                         </button>
                     </div>
@@ -228,11 +231,6 @@ const Layout = ({ children }) => {
                             <HeartPulse size={20} className="text-primary-600" />
                         </div>
                         <span className="font-bold text-slate-800 dark:text-slate-100">Analize.online</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <button onClick={handleLogout} className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors" aria-label={t('nav.logout')}>
-                            <LogOut size={18} aria-hidden="true" />
-                        </button>
                     </div>
                 </header>
 
@@ -273,8 +271,10 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/lifestyle" icon={Leaf} label={t('nav.lifestyle')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} onClick={closeMobileMenu} />
-                                    <hr className="mt-4 mb-2 border-slate-200 dark:border-slate-600" />
-                                    <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
+                                </nav>
+                                <div className="my-4 mx-2 border-t-2 border-slate-300 dark:border-slate-500" />
+                                <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
+                                <nav className="space-y-1.5">
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} onClick={closeMobileMenu} />
@@ -317,8 +317,9 @@ const Layout = ({ children }) => {
                                     <button
                                         onClick={() => { handleLogout(); closeMobileMenu(); }}
                                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-900/30 rounded-lg transition-colors font-medium"
+                                        aria-label={t('nav.logout') || 'Logout'}
                                     >
-                                        <LogOut size={16} />
+                                        <LogOut size={16} aria-hidden="true" />
                                         {t('nav.logout')}
                                     </button>
                                 </div>
@@ -337,7 +338,7 @@ const Layout = ({ children }) => {
                     </div>
                 )}
 
-                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-6 pb-24 md:p-8 md:pb-24 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Email Verification Banner */}
                     {showVerificationBanner && (
                         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">

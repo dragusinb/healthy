@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import usePageTitle from '../hooks/usePageTitle';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import { useAnalysis } from '../context/AnalysisContext';
 import {
     ClipboardList, Sparkles, Calendar, Clock, Loader2, AlertTriangle,
-    CheckCircle, ChevronRight, ArrowLeft, RefreshCw, Heart, Activity,
+    CheckCircle, ChevronRight, RefreshCw, Heart, Activity,
     Shield, User
 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -19,6 +20,7 @@ const CATEGORY_ICONS = {
 
 const Screenings = () => {
     const { t } = useTranslation();
+    usePageTitle('nav.screenings', 'Screenings');
     const {
         screeningsAnalyzing: analyzing,
         screeningsError: contextError,
@@ -121,12 +123,6 @@ const Screenings = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-4">
-                    <Link
-                        to="/health"
-                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-                    >
-                        <ArrowLeft size={20} className="text-slate-500" />
-                    </Link>
                     <div>
                         <h1 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
                             <div className="p-2 bg-violet-100 text-violet-600 rounded-xl">

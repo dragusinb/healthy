@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
 import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil, X, AlertTriangle, KeyRound, Wifi, Clock, Server } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -385,6 +386,7 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
 
 const LinkedAccounts = () => {
     const { t } = useTranslation();
+    usePageTitle('linkedAccounts.title', 'Linked Accounts');
     const [accounts, setAccounts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState(null);

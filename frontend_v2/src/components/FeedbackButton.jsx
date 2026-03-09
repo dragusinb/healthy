@@ -148,6 +148,7 @@ export default function FeedbackButton() {
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
                 title={t('feedback.buttonTitle')}
+                aria-label={t('feedback.buttonTitle') || 'Send feedback'}
             >
                 <MessageSquare size={24} className="group-hover:scale-110 transition-transform" />
             </button>

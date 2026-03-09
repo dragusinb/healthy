@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
 import {
     User, Loader2, CheckCircle, AlertCircle, Save,
@@ -20,6 +21,7 @@ const ProfileField = ({ icon: Icon, label, children, className, htmlFor }) => (
 
 const Profile = () => {
     const { t } = useTranslation();
+    usePageTitle('profile.title', 'Profile');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -251,7 +253,6 @@ const Profile = () => {
                         <User size={24} className="text-primary-600" />
                     </div>
                     <div>
-                        <h1 className="text-lg sm:text-2xl font-bold text-slate-800">{t('profile.title') || 'Your Profile'}</h1>
                         <p className="text-slate-500 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
                     </div>
                 </div>

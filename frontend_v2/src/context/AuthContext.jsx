@@ -189,6 +189,24 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    // Show a global loading spinner while the initial auth check is in progress.
+    // This prevents a white flash before the app knows if the user is logged in.
+    if (loading) {
+        return (
+            <AuthContext.Provider value={{
+                user: null, login, register, loginWithGoogle, logout, loading: true,
+                pendingGoogleSetup, setupPassword, unlockData, clearPendingSetup,
+                vaultLocked, unlockVault, triggerVaultUnlock, dismissVaultUnlock
+            }}>
+                <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mx-auto mb-3" />
+                    </div>
+                </div>
+            </AuthContext.Provider>
+        );
+    }
+
     return (
         <AuthContext.Provider value={{
             user,

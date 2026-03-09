@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import usePageTitle from '../hooks/usePageTitle';
 import {
   Crown, CreditCard, Calendar, CheckCircle, AlertCircle,
-  ArrowLeft, ExternalLink, Users, Sparkles, XCircle, Check,
+  ExternalLink, Users, Sparkles, XCircle, Check,
   Brain, Stethoscope, Download, History, Shield, Zap, ChevronDown, ChevronUp
 } from 'lucide-react';
 import api from '../api/client';
@@ -13,6 +14,7 @@ import { useSubscription } from '../context/SubscriptionContext';
 
 export default function Billing() {
   const { t, i18n } = useTranslation();
+  usePageTitle('billing.title', 'Billing');
   const isRomanian = i18n.language === 'ro';
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

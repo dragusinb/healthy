@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import usePageTitle from '../hooks/usePageTitle';
 import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Smartphone, BellRing, Monitor, X } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -18,6 +19,7 @@ import {
 
 export default function Settings() {
   const { t } = useTranslation();
+  usePageTitle('notifications.preferences', 'Settings');
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [preferences, setPreferences] = useState(null);

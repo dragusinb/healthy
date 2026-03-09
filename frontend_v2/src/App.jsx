@@ -134,6 +134,9 @@ const App = () => {
 
                                 {/* Home / Dashboard */}
                                 <Route path="/" element={<HomeOrDashboard />} />
+                                <Route path="/dashboard" element={
+                                    <PrivateRoute><Navigate to="/" replace /></PrivateRoute>
+                                } />
 
                                 {/* Private routes with Layout */}
                                 <Route path="/documents" element={
