@@ -858,6 +858,8 @@ def get_report_history(
             .filter(HealthReport.user_id == current_user.id)\
             .filter(HealthReport.report_type != "general")\
             .filter(HealthReport.report_type != "gap_analysis")\
+            .filter(HealthReport.report_type != "nutrition")\
+            .filter(HealthReport.report_type != "exercise")\
             .filter(HealthReport.created_at >= session_start)\
             .filter(HealthReport.created_at <= session_end)\
             .all()

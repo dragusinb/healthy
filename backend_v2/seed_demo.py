@@ -398,20 +398,20 @@ def create_mother_data(mother):
     # --- Health Reports ---
     # General health report
     mother_findings = [
-        {"area": "Hematologie", "status": "attention", "detail": "Anemie feripriva moderata - Hemoglobina 11.8 g/dL, Feritina 12 ng/mL. Usoara ameliorare fata de acum 6 luni (Hb 11.2), dar inca sub normal."},
-        {"area": "Oftalmologie", "status": "attention", "detail": "Presiune intraoculara crescuta la ochiul stang (22 mmHg, limita superioara). Acuitate vizuala redusa bilateral (OD 0.7, OS 0.6). Se recomanda monitorizare glaucom."},
-        {"area": "Profil Lipidic", "status": "attention", "detail": "Colesterol total 215 mg/dL si LDL 138 mg/dL usor crescute. Risc cardiovascular moderat."},
-        {"area": "Ortopedic", "status": "attention", "detail": "Gonartroza genunchi drept - necesita program de kinetoterapie pentru intarirea musculaturii si mentinerea mobilitatii articulare."},
-        {"area": "Inflamatie", "status": "normal", "detail": "CRP normalizat la 2.5 mg/L (anterior 3.8). VSH normal. Tendinta pozitiva."},
-        {"area": "Tiroida", "status": "normal", "detail": "TSH normal (2.8 mUI/L). Functie tiroidiana normala."},
+        {"category": "Hematologie", "status": "attention", "explanation": "Anemie feripriva moderata - Hemoglobina 11.8 g/dL, Feritina 12 ng/mL. Usoara ameliorare fata de acum 6 luni (Hb 11.2), dar inca sub normal.", "markers": ["Hemoglobina", "Feritina", "Fier seric"]},
+        {"category": "Oftalmologie", "status": "attention", "explanation": "Presiune intraoculara crescuta la ochiul stang (22 mmHg, limita superioara). Acuitate vizuala redusa bilateral (OD 0.7, OS 0.6). Se recomanda monitorizare glaucom.", "markers": ["Presiune intraoculara OS", "Acuitate vizuala OD", "Acuitate vizuala OS"]},
+        {"category": "Profil Lipidic", "status": "attention", "explanation": "Colesterol total 215 mg/dL si LDL 138 mg/dL usor crescute. Risc cardiovascular moderat.", "markers": ["Colesterol total", "LDL Colesterol"]},
+        {"category": "Ortopedic", "status": "attention", "explanation": "Gonartroza genunchi drept - necesita program de kinetoterapie pentru intarirea musculaturii si mentinerea mobilitatii articulare."},
+        {"category": "Inflamatie", "status": "normal", "explanation": "CRP normalizat la 2.5 mg/L (anterior 3.8). VSH normal. Tendinta pozitiva.", "markers": ["CRP", "VSH"]},
+        {"category": "Tiroida", "status": "normal", "explanation": "TSH normal (2.8 mUI/L). Functie tiroidiana normala.", "markers": ["TSH"]},
     ]
     mother_recommendations = [
-        "Continuarea suplimentarii cu fier (Tardyferon sau similar) - consultati medicul pentru doza optima",
-        "Control oftalmologic la 3 luni pentru monitorizarea presiunii intraoculare",
-        "Kinetoterapie 2-3 sedinte/saptamana pentru gonartroza genunchi drept - exercitii de intarire cvadriceps",
-        "Dieta bogata in fier: carne rosie, spanac, linte, sfecla rosie",
-        "Reducere colesterol prin dieta: limitare grasimi saturate, crestere fibre",
-        "Vitamina D3 suplimentar 2000 UI/zi in perioada iarna-primavara",
+        {"action": "Continuarea suplimentarii cu fier (Tardyferon sau similar)", "reason": "Corectia anemiei feriprive - Feritina 12 ng/mL, Hemoglobina 11.8 g/dL", "priority": "high"},
+        {"action": "Control oftalmologic la 3 luni", "reason": "Monitorizarea presiunii intraoculare crescute la ochiul stang (22 mmHg)", "priority": "high"},
+        {"action": "Kinetoterapie 2-3 sedinte/saptamana", "reason": "Program de recuperare pentru gonartroza genunchi drept - exercitii de intarire cvadriceps", "priority": "high"},
+        {"action": "Dieta bogata in fier", "reason": "Carne rosie, spanac, linte, sfecla rosie - surse naturale de fier pentru combaterea anemiei", "priority": "medium"},
+        {"action": "Reducere colesterol prin dieta", "reason": "Limitare grasimi saturate, crestere fibre - Colesterol total 215, LDL 138", "priority": "medium"},
+        {"action": "Vitamina D3 suplimentar 2000 UI/zi", "reason": "Mentinerea nivelului optim de vitamina D in perioada iarna-primavara", "priority": "low"},
     ]
     general_report = HealthReport(
         user_id=mother.id,
@@ -738,20 +738,20 @@ def create_son_data(son):
 
     # --- Health Reports ---
     son_findings = [
-        {"area": "Vitamina D", "status": "concern", "detail": "Deficit persistent de vitamina D - 22 ng/mL (anterior 18 ng/mL). Ameliorare usoara sub suplimentare, dar inca sub valoarea optima de 30 ng/mL. Critic pentru cresterea osoasa la aceasta varsta."},
-        {"area": "Hematologie", "status": "attention", "detail": "Feritina 18 ng/mL (limita inferioara, sub 20). Fierul seric s-a normalizat la 52 ug/dL. Risc de anemie feripriva daca nu se mentine aportul."},
-        {"area": "Alergologie", "status": "attention", "detail": "Alergii multiple confirmate: acarieni (IgE 45.2), ambrozie (28.7), polen graminee (12.5), intoleranta lactoza (8.3). IgE total ridicat (350 UI/mL). Eozinofile crescute (7.2%)."},
-        {"area": "Ortopedic", "status": "concern", "detail": "Scolioza toracica cu unghi Cobb 18 grade - forma moderata. Rotatie vertebrala grad 1 Nash-Moe. Necesita kinetoterapie specifica si monitorizare la 6 luni. Nu necesita corset la acest grad."},
-        {"area": "Metabolism", "status": "normal", "detail": "Glicemie normala (82 mg/dL), TSH normal (3.1 mUI/L), calciu normal. Crestere si dezvoltare in parametri normali."},
+        {"category": "Vitamina D", "status": "concern", "explanation": "Deficit persistent de vitamina D - 22 ng/mL (anterior 18 ng/mL). Ameliorare usoara sub suplimentare, dar inca sub valoarea optima de 30 ng/mL. Critic pentru cresterea osoasa la aceasta varsta.", "markers": ["Vitamina D"]},
+        {"category": "Hematologie", "status": "attention", "explanation": "Feritina 18 ng/mL (limita inferioara, sub 20). Fierul seric s-a normalizat la 52 ug/dL. Risc de anemie feripriva daca nu se mentine aportul.", "markers": ["Feritina", "Fier seric"]},
+        {"category": "Alergologie", "status": "attention", "explanation": "Alergii multiple confirmate: acarieni (IgE 45.2), ambrozie (28.7), polen graminee (12.5), intoleranta lactoza (8.3). IgE total ridicat (350 UI/mL). Eozinofile crescute (7.2%).", "markers": ["IgE total", "Eozinofile", "IgE Acarieni", "IgE Ambrozie"]},
+        {"category": "Ortopedic", "status": "concern", "explanation": "Scolioza toracica cu unghi Cobb 18 grade - forma moderata. Rotatie vertebrala grad 1 Nash-Moe. Necesita kinetoterapie specifica si monitorizare la 6 luni. Nu necesita corset la acest grad.", "markers": ["Unghi Cobb", "Rotatie vertebrala"]},
+        {"category": "Metabolism", "status": "normal", "explanation": "Glicemie normala (82 mg/dL), TSH normal (3.1 mUI/L), calciu normal. Crestere si dezvoltare in parametri normali.", "markers": ["Glicemie", "TSH", "Calciu total"]},
     ]
     son_recommendations = [
-        "Vitamina D3 suplimentar 2000 UI/zi - control la 3 luni pentru ajustare doza",
-        "Kinetoterapie specifica scolioza 3x/saptamana - exercitii Schroth sau SEAS",
-        "Dieta bogata in fier: carne rosie 2-3x/saptamana, leguminoase, spanac",
-        "Evitare lactate din lapte de vaca - inlocuire cu alternative (lapte de migdale, soia)",
-        "Aerius 5mg continuat in sezon alergic; consultare alergolog pentru imunoterapie",
-        "Control ortopedic cu radiografie la 6 luni pentru monitorizare unghi Cobb",
-        "Activitate fizica regulata: inot, exercitii de postura, evitare sporturi cu impact asimetric",
+        {"action": "Vitamina D3 suplimentar 2000 UI/zi", "reason": "Deficit persistent (22 ng/mL) - critic pentru cresterea osoasa. Control la 3 luni pentru ajustare doza", "priority": "high"},
+        {"action": "Kinetoterapie specifica scolioza 3x/saptamana", "reason": "Exercitii Schroth sau SEAS pentru corectia scoliozei toracice (Cobb 18 grade)", "priority": "high"},
+        {"action": "Dieta bogata in fier", "reason": "Carne rosie 2-3x/saptamana, leguminoase, spanac - Feritina la limita inferioara (18 ng/mL)", "priority": "medium"},
+        {"action": "Evitare lactate din lapte de vaca", "reason": "Intoleranta lactoza confirmata (IgE 8.3) - inlocuire cu alternative (lapte de migdale, soia)", "priority": "medium"},
+        {"action": "Aerius 5mg continuat in sezon alergic", "reason": "Alergii multiple confirmate. Consultare alergolog pentru evaluare imunoterapie specifica", "priority": "medium"},
+        {"action": "Control ortopedic cu radiografie la 6 luni", "reason": "Monitorizare unghi Cobb in perioada de crestere rapida - risc de progresie", "priority": "high"},
+        {"action": "Activitate fizica regulata: inot, exercitii de postura", "reason": "Intarire musculatura spatelui, evitare sporturi cu impact asimetric", "priority": "low"},
     ]
     general_report = HealthReport(
         user_id=son.id,
