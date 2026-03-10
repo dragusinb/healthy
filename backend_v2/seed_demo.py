@@ -47,7 +47,10 @@ def cleanup():
     for email in [MOTHER_EMAIL, SON_EMAIL]:
         user = db.query(User).filter(User.email == email).first()
         if user:
-            # Delete family memberships
+            # Delete family memberships - must delete ALL members of owned groups first
+            owned_groups = db.query(FamilyGroup).filter(FamilyGroup.owner_id == user.id).all()
+            for group in owned_groups:
+                db.query(FamilyMember).filter(FamilyMember.family_id == group.id).delete()
             db.query(FamilyMember).filter(FamilyMember.user_id == user.id).delete()
             db.query(FamilyGroup).filter(FamilyGroup.owner_id == user.id).delete()
             db.query(FoodPreference).filter(FoodPreference.user_id == user.id).delete()
