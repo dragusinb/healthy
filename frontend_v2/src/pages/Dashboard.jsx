@@ -210,7 +210,10 @@ const Dashboard = () => {
                                                 <span className="capitalize">{t(`profile.${healthOverview.profile.gender}`) || healthOverview.profile.gender}</span>
                                             )}
                                             {healthOverview.profile?.blood_type && (
-                                                <span className="flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-xs font-semibold">
+                                                <span
+                                                    className="flex items-center gap-1 px-2 py-0.5 bg-rose-50 text-rose-600 rounded-full text-xs font-semibold"
+                                                    title={t('profile.bloodType')}
+                                                >
                                                     <Droplets size={10} />
                                                     {healthOverview.profile.blood_type}
                                                 </span>

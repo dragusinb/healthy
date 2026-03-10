@@ -58,7 +58,9 @@
     "closeMenu": "Închide meniul",
     "family": "Familia Mea",
     "medications": "Medicamente",
-    "skipToContent": "Salt la conținutul principal"
+    "skipToContent": "Salt la conținutul principal",
+    "mobileNav": "Navigare principală",
+    "notificationSettings": "Setări Notificări (nu notificări live)"
   },
   "auth": {
     "login": "Autentificare",
@@ -265,6 +267,8 @@
       "vitamins": "Vitamine & Minerale",
       "other": "Alte Teste"
     },
+    "lastUpdated": "Ultima actualizare",
+    "showingCount": "Se afișează {{count}} biomarkeri",
     "downloadBiomarker": "Descarcă documentele cu acest biomarker",
     "downloadCategory": "Descarcă documentele din această categorie",
     "downloading": "Se descarcă...",
@@ -632,7 +636,10 @@
     },
     "multiPatientWarning": "Pacienți Multipli Detectați",
     "multiPatientDesc": "Documentele tale conțin date pentru pacienți diferiți. Asigură-te că profilul tău reflectă informațiile tale personale.",
-    "patientsFound": "Pacienți găsiți"
+    "patientsFound": "Pacienți găsiți",
+    "toggleUnits": "Schimbă unitățile",
+    "heightImperial": "Înălțime (ft'in\")",
+    "weightImperial": "Greutate (lbs)"
   },
   "vault": {
     "title": "Seif de Criptare",
@@ -778,7 +785,8 @@
     "analyticsDesc": "Ne ajută să înțelegem cum folosesc vizitatorii site-ul.",
     "marketing": "Cookie-uri Marketing",
     "marketingDesc": "Folosite pentru a livra reclame personalizate.",
-    "savePreferences": "Salvează Preferințe"
+    "savePreferences": "Salvează Preferințe",
+    "savedDuration": "Preferința ta va fi salvată timp de 12 luni"
   },
   "tickets": {
     "title": "Suport",
@@ -955,7 +963,12 @@
     "familyBenefit1": "Până la 5 membri",
     "familyBenefit2": "Toate beneficiile Premium",
     "familyBenefit3": "Un singur abonament",
-    "familyPrice": "RON / lună"
+    "familyPrice": "RON / lună",
+    "billingHistory": "Istoric Facturare",
+    "noInvoices": "Niciun document de facturare încă"
+  },
+  "family": {
+    "premiumFeature": "Funcție Premium"
   },
   "pwa": {
     "installTitle": "Instalează Analize.Online",

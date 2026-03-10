@@ -63,6 +63,47 @@ const Profile = () => {
         physical_activity: ''
     });
 
+    // Unit system toggle (metric/imperial), persisted in localStorage
+    const [useImperial, setUseImperial] = useState(() => {
+        return localStorage.getItem('unitSystem') === 'imperial';
+    });
+
+    const toggleUnits = () => {
+        setUseImperial(prev => {
+            const next = !prev;
+            localStorage.setItem('unitSystem', next ? 'imperial' : 'metric');
+            return next;
+        });
+    };
+
+    // Conversion helpers
+    const cmToFtIn = (cm) => {
+        if (!cm) return '';
+        const totalInches = cm / 2.54;
+        const ft = Math.floor(totalInches / 12);
+        const inches = Math.round(totalInches % 12);
+        return `${ft}'${inches}"`;
+    };
+
+    const kgToLbs = (kg) => {
+        if (!kg) return '';
+        return (kg * 2.205).toFixed(1);
+    };
+
+    const lbsToKg = (lbs) => {
+        if (!lbs) return '';
+        return (parseFloat(lbs) / 2.205);
+    };
+
+    const ftInToCm = (ftIn) => {
+        // Parse formats like 5'11" or just total inches
+        const match = ftIn.match(/(\d+)'?\s*(\d*)"?/);
+        if (!match) return null;
+        const ft = parseInt(match[1]) || 0;
+        const inches = parseInt(match[2]) || 0;
+        return (ft * 12 + inches) * 2.54;
+    };
+
     // For array fields (tags input)
     const [allergyInput, setAllergyInput] = useState('');
     const [conditionInput, setConditionInput] = useState('');
@@ -417,47 +458,85 @@ const Profile = () => {
 
                 {/* Body Measurements Card */}
                 <div className="card p-6">
-                    <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.bodyMeasurements') || 'Body Measurements'}</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-slate-800">{t('profile.bodyMeasurements') || 'Body Measurements'}</h2>
+                        <button
+                            type="button"
+                            onClick={toggleUnits}
+                            className="text-xs font-medium px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
+                            title={t('profile.toggleUnits') || 'Switch units'}
+                        >
+                            {useImperial ? 'ft/lbs → cm/kg' : 'cm/kg → ft/lbs'}
+                        </button>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <ProfileField icon={Ruler} label={t('profile.height') || 'Height (cm)'} htmlFor="height_cm">
-                            <input
-                                id="height_cm"
-                                type="number"
-                                value={profile.height_cm}
-                                onChange={(e) => setProfile({ ...profile, height_cm: parseFloat(e.target.value) || '' })}
-                                className="input"
-                                placeholder="175"
-                                min="50"
-                                max="250"
-                            />
+                        <ProfileField icon={Ruler} label={useImperial ? (t('profile.heightImperial') || 'Height (ft\'in")') : (t('profile.height') || 'Height (cm)')} htmlFor="height_cm">
+                            {useImperial ? (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        id="height_cm"
+                                        type="text"
+                                        value={profile.height_cm ? cmToFtIn(profile.height_cm) : ''}
+                                        onChange={(e) => {
+                                            const cm = ftInToCm(e.target.value);
+                                            if (cm !== null) setProfile({ ...profile, height_cm: Math.round(cm * 10) / 10 });
+                                        }}
+                                        className="input"
+                                        placeholder={'5\'11"'}
+                                    />
+                                </div>
+                            ) : (
+                                <input
+                                    id="height_cm"
+                                    type="number"
+                                    value={profile.height_cm}
+                                    onChange={(e) => setProfile({ ...profile, height_cm: parseFloat(e.target.value) || '' })}
+                                    className="input"
+                                    placeholder="175"
+                                    min="50"
+                                    max="250"
+                                />
+                            )}
                         </ProfileField>
 
-                        <ProfileField icon={Scale} label={t('profile.weight') || 'Weight (kg)'} htmlFor="weight_kg">
-                            <input
-                                id="weight_kg"
-                                type="number"
-                                value={profile.weight_kg}
-                                onChange={(e) => setProfile({ ...profile, weight_kg: parseFloat(e.target.value) || '' })}
-                                className="input"
-                                placeholder="70"
-                                min="20"
-                                max="500"
-                            />
+                        <ProfileField icon={Scale} label={useImperial ? (t('profile.weightImperial') || 'Weight (lbs)') : (t('profile.weight') || 'Weight (kg)')} htmlFor="weight_kg">
+                            {useImperial ? (
+                                <input
+                                    id="weight_kg"
+                                    type="number"
+                                    value={profile.weight_kg ? kgToLbs(profile.weight_kg) : ''}
+                                    onChange={(e) => {
+                                        const kg = lbsToKg(e.target.value);
+                                        if (kg) setProfile({ ...profile, weight_kg: Math.round(kg * 10) / 10 });
+                                        else if (e.target.value === '') setProfile({ ...profile, weight_kg: '' });
+                                    }}
+                                    className="input"
+                                    placeholder="154"
+                                    min="44"
+                                    max="1100"
+                                />
+                            ) : (
+                                <input
+                                    id="weight_kg"
+                                    type="number"
+                                    value={profile.weight_kg}
+                                    onChange={(e) => setProfile({ ...profile, weight_kg: parseFloat(e.target.value) || '' })}
+                                    className="input"
+                                    placeholder="70"
+                                    min="20"
+                                    max="500"
+                                />
+                            )}
                         </ProfileField>
 
                         <ProfileField icon={Heart} label={t('profile.bmi') || 'BMI'}>
-                            <div className="flex items-center gap-2 h-[42px] px-3 bg-slate-100 rounded-lg border border-slate-200">
-                                {bmi ? (
-                                    <>
-                                        <span className="font-semibold text-slate-700">{bmi}</span>
-                                        <span className={cn("text-sm", getBMICategory(parseFloat(bmi)).color)}>
-                                            ({getBMICategory(parseFloat(bmi)).label})
-                                        </span>
-                                    </>
-                                ) : (
-                                    <span className="text-slate-400 text-sm">{t('profile.enterHeightWeight') || 'Enter height & weight'}</span>
-                                )}
-                            </div>
+                            <input
+                                type="text"
+                                readOnly
+                                disabled
+                                value={bmi ? `${bmi} — ${getBMICategory(parseFloat(bmi)).label}` : (t('profile.enterHeightWeight') || 'Enter height & weight')}
+                                className={cn("input", bmi && getBMICategory(parseFloat(bmi)).color)}
+                            />
                         </ProfileField>
                     </div>
                 </div>

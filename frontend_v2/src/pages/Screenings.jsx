@@ -10,6 +10,7 @@ import {
     Shield, User
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { ListSkeleton } from '../components/Skeleton';
 
 const CATEGORY_ICONS = {
     'Cardiovascular': Heart,
@@ -111,11 +112,7 @@ const Screenings = () => {
     }, {}) || {};
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="animate-spin text-primary-500" size={32} />
-            </div>
-        );
+        return <ListSkeleton rows={4} />;
     }
 
     return (
@@ -343,10 +340,24 @@ const Screenings = () => {
                     <button
                         onClick={runGapAnalysis}
                         disabled={analyzing}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 text-white rounded-xl font-semibold hover:bg-violet-700 transition-colors"
+                        className={cn(
+                            "inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all shadow-md",
+                            analyzing
+                                ? "bg-violet-100 text-violet-600 cursor-wait"
+                                : "bg-violet-600 text-white hover:bg-violet-700 shadow-violet-500/30"
+                        )}
                     >
-                        <Sparkles size={20} />
-                        {t('screenings.getRecommendations') || 'Get Recommendations'}
+                        {analyzing ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} />
+                                {t('common.analyzing') || 'Analyzing...'}
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles size={20} />
+                                {t('screenings.getRecommendations') || 'Get Recommendations'}
+                            </>
+                        )}
                     </button>
                 </div>
             )}

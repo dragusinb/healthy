@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Activity, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe, CheckSquare, Square, Key, Copy, CheckCircle, AlertTriangle, X, Shield, Unlock } from 'lucide-react';
+import { Activity, HeartPulse, Mail, Lock, UserPlus, LogIn, Eye, EyeOff, Wifi, WifiOff, Globe, CheckSquare, Square, Key, Copy, CheckCircle, AlertTriangle, X, Shield, Unlock } from 'lucide-react';
 import api from '../api/client';
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -691,7 +691,7 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50 pt-8 pb-52 sm:pt-0 sm:pb-0 overflow-y-auto">
+        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50 pt-8 pb-8 sm:pt-0 sm:pb-0 overflow-y-auto">
             <a href="#login-form" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>
@@ -756,7 +756,7 @@ const Login = () => {
                 {/* Logo/Brand */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl shadow-lg shadow-primary-500/30 mb-4">
-                        <Activity size={32} className="text-white" />
+                        <HeartPulse size={32} className="text-white" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-800">{t('auth.appName')}</h1>
                     <p className="text-slate-500 mt-1">{t('auth.trackHealthJourney')}</p>
@@ -764,40 +764,16 @@ const Login = () => {
 
                 {/* Login/Register Card */}
                 <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-                    {/* Top Bar: Language Toggle & Server Status */}
-                    <div className="flex justify-between items-center mb-6">
+                    {/* Language Toggle */}
+                    <div className="flex justify-end mb-6">
                         <button
                             onClick={toggleLanguage}
                             className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full bg-slate-50 text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors"
                             title={t('settings.language')}
                         >
                             <Globe size={12} />
-                            <span className="font-medium">{i18n.language.toUpperCase()}</span>
+                            <span className="font-medium">{i18n.language === 'ro' ? 'Limba: RO' : 'Lang: EN'}</span>
                         </button>
-                        <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${
-                            serverStatus === 'online'
-                                ? 'bg-teal-50 text-teal-600'
-                                : serverStatus === 'offline'
-                                    ? 'bg-rose-50 text-rose-600'
-                                    : 'bg-slate-50 text-slate-400'
-                        }`}>
-                            {serverStatus === 'online' ? (
-                                <>
-                                    <Wifi size={12} />
-                                    <span>Online</span>
-                                </>
-                            ) : serverStatus === 'offline' ? (
-                                <>
-                                    <WifiOff size={12} />
-                                    <span>Offline</span>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" />
-                                    <span>Checking...</span>
-                                </>
-                            )}
-                        </div>
                     </div>
 
                     <h2 className="text-xl font-semibold text-slate-800 mb-6 text-center">
@@ -1069,6 +1045,31 @@ const Login = () => {
                         <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
                             {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
                         </Link>
+                    </div>
+                    {/* Server Status */}
+                    <div className={`inline-flex items-center gap-1.5 text-xs mt-3 ${
+                        serverStatus === 'online'
+                            ? 'text-teal-500'
+                            : serverStatus === 'offline'
+                                ? 'text-rose-500'
+                                : 'text-slate-400'
+                    }`}>
+                        {serverStatus === 'online' ? (
+                            <>
+                                <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                                <span>Server: Online</span>
+                            </>
+                        ) : serverStatus === 'offline' ? (
+                            <>
+                                <WifiOff size={10} />
+                                <span>Server: Offline</span>
+                            </>
+                        ) : (
+                            <>
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
+                                <span>Server: ...</span>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

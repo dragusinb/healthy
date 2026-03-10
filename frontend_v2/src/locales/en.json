@@ -55,7 +55,9 @@
     "closeMenu": "Close menu",
     "family": "My Family",
     "medications": "Medications",
-    "skipToContent": "Skip to main content"
+    "skipToContent": "Skip to main content",
+    "mobileNav": "Main navigation",
+    "notificationSettings": "Notification Settings (not live notifications)"
   },
   "auth": {
     "login": "Login",
@@ -242,6 +244,8 @@
       "vitamins": "Vitamins & Minerals",
       "other": "Other Tests"
     },
+    "lastUpdated": "Last updated",
+    "showingCount": "Showing {{count}} biomarkers",
     "downloadBiomarker": "Download documents with this biomarker",
     "downloadCategory": "Download documents in this category",
     "downloading": "Downloading...",
@@ -588,7 +592,10 @@
     "scanNoNewData": "No new profile data found (fields already filled or no data in documents)",
     "multiPatientWarning": "Multiple Patients Detected",
     "multiPatientDesc": "Your documents contain data for different patients. Make sure your profile reflects your own information.",
-    "patientsFound": "Patients found"
+    "patientsFound": "Patients found",
+    "toggleUnits": "Switch units",
+    "heightImperial": "Height (ft'in\")",
+    "weightImperial": "Weight (lbs)"
   },
   "vault": {
     "title": "Encryption Vault",
@@ -734,7 +741,8 @@
     "analyticsDesc": "Help us understand how visitors use our website.",
     "marketing": "Marketing Cookies",
     "marketingDesc": "Used to deliver personalized advertisements.",
-    "savePreferences": "Save Preferences"
+    "savePreferences": "Save Preferences",
+    "savedDuration": "Your preference will be saved for 12 months"
   },
   "tickets": {
     "title": "Support",
@@ -884,7 +892,12 @@
     "membersCount": "{{current}} of {{max}} members",
     "memberOf": "Member of {{name}}",
     "securePayment": "Secure payment via Netopia",
-    "paymentDisclaimer": "Payment is securely processed by Netopia. We don't store your card details."
+    "paymentDisclaimer": "Payment is securely processed by Netopia. We don't store your card details.",
+    "billingHistory": "Billing History",
+    "noInvoices": "No invoices yet"
+  },
+  "family": {
+    "premiumFeature": "Premium feature"
   },
   "pwa": {
     "installTitle": "Install Analize.Online",

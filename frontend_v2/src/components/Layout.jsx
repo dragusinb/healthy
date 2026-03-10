@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Bell, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon, FlaskConical, Stethoscope } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
 import VaultUnlockModal from './VaultUnlockModal';
 
-const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
+const SidebarItem = ({ to, icon: Icon, label, onClick, title }) => (
     <NavLink
         to={to}
         onClick={onClick}
+        title={title || label}
+        aria-label={title || label}
         className={({ isActive }) => cn(
             "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 font-medium text-sm group",
             isActive
@@ -29,6 +31,25 @@ const SidebarItem = ({ to, icon: Icon, label, onClick }) => (
     </NavLink>
 );
 
+const BottomNavItem = ({ to, icon: Icon, label }) => {
+    const location = useLocation();
+    const isActive = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
+    return (
+        <NavLink
+            to={to}
+            className={cn(
+                "flex flex-col items-center justify-center gap-0.5 flex-1 py-2 text-[10px] font-medium transition-colors min-w-0",
+                isActive
+                    ? "text-primary-600 dark:text-primary-400"
+                    : "text-slate-400 dark:text-slate-500"
+            )}
+        >
+            <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+            <span className="truncate max-w-full px-1">{label}</span>
+        </NavLink>
+    );
+};
+
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -41,6 +62,8 @@ const Layout = ({ children }) => {
         return localStorage.getItem('emailBannerDismissed') === 'true';
     });
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
+    const mainRef = useRef(null);
+    const [showScrollGradient, setShowScrollGradient] = useState(false);
 
     // Offline detection
     useEffect(() => {
@@ -53,6 +76,27 @@ const Layout = ({ children }) => {
             window.removeEventListener('offline', handleOffline);
         };
     }, []);
+
+    // Scroll affordance: detect if content is scrollable and not at bottom
+    const checkScrollable = useCallback(() => {
+        const el = mainRef.current;
+        if (!el) return;
+        const hasMoreContent = el.scrollHeight - el.scrollTop - el.clientHeight > 40;
+        setShowScrollGradient(hasMoreContent);
+    }, []);
+
+    useEffect(() => {
+        const el = mainRef.current;
+        if (!el) return;
+        checkScrollable();
+        el.addEventListener('scroll', checkScrollable, { passive: true });
+        const resizeObserver = new ResizeObserver(checkScrollable);
+        resizeObserver.observe(el);
+        return () => {
+            el.removeEventListener('scroll', checkScrollable);
+            resizeObserver.disconnect();
+        };
+    }, [checkScrollable, location.pathname]);
 
     // Close mobile menu when route changes
     useEffect(() => {
@@ -168,7 +212,7 @@ const Layout = ({ children }) => {
                     <nav className="space-y-0.5">
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
-                        <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} />
+                        <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} title={t('nav.notificationSettings')} />
                         <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} />
                         <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} />
                         {user?.is_admin && (
@@ -228,7 +272,7 @@ const Layout = ({ children }) => {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto relative scroll-smooth">
+            <main ref={mainRef} className="flex-1 overflow-y-auto relative scroll-smooth">
                 {/* Top Header for Mobile & Title */}
                 <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between md:hidden print:hidden">
                     <div className="flex items-center gap-2">
@@ -290,7 +334,7 @@ const Layout = ({ children }) => {
                                 <nav className="space-y-1.5">
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
-                                    <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} title={t('nav.notificationSettings')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} onClick={closeMobileMenu} />
                                     {user?.is_admin && (
@@ -359,7 +403,7 @@ const Layout = ({ children }) => {
                     </div>
                 )}
 
-                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-6 pb-28 md:p-8 md:pb-28 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-4 pb-40 md:p-8 md:pb-28 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Email Verification Banner */}
                     {showVerificationBanner && (
                         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
@@ -416,7 +460,25 @@ const Layout = ({ children }) => {
 
                     {children}
                 </div>
+                {/* Scroll affordance gradient */}
+                <div
+                    className={cn(
+                        "pointer-events-none fixed bottom-16 md:bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-slate-50 dark:from-slate-900 to-transparent z-10 transition-opacity duration-300 md:hidden print:hidden",
+                        showScrollGradient ? "opacity-100" : "opacity-0"
+                    )}
+                />
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 md:hidden print:hidden safe-bottom" aria-label={t('nav.mobileNav')}>
+                <div className="flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
+                    <BottomNavItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} />
+                    <BottomNavItem to="/biomarkers" icon={FlaskConical} label={t('nav.biomarkers')} />
+                    <BottomNavItem to="/documents" icon={FileText} label={t('nav.documents')} />
+                    <BottomNavItem to="/health" icon={Stethoscope} label={t('nav.doctorAI')} />
+                    <BottomNavItem to="/profile" icon={User} label={t('nav.profile')} />
+                </div>
+            </nav>
 
             {/* Feedback Button - Only show for authenticated users */}
             <div className="print:hidden">

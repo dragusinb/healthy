@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Home, AlertTriangle } from 'lucide-react';
@@ -7,6 +7,16 @@ import usePageTitle from '../hooks/usePageTitle';
 const NotFound = () => {
     const { t } = useTranslation();
     usePageTitle('errors.pageNotFound', 'Page Not Found');
+
+    useEffect(() => {
+        const meta = document.createElement('meta');
+        meta.name = 'robots';
+        meta.content = 'noindex';
+        document.head.appendChild(meta);
+        return () => {
+            document.head.removeChild(meta);
+        };
+    }, []);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">

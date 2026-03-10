@@ -5,7 +5,8 @@ import usePageTitle from '../hooks/usePageTitle';
 import {
   Crown, CreditCard, Calendar, CheckCircle, AlertCircle,
   ExternalLink, Users, Sparkles, XCircle, Check,
-  Brain, Stethoscope, Download, History, Shield, Zap, ChevronDown, ChevronUp
+  Brain, Stethoscope, Download, History, Shield, Zap, ChevronDown, ChevronUp,
+  Gift, FileText, Receipt
 } from 'lucide-react';
 import api from '../api/client';
 import UsageStats from '../components/UsageStats';
@@ -164,7 +165,7 @@ export default function Billing() {
                 </div>
               ) : (
                 <div className="p-3 bg-slate-100 rounded-xl">
-                  <Sparkles className="w-6 h-6 text-slate-600" />
+                  <Gift className="w-6 h-6 text-slate-600" />
                 </div>
               )}
               <div>
@@ -404,6 +405,26 @@ export default function Billing() {
           tier={tier}
           onRefresh={fetchData}
         />
+      </div>
+
+      {/* Billing History */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm mb-6">
+        <div className="p-6 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-100 rounded-xl">
+              <Receipt className="w-5 h-5 text-slate-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-800">
+              {t('billing.billingHistory', 'Billing History')}
+            </h3>
+          </div>
+        </div>
+        <div className="p-6 text-center">
+          <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+          <p className="text-slate-500 text-sm">
+            {t('billing.noInvoices', 'No invoices yet')}
+          </p>
+        </div>
       </div>
 
       {/* Payment Info */}

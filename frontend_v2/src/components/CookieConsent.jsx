@@ -180,10 +180,10 @@ const CookieConsent = () => {
                 <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-900/10 border-t-4 border-primary-500 p-3 sm:p-4 md:p-6">
                     <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-4">
                         <div className="flex items-start gap-3 flex-1">
-                            <div className="p-1.5 sm:p-2 bg-primary-50 rounded-lg shrink-0">
+                            <div className="p-2 bg-primary-50 rounded-lg shrink-0">
                                 <Cookie size={20} className="text-primary-600 sm:w-6 sm:h-6" />
                             </div>
-                            <div>
+                            <div className="pt-0.5">
                                 <h3 className="font-semibold text-slate-800 text-sm sm:text-base mb-0.5 sm:mb-1">
                                     {t('cookies.title')}
                                 </h3>
@@ -197,6 +197,9 @@ const CookieConsent = () => {
                                     >
                                         {t('cookies.learnMore')}
                                     </a>
+                                </p>
+                                <p className="text-[10px] sm:text-xs text-slate-400 mt-1">
+                                    {t('cookies.savedDuration')}
                                 </p>
                             </div>
                         </div>

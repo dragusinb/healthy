@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
-import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil, X, AlertTriangle, KeyRound, Wifi, Clock, Server } from 'lucide-react';
+import { Building, Link as LinkIcon, RefreshCw, CheckCircle, AlertCircle, Shield, Loader2, Save, Pencil, X, AlertTriangle, KeyRound, Wifi, Clock, Server, Heart, FlaskConical, Stethoscope, Hospital } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { ListSkeleton } from '../components/Skeleton';
 
 // Error type to icon and color mapping
 const ERROR_TYPES = {
@@ -147,7 +148,7 @@ const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t })
     );
 };
 
-const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, linking, syncing, syncStatus, account, forceEdit, onEditComplete, t }) => {
+const ProviderCard = ({ name, logoColor, icon: Icon = Building, isLinked, username, onLink, onSync, linking, syncing, syncStatus, account, forceEdit, onEditComplete, t }) => {
     const [creds, setCreds] = useState({ username: '', password: '' });
     const [showForm, setShowForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -208,10 +209,10 @@ const ProviderCard = ({ name, logoColor, isLinked, username, onLink, onSync, lin
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6">
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-4">
                         <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md", logoColor)}>
-                            <Building size={24} />
+                            <Icon size={24} />
                         </div>
                         <div>
                             <h3 className="text-lg font-bold text-slate-900">{name}</h3>
@@ -525,11 +526,7 @@ const LinkedAccounts = () => {
     };
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="animate-spin text-primary-500" size={32} />
-            </div>
-        );
+        return <ListSkeleton rows={4} />;
     }
 
     if (loadError) {
@@ -566,6 +563,7 @@ const LinkedAccounts = () => {
                 <ProviderCard
                     name="Regina Maria"
                     logoColor="bg-purple-600"
+                    icon={Heart}
                     isLinked={!!isLinked('Regina Maria')}
                     username={isLinked('Regina Maria')}
                     onLink={handleLink}
@@ -581,6 +579,7 @@ const LinkedAccounts = () => {
                 <ProviderCard
                     name="Synevo"
                     logoColor="bg-orange-500"
+                    icon={FlaskConical}
                     isLinked={!!isLinked('Synevo')}
                     username={isLinked('Synevo')}
                     onLink={handleLink}
@@ -596,6 +595,7 @@ const LinkedAccounts = () => {
                 <ProviderCard
                     name="MedLife"
                     logoColor="bg-blue-600"
+                    icon={Stethoscope}
                     isLinked={!!isLinked('MedLife')}
                     username={isLinked('MedLife')}
                     onLink={handleLink}
@@ -611,6 +611,7 @@ const LinkedAccounts = () => {
                 <ProviderCard
                     name="Sanador"
                     logoColor="bg-teal-600"
+                    icon={Hospital}
                     isLinked={!!isLinked('Sanador')}
                     username={isLinked('Sanador')}
                     onLink={handleLink}

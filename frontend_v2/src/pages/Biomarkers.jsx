@@ -439,6 +439,16 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
     // When filtering for issues, only count biomarkers with actual issues
     const visibleCount = showOnlyIssues ? issueCount : biomarkerGroups.length;
 
+    // Find the most recent date across all biomarkers in this category
+    const lastUpdatedDate = useMemo(() => {
+        let latest = null;
+        for (const group of biomarkerGroups) {
+            const d = group.latest?.date;
+            if (d && (!latest || d > latest)) latest = d;
+        }
+        return latest ? new Date(latest).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' }) : null;
+    }, [biomarkerGroups]);
+
     return (
         <div className="card overflow-hidden">
             <button
@@ -454,12 +464,17 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                     </div>
                     <div className="text-left min-w-0">
                         <h3 className="font-semibold text-slate-800 text-sm sm:text-base truncate">{t(category.nameKey)}</h3>
-                        <p className="text-xs text-slate-500">{visibleCount} {t('biomarkers.tests')}</p>
+                        <p className="text-xs text-slate-500">
+                            {visibleCount} {t('biomarkers.tests')}
+                            {lastUpdatedDate && (
+                                <span className="text-slate-400 ml-2">· {t('biomarkers.lastUpdated')}: {lastUpdatedDate}</span>
+                            )}
+                        </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-shrink-0">
                     {issueCount > 0 && (
-                        <span className="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full">
+                        <span className="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full flex-shrink-0 whitespace-nowrap">
                             {issueCount} {issueCount > 1 ? t('biomarkers.issuesCount') : t('biomarkers.issue')}
                         </span>
                     )}
@@ -476,7 +491,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                             <Download size={16} />
                         )}
                     </button>
-                    {expanded ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+                    {expanded ? <ChevronDown size={20} className="text-slate-400 flex-shrink-0" /> : <ChevronRight size={20} className="text-slate-400 flex-shrink-0" />}
                 </div>
             </button>
 
@@ -796,7 +811,7 @@ const Biomarkers = () => {
 
             {/* Summary */}
             <div className="mb-6 flex items-center gap-4 text-sm text-slate-600">
-                <span><strong>{totalFiltered}</strong> {t('biomarkers.biomarkersCount')}</span>
+                <span>{t('biomarkers.showingCount', { count: totalFiltered })}</span>
                 {totalIssues > 0 && (
                     <span className="text-rose-600"><strong>{totalIssues}</strong> {t('biomarkers.outOfRange')}</span>
                 )}
