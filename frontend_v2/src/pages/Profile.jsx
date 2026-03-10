@@ -130,8 +130,12 @@ const Profile = () => {
         setSaved(false);
         try {
             // Convert empty strings to null for numeric fields
+            // Only send date_of_birth if all 3 parts are filled (no 0000 or 00)
+            const dobParts = (profile.date_of_birth || '').split('-');
+            const dobValid = dobParts.length === 3 && dobParts[0] !== '0000' && dobParts[1] !== '00' && dobParts[2] !== '00' && dobParts[0] && dobParts[1] && dobParts[2];
             const profileData = {
                 ...profile,
+                date_of_birth: dobValid ? profile.date_of_birth : null,
                 height_cm: profile.height_cm === '' ? null : parseFloat(profile.height_cm) || null,
                 weight_kg: profile.weight_kg === '' ? null : parseFloat(profile.weight_kg) || null,
             };
@@ -409,14 +413,63 @@ const Profile = () => {
                             />
                         </ProfileField>
 
-                        <ProfileField icon={Calendar} label={t('profile.dateOfBirth') || 'Date of Birth'} htmlFor="date_of_birth">
-                            <input
-                                id="date_of_birth"
-                                type="date"
-                                value={profile.date_of_birth}
-                                onChange={(e) => setProfile({ ...profile, date_of_birth: e.target.value })}
-                                className="input"
-                            />
+                        <ProfileField icon={Calendar} label={t('profile.dateOfBirth') || 'Date of Birth'}>
+                            <div className="flex gap-2">
+                                <select
+                                    id="dob_day"
+                                    value={(() => { const p = (profile.date_of_birth || '').split('-'); return p.length === 3 && p[2] ? parseInt(p[2], 10) || '' : ''; })()}
+                                    onChange={(e) => {
+                                        const parts = (profile.date_of_birth || '0000-00-00').split('-');
+                                        const y = parts[0] && parts[0] !== '0000' ? parts[0] : '0000';
+                                        const m = parts[1] && parts[1] !== '00' ? parts[1] : '00';
+                                        const d = e.target.value ? String(e.target.value).padStart(2, '0') : '00';
+                                        setProfile({ ...profile, date_of_birth: `${y}-${m}-${d}` });
+                                    }}
+                                    aria-label={t('profile.dobDay') || 'Day'}
+                                    className="input flex-1 min-w-0"
+                                >
+                                    <option value="">{t('profile.dobDay') || 'Day'}</option>
+                                    {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                                        <option key={d} value={d}>{d}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    id="dob_month"
+                                    value={(() => { const p = (profile.date_of_birth || '').split('-'); return p.length >= 2 && p[1] ? parseInt(p[1], 10) || '' : ''; })()}
+                                    onChange={(e) => {
+                                        const parts = (profile.date_of_birth || '0000-00-00').split('-');
+                                        const y = parts[0] && parts[0] !== '0000' ? parts[0] : '0000';
+                                        const m = e.target.value ? String(e.target.value).padStart(2, '0') : '00';
+                                        const d = parts[2] && parts[2] !== '00' ? parts[2] : '00';
+                                        setProfile({ ...profile, date_of_birth: `${y}-${m}-${d}` });
+                                    }}
+                                    aria-label={t('profile.dobMonth') || 'Month'}
+                                    className="input flex-1 min-w-0"
+                                >
+                                    <option value="">{t('profile.dobMonth') || 'Month'}</option>
+                                    {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+                                        <option key={m} value={m}>{t(`profile.months.${m}`)}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    id="dob_year"
+                                    value={(() => { const p = (profile.date_of_birth || '').split('-'); return p.length >= 1 && p[0] && p[0] !== '0000' ? parseInt(p[0], 10) || '' : ''; })()}
+                                    onChange={(e) => {
+                                        const parts = (profile.date_of_birth || '0000-00-00').split('-');
+                                        const y = e.target.value || '0000';
+                                        const m = parts[1] && parts[1] !== '00' ? parts[1] : '00';
+                                        const d = parts[2] && parts[2] !== '00' ? parts[2] : '00';
+                                        setProfile({ ...profile, date_of_birth: `${y}-${m}-${d}` });
+                                    }}
+                                    aria-label={t('profile.dobYear') || 'Year'}
+                                    className="input flex-1 min-w-0"
+                                >
+                                    <option value="">{t('profile.dobYear') || 'Year'}</option>
+                                    {Array.from({ length: new Date().getFullYear() - 1920 + 1 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                                        <option key={y} value={y}>{y}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </ProfileField>
 
                         <ProfileField icon={User} label={t('profile.gender') || 'Gender'} htmlFor="gender">
@@ -469,7 +522,7 @@ const Profile = () => {
                             {useImperial ? 'ft/lbs → cm/kg' : 'cm/kg → ft/lbs'}
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <ProfileField icon={Ruler} label={useImperial ? (t('profile.heightImperial') || 'Height (ft\'in")') : (t('profile.height') || 'Height (cm)')} htmlFor="height_cm">
                             {useImperial ? (
                                 <div className="flex items-center gap-2">

@@ -454,7 +454,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
             <button
                 onClick={onToggle}
                 className={cn(
-                    "w-full p-4 flex items-center justify-between transition-colors",
+                    "w-full p-4 flex items-center justify-between transition-colors cursor-pointer",
                     expanded ? colors.bg : "hover:bg-slate-50"
                 )}
             >

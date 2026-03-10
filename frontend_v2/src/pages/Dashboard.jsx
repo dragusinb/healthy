@@ -258,7 +258,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* Health Status */}
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
                                     {t('dashboard.healthStatus') || 'Health Status'}
                                 </h4>
@@ -297,7 +297,7 @@ const Dashboard = () => {
                             </div>
 
                             {/* Reminders & Warnings */}
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
                                     {t('dashboard.reminders') || 'Reminders'}
                                 </h4>
