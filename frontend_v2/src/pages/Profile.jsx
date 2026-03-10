@@ -414,6 +414,8 @@ const Profile = () => {
                         </ProfileField>
 
                         <ProfileField icon={Calendar} label={t('profile.dateOfBirth') || 'Date of Birth'}>
+                            <fieldset>
+                                <legend className="sr-only">{t('profile.dateOfBirth') || 'Date of Birth'}</legend>
                             <div className="flex gap-2">
                                 <select
                                     id="dob_day"
@@ -470,6 +472,7 @@ const Profile = () => {
                                     ))}
                                 </select>
                             </div>
+                            </fieldset>
                         </ProfileField>
 
                         <ProfileField icon={User} label={t('profile.gender') || 'Gender'} htmlFor="gender">

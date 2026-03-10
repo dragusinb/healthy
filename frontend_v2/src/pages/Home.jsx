@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -6,17 +6,16 @@ import {
   CheckCircle, ArrowRight, Lock, Users, Clock, Smartphone,
   Globe, Star, ChevronRight, Activity, Stethoscope
 } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function Home() {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isRomanian = i18n.language === 'ro';
 
-  useEffect(() => {
-    document.title = isRomanian
-      ? 'Analize.Online - Toate analizele tale medicale, într-un singur loc'
-      : 'Analize.Online - All your medical tests, in one place';
-  }, [isRomanian]);
+  usePageTitle(null, isRomanian
+    ? 'Toate analizele tale medicale, într-un singur loc'
+    : 'All your medical tests, in one place');
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'ro' ? 'en' : 'ro');

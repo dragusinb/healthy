@@ -454,7 +454,7 @@ const Layout = ({ children }) => {
 
                     {/* Dynamic Page Header */}
                     <div className="mb-8 hidden md:block">
-                        <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">{getPageTitle()}</h2>
+                        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">{getPageTitle()}</h1>
                         <div className="h-1 w-20 bg-primary-500 rounded-full mt-2 opacity-20"></div>
                     </div>
 

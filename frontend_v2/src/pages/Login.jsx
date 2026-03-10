@@ -626,7 +626,14 @@ const Login = () => {
                 const status = err.response?.status;
                 const detail = err.response?.data?.detail;
                 if (status === 429) {
-                    setError(detail || t('auth.tooManyAttempts'));
+                    // Extract minutes from backend message if present, otherwise use generic translation
+                    const minutesMatch = detail?.match(/(\d+)\s*minute/);
+                    if (minutesMatch) {
+                        const minutes = minutesMatch[1];
+                        setError(t('auth.tooManyAttemptsMinutes', { minutes }) || t('auth.tooManyAttempts'));
+                    } else {
+                        setError(t('auth.tooManyAttempts'));
+                    }
                 } else {
                     setError(t('auth.invalidCredentials'));
                 }
