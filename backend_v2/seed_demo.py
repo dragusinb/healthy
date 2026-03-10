@@ -518,67 +518,67 @@ def create_mother_data(mother):
                 "key_health_factors": ["Gonartroza genunchi drept", "Anemie feripriva", "Colesterol usor crescut", "Presiune intraoculara la limita"]
             },
             "weekly_schedule": [
-                {"day": "Luni", "warmup": {"duration": "10 min", "exercises": [
-                    {"name": "Mers pe loc", "duration": "3 min", "notes": "Ritm moderat"},
-                    {"name": "Rotatii glezne si genunchi", "duration": "3 min", "notes": "Miscari lente, circulare"},
-                    {"name": "Stretching usor membre inferioare", "duration": "4 min", "notes": "Fara forta excesiva pe genunchi"}
+                {"day": "Luni", "focus": "Kinetoterapie genunchi + Cardio", "total_duration": "45 min", "warmup": {"duration": "10 min", "exercises": [
+                    "Mers pe loc - 3 min, ritm moderat",
+                    "Rotatii glezne si genunchi - 3 min, miscari lente",
+                    "Stretching usor membre inferioare - 4 min"
                 ]}, "main_workout": [
-                    {"exercise": "Extensii de genunchi sezand", "sets": "3", "reps": "12", "duration": "", "rest": "60s", "intensity": "Moderata", "biomarker_benefit": "Intarire cvadriceps - protectie gonartroza", "notes": "Greutate mica sau fara greutate"},
-                    {"exercise": "Ridicari de sold (bridge)", "sets": "3", "reps": "15", "duration": "", "rest": "45s", "intensity": "Moderata", "biomarker_benefit": "Stabilitate genunchi si sold", "notes": "Mentin 3 sec sus"},
-                    {"exercise": "Mers pe bicicleta statica", "sets": "1", "reps": "", "duration": "15 min", "rest": "", "intensity": "Usoara-moderata", "biomarker_benefit": "Cardio fara impact pe genunchi, circulatie", "notes": "Rezistenta mica, ritm constant"},
-                    {"exercise": "Flexii cu banda elastica", "sets": "2", "reps": "10", "duration": "", "rest": "45s", "intensity": "Usoara", "biomarker_benefit": "Flexibilitate genunchi", "notes": "Banda usoara"},
+                    {"exercise": "Extensii de genunchi sezand", "sets_reps": "3x12", "rest": "60s", "duration": "", "biomarker_benefit": "Intarire cvadriceps - protectie gonartroza", "details": "Greutate mica sau fara greutate"},
+                    {"exercise": "Ridicari de sold (bridge)", "sets_reps": "3x15", "rest": "45s", "duration": "", "biomarker_benefit": "Stabilitate genunchi si sold", "details": "Mentin 3 sec sus"},
+                    {"exercise": "Mers pe bicicleta statica", "sets_reps": "", "rest": "", "duration": "15 min", "biomarker_benefit": "Cardio fara impact pe genunchi, circulatie", "details": "Rezistenta mica, ritm constant"},
+                    {"exercise": "Flexii cu banda elastica", "sets_reps": "2x10", "rest": "45s", "duration": "", "biomarker_benefit": "Flexibilitate genunchi", "details": "Banda usoara"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching cvadriceps", "duration": "2 min", "notes": "Tin 20s fiecare picior"},
-                    {"name": "Respiratii profunde", "duration": "3 min", "notes": "Relaxare completa"},
+                    "Stretching cvadriceps - 2 min, tin 20s fiecare picior",
+                    "Respiratii profunde - 3 min, relaxare completa"
                 ]}},
-                {"day": "Marti", "warmup": {"duration": "8 min", "exercises": [
-                    {"name": "Mers pe loc cu balansare brate", "duration": "3 min", "notes": ""},
-                    {"name": "Rotatii umeri si gat", "duration": "2 min", "notes": ""},
-                    {"name": "Flexii usoare trunchi", "duration": "3 min", "notes": ""}
+                {"day": "Marti", "focus": "Cardio moderat + Tonifiere", "total_duration": "45 min", "warmup": {"duration": "8 min", "exercises": [
+                    "Mers pe loc cu balansare brate - 3 min",
+                    "Rotatii umeri si gat - 2 min",
+                    "Flexii usoare trunchi - 3 min"
                 ]}, "main_workout": [
-                    {"exercise": "Plimbare in aer liber", "sets": "1", "reps": "", "duration": "30 min", "rest": "", "intensity": "Moderata", "biomarker_benefit": "Cardio, circulatie, vitamina D", "notes": "Pas alert dar confortabil"},
-                    {"exercise": "Exercitii brate cu gantere mici", "sets": "2", "reps": "12", "duration": "", "rest": "45s", "intensity": "Usoara", "biomarker_benefit": "Tonifiere generala", "notes": "1-2 kg gantere"},
+                    {"exercise": "Plimbare in aer liber", "sets_reps": "", "rest": "", "duration": "30 min", "biomarker_benefit": "Cardio, circulatie, vitamina D", "details": "Pas alert dar confortabil"},
+                    {"exercise": "Exercitii brate cu gantere mici", "sets_reps": "2x12", "rest": "45s", "duration": "", "biomarker_benefit": "Tonifiere generala", "details": "1-2 kg gantere"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching general", "duration": "5 min", "notes": "Tot corpul"},
+                    "Stretching general - 5 min, tot corpul"
                 ]}},
-                {"day": "Miercuri", "warmup": {"duration": "10 min", "exercises": [
-                    {"name": "Mers pe loc", "duration": "3 min", "notes": ""},
-                    {"name": "Mobilizare articulara", "duration": "4 min", "notes": "Accent pe genunchi"},
-                    {"name": "Balans pe un picior", "duration": "3 min", "notes": "Cu sprijin pe scaun"}
+                {"day": "Miercuri", "focus": "Kinetoterapie + Inot", "total_duration": "50 min", "warmup": {"duration": "10 min", "exercises": [
+                    "Mers pe loc - 3 min",
+                    "Mobilizare articulara - 4 min, accent pe genunchi",
+                    "Balans pe un picior - 3 min, cu sprijin pe scaun"
                 ]}, "main_workout": [
-                    {"exercise": "Kinetoterapie genunchi - extensii izometrice", "sets": "3", "reps": "10", "duration": "", "rest": "60s", "intensity": "Moderata", "biomarker_benefit": "Intarire musculatura periarticulara", "notes": "Tin 5s contractia"},
-                    {"exercise": "Step lateral cu banda elastica", "sets": "3", "reps": "12", "duration": "", "rest": "45s", "intensity": "Moderata", "biomarker_benefit": "Stabilitate laterala genunchi", "notes": "Pasi mici, controlati"},
-                    {"exercise": "Inot sau aquagym", "sets": "1", "reps": "", "duration": "20 min", "rest": "", "intensity": "Moderata", "biomarker_benefit": "Cardio fara impact, mobilitate articulara", "notes": "Ideal pentru gonartroza"},
+                    {"exercise": "Extensii izometrice genunchi", "sets_reps": "3x10", "rest": "60s", "duration": "", "biomarker_benefit": "Intarire musculatura periarticulara", "details": "Tin 5s contractia"},
+                    {"exercise": "Step lateral cu banda elastica", "sets_reps": "3x12", "rest": "45s", "duration": "", "biomarker_benefit": "Stabilitate laterala genunchi", "details": "Pasi mici, controlati"},
+                    {"exercise": "Inot sau aquagym", "sets_reps": "", "rest": "", "duration": "20 min", "biomarker_benefit": "Cardio fara impact, mobilitate articulara", "details": "Ideal pentru gonartroza"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching in apa sau pe saltea", "duration": "5 min", "notes": ""},
+                    "Stretching in apa sau pe saltea - 5 min"
                 ]}},
-                {"day": "Joi", "warmup": {"duration": "5 min", "exercises": [
-                    {"name": "Respiratii si stretching usor", "duration": "5 min", "notes": "Zi de recuperare activa"}
+                {"day": "Joi", "focus": "Recuperare activa - Yoga", "total_duration": "35 min", "warmup": {"duration": "5 min", "exercises": [
+                    "Respiratii si stretching usor - 5 min"
                 ]}, "main_workout": [
-                    {"exercise": "Yoga adaptata / stretching", "sets": "1", "reps": "", "duration": "25 min", "rest": "", "intensity": "Usoara", "biomarker_benefit": "Flexibilitate, reducere stres, tensiune arteriala", "notes": "Pozitii adaptate, evita presiune pe genunchi"},
+                    {"exercise": "Yoga adaptata / stretching", "sets_reps": "", "rest": "", "duration": "25 min", "biomarker_benefit": "Flexibilitate, reducere stres, tensiune arteriala", "details": "Pozitii adaptate, evita presiune pe genunchi"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Meditatie si respiratie", "duration": "5 min", "notes": "Relaxare profunda"},
+                    "Meditatie si respiratie - 5 min, relaxare profunda"
                 ]}},
-                {"day": "Vineri", "warmup": {"duration": "10 min", "exercises": [
-                    {"name": "Mers pe loc", "duration": "3 min", "notes": ""},
-                    {"name": "Mobilizare completa articulatii", "duration": "4 min", "notes": ""},
-                    {"name": "Rotatii trunchi", "duration": "3 min", "notes": ""}
+                {"day": "Vineri", "focus": "Forta + Cardio interval", "total_duration": "45 min", "warmup": {"duration": "10 min", "exercises": [
+                    "Mers pe loc - 3 min",
+                    "Mobilizare completa articulatii - 4 min",
+                    "Rotatii trunchi - 3 min"
                 ]}, "main_workout": [
-                    {"exercise": "Genuflexiuni partiale la perete", "sets": "3", "reps": "10", "duration": "", "rest": "60s", "intensity": "Moderata", "biomarker_benefit": "Intarire cvadriceps si fesieri", "notes": "Nu cobori sub 90 grade"},
-                    {"exercise": "Ridicari pe varfuri", "sets": "3", "reps": "15", "duration": "", "rest": "30s", "intensity": "Usoara", "biomarker_benefit": "Circulatie periferica, echilibru", "notes": "Cu sprijin pe scaun"},
-                    {"exercise": "Bicicleta statica", "sets": "1", "reps": "", "duration": "15 min", "rest": "", "intensity": "Moderata", "biomarker_benefit": "Cardio, reducere colesterol", "notes": "Interval: 2 min moderat, 1 min rapid"},
+                    {"exercise": "Genuflexiuni partiale la perete", "sets_reps": "3x10", "rest": "60s", "duration": "", "biomarker_benefit": "Intarire cvadriceps si fesieri", "details": "Nu cobori sub 90 grade"},
+                    {"exercise": "Ridicari pe varfuri", "sets_reps": "3x15", "rest": "30s", "duration": "", "biomarker_benefit": "Circulatie periferica, echilibru", "details": "Cu sprijin pe scaun"},
+                    {"exercise": "Bicicleta statica", "sets_reps": "", "rest": "", "duration": "15 min", "biomarker_benefit": "Cardio, reducere colesterol", "details": "Interval: 2 min moderat, 1 min rapid"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching complet", "duration": "5 min", "notes": "Accent pe membre inferioare"},
+                    "Stretching complet - 5 min, accent pe membre inferioare"
                 ]}},
-                {"day": "Sambata", "warmup": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching usor", "duration": "5 min", "notes": ""}
+                {"day": "Sambata", "focus": "Plimbare lunga in natura", "total_duration": "55 min", "warmup": {"duration": "5 min", "exercises": [
+                    "Stretching usor - 5 min"
                 ]}, "main_workout": [
-                    {"exercise": "Plimbare lunga in natura", "sets": "1", "reps": "", "duration": "45 min", "rest": "", "intensity": "Usoara-moderata", "biomarker_benefit": "Cardio, vitamina D, bunastare mentala", "notes": "Teren plat, evita pantele abrupte"},
+                    {"exercise": "Plimbare lunga in natura", "sets_reps": "", "rest": "", "duration": "45 min", "biomarker_benefit": "Cardio, vitamina D, bunastare mentala", "details": "Teren plat, evita pantele abrupte"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching si hidratare", "duration": "5 min", "notes": ""},
+                    "Stretching si hidratare - 5 min"
                 ]}},
-                {"day": "Duminica", "warmup": {"duration": "0 min", "exercises": []}, "main_workout": [
-                    {"exercise": "Zi de odihna activa", "sets": "", "reps": "", "duration": "Toata ziua", "rest": "", "intensity": "Minima", "biomarker_benefit": "Recuperare musculara si articulara", "notes": "Plimbare usoara 15-20 min daca se simte bine, altfel odihna completa"},
+                {"day": "Duminica", "focus": "Odihna si recuperare", "total_duration": "15-20 min", "warmup": {"duration": "0 min", "exercises": []}, "main_workout": [
+                    {"exercise": "Zi de odihna activa", "sets_reps": "", "rest": "", "duration": "15-20 min", "biomarker_benefit": "Recuperare musculara si articulara", "details": "Plimbare usoara daca se simte bine, altfel odihna completa"},
                 ], "cooldown": {"duration": "0 min", "exercises": []}},
             ],
         }),
@@ -779,65 +779,65 @@ def create_son_data(son):
                 "key_health_factors": ["Scolioza toracica moderata (Cobb 18)", "Deficit vitamina D", "Alergii respiratorii", "Depozite fier scazute"]
             },
             "weekly_schedule": [
-                {"day": "Luni", "warmup": {"duration": "10 min", "exercises": [
-                    {"name": "Mers pe loc cu balansare brate", "duration": "3 min", "notes": ""},
-                    {"name": "Rotatii trunchi si umeri", "duration": "3 min", "notes": "Miscari lente"},
-                    {"name": "Cat-Cow stretch", "duration": "4 min", "notes": "Mobilizare coloana vertebrala"}
+                {"day": "Luni", "focus": "Schroth + Inot", "total_duration": "55 min", "warmup": {"duration": "10 min", "exercises": [
+                    "Mers pe loc cu balansare brate - 3 min",
+                    "Rotatii trunchi si umeri - 3 min, miscari lente",
+                    "Cat-Cow stretch - 4 min, mobilizare coloana"
                 ]}, "main_workout": [
-                    {"exercise": "Exercitii Schroth - autoelongare", "sets": "3", "reps": "10", "duration": "", "rest": "60s", "intensity": "Moderata", "biomarker_benefit": "Corectie posturala activa scolioza", "notes": "Concentrare pe respiratie 3D"},
-                    {"exercise": "Plank lateral (partea concava)", "sets": "3", "reps": "", "duration": "20s", "rest": "45s", "intensity": "Moderata", "biomarker_benefit": "Intarire musculatura asimetrica", "notes": "Doar pe partea recomandata de kinetoterapeut"},
-                    {"exercise": "Inot - stil craul", "sets": "1", "reps": "", "duration": "30 min", "rest": "", "intensity": "Moderata", "biomarker_benefit": "Intarire simetrica spate, fara compresie vertebrala", "notes": "Cel mai benefic sport pentru scolioza"},
+                    {"exercise": "Exercitii Schroth - autoelongare", "sets_reps": "3x10", "rest": "60s", "duration": "", "biomarker_benefit": "Corectie posturala activa scolioza", "details": "Concentrare pe respiratie 3D"},
+                    {"exercise": "Plank lateral (partea concava)", "sets_reps": "3x20s", "rest": "45s", "duration": "", "biomarker_benefit": "Intarire musculatura asimetrica", "details": "Doar pe partea recomandata de kinetoterapeut"},
+                    {"exercise": "Inot - stil craul", "sets_reps": "", "rest": "", "duration": "30 min", "biomarker_benefit": "Intarire simetrica spate, fara compresie vertebrala", "details": "Cel mai benefic sport pentru scolioza"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching spate si umeri", "duration": "5 min", "notes": "Pozitia copilului, stretching lateral"},
+                    "Stretching spate si umeri - 5 min, pozitia copilului"
                 ]}},
-                {"day": "Marti", "warmup": {"duration": "8 min", "exercises": [
-                    {"name": "Sarituri usoare pe loc", "duration": "3 min", "notes": "Impact redus"},
-                    {"name": "Rotatii articulare", "duration": "2 min", "notes": ""},
-                    {"name": "Stretching dinamic", "duration": "3 min", "notes": ""}
+                {"day": "Marti", "focus": "Cardio + Core", "total_duration": "40 min", "warmup": {"duration": "8 min", "exercises": [
+                    "Sarituri usoare pe loc - 3 min, impact redus",
+                    "Rotatii articulare - 2 min",
+                    "Stretching dinamic - 3 min"
                 ]}, "main_workout": [
-                    {"exercise": "Alergare usoara in aer liber", "sets": "1", "reps": "", "duration": "20 min", "rest": "", "intensity": "Moderata", "biomarker_benefit": "Cardio, vitamina D din soare, circulatie", "notes": "Evitare in sezon de polen ridicat - alternativa: sala"},
-                    {"exercise": "Exercitii abdominale adaptate", "sets": "3", "reps": "12", "duration": "", "rest": "45s", "intensity": "Moderata", "biomarker_benefit": "Stabilitate core pentru coloana", "notes": "Evita sit-ups clasice, preferi bird-dog si dead bug"},
+                    {"exercise": "Alergare usoara in aer liber", "sets_reps": "", "rest": "", "duration": "20 min", "biomarker_benefit": "Cardio, vitamina D din soare, circulatie", "details": "Evitare in sezon de polen ridicat - alternativa: sala"},
+                    {"exercise": "Exercitii abdominale adaptate", "sets_reps": "3x12", "rest": "45s", "duration": "", "biomarker_benefit": "Stabilitate core pentru coloana", "details": "Bird-dog si dead bug, evita sit-ups clasice"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching general", "duration": "5 min", "notes": ""},
+                    "Stretching general - 5 min"
                 ]}},
-                {"day": "Miercuri", "warmup": {"duration": "10 min", "exercises": [
-                    {"name": "Mers pe loc", "duration": "3 min", "notes": ""},
-                    {"name": "Cat-Cow stretch", "duration": "3 min", "notes": ""},
-                    {"name": "Respiratie diafragmatica", "duration": "4 min", "notes": "Pregatire Schroth"}
+                {"day": "Miercuri", "focus": "Schroth + Inot spate", "total_duration": "55 min", "warmup": {"duration": "10 min", "exercises": [
+                    "Mers pe loc - 3 min",
+                    "Cat-Cow stretch - 3 min",
+                    "Respiratie diafragmatica - 4 min, pregatire Schroth"
                 ]}, "main_workout": [
-                    {"exercise": "Exercitii Schroth - corectie rotatie", "sets": "3", "reps": "8", "duration": "", "rest": "60s", "intensity": "Moderata", "biomarker_benefit": "Reducere rotatie vertebrala", "notes": "Sub indrumarea kinetoterapeutului"},
-                    {"exercise": "Ridicari laterale cu banda elastica", "sets": "2", "reps": "10", "duration": "", "rest": "45s", "intensity": "Usoara", "biomarker_benefit": "Intarire musculatura paravertebrala", "notes": "Banda usoara"},
-                    {"exercise": "Inot - stil spate", "sets": "1", "reps": "", "duration": "25 min", "rest": "", "intensity": "Moderata", "biomarker_benefit": "Extensie coloana, intarire spate", "notes": "Alterneza cu crawl"},
+                    {"exercise": "Exercitii Schroth - corectie rotatie", "sets_reps": "3x8", "rest": "60s", "duration": "", "biomarker_benefit": "Reducere rotatie vertebrala", "details": "Sub indrumarea kinetoterapeutului"},
+                    {"exercise": "Ridicari laterale cu banda elastica", "sets_reps": "2x10", "rest": "45s", "duration": "", "biomarker_benefit": "Intarire musculatura paravertebrala", "details": "Banda usoara"},
+                    {"exercise": "Inot - stil spate", "sets_reps": "", "rest": "", "duration": "25 min", "biomarker_benefit": "Extensie coloana, intarire spate", "details": "Alterneza cu crawl"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching in apa", "duration": "5 min", "notes": ""},
+                    "Stretching in apa - 5 min"
                 ]}},
-                {"day": "Joi", "warmup": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching usor", "duration": "5 min", "notes": "Zi mai usoara"}
+                {"day": "Joi", "focus": "Cardio usor + Echilibru", "total_duration": "40 min", "warmup": {"duration": "5 min", "exercises": [
+                    "Stretching usor - 5 min"
                 ]}, "main_workout": [
-                    {"exercise": "Bicicleta (statica sau in aer liber)", "sets": "1", "reps": "", "duration": "25 min", "rest": "", "intensity": "Usoara-moderata", "biomarker_benefit": "Cardio fara impact pe coloana", "notes": "Postura corecta pe bicicleta"},
-                    {"exercise": "Exercitii echilibru pe placa instabila", "sets": "3", "reps": "", "duration": "2 min", "rest": "30s", "intensity": "Usoara", "biomarker_benefit": "Proprioceptie, stabilitate core", "notes": "Cu supraveghere"},
+                    {"exercise": "Bicicleta (statica sau in aer liber)", "sets_reps": "", "rest": "", "duration": "25 min", "biomarker_benefit": "Cardio fara impact pe coloana", "details": "Postura corecta pe bicicleta"},
+                    {"exercise": "Exercitii echilibru pe placa instabila", "sets_reps": "3x2min", "rest": "30s", "duration": "", "biomarker_benefit": "Proprioceptie, stabilitate core", "details": "Cu supraveghere"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching si relaxare", "duration": "5 min", "notes": ""},
+                    "Stretching si relaxare - 5 min"
                 ]}},
-                {"day": "Vineri", "warmup": {"duration": "10 min", "exercises": [
-                    {"name": "Mers pe loc", "duration": "3 min", "notes": ""},
-                    {"name": "Mobilizare articulara completa", "duration": "4 min", "notes": ""},
-                    {"name": "Respiratie Schroth 3D", "duration": "3 min", "notes": ""}
+                {"day": "Vineri", "focus": "Schroth complet + Plank", "total_duration": "40 min", "warmup": {"duration": "10 min", "exercises": [
+                    "Mers pe loc - 3 min",
+                    "Mobilizare articulara completa - 4 min",
+                    "Respiratie Schroth 3D - 3 min"
                 ]}, "main_workout": [
-                    {"exercise": "Exercitii Schroth - program complet", "sets": "3", "reps": "10", "duration": "", "rest": "60s", "intensity": "Moderata", "biomarker_benefit": "Sesiune completa corectie scolioza", "notes": "Autoelongare + corectie rotatie + respiratie"},
-                    {"exercise": "Plank frontal", "sets": "3", "reps": "", "duration": "30s", "rest": "45s", "intensity": "Moderata", "biomarker_benefit": "Stabilitate core globala", "notes": "Pozitie corecta, fara arcuire lombara"},
+                    {"exercise": "Exercitii Schroth - program complet", "sets_reps": "3x10", "rest": "60s", "duration": "", "biomarker_benefit": "Sesiune completa corectie scolioza", "details": "Autoelongare + corectie rotatie + respiratie"},
+                    {"exercise": "Plank frontal", "sets_reps": "3x30s", "rest": "45s", "duration": "", "biomarker_benefit": "Stabilitate core globala", "details": "Pozitie corecta, fara arcuire lombara"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching complet", "duration": "5 min", "notes": "Accent pe spate si umeri"},
+                    "Stretching complet - 5 min, accent pe spate si umeri"
                 ]}},
-                {"day": "Sambata", "warmup": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching dinamic", "duration": "5 min", "notes": ""}
+                {"day": "Sambata", "focus": "Sport recreativ", "total_duration": "55 min", "warmup": {"duration": "5 min", "exercises": [
+                    "Stretching dinamic - 5 min"
                 ]}, "main_workout": [
-                    {"exercise": "Sport recreativ (badminton, tenis de masa)", "sets": "1", "reps": "", "duration": "45 min", "rest": "", "intensity": "Moderata", "biomarker_benefit": "Coordonare, socializare, distractie", "notes": "Sporturi cu impact simetric, evitare tenis clasic (asimetric)"},
+                    {"exercise": "Sport recreativ (badminton, tenis de masa)", "sets_reps": "", "rest": "", "duration": "45 min", "biomarker_benefit": "Coordonare, socializare, distractie", "details": "Sporturi cu impact simetric, evitare tenis clasic"},
                 ], "cooldown": {"duration": "5 min", "exercises": [
-                    {"name": "Stretching si hidratare", "duration": "5 min", "notes": ""},
+                    "Stretching si hidratare - 5 min"
                 ]}},
-                {"day": "Duminica", "warmup": {"duration": "0 min", "exercises": []}, "main_workout": [
-                    {"exercise": "Zi de odihna activa", "sets": "", "reps": "", "duration": "Toata ziua", "rest": "", "intensity": "Minima", "biomarker_benefit": "Recuperare musculara", "notes": "Plimbare 20-30 min cu familia, jocuri in aer liber"},
+                {"day": "Duminica", "focus": "Odihna si recuperare", "total_duration": "20-30 min", "warmup": {"duration": "0 min", "exercises": []}, "main_workout": [
+                    {"exercise": "Zi de odihna activa", "sets_reps": "", "rest": "", "duration": "20-30 min", "biomarker_benefit": "Recuperare musculara", "details": "Plimbare 20-30 min cu familia, jocuri in aer liber"},
                 ], "cooldown": {"duration": "0 min", "exercises": []}},
             ],
         }),
