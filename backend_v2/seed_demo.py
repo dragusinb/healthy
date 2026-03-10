@@ -285,31 +285,29 @@ def create_mother_data(mother):
 
     # --- Health Reports ---
     # General health report
+    mother_findings = [
+        {"area": "Hematologie", "status": "attention", "detail": "Anemie feriprivă moderată — Hemoglobina 11.8 g/dL, Feritina 12 ng/mL. Ușoară ameliorare față de acum 6 luni (Hb 11.2), dar încă sub normal."},
+        {"area": "Oftalmologie", "status": "attention", "detail": "Presiune intraoculară crescută la ochiul stâng (22 mmHg, limita superioară). Acuitate vizuală redusă bilateral (OD 0.7, OS 0.6). Se recomandă monitorizare glaucom."},
+        {"area": "Profil Lipidic", "status": "attention", "detail": "Colesterol total 215 mg/dL și LDL 138 mg/dL ușor crescute. Risc cardiovascular moderat."},
+        {"area": "Ortopedic", "status": "attention", "detail": "Gonartroza genunchi drept — necesită program de kinetoterapie pentru întărirea musculaturii și menținerea mobilității articulare."},
+        {"area": "Inflamație", "status": "normal", "detail": "CRP normalizat la 2.5 mg/L (anterior 3.8). VSH normal. Tendință pozitivă."},
+        {"area": "Tiroidă", "status": "normal", "detail": "TSH normal (2.8 mUI/L). Funcție tiroidiană normală."},
+    ]
+    mother_recommendations = [
+        "Continuarea suplimentării cu fier (Tardyferon sau similar) — consultați medicul pentru doza optimă",
+        "Control oftalmologic la 3 luni pentru monitorizarea presiunii intraoculare",
+        "Kinetoterapie 2-3 ședințe/săptămână pentru gonartroza genunchi drept — exerciții de întărire cvadriceps",
+        "Dietă bogată în fier: carne roșie, spanac, linte, sfeclă roșie",
+        "Reducere colesterol prin dietă: limitare grăsimi saturate, creștere fibre",
+        "Vitamina D3 suplimentar 2000 UI/zi în perioada iarnă-primăvară",
+    ]
     general_report = HealthReport(
         user_id=mother.id,
         report_type="general",
         title="Evaluare Generala Sanatate",
-        summary=json.dumps({
-            "summary": "Pacienta prezintă anemie feriprivă persistentă cu tendință ușoară de ameliorare, valori limită ale presiunii intraoculare la ochiul stâng necesitând monitorizare, și un profil lipidic ușor crescut. Gonartroza genunchiului drept necesită program de kinetoterapie.",
-            "findings": [
-                {"area": "Hematologie", "status": "attention", "detail": "Anemie feriprivă moderată — Hemoglobina 11.8 g/dL, Feritina 12 ng/mL. Ușoară ameliorare față de acum 6 luni (Hb 11.2), dar încă sub normal."},
-                {"area": "Oftalmologie", "status": "attention", "detail": "Presiune intraoculară crescută la ochiul stâng (22 mmHg, limita superioară). Acuitate vizuală redusă bilateral (OD 0.7, OS 0.6). Se recomandă monitorizare glaucom."},
-                {"area": "Profil Lipidic", "status": "attention", "detail": "Colesterol total 215 mg/dL și LDL 138 mg/dL ușor crescute. Risc cardiovascular moderat."},
-                {"area": "Ortopedic", "status": "attention", "detail": "Gonartroza genunchi drept — necesită program de kinetoterapie pentru întărirea musculaturii și menținerea mobilității articulare."},
-                {"area": "Inflamație", "status": "normal", "detail": "CRP normalizat la 2.5 mg/L (anterior 3.8). VSH normal. Tendință pozitivă."},
-                {"area": "Tiroidă", "status": "normal", "detail": "TSH normal (2.8 mUI/L). Funcție tiroidiană normală."},
-            ],
-            "recommendations": [
-                "Continuarea suplimentării cu fier (Tardyferon sau similar) — consultați medicul pentru doza optimă",
-                "Control oftalmologic la 3 luni pentru monitorizarea presiunii intraoculare",
-                "Kinetoterapie 2-3 ședințe/săptămână pentru gonartroza genunchi drept — exerciții de întărire cvadriceps",
-                "Dietă bogată în fier: carne roșie, spanac, linte, sfeclă roșie",
-                "Reducere colesterol prin dietă: limitare grăsimi saturate, creștere fibre",
-                "Vitamina D3 suplimentar 2000 UI/zi în perioada iarnă-primăvară",
-            ],
-            "health_score": 68,
-            "risk_areas": ["Anemie feriprivă", "Risc glaucom", "Gonartroza"],
-        }),
+        summary="Pacienta prezintă anemie feriprivă persistentă cu tendință ușoară de ameliorare, valori limită ale presiunii intraoculare la ochiul stâng necesitând monitorizare, și un profil lipidic ușor crescut. Gonartroza genunchiului drept necesită program de kinetoterapie.",
+        findings=json.dumps(mother_findings),
+        recommendations=json.dumps(mother_recommendations),
         risk_level="attention",
         created_at=now - timedelta(days=13),
         biomarkers_analyzed=33,
@@ -516,31 +514,29 @@ def create_son_data(son):
                           value=val, numeric_value=num, unit=unit, reference_range=ref, flags=flag, category=cat))
 
     # --- Health Report ---
+    son_findings = [
+        {"area": "Vitamina D", "status": "concern", "detail": "Deficit persistent de vitamina D — 22 ng/mL (anterior 18 ng/mL). Ameliorare ușoară sub suplimentare, dar încă sub valoarea optimă de 30 ng/mL. Critic pentru creșterea osoasă la această vârstă."},
+        {"area": "Hematologie", "status": "attention", "detail": "Feritina 18 ng/mL (limita inferioară, sub 20). Fierul seric s-a normalizat la 52 μg/dL. Risc de anemie feriprivă dacă nu se menține aportul."},
+        {"area": "Alergologie", "status": "attention", "detail": "Alergii multiple confirmate: acarieni (IgE 45.2), ambrozie (28.7), polen graminee (12.5), intoleranță lactoză (8.3). IgE total ridicat (350 UI/mL). Eozinofile crescute (7.2%)."},
+        {"area": "Ortopedic", "status": "concern", "detail": "Scolioză toracică cu unghi Cobb 18° — formă moderată. Rotație vertebrală grad 1 Nash-Moe. Necesită kinetoterapie specifică și monitorizare la 6 luni. Nu necesită corset la acest grad."},
+        {"area": "Metabolism", "status": "normal", "detail": "Glicemie normală (82 mg/dL), TSH normal (3.1 mUI/L), calciu normal. Creștere și dezvoltare în parametri normali."},
+    ]
+    son_recommendations = [
+        "Vitamina D3 suplimentar 2000 UI/zi — control la 3 luni pentru ajustare doză",
+        "Kinetoterapie specifică scolioză 3x/săptămână — exerciții Schroth sau SEAS",
+        "Dietă bogată în fier: carne roșie 2-3x/săptămână, leguminoase, spanac",
+        "Evitare lactate din lapte de vacă — înlocuire cu alternative (lapte de migdale, soia)",
+        "Aerius 5mg continuat în sezon alergic; consultare alergolog pentru imunoterapie",
+        "Control ortopedic cu radiografie la 6 luni pentru monitorizare unghi Cobb",
+        "Activitate fizică regulată: înot, exerciții de postură, evitare sporturi cu impact asimetric",
+    ]
     general_report = HealthReport(
         user_id=son.id,
         report_type="general",
         title="Evaluare Generala Sanatate",
-        summary=json.dumps({
-            "summary": "Pacientul pediatric prezintă deficit de vitamina D persistent, depozite de fier la limita inferioară, alergii multiple (acarieni, ambrozie, lactoza) și scolioză toracică moderată (unghi Cobb 18°) necesitând kinetoterapie activă.",
-            "findings": [
-                {"area": "Vitamina D", "status": "concern", "detail": "Deficit persistent de vitamina D — 22 ng/mL (anterior 18 ng/mL). Ameliorare ușoară sub suplimentare, dar încă sub valoarea optimă de 30 ng/mL. Critic pentru creșterea osoasă la această vârstă."},
-                {"area": "Hematologie", "status": "attention", "detail": "Feritina 18 ng/mL (limita inferioară, sub 20). Fierul seric s-a normalizat la 52 μg/dL. Risc de anemie feriprivă dacă nu se menține aportul."},
-                {"area": "Alergologie", "status": "attention", "detail": "Alergii multiple confirmate: acarieni (IgE 45.2), ambrozie (28.7), polen graminee (12.5), intoleranță lactoză (8.3). IgE total ridicat (350 UI/mL). Eozinofile crescute (7.2%)."},
-                {"area": "Ortopedic", "status": "concern", "detail": "Scolioză toracică cu unghi Cobb 18° — formă moderată. Rotație vertebrală grad 1 Nash-Moe. Necesită kinetoterapie specifică și monitorizare la 6 luni. Nu necesită corset la acest grad."},
-                {"area": "Metabolism", "status": "normal", "detail": "Glicemie normală (82 mg/dL), TSH normal (3.1 mUI/L), calciu normal. Creștere și dezvoltare în parametri normali."},
-            ],
-            "recommendations": [
-                "Vitamina D3 suplimentar 2000 UI/zi — control la 3 luni pentru ajustare doză",
-                "Kinetoterapie specifică scolioză 3x/săptămână — exerciții Schroth sau SEAS",
-                "Dietă bogată în fier: carne roșie 2-3x/săptămână, leguminoase, spanac",
-                "Evitare lactate din lapte de vacă — înlocuire cu alternative (lapte de migdale, soia)",
-                "Aerius 5mg continuat în sezon alergic; consultare alergolog pentru imunoterapie",
-                "Control ortopedic cu radiografie la 6 luni pentru monitorizare unghi Cobb",
-                "Activitate fizică regulată: înot, exerciții de postură, evitare sporturi cu impact asimetric",
-            ],
-            "health_score": 62,
-            "risk_areas": ["Deficit Vitamina D", "Scolioză moderată", "Alergii multiple", "Depozite fier scăzute"],
-        }),
+        summary="Pacientul pediatric prezintă deficit de vitamina D persistent, depozite de fier la limita inferioară, alergii multiple (acarieni, ambrozie, lactoza) și scolioză toracică moderată (unghi Cobb 18°) necesitând kinetoterapie activă.",
+        findings=json.dumps(son_findings),
+        recommendations=json.dumps(son_recommendations),
         risk_level="attention",
         created_at=now - timedelta(days=6),
         biomarkers_analyzed=28,
