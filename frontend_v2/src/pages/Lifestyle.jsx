@@ -6,7 +6,7 @@ import {
     Leaf, Apple, Dumbbell, Loader2, RefreshCw, CheckCircle,
     AlertTriangle, Shield, Droplets, Clock, Flame, Target,
     TrendingUp, ChevronRight, ChevronDown, User, UtensilsCrossed, Footprints,
-    ShoppingCart, Calendar, Play, Pause, ThumbsUp, ThumbsDown, X, Shuffle
+    ShoppingCart, Calendar, Play, Pause, ThumbsUp, ThumbsDown, X, Shuffle, ChefHat
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -534,6 +534,28 @@ const Lifestyle = () => {
                                                                     </ul>
                                                                     {meal.notes && (
                                                                         <p className="text-xs text-slate-500 mt-2 italic border-t border-slate-50 pt-1">{meal.notes}</p>
+                                                                    )}
+                                                                    {meal.recipe && (
+                                                                        <div className="mt-2 border-t border-slate-100 pt-2">
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    toggleDay(`recipe-${i}-${j}`);
+                                                                                }}
+                                                                                className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors"
+                                                                            >
+                                                                                <ChefHat size={14} />
+                                                                                {t('lifestyle.nutrition.recipe')}
+                                                                                {expandedDays[`recipe-${i}-${j}`] ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                                                                            </button>
+                                                                            {expandedDays[`recipe-${i}-${j}`] && (
+                                                                                <div className="mt-2 pl-5 text-xs text-slate-600 space-y-1">
+                                                                                    {meal.recipe.split(/(?=\d+\.\s)/).filter(Boolean).map((step, s) => (
+                                                                                        <p key={s} className="leading-relaxed">{step.trim()}</p>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                             </div>

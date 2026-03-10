@@ -827,6 +827,8 @@
       "hydration": "Hydration",
       "mealFrequency": "Meal Frequency",
       "mealPlan": "7-Day Meal Plan",
+      "recipe": "Recipe",
+      "showRecipe": "Show recipe",
       "priorityFoods": "Priority Foods",
       "foodsToReduce": "Foods to Reduce",
       "alternatives": "Try instead",

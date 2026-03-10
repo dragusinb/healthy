@@ -661,7 +661,7 @@ Respond in JSON format with these fields:
 - "shopping_list": array of {"category", "items" array}
 - "warnings": array of strings
 
-Example meal entry: {"meal":"Breakfast","time":"7:00-8:00","items":["2 boiled eggs","1 slice whole grain bread with 1 tbsp avocado","200ml green tea"],"calories":"~350 kcal","notes":"Eggs provide B12; avocado adds healthy fats"}
+Example meal entry: {"meal":"Breakfast","time":"7:00-8:00","items":["2 ouă fierte","1 felie pâine integrală cu 1 lingură avocado","200ml ceai verde"],"calories":"~350 kcal","notes":"Ouăle oferă B12; avocado adaugă grăsimi sănătoase","recipe":"1. Fierbe ouăle 8 minute în apă clocotită. 2. Prăjește pâinea integrală. 3. Zdrobește avocado-ul cu o furculiță, adaugă sare și lămâie. 4. Întinde avocado pe pâine, servește cu ouăle."}
 
 CRITICAL RULES:
 - meal_plan MUST have exactly 7 days, each with 3 meals (breakfast, lunch, dinner)
@@ -681,7 +681,22 @@ If the user has previous meal plans, you MUST create a COMPLETELY DIFFERENT menu
 - Do NOT reuse the same dishes or combinations from previous plans.
 - Use different proteins, grains, and vegetables than before.
 - Try cuisines or cooking styles not yet explored.
-- You may reuse LIKED foods but prepare them differently (different cooking method, different combination)."""
+- You may reuse LIKED foods but prepare them differently (different cooking method, different combination).
+
+REGIONAL CUISINE RULE:
+The meal plan MUST be adapted to the patient's cultural context:
+- If the patient's language is Romanian (ro), create meals using TRADITIONAL ROMANIAN CUISINE and locally available ingredients.
+  - Use dishes like: ciorbă de legume, mâncarică de mazăre, tocăniță de pui, sarmale, ardei umpluți, pilaf, fasole bătută, salată de vinete, ghiveci, mămăligă, plăcinte, supă de pui cu tăiței, ficăței de pui, chiftele, musaca, dovlecei umpluți, zacuscă, bulz, papanași (when appropriate).
+  - Prefer Romanian dairy (telemea, brânză de vaci, smântână, caș), Romanian breads, and seasonal produce common in Romania.
+  - Use Romanian cooking methods: la cuptor, fiert, înăbușit, la ceaun.
+  - Shopping lists should use Romanian product names and typical quantities found in Romanian supermarkets.
+- If in English, still use the patient's cultural context if known from their profile.
+- ALWAYS adapt portions and ingredients to be nutritionally appropriate for the patient's biomarkers.
+
+RECIPE RULE:
+Each meal MUST include a "recipe" field with brief cooking instructions (3-6 steps).
+Format: short, clear steps that a home cook can follow.
+Example: {"meal":"Lunch","time":"12:00-13:00","items":["Mâncarică de mazăre cu pui - 350g","Mămăligă - 150g","Salată de roșii cu ceapă - 150g"],"calories":"~550 kcal","notes":"Mazărea oferă fibre și proteine vegetale; puiul completează cu proteine animale","recipe":"1. Călește ceapa tocată în puțin ulei de măsline. 2. Adaugă pieptul de pui tăiat cubulețe, prăjește 5 min. 3. Adaugă mazărea (proaspătă sau congelată), 200ml apă, sare, piper, boia dulce. 4. Fierbe la foc mic 20 min acoperit. 5. Servește cu mămăligă proaspătă."}"""
 
     def analyze(self, biomarkers: List[Dict], profile_context: str = "", food_pref_context: str = "", previous_foods_context: str = "") -> Dict[str, Any]:
         """Generate personalized nutrition recommendations from biomarkers."""
@@ -719,13 +734,19 @@ Consider the patient's profile when making nutrition recommendations. BMI, activ
 
 """
 
-        user_prompt = f"""{profile_section}{food_pref_section}{previous_foods_section}Based on these lab results, create a detailed 7-day meal plan with specific foods, portions, and preparation notes. Include a shopping list.
+        language_section = ""
+        if self.language == "ro":
+            language_section = "IMPORTANT: The patient is Romanian. Create the ENTIRE meal plan using Romanian cuisine, Romanian dish names, and Romanian ingredients. Write ALL text (summaries, notes, recipes, shopping lists) in Romanian.\n\n"
+        elif self.language != "en":
+            language_section = f"IMPORTANT: Write all text in the patient's language: {self.language}\n\n"
+
+        user_prompt = f"""{profile_section}{food_pref_section}{previous_foods_section}{language_section}Based on these lab results, create a detailed 7-day meal plan with specific foods, portions, and preparation notes. Include a shopping list.
 
 {biomarker_text}
 
 Every meal must name exact foods with gram portions. Provide your complete plan in JSON format."""
 
-        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="nutrition_analysis", max_tokens=8000)
+        response = self._call_ai(self.SYSTEM_PROMPT, user_prompt, purpose="nutrition_analysis", max_tokens=10000)
 
         try:
             json_str = response
