@@ -14,13 +14,8 @@ import json
 import uuid
 from dotenv import load_dotenv
 
-# Load .env file (works both locally and on server)
-env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-if os.path.exists(env_path):
-    load_dotenv(env_path)
-else:
-    # Try same directory
-    load_dotenv()
+# Load .env file (same directory as the script, i.e. backend_v2/.env)
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 # Import app models
 from models import (
