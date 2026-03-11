@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Crown } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
+import { ListSkeleton } from '../components/Skeleton';
 import FamilyDashboard from '../components/FamilyDashboard';
 
 export default function Family() {
@@ -40,7 +41,9 @@ export default function Family() {
       </div>
 
       {/* Family dashboard */}
-      <FamilyDashboard />
+      <Suspense fallback={<ListSkeleton rows={3} />}>
+        <FamilyDashboard />
+      </Suspense>
     </div>
   );
 }

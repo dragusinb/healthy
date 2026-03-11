@@ -215,13 +215,13 @@ export default function Settings() {
       role="switch"
       aria-checked={!!checked}
       aria-label={ariaLabel}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+      className={`relative inline-flex h-8 w-14 min-h-[44px] min-w-[44px] items-center rounded-full transition-colors ${
         checked ? 'bg-cyan-500' : 'bg-gray-300'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-          checked ? 'translate-x-6' : 'translate-x-1'
+        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+          checked ? 'translate-x-7' : 'translate-x-1'
         }`}
       />
     </button>

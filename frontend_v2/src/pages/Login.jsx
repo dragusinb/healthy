@@ -698,7 +698,7 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50 pt-8 pb-48 sm:pb-32 overflow-y-auto">
+        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-100/60 via-white to-teal-100/60 pt-8 pb-48 sm:pb-32 overflow-y-auto">
             <a href="#login-form" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>
@@ -772,7 +772,7 @@ const Login = () => {
                 {/* Login/Register Card */}
                 <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
                     {/* Language Toggle */}
-                    <div className="flex justify-end mb-6">
+                    <div className="flex justify-end mb-4">
                         <button
                             onClick={toggleLanguage}
                             className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full bg-slate-50 text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-colors"
@@ -783,7 +783,7 @@ const Login = () => {
                         </button>
                     </div>
 
-                    <h2 className="text-xl font-semibold text-slate-800 mb-6 text-center">
+                    <h2 className="text-xl font-semibold text-slate-800 mb-4 text-center">
                         {isRegisterMode ? t('auth.signUp') : t('auth.signIn')}
                     </h2>
 
@@ -804,7 +804,7 @@ const Login = () => {
                     <button
                         onClick={handleGoogleLogin}
                         disabled={loading || serverStatus === 'offline'}
-                        className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 py-3 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+                        className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-200 text-slate-700 py-3 px-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed mb-4"
                     >
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -816,12 +816,12 @@ const Login = () => {
                     </button>
 
                     {/* Divider */}
-                    <div className="relative mb-6">
+                    <div className="relative mb-4">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-slate-200"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white text-slate-400">{t('auth.orContinueWithEmail')}</span>
+                            <span className="px-4 bg-white text-slate-500">{t('auth.orContinueWithEmail')}</span>
                         </div>
                     </div>
 
@@ -1028,7 +1028,7 @@ const Login = () => {
                     </form>
 
                     {/* Toggle Login/Register */}
-                    <div className="mt-6 text-center">
+                    <div className="mt-4 text-center">
                         <p className="text-sm text-slate-500">
                             {isRegisterMode ? t('auth.hasAccount') : t('auth.noAccount')}
                             <button

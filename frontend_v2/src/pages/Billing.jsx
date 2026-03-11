@@ -12,6 +12,7 @@ import api from '../api/client';
 import UsageStats from '../components/UsageStats';
 import FamilyManagement from '../components/FamilyManagement';
 import { useSubscription } from '../context/SubscriptionContext';
+import { ListSkeleton } from '../components/Skeleton';
 
 export default function Billing() {
   const { t, i18n } = useTranslation();
@@ -118,11 +119,7 @@ export default function Billing() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
-      </div>
-    );
+    return <ListSkeleton rows={4} />;
   }
 
   const isPremium = tier === 'premium' || tier === 'family';
