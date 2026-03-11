@@ -124,7 +124,10 @@
     "passwordFair": "Fair - try longer",
     "passwordMedium": "Medium - add uppercase, lowercase & numbers",
     "passwordStrong": "Strong password",
-    "registrationPending": "If this email is not already registered, a verification email has been sent. Please check your inbox."
+    "registrationPending": "If this email is not already registered, a verification email has been sent. Please check your inbox.",
+    "serverOnline": "Server: Online",
+    "serverOfflineLabel": "Server: Offline",
+    "serverChecking": "Server: ..."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -888,6 +891,7 @@
     }
   },
   "billing": {
+    "freePlan": "Free Plan",
     "title": "Subscription & Billing",
     "subtitle": "Manage your subscription and view usage",
     "paymentSuccess": "Payment processed successfully! Your subscription has been activated.",

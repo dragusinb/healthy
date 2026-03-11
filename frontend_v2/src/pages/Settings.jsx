@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import usePageTitle from '../hooks/usePageTitle';
-import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Monitor, X, Globe, Sun, Moon } from 'lucide-react';
+import { Bell, Mail, Clock, Check, AlertCircle, Download, Trash2, Shield, Loader2, AlertTriangle, Monitor, X, Globe, Sun, Moon, Settings2 } from 'lucide-react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -238,7 +238,7 @@ export default function Settings() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Bell className="w-8 h-8 text-cyan-500" />
+        <Settings2 className="w-8 h-8 text-cyan-500" />
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">{t('notifications.preferences')}</h2>
           <p className="text-gray-600 dark:text-gray-400">{t('notifications.preferencesDesc')}</p>

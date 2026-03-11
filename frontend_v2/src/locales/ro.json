@@ -127,7 +127,10 @@
     "passwordFair": "Acceptabilă - încearcă mai lungă",
     "passwordMedium": "Medie - adaugă majuscule, minuscule și cifre",
     "passwordStrong": "Parolă puternică",
-    "registrationPending": "Dacă acest email nu este deja înregistrat, un email de verificare a fost trimis. Verifică inbox-ul."
+    "registrationPending": "Dacă acest email nu este deja înregistrat, un email de verificare a fost trimis. Verifică inbox-ul.",
+    "serverOnline": "Server: Online",
+    "serverOfflineLabel": "Server: Offline",
+    "serverChecking": "Server: ..."
   },
   "dashboard": {
     "title": "Panou Principal",
@@ -932,6 +935,7 @@
     }
   },
   "billing": {
+    "freePlan": "Plan Gratuit",
     "title": "Abonament și Facturare",
     "subtitle": "Gestionează abonamentul și vezi utilizarea",
     "paymentSuccess": "Plata a fost procesată cu succes! Abonamentul tău a fost activat.",

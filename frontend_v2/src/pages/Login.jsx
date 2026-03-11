@@ -762,8 +762,8 @@ const Login = () => {
             <div className="w-full max-w-md">
                 {/* Logo/Brand */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-2xl shadow-lg shadow-primary-500/30 mb-4">
-                        <HeartPulse size={32} className="text-white" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-2xl shadow-lg shadow-primary-500/20 mb-4">
+                        <HeartPulse size={32} className="text-primary-600" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-800">{t('auth.appName')}</h1>
                     <p className="text-slate-500 mt-1">{t('auth.trackHealthJourney')}</p>
@@ -1064,17 +1064,17 @@ const Login = () => {
                         {serverStatus === 'online' ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-                                <span>Server: Online</span>
+                                <span>{t('auth.serverOnline') || 'Server: Online'}</span>
                             </>
                         ) : serverStatus === 'offline' ? (
                             <>
                                 <WifiOff size={10} />
-                                <span>Server: Offline</span>
+                                <span>{t('auth.serverOfflineLabel') || 'Server: Offline'}</span>
                             </>
                         ) : (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
-                                <span>Server: ...</span>
+                                <span>{t('auth.serverChecking') || 'Server: ...'}</span>
                             </>
                         )}
                     </div>
