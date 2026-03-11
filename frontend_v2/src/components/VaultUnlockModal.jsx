@@ -51,7 +51,7 @@ const VaultUnlockModal = () => {
                 <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-5 text-white">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-white/20 rounded-lg">
-                            <Lock size={24} />
+                            <Lock size={24} aria-hidden="true" />
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold">

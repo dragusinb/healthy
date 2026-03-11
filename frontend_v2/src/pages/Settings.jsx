@@ -20,7 +20,7 @@ import {
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
-  usePageTitle('notifications.preferences', 'Settings');
+  usePageTitle('nav.settingsTitle', 'Settings');
   const navigate = useNavigate();
   const { logout } = useAuth();
   const { theme, toggleTheme } = useTheme();

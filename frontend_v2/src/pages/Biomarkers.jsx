@@ -169,7 +169,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     {historyCount > 1 && (
                         <button
                             onClick={() => onToggleHistory(group.canonical_name)}
-                            className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
                             aria-label={isExpanded ? t('biomarkers.collapseHistory') : t('biomarkers.expandHistory')}
                             aria-expanded={isExpanded}
                         >
@@ -214,7 +214,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     {latest.document_id && (
                         <button
                             onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
-                            className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             aria-label={t('documents.viewPdf')}
                         >
                             <Eye size={14} aria-hidden="true" />
@@ -223,7 +223,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     <button
                         onClick={(e) => { e.stopPropagation(); onDownload('biomarker', group.canonical_name); }}
                         disabled={downloading === `biomarker:${group.canonical_name}`}
-                        className="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
+                        className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
                         aria-label={t('biomarkers.downloadBiomarker')}
                         title={t('biomarkers.downloadBiomarker')}
                     >
@@ -252,13 +252,13 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     isExpanded && "bg-slate-50/50"
                 )}
             >
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center justify-between gap-2">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                             {historyCount > 1 && (
                                 <button
                                     onClick={() => onToggleHistory(group.canonical_name)}
-                                    className="p-1 text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors flex-shrink-0"
+                                    className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors flex-shrink-0"
                                     aria-label={isExpanded ? t('common.collapse') || 'Collapse' : t('common.expand') || 'Expand'}
                                 >
                                     {isExpanded ? <ChevronDown size={14} aria-hidden="true" /> : <ChevronRight size={14} aria-hidden="true" />}
@@ -302,7 +302,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         {latest.document_id && (
                             <button
                                 onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
-                                className="p-2 text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
+                                className="min-h-11 min-w-11 inline-flex items-center justify-center text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-lg transition-colors"
                                 title={t('documents.viewPdf')}
                                 aria-label={t('documents.viewPdf') || 'View PDF'}
                             >
@@ -312,7 +312,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         <button
                             onClick={(e) => { e.stopPropagation(); onDownload('biomarker', group.canonical_name); }}
                             disabled={downloading === `biomarker:${group.canonical_name}`}
-                            className="p-2 text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50"
+                            className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50"
                             title={t('biomarkers.downloadBiomarker')}
                             aria-label={t('biomarkers.downloadBiomarker')}
                         >
@@ -463,7 +463,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         <Icon size={20} className={colors.icon} />
                     </div>
                     <div className="text-left min-w-0">
-                        <h3 className="font-semibold text-slate-800 text-sm sm:text-base truncate">{t(category.nameKey)}</h3>
+                        <h3 className="font-semibold text-slate-800 text-xs sm:text-sm md:text-base whitespace-nowrap truncate">{t(category.nameKey)}</h3>
                         <p className="text-xs text-slate-500">
                             {visibleCount} {t('biomarkers.tests')}
                             {lastUpdatedDate && (
@@ -481,7 +481,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                     <button
                         onClick={(e) => { e.stopPropagation(); onDownload('category', categoryKey); }}
                         disabled={downloading === `category:${categoryKey}`}
-                        className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
+                        className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
                         title={t('biomarkers.downloadCategory')}
                         aria-label={t('biomarkers.downloadCategory')}
                     >
@@ -708,6 +708,16 @@ const Biomarkers = () => {
     const totalFiltered = Object.values(groupedByCategory).flat().length;
     const totalIssues = Object.values(groupedByCategory).flat().filter(g => g.has_issues).length;
 
+    // Global last updated date across all biomarkers
+    const globalLastUpdated = useMemo(() => {
+        let latest = null;
+        for (const group of biomarkerGroups) {
+            const d = group.latest?.date;
+            if (d && d !== 'Unknown' && (!latest || d > latest)) latest = d;
+        }
+        return latest ? new Date(latest).toLocaleDateString() : null;
+    }, [biomarkerGroups]);
+
     return (
         <div>
             {/* Error Banner */}
@@ -810,10 +820,16 @@ const Biomarkers = () => {
             </div>
 
             {/* Summary */}
-            <div className="mb-6 flex items-center gap-4 text-sm text-slate-600">
+            <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-slate-600">
                 <span>{t('biomarkers.showingCount', { count: totalFiltered })}</span>
                 {totalIssues > 0 && (
                     <span className="text-rose-600"><strong>{totalIssues}</strong> {t('biomarkers.outOfRange')}</span>
+                )}
+                {globalLastUpdated && (
+                    <span className="text-slate-400 flex items-center gap-1.5">
+                        <Calendar size={14} />
+                        {t('biomarkers.lastUpdated')}: {globalLastUpdated}
+                    </span>
                 )}
             </div>
 

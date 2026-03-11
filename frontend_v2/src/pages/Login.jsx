@@ -698,7 +698,7 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50 pt-8 pb-8 sm:pt-0 sm:pb-0 overflow-y-auto">
+        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-50 via-white to-teal-50 pt-8 pb-48 sm:pb-32 overflow-y-auto">
             <a href="#login-form" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>

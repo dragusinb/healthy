@@ -27,7 +27,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to })
                 <div>
                     <h3 className="text-4xl font-bold text-slate-800 tracking-tight">{value}</h3>
                     <p className="text-slate-500 font-medium text-sm mt-1">{title}</p>
-                    {subtitle && <p className="text-xs text-slate-400 mt-2 font-medium">{subtitle}</p>}
+                    {subtitle && <p className="text-xs text-slate-500 mt-2 font-medium">{subtitle}</p>}
                 </div>
             </div>
             {/* Decorative background circle */}
@@ -172,7 +172,7 @@ const Dashboard = () => {
 
             {/* Health Overview Section */}
             {healthOverview && (
-                <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="card p-6">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-6">
@@ -359,12 +359,12 @@ const Dashboard = () => {
             )}
 
             {/* Health Score */}
-            <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            <div className="mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
                 <HealthScoreCard />
             </div>
 
             {/* Quick Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <StatCard
                     title={t('dashboard.documentsCount')}
                     value={stats.documents_count}
@@ -393,7 +393,7 @@ const Dashboard = () => {
             </div>
 
             {/* Quick Actions Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 {/* Upload CTA */}
                 <Link to="/documents" className="card p-6 flex items-center gap-4 hover:ring-2 hover:ring-primary-500/20 group cursor-pointer hover:shadow-md transition-all">
                     <div className="p-3 bg-primary-50 rounded-xl group-hover:scale-110 transition-transform">
@@ -450,7 +450,7 @@ const Dashboard = () => {
                         </p>
                     </div>
                 ) : (
-                    <Link to="/health" className="block text-center py-12 text-slate-400 hover:bg-slate-50 rounded-xl transition-colors">
+                    <Link to="/health" className="block text-center py-12 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
                         <Brain size={40} className="mx-auto mb-3 opacity-50" />
                         <p className="text-lg font-medium">{t('dashboard.noFindingsYet') || 'No AI analysis yet'}</p>
                         <p className="text-sm mt-1">{t('dashboard.runAnalysisHint') || 'Run your first AI health analysis to see findings'}</p>
@@ -459,7 +459,7 @@ const Dashboard = () => {
             </div>
 
             {/* Health Timeline */}
-            <div className="card p-6 mt-8">
+            <div className="card p-6 mt-6">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <span className="p-1.5 bg-primary-50 text-primary-600 rounded-lg"><Clock size={18} /></span>

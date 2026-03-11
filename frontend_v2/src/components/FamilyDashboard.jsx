@@ -82,10 +82,10 @@ export default function FamilyDashboard() {
   if (!hasFamily) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
-        <Users className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold text-slate-800 mb-1">
+        <Users className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+        <h2 className="text-lg font-semibold text-slate-800 mb-1">
           {isRomanian ? 'Nu faci parte dintr-o familie' : 'Not in a family group'}
-        </h3>
+        </h2>
         <p className="text-slate-600 mb-3">
           {isRomanian
             ? 'Alătură-te unei familii sau creează una pentru a vedea datele membrilor.'
@@ -150,7 +150,7 @@ export default function FamilyDashboard() {
                 ? 'bg-green-100 text-green-700'
                 : 'bg-amber-100 text-amber-700'
             }`}>
-              {selectedMember.vault_active ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+              {selectedMember.vault_active ? <Unlock className="w-4 h-4" aria-hidden="true" /> : <Lock className="w-4 h-4" aria-hidden="true" />}
               {selectedMember.vault_active
                 ? (isRomanian ? 'Online' : 'Online')
                 : (isRomanian ? 'Offline' : 'Offline')}
@@ -208,8 +208,8 @@ export default function FamilyDashboard() {
                             {bio.value || bio.numeric_value} {bio.unit}
                           </p>
                         ) : (
-                          <p className="text-slate-400 text-sm flex items-center gap-1">
-                            <Lock className="w-3 h-3" />
+                          <p className="text-slate-500 text-sm flex items-center gap-1">
+                            <Lock className="w-3 h-3" aria-hidden="true" />
                             {isRomanian ? 'Indisponibil' : 'Unavailable'}
                           </p>
                         )}
@@ -289,8 +289,8 @@ export default function FamilyDashboard() {
                   member.vault_active ? 'bg-green-100' : 'bg-slate-100'
                 }`}>
                   {member.vault_active
-                    ? <Unlock className="w-4 h-4 text-green-600" />
-                    : <Lock className="w-4 h-4 text-slate-400" />
+                    ? <Unlock className="w-4 h-4 text-green-600" aria-hidden="true" />
+                    : <Lock className="w-4 h-4 text-slate-500" aria-hidden="true" />
                   }
                 </div>
               </div>

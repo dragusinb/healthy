@@ -118,7 +118,7 @@ const Layout = ({ children }) => {
             if (path.startsWith('/medications')) return t('medications.title');
             if (path.startsWith('/profile')) return t('profile.title');
             if (path.startsWith('/linked-accounts')) return t('linkedAccounts.title');
-            if (path.startsWith('/settings')) return t('notifications.preferences');
+            if (path.startsWith('/settings')) return t('nav.settingsTitle');
             if (path.startsWith('/billing')) return t('billing.title');
             if (path.startsWith('/admin')) return t('admin.title');
             return '';
@@ -171,7 +171,7 @@ const Layout = ({ children }) => {
         if (path.startsWith('/medications')) return t('medications.title');
         if (path.startsWith('/profile')) return t('profile.title');
         if (path.startsWith('/linked-accounts')) return t('linkedAccounts.title');
-        if (path.startsWith('/settings')) return t('notifications.preferences');
+        if (path.startsWith('/settings')) return t('nav.settingsTitle');
         if (path.startsWith('/billing')) return t('billing.title');
         if (path.startsWith('/admin')) return t('admin.title');
         return '';
@@ -207,12 +207,12 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} />
                         <SidebarItem to="/family" icon={Users} label={t('nav.family')} />
                     </nav>
-                    <div className="my-4 mx-2 border-t-2 border-slate-300 dark:border-slate-500" />
+                    <hr className="my-4 mx-2 border-t-2 border-slate-200 dark:border-slate-600" role="separator" />
                     <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 px-2">{t('nav.settings')}</div>
                     <nav className="space-y-0.5">
                         <SidebarItem to="/profile" icon={User} label={t('nav.profile')} />
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
-                        <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} title={t('nav.notificationSettings')} />
+                        <SidebarItem to="/settings" icon={Bell} label={t('nav.settingsTitle')} />
                         <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} />
                         <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} />
                         {user?.is_admin && (
@@ -329,12 +329,12 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/medications" icon={Pill} label={t('nav.medications')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/family" icon={Users} label={t('nav.family') || (i18n.language === 'ro' ? 'Familia Mea' : 'My Family')} onClick={closeMobileMenu} />
                                 </nav>
-                                <div className="my-4 mx-2 border-t-2 border-slate-300 dark:border-slate-500" />
+                                <hr className="my-4 mx-2 border-t-2 border-slate-200 dark:border-slate-600" role="separator" />
                                 <div className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-4 px-2">{t('nav.settings')}</div>
                                 <nav className="space-y-1.5">
                                     <SidebarItem to="/profile" icon={User} label={t('nav.profile')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
-                                    <SidebarItem to="/settings" icon={Bell} label={t('notifications.preferences')} title={t('nav.notificationSettings')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/settings" icon={Bell} label={t('nav.settingsTitle')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} onClick={closeMobileMenu} />
                                     {user?.is_admin && (
@@ -453,9 +453,9 @@ const Layout = ({ children }) => {
                     )}
 
                     {/* Dynamic Page Header */}
-                    <div className="mb-8 hidden md:block">
-                        <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">{getPageTitle()}</h1>
-                        <div className="h-1 w-20 bg-primary-500 rounded-full mt-2 opacity-20"></div>
+                    <div className="mb-4 md:mb-8">
+                        <h1 className="text-xl md:text-3xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">{getPageTitle()}</h1>
+                        <div className="h-1 w-20 bg-primary-500 rounded-full mt-2 opacity-20 hidden md:block"></div>
                     </div>
 
                     {children}

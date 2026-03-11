@@ -60,7 +60,8 @@
     "medications": "Medicamente",
     "skipToContent": "Salt la conținutul principal",
     "mobileNav": "Navigare principală",
-    "notificationSettings": "Setări Notificări (nu notificări live)"
+    "notificationSettings": "Setări Notificări (nu notificări live)",
+    "settingsTitle": "Setări"
   },
   "auth": {
     "login": "Autentificare",

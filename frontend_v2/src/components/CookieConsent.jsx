@@ -41,14 +41,18 @@ const CookieConsent = () => {
         if (showBanner && bannerRef.current) {
             const updatePadding = () => {
                 const height = bannerRef.current?.offsetHeight || 0;
-                document.body.style.paddingBottom = `${height}px`;
+                document.body.style.paddingBottom = `${height + 16}px`;
             };
             updatePadding();
             // Update on resize in case banner height changes
             window.addEventListener('resize', updatePadding);
+            // Also observe banner size changes
+            const observer = new ResizeObserver(updatePadding);
+            observer.observe(bannerRef.current);
             return () => {
                 document.body.style.paddingBottom = '';
                 window.removeEventListener('resize', updatePadding);
+                observer.disconnect();
             };
         } else {
             document.body.style.paddingBottom = '';
@@ -177,20 +181,20 @@ const CookieConsent = () => {
 
             {/* Cookie Banner */}
             <div ref={bannerRef} className="fixed bottom-0 left-0 right-0 z-[9997] p-3 sm:p-4 animate-in slide-in-from-bottom duration-300">
-                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-900/10 border-t-4 border-primary-500 p-3 sm:p-4 md:p-6 relative">
+                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-900/5 border border-slate-200 p-3 sm:p-4 md:p-6 relative">
+                    {/* Close X button - always visible */}
+                    <button
+                        onClick={acceptEssential}
+                        className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        aria-label={t('common.close') || 'Dismiss'}
+                    >
+                        <X size={18} />
+                    </button>
                     <div className="flex flex-col md:flex-row md:items-center gap-3 sm:gap-4">
-                        <div className="flex items-start gap-3 flex-1">
+                        <div className="flex items-start gap-3 flex-1 pr-6">
                             <div className="p-2 bg-primary-50 rounded-lg shrink-0">
                                 <Cookie size={20} className="text-primary-600 sm:w-6 sm:h-6" />
                             </div>
-                            {/* Dismiss X button (top-right of banner on mobile, inline on desktop) */}
-                            <button
-                                onClick={acceptEssential}
-                                className="absolute top-2 right-2 md:hidden p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                                aria-label={t('common.close') || 'Dismiss'}
-                            >
-                                <X size={18} />
-                            </button>
                             <div className="pt-0.5">
                                 <h3 className="font-semibold text-slate-800 text-sm sm:text-base mb-0.5 sm:mb-1">
                                     {t('cookies.title')}
@@ -206,19 +210,12 @@ const CookieConsent = () => {
                                         {t('cookies.learnMore')}
                                     </a>
                                 </p>
-                                <p className="text-[10px] sm:text-xs text-slate-400 mt-1">
+                                <p className="text-[10px] sm:text-xs text-slate-500 mt-1">
                                     {t('cookies.savedDuration')}
                                 </p>
                             </div>
                         </div>
                         <div className="flex flex-wrap gap-2 md:shrink-0 items-center">
-                            <button
-                                onClick={acceptEssential}
-                                className="hidden md:flex p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                                aria-label={t('common.close') || 'Dismiss'}
-                            >
-                                <X size={18} />
-                            </button>
                             <button
                                 onClick={acceptEssential}
                                 className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"

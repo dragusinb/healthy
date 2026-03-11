@@ -173,7 +173,7 @@ export default function Billing() {
                   {tier === 'family' ? 'Family' : tier === 'premium' ? 'Premium' : 'Free'}
                 </h2>
                 {isPremium && (
-                  <p className="text-slate-500">
+                  <p className="text-slate-600">
                     {subscription?.billing_cycle === 'yearly' ? t('billing.yearlyPlan') : t('billing.monthlyPlan')}
                   </p>
                 )}
@@ -182,7 +182,7 @@ export default function Billing() {
 
             {isPremium && (
               <div className="text-right">
-                <p className="text-sm text-slate-500">{t('billing.nextBilling')}</p>
+                <p className="text-sm text-slate-600">{t('billing.nextBilling')}</p>
                 <p className="font-medium text-slate-800">
                   {subscription?.current_period_end
                     ? new Date(subscription.current_period_end).toLocaleDateString()
@@ -421,7 +421,7 @@ export default function Billing() {
         </div>
         <div className="p-6 text-center">
           <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500 text-sm">
+          <p className="text-slate-600 text-sm">
             {t('billing.noInvoices', 'No invoices yet')}
           </p>
         </div>

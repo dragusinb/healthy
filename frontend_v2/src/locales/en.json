@@ -57,7 +57,8 @@
     "medications": "Medications",
     "skipToContent": "Skip to main content",
     "mobileNav": "Main navigation",
-    "notificationSettings": "Notification Settings (not live notifications)"
+    "notificationSettings": "Notification Settings (not live notifications)",
+    "settingsTitle": "Settings"
   },
   "auth": {
     "login": "Login",

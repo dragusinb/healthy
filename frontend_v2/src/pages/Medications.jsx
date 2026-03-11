@@ -177,8 +177,8 @@ export default function Medications() {
         api.get('/medications'),
         api.get('/medications/adherence')
       ]);
-      setMedications(medsRes.data);
-      setAdherence(adherenceRes.data);
+      setMedications(medsRes.data || []);
+      setAdherence(adherenceRes.data || null);
     } catch (e) {
       console.error('Failed to load medications', e);
     } finally {

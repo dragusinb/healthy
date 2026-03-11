@@ -507,7 +507,7 @@ const HealthReports = () => {
                                                 <Icon size={24} className="text-teal-600" />
                                             </div>
                                             <div className="flex-1">
-                                                <h3 className="font-semibold text-slate-800">{report.title}</h3>
+                                                <h3 className="font-semibold text-slate-800 break-words">{report.title}</h3>
                                                 <p className="text-sm text-slate-500 mt-1 line-clamp-2">{report.summary}</p>
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className={cn(
@@ -729,7 +729,7 @@ const HealthReports = () => {
                                                                     setSelectedReport(spec);
                                                                 }}
                                                                 className={cn(
-                                                                    "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border",
+                                                                    "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border whitespace-normal text-left",
                                                                     specStyle.bg, specStyle.text, specStyle.border,
                                                                     "hover:opacity-80"
                                                                 )}

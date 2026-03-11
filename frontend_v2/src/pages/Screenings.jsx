@@ -331,9 +331,9 @@ const Screenings = () => {
                     <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <ClipboardList size={32} className="text-violet-400" />
                     </div>
-                    <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                    <h2 className="text-xl font-semibold text-slate-800 mb-2">
                         {t('screenings.noAnalysis') || 'No Recommendations Yet'}
-                    </h3>
+                    </h2>
                     <p className="text-slate-500 mb-6 max-w-md mx-auto">
                         {t('screenings.noAnalysisHint') || 'Get personalized health screening recommendations based on your age, gender, and medical history.'}
                     </p>

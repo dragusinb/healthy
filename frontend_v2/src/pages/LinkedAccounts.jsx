@@ -102,7 +102,7 @@ const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t })
                             </p>
                         </div>
                         <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg" aria-label={t('common.close')}>
-                            <X size={20} className="text-slate-400" aria-hidden="true" />
+                            <X size={20} className="text-slate-500" aria-hidden="true" />
                         </button>
                     </div>
 

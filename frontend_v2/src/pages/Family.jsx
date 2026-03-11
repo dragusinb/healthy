@@ -13,7 +13,7 @@ export default function Family() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
-      <nav className="text-sm text-slate-500" aria-label="Breadcrumb">
+      <nav className="text-sm text-slate-600" aria-label="Breadcrumb">
         <Link to="/dashboard" className="hover:text-primary-600 transition-colors">
           {t('nav.dashboard')}
         </Link>

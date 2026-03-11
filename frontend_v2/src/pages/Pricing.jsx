@@ -23,13 +23,8 @@ export default function Pricing() {
   const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
-    // Redirect logged-in users to billing page
-    if (user) {
-      navigate('/billing');
-      return;
-    }
     fetchData();
-  }, [user, navigate]);
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -282,7 +277,7 @@ export default function Pricing() {
       return <Check className="w-5 h-5 text-green-500 mx-auto" />;
     }
     if (value === false) {
-      return <X className="w-5 h-5 text-slate-400 mx-auto" />;
+      return <X className="w-5 h-5 text-slate-500 mx-auto" />;
     }
     return <span className="text-slate-700 font-medium">{value}</span>;
   };
@@ -686,7 +681,7 @@ export default function Pricing() {
                     className="grid grid-cols-4 gap-4 p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50"
                   >
                     <div className="flex items-center gap-2 text-slate-700">
-                      <item.icon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <item.icon className="w-4 h-4 text-slate-500 flex-shrink-0" />
                       <span className="text-sm">{item.name}</span>
                     </div>
                     <div className="text-center text-sm">{renderFeatureValue(item.free)}</div>

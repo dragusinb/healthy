@@ -45,7 +45,7 @@ const ScoreRing = ({ score, grade, size = 140 }) => {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={cn("text-3xl font-bold", config.color)}>{score}</span>
-        <span className="text-xs text-slate-400 font-medium">/100</span>
+        <span className="text-xs text-slate-500 font-medium">/100</span>
       </div>
     </div>
   );

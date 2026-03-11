@@ -14,3 +14,8 @@ body {
   @apply bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100;
   font-family: 'Inter', sans-serif;
 }
+
+@media print {
+  aside, nav[aria-label], .print\:hidden { display: none !important; }
+  main { margin: 0 !important; padding: 0 !important; }
+}

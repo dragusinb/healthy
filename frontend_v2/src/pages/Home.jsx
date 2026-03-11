@@ -329,7 +329,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm mb-6">
-                  <Lock size={16} />
+                  <Lock size={16} aria-hidden="true" />
                   {isRomanian ? 'Securitate de nivel bancar' : 'Bank-level security'}
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">

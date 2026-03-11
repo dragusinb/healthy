@@ -387,7 +387,7 @@ const Profile = () => {
                         </div>
                         <button
                             onClick={() => setMultiPatientWarning(null)}
-                            className="p-1 hover:bg-amber-100 rounded-lg text-amber-600 transition-colors"
+                            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-amber-100 rounded-lg text-amber-600 transition-colors"
                             aria-label={t('common.close') || 'Dismiss'}
                         >
                             <AlertCircle size={16} aria-hidden="true" />
@@ -400,7 +400,7 @@ const Profile = () => {
                 {/* Basic Info Card */}
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.basicInfo') || 'Basic Information'}</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                         <ProfileField icon={User} label={t('profile.fullName') || 'Full Name'} htmlFor="full_name">
                             <input
                                 id="full_name"
@@ -519,13 +519,13 @@ const Profile = () => {
                         <button
                             type="button"
                             onClick={toggleUnits}
-                            className="text-xs font-medium px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
+                            className="text-xs font-medium px-3 py-2.5 min-h-[44px] min-w-[44px] rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"
                             title={t('profile.toggleUnits') || 'Switch units'}
                         >
                             {useImperial ? 'ft/lbs → cm/kg' : 'cm/kg → ft/lbs'}
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
                         <ProfileField icon={Ruler} label={useImperial ? (t('profile.heightImperial') || 'Height (ft\'in")') : (t('profile.height') || 'Height (cm)')} htmlFor="height_cm">
                             {useImperial ? (
                                 <div className="flex items-center gap-2">
@@ -539,6 +539,7 @@ const Profile = () => {
                                         }}
                                         className="input"
                                         placeholder={'5\'11"'}
+                                        maxLength={10}
                                     />
                                 </div>
                             ) : (
@@ -590,6 +591,7 @@ const Profile = () => {
                                 type="text"
                                 readOnly
                                 disabled
+                                aria-label={t('profile.bmi') || 'BMI'}
                                 value={bmi ? `${bmi} — ${getBMICategory(parseFloat(bmi)).label}` : (t('profile.enterHeightWeight') || 'Enter height & weight')}
                                 className={cn("input", bmi && getBMICategory(parseFloat(bmi)).color)}
                             />
@@ -600,7 +602,7 @@ const Profile = () => {
                 {/* Lifestyle Card */}
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.lifestyle') || 'Lifestyle'}</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
                         <ProfileField icon={Cigarette} label={t('profile.smoking') || 'Smoking'} htmlFor="smoking_status">
                             <select
                                 id="smoking_status"
@@ -664,13 +666,14 @@ const Profile = () => {
                                 onChange={(e) => setAllergyInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem('allergies', allergyInput, setAllergyInput))}
                                 className="input flex-1"
+                                aria-label={t('profile.allergies') || 'Allergies'}
                                 placeholder={t('profile.allergiesPlaceholder') || 'Type and press Enter...'}
                                 maxLength={100}
                             />
                             <button
                                 type="button"
                                 onClick={() => addArrayItem('allergies', allergyInput, setAllergyInput)}
-                                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
+                                className="px-4 py-2.5 min-h-[44px] bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
                             >
                                 {t('common.add') || 'Add'}
                             </button>
@@ -694,13 +697,14 @@ const Profile = () => {
                                 onChange={(e) => setConditionInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem('chronic_conditions', conditionInput, setConditionInput))}
                                 className="input flex-1"
+                                aria-label={t('profile.chronicConditions') || 'Chronic Conditions'}
                                 placeholder={t('profile.conditionsPlaceholder') || 'Type and press Enter...'}
                                 maxLength={100}
                             />
                             <button
                                 type="button"
                                 onClick={() => addArrayItem('chronic_conditions', conditionInput, setConditionInput)}
-                                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
+                                className="px-4 py-2.5 min-h-[44px] bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
                             >
                                 {t('common.add') || 'Add'}
                             </button>
@@ -724,13 +728,14 @@ const Profile = () => {
                                 onChange={(e) => setMedicationInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addArrayItem('current_medications', medicationInput, setMedicationInput))}
                                 className="input flex-1"
+                                aria-label={t('profile.medications') || 'Current Medications'}
                                 placeholder={t('profile.medicationsPlaceholder') || 'Type and press Enter...'}
                                 maxLength={100}
                             />
                             <button
                                 type="button"
                                 onClick={() => addArrayItem('current_medications', medicationInput, setMedicationInput)}
-                                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
+                                className="px-4 py-2.5 min-h-[44px] bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
                             >
                                 {t('common.add') || 'Add'}
                             </button>
