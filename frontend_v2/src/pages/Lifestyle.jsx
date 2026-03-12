@@ -38,9 +38,15 @@ const Lifestyle = () => {
         if (val == null) return '';
         if (typeof val === 'string') return val;
         if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+        if (Array.isArray(val)) return val.map(v => str(v)).join(', ');
         if (typeof val === 'object') {
             // Try common field names for display text
-            return val.name || val.text || val.title || val.description || val.exercise || val.item || val.label || '';
+            const textField = val.name || val.text || val.title || val.description || val.exercise
+                || val.item || val.label || val.activity || val.habit || val.supplement
+                || val.concern || val.category || val.meal || val.food || val.value;
+            if (textField) return String(textField);
+            // Last resort: readable JSON
+            try { return JSON.stringify(val); } catch { return '[object]'; }
         }
         return String(val);
     };
@@ -247,9 +253,20 @@ const Lifestyle = () => {
         );
     }
 
-    const nutrition = latestData?.nutrition;
-    const exercise = latestData?.exercise;
+    // Parse nutrition/exercise - handle case where they may be JSON strings
+    const parseIfString = (data) => {
+        if (typeof data === 'string') {
+            try { return JSON.parse(data); } catch { return data; }
+        }
+        return data;
+    };
+    const nutrition = parseIfString(latestData?.nutrition);
+    const exercise = parseIfString(latestData?.exercise);
     const hasReport = latestData?.has_report;
+
+    // Debug: log actual data structure to help diagnose rendering issues
+    if (nutrition) console.log('[Lifestyle] nutrition keys:', Object.keys(nutrition), 'meal_plan type:', typeof nutrition.meal_plan, Array.isArray(nutrition.meal_plan) ? `array[${nutrition.meal_plan.length}]` : '', nutrition.meal_plan?.[0] ? 'first day keys: ' + Object.keys(nutrition.meal_plan[0]) : '');
+    if (exercise) console.log('[Lifestyle] exercise keys:', Object.keys(exercise), 'weekly_schedule type:', typeof exercise.weekly_schedule, Array.isArray(exercise.weekly_schedule) ? `array[${exercise.weekly_schedule.length}]` : '');
 
     return (
         <div className="space-y-6">
