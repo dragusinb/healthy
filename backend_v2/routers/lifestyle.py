@@ -374,43 +374,50 @@ def regenerate_menu(
     }
 
 
+def _unwrap_lifestyle_data(data: dict) -> dict:
+    """Unwrap lifestyle data that may be stored in generic report structure.
+
+    Some reports were saved with the generic HealthReport encryption (encrypting
+    the whole model: {summary, findings, recommendations}) rather than just the
+    lifestyle-specific data. The actual JSON data ends up as a string inside the
+    'summary' field. This function detects and unwraps that.
+    """
+    if not isinstance(data, dict):
+        return data
+
+    # Check if this looks like a generic report wrapper
+    keys = set(data.keys())
+    generic_keys = {'summary', 'findings', 'recommendations'}
+    if keys <= generic_keys and 'summary' in data and isinstance(data['summary'], str):
+        summary = data['summary']
+        # Try to parse the summary as JSON (the actual lifestyle data)
+        try:
+            parsed = json.loads(summary)
+            if isinstance(parsed, dict):
+                return parsed
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+    return data
+
+
 def _get_lifestyle_report_content(report: HealthReport, user_id: int) -> dict:
     """Get full lifestyle report content, preferring vault-encrypted."""
-    import logging
-    logger = logging.getLogger("lifestyle")
-
     # Try vault-encrypted full data first
     if report.content_enc and user_id:
         vault_helper = get_vault_helper(user_id)
         if vault_helper.is_available:
             try:
                 data = vault_helper.decrypt_json(report.content_enc)
-                logger.warning(f"[DEBUG] Decrypted report {report.id} type={report.report_type} keys={list(data.keys()) if isinstance(data, dict) else type(data).__name__}")
-                if isinstance(data, dict):
-                    for k, v in data.items():
-                        if isinstance(v, list) and v:
-                            first = v[0]
-                            if isinstance(first, dict):
-                                logger.warning(f"[DEBUG]   {k}: list[{len(v)}], [0] keys={list(first.keys())}")
-                            else:
-                                logger.warning(f"[DEBUG]   {k}: list[{len(v)}], [0] type={type(first).__name__} val={str(first)[:100]}")
-                        elif isinstance(v, dict):
-                            logger.warning(f"[DEBUG]   {k}: dict keys={list(v.keys())}")
-                        else:
-                            logger.warning(f"[DEBUG]   {k}: {type(v).__name__} = {str(v)[:100]}")
-                return data
-            except Exception as e:
-                logger.warning(f"[DEBUG] Vault decrypt failed for report {report.id}: {e}")
+                return _unwrap_lifestyle_data(data)
+            except Exception:
                 pass
-    else:
-        import logging
-        logger = logging.getLogger("lifestyle")
-        logger.warning(f"[DEBUG] No content_enc for report {report.id} or no user_id={user_id}")
 
     # Try JSON stored in summary field (non-vault fallback)
     if report.summary:
         try:
-            return json.loads(report.summary)
+            data = json.loads(report.summary)
+            return _unwrap_lifestyle_data(data)
         except (json.JSONDecodeError, TypeError):
             pass
 
