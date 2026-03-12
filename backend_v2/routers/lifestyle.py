@@ -376,14 +376,36 @@ def regenerate_menu(
 
 def _get_lifestyle_report_content(report: HealthReport, user_id: int) -> dict:
     """Get full lifestyle report content, preferring vault-encrypted."""
+    import logging
+    logger = logging.getLogger("lifestyle")
+
     # Try vault-encrypted full data first
     if report.content_enc and user_id:
         vault_helper = get_vault_helper(user_id)
         if vault_helper.is_available:
             try:
-                return vault_helper.decrypt_json(report.content_enc)
-            except Exception:
+                data = vault_helper.decrypt_json(report.content_enc)
+                logger.warning(f"[DEBUG] Decrypted report {report.id} type={report.report_type} keys={list(data.keys()) if isinstance(data, dict) else type(data).__name__}")
+                if isinstance(data, dict):
+                    for k, v in data.items():
+                        if isinstance(v, list) and v:
+                            first = v[0]
+                            if isinstance(first, dict):
+                                logger.warning(f"[DEBUG]   {k}: list[{len(v)}], [0] keys={list(first.keys())}")
+                            else:
+                                logger.warning(f"[DEBUG]   {k}: list[{len(v)}], [0] type={type(first).__name__} val={str(first)[:100]}")
+                        elif isinstance(v, dict):
+                            logger.warning(f"[DEBUG]   {k}: dict keys={list(v.keys())}")
+                        else:
+                            logger.warning(f"[DEBUG]   {k}: {type(v).__name__} = {str(v)[:100]}")
+                return data
+            except Exception as e:
+                logger.warning(f"[DEBUG] Vault decrypt failed for report {report.id}: {e}")
                 pass
+    else:
+        import logging
+        logger = logging.getLogger("lifestyle")
+        logger.warning(f"[DEBUG] No content_enc for report {report.id} or no user_id={user_id}")
 
     # Try JSON stored in summary field (non-vault fallback)
     if report.summary:
