@@ -23,7 +23,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      <a href="#hero" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
+      <a href="#hero" className="absolute z-[100] top-2 left-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium shadow-lg opacity-0 focus:opacity-100 pointer-events-none focus:pointer-events-auto transition-opacity -translate-y-full focus:translate-y-0" tabIndex={0}>
         {isRomanian ? 'Sari la conținut' : 'Skip to main content'}
       </a>
       {/* Navigation */}

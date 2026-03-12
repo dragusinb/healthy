@@ -4,13 +4,13 @@ import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
 import {
     User, Loader2, CheckCircle, AlertCircle, Save,
-    Calendar, Ruler, Scale, Droplets, Heart, Pill,
+    Calendar, MoveVertical, Scale, Droplets, Heart, Pill,
     Activity, Wine, Cigarette, AlertTriangle, Sparkles, Users
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const ProfileField = ({ icon: Icon, label, children, className, htmlFor }) => (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-2 [&_input]:min-h-[44px] [&_select]:min-h-[44px] [&_.input]:min-h-[44px]", className)}>
         <label htmlFor={htmlFor} className="flex items-center gap-2 text-sm font-medium text-slate-700">
             <Icon size={16} className="text-slate-400" aria-hidden="true" />
             {label}
@@ -307,7 +307,7 @@ const Profile = () => {
                         onClick={autoSave}
                         disabled={saving}
                         className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                            "flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all",
                             saved
                                 ? "bg-teal-100 text-teal-700"
                                 : "bg-primary-600 text-white hover:bg-primary-700 shadow-sm"
@@ -326,7 +326,7 @@ const Profile = () => {
                         onClick={handleScanFromDocuments}
                         disabled={scanning}
                         className={cn(
-                            "flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all max-w-full",
+                            "flex items-center gap-2 px-3 sm:px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all max-w-full",
                             scanning
                                 ? "bg-violet-100 text-violet-600 cursor-wait"
                                 : "bg-violet-100 text-violet-700 hover:bg-violet-200"
@@ -496,6 +496,7 @@ const Profile = () => {
                                 value={profile.blood_type}
                                 onChange={(e) => setProfile({ ...profile, blood_type: e.target.value })}
                                 aria-label={t('profile.bloodType') || 'Blood Type'}
+                                title={profile.blood_type ? `${t('profile.bloodType') || 'Blood Type'}: ${profile.blood_type}` : (t('profile.selectBloodType') || 'Select blood type')}
                                 className="input"
                             >
                                 <option value="">{t('profile.selectBloodType') || 'Select...'}</option>
@@ -526,7 +527,7 @@ const Profile = () => {
                         </button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                        <ProfileField icon={Ruler} label={useImperial ? (t('profile.heightImperial') || 'Height (ft\'in")') : (t('profile.height') || 'Height (cm)')} htmlFor="height_cm">
+                        <ProfileField icon={MoveVertical} label={useImperial ? (t('profile.heightImperial') || 'Height (ft\'in")') : (t('profile.height') || 'Height (cm)')} htmlFor="height_cm">
                             {useImperial ? (
                                 <div className="flex items-center gap-2">
                                     <input
@@ -587,14 +588,12 @@ const Profile = () => {
                         </ProfileField>
 
                         <ProfileField icon={Heart} label={t('profile.bmi') || 'BMI'}>
-                            <input
-                                type="text"
-                                readOnly
-                                disabled
+                            <div
                                 aria-label={t('profile.bmi') || 'BMI'}
-                                value={bmi ? `${bmi} — ${getBMICategory(parseFloat(bmi)).label}` : (t('profile.enterHeightWeight') || 'Enter height & weight')}
-                                className={cn("input", bmi && getBMICategory(parseFloat(bmi)).color)}
-                            />
+                                className={cn("input bg-white", bmi && getBMICategory(parseFloat(bmi)).color)}
+                            >
+                                {bmi ? `${bmi} — ${getBMICategory(parseFloat(bmi)).label}` : (t('profile.enterHeightWeight') || 'Enter height & weight')}
+                            </div>
                         </ProfileField>
                     </div>
                 </div>

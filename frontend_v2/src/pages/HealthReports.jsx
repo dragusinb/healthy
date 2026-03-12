@@ -337,7 +337,7 @@ const HealthReports = () => {
                     <div className="p-6 border-b border-slate-100">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.latestAnalysis')}</h2>
-                            <span className="text-sm text-slate-400">
+                            <span className="text-sm text-slate-500">
                                 {new Date(latestReport.created_at).toLocaleDateString()}
                             </span>
                         </div>
@@ -455,7 +455,7 @@ const HealthReports = () => {
             ) : !analyzing && (
                 <div className="card p-12 text-center">
                     <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Brain size={32} className="text-slate-400" />
+                        <Brain size={32} className="text-slate-500" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('healthReports.noAnalysisYet')}</h3>
                     <p className="text-slate-500 mb-6 max-w-md mx-auto">
@@ -491,7 +491,7 @@ const HealthReports = () => {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
                             {latestSpecialists.map((report) => {
                                 const Icon = SPECIALTY_ICONS[report.report_type] || Stethoscope;
                                 const style = getRiskStyle(report.risk_level);
@@ -506,8 +506,8 @@ const HealthReports = () => {
                                             <div className="p-3 rounded-xl bg-teal-100 transition-colors">
                                                 <Icon size={24} className="text-teal-600" />
                                             </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold text-slate-800 break-words">{report.title}</h3>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold text-slate-800 break-words overflow-hidden">{report.title}</h3>
                                                 <p className="text-sm text-slate-500 mt-1 line-clamp-2">{report.summary}</p>
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className={cn(
@@ -652,7 +652,7 @@ const HealthReports = () => {
                                             {report.risk_level}
                                         </div>
                                         <p className="text-sm text-slate-700 line-clamp-3">{report.summary}</p>
-                                        <p className="text-xs text-slate-400 mt-2">
+                                        <p className="text-xs text-slate-500 mt-2">
                                             {report.biomarkers_analyzed} biomarkers analyzed
                                         </p>
                                     </div>
@@ -710,7 +710,7 @@ const HealthReports = () => {
                                             <p className="text-sm text-slate-500 mt-1 line-clamp-2">
                                                 {session.general.summary}
                                             </p>
-                                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
                                                 <span>{session.general.biomarkers_analyzed} biomarkers</span>
                                             </div>
 

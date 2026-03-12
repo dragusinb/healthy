@@ -359,7 +359,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         {bio.document_id && (
                             <button
                                 onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
-                                className="inline-flex items-center justify-center p-1 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-400 hover:text-primary-600 rounded transition-colors"
                                 aria-label={t('documents.viewPdf') || 'View PDF'}
                             >
                                 <Eye size={12} aria-hidden="true" />
@@ -409,7 +409,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             {bio.document_id && (
                                 <button
                                     onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
-                                    className="p-1.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                    className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 rounded transition-colors"
                                     aria-label={t('documents.viewPdf') || 'View PDF'}
                                 >
                                     <Eye size={14} aria-hidden="true" />
@@ -454,34 +454,38 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
             <button
                 onClick={onToggle}
                 className={cn(
-                    "w-full p-4 flex items-center justify-between transition-colors cursor-pointer",
+                    "w-full p-3 sm:p-4 flex items-center justify-between transition-colors cursor-pointer hover:bg-slate-50/50 overflow-hidden",
                     expanded ? colors.bg : "hover:bg-slate-50"
                 )}
             >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className={cn("p-2 rounded-lg shrink-0", colors.bg, colors.border, "border")}>
-                        <Icon size={20} className={colors.icon} />
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
+                    <div className={cn("p-1.5 sm:p-2 rounded-lg shrink-0", colors.bg, colors.border, "border")}>
+                        <Icon size={18} className={cn(colors.icon, "sm:w-5 sm:h-5")} />
                     </div>
-                    <div className="text-left min-w-0">
-                        <h3 className="font-semibold text-slate-800 text-xs sm:text-sm md:text-base whitespace-nowrap truncate">{t(category.nameKey)}</h3>
-                        <p className="text-xs text-slate-500">
+                    <div className="text-left min-w-0 overflow-hidden">
+                        <h3 className="font-semibold text-slate-800 text-xs sm:text-sm md:text-base truncate max-w-[120px] sm:max-w-[200px] md:max-w-none">{t(category.nameKey)}</h3>
+                        <p className="text-xs text-slate-500 truncate">
                             {visibleCount} {t('biomarkers.tests')}
                             {lastUpdatedDate && (
-                                <span className="text-slate-400 ml-2">· {t('biomarkers.lastUpdated')}: {lastUpdatedDate}</span>
+                                <span className="text-slate-400 ml-1 sm:ml-2">
+                                    <span aria-hidden="true">·</span> {t('biomarkers.lastUpdated')}: {lastUpdatedDate}
+                                </span>
                             )}
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0 ml-2">
                     {issueCount > 0 && (
                         <span className="px-2 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-full flex-shrink-0 whitespace-nowrap">
                             {issueCount} {issueCount > 1 ? t('biomarkers.issuesCount') : t('biomarkers.issue')}
                         </span>
                     )}
-                    <button
+                    <span
+                        role="button"
+                        tabIndex={0}
                         onClick={(e) => { e.stopPropagation(); onDownload('category', categoryKey); }}
-                        disabled={downloading === `category:${categoryKey}`}
-                        className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); onDownload('category', categoryKey); } }}
+                        className="hidden sm:inline-flex min-h-11 min-w-11 items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
                         title={t('biomarkers.downloadCategory')}
                         aria-label={t('biomarkers.downloadCategory')}
                     >
@@ -490,13 +494,32 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         ) : (
                             <Download size={16} />
                         )}
-                    </button>
-                    {expanded ? <ChevronDown size={20} className="text-slate-400 flex-shrink-0" /> : <ChevronRight size={20} className="text-slate-400 flex-shrink-0" />}
+                    </span>
+                    <span className="min-h-11 min-w-11 inline-flex items-center justify-center" aria-hidden="true">
+                        {expanded ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+                    </span>
                 </div>
             </button>
 
             {expanded && (
                 <div className="border-t border-slate-100">
+                    {/* Mobile download button (hidden on sm+ where it's in the header) */}
+                    <div className="sm:hidden flex justify-end p-2 bg-slate-50/30">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onDownload('category', categoryKey); }}
+                            disabled={downloading === `category:${categoryKey}`}
+                            className="min-h-11 min-w-11 inline-flex items-center justify-center gap-2 text-xs text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors px-3"
+                            title={t('biomarkers.downloadCategory')}
+                            aria-label={t('biomarkers.downloadCategory')}
+                        >
+                            {downloading === `category:${categoryKey}` ? (
+                                <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                                <Download size={14} />
+                            )}
+                            {t('biomarkers.downloadCategory')}
+                        </button>
+                    </div>
                     {/* Desktop header */}
                     <div className="hidden md:grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                         <div className="col-span-4 pl-2">{t('biomarkers.testName')}</div>
@@ -729,7 +752,7 @@ const Biomarkers = () => {
                     </div>
                     <button
                         onClick={() => { setError(''); setPdfError(''); }}
-                        className="p-1 text-red-500 hover:bg-red-100 rounded-lg"
+                        className="p-2.5 min-h-11 min-w-11 inline-flex items-center justify-center text-red-500 hover:bg-red-100 rounded-lg"
                         aria-label={t('common.close') || 'Close'}
                     >
                         <X size={16} aria-hidden="true" />
@@ -753,7 +776,7 @@ const Biomarkers = () => {
                     </div>
                     <button
                         onClick={clearDocumentFilter}
-                        className="p-2 text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
+                        className="p-2.5 min-h-11 min-w-11 inline-flex items-center justify-center text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
                         title={t('common.all')}
                         aria-label={t('common.close') || 'Clear filter'}
                     >
@@ -781,7 +804,7 @@ const Biomarkers = () => {
                             <button
                                 onClick={() => setFilter('all')}
                                 className={cn(
-                                    "px-3 sm:px-4 py-2 text-sm font-medium rounded-lg transition-all",
+                                    "px-3 sm:px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-lg transition-all",
                                     filter === 'all' ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-700"
                                 )}
                             >
@@ -790,7 +813,7 @@ const Biomarkers = () => {
                             <button
                                 onClick={() => setFilter('out_of_range')}
                                 className={cn(
-                                    "px-3 sm:px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-1.5",
+                                    "px-3 sm:px-4 py-2.5 min-h-[44px] text-sm font-medium rounded-lg transition-all flex items-center gap-1.5",
                                     filter === 'out_of_range' ? "bg-white text-rose-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
                                 )}
                             >
@@ -803,7 +826,7 @@ const Biomarkers = () => {
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
-                                className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
+                                className="px-3 py-2.5 min-h-[44px] bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 shadow-sm"
                                 aria-label={t('biomarkers.sortBy') || 'Sort by'}
                             >
                                 <option value="issues">{t('biomarkers.issuesFirst')}</option>
@@ -812,18 +835,24 @@ const Biomarkers = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-2 text-sm">
-                    <button onClick={expandAll} className="text-primary-600 hover:text-primary-700 font-medium">{t('biomarkers.expandAll')}</button>
+                <div className="flex gap-1 text-sm items-center">
+                    <button onClick={expandAll} className="text-primary-600 hover:text-primary-700 font-medium min-h-11 px-2">{t('biomarkers.expandAll')}</button>
                     <span className="text-slate-300">|</span>
-                    <button onClick={collapseAll} className="text-primary-600 hover:text-primary-700 font-medium">{t('biomarkers.collapseAll')}</button>
+                    <button onClick={collapseAll} className="text-primary-600 hover:text-primary-700 font-medium min-h-11 px-2">{t('biomarkers.collapseAll')}</button>
                 </div>
             </div>
 
-            {/* Summary */}
-            <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                <span>{t('biomarkers.showingCount', { count: totalFiltered })}</span>
+            {/* Summary / Pagination indicator */}
+            <div className="mb-6 flex flex-wrap items-center gap-3 text-sm text-slate-600" role="status" aria-live="polite" data-testid="biomarker-count">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full font-medium">
+                    <Activity size={14} className="text-slate-400" />
+                    {t('biomarkers.showingCount', { count: totalFiltered })}
+                </span>
                 {totalIssues > 0 && (
-                    <span className="text-rose-600"><strong>{totalIssues}</strong> {t('biomarkers.outOfRange')}</span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-600 rounded-full font-medium">
+                        <AlertTriangle size={14} />
+                        <strong>{totalIssues}</strong> {t('biomarkers.outOfRange')}
+                    </span>
                 )}
                 {globalLastUpdated && (
                     <span className="text-slate-400 flex items-center gap-1.5">

@@ -215,8 +215,8 @@ const ProviderCard = ({ name, logoColor, icon: Icon = Building, isLinked, userna
                             <Icon size={24} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-slate-900">{name}</h3>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-3">
+                                <h3 className="text-lg font-bold text-slate-900">{name}</h3>
                                 {isLinked ? (
                                     hasError ? (
                                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">

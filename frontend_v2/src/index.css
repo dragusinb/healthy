@@ -16,6 +16,7 @@ body {
 }
 
 @media print {
-  aside, nav[aria-label], .print\:hidden { display: none !important; }
-  main { margin: 0 !important; padding: 0 !important; }
+  aside, nav, nav[aria-label], header, .print\:hidden, #bottom-nav, [role="navigation"] { display: none !important; visibility: hidden !important; }
+  main { margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+  body { overflow: visible !important; }
 }

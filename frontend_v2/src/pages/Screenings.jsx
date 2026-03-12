@@ -233,7 +233,7 @@ const Screenings = () => {
                             </h2>
                             <p className="text-slate-700 leading-relaxed">{gapAnalysis.summary}</p>
                             {gapAnalysis.created_at && (
-                                <p className="text-sm text-slate-400 mt-3">
+                                <p className="text-sm text-slate-500 mt-3">
                                     {t('screenings.lastUpdated') || 'Last updated'}: {new Date(gapAnalysis.created_at).toLocaleDateString()}
                                 </p>
                             )}

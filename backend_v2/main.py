@@ -86,7 +86,9 @@ async def add_security_headers(request: Request, call_next):
     # Restrict browser features
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     # Prevent caching of authenticated API responses
-    if request.url.path.startswith("/api") and request.url.path not in ("/api/health", "/api/metrics"):
+    # Routes are at /auth, /users, etc. (Nginx strips /api prefix before proxying)
+    excluded_paths = ("/", "/health", "/metrics", "/api/health", "/api/metrics")
+    if request.url.path not in excluded_paths:
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
         response.headers["Pragma"] = "no-cache"
     # HSTS - only in production (when CORS_ORIGINS contains https://)

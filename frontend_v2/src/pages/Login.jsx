@@ -698,8 +698,8 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-100/60 via-white to-teal-100/60 pt-8 pb-48 sm:pb-32 overflow-y-auto">
-            <a href="#login-form" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
+        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-100/60 via-white to-teal-100/60 pt-4 pb-8 overflow-y-auto">
+            <a href="#login-form" className="absolute z-[100] top-2 left-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium shadow-lg opacity-0 focus:opacity-100 pointer-events-none focus:pointer-events-auto transition-opacity -translate-y-full focus:translate-y-0" tabIndex={0}>
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>
             {/* Login Success Modal - Vault Unlocked */}
@@ -770,7 +770,7 @@ const Login = () => {
                 </div>
 
                 {/* Login/Register Card */}
-                <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+                <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl border border-slate-100">
                     {/* Language Toggle */}
                     <div className="flex justify-end mb-4">
                         <button
@@ -779,7 +779,7 @@ const Login = () => {
                             title={t('settings.language')}
                         >
                             <Globe size={12} />
-                            <span className="font-medium">{i18n.language === 'ro' ? 'Limba: RO' : 'Lang: EN'}</span>
+                            <span className="font-medium">{i18n.language === 'ro' ? 'RO' : 'EN'}</span>
                         </button>
                     </div>
 
@@ -1028,16 +1028,16 @@ const Login = () => {
                     </form>
 
                     {/* Toggle Login/Register */}
-                    <div className="mt-4 text-center">
-                        <p className="text-sm text-slate-500">
+                    <div className="mt-6 text-center border-t border-slate-100 pt-5">
+                        <p className="text-sm text-slate-500 mb-2">
                             {isRegisterMode ? t('auth.hasAccount') : t('auth.noAccount')}
-                            <button
-                                onClick={toggleMode}
-                                className="ml-1 text-primary-600 hover:text-primary-700 font-semibold"
-                            >
-                                {isRegisterMode ? t('auth.signIn') : t('auth.signUp')}
-                            </button>
                         </p>
+                        <button
+                            onClick={toggleMode}
+                            className="w-full py-2.5 px-4 text-sm font-semibold text-primary-600 bg-primary-50 hover:bg-primary-100 border border-primary-200 rounded-xl transition-colors"
+                        >
+                            {isRegisterMode ? t('auth.signIn') : t('auth.signUp')}
+                        </button>
                     </div>
                 </div>
 
@@ -1054,27 +1054,27 @@ const Login = () => {
                         </Link>
                     </div>
                     {/* Server Status */}
-                    <div className={`inline-flex items-center gap-1.5 text-xs mt-3 ${
+                    <div className={`inline-flex items-center gap-1.5 text-xs mt-3 px-2.5 py-1 rounded-full ${
                         serverStatus === 'online'
-                            ? 'text-teal-500'
+                            ? 'text-teal-600 bg-teal-50'
                             : serverStatus === 'offline'
-                                ? 'text-rose-500'
-                                : 'text-slate-400'
+                                ? 'text-rose-600 bg-rose-50'
+                                : 'text-slate-400 bg-slate-50'
                     }`}>
                         {serverStatus === 'online' ? (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-                                <span>{t('auth.serverOnline') || 'Server: Online'}</span>
+                                <span>{t('auth.serverOnline') || 'Online'}</span>
                             </>
                         ) : serverStatus === 'offline' ? (
                             <>
                                 <WifiOff size={10} />
-                                <span>{t('auth.serverOfflineLabel') || 'Server: Offline'}</span>
+                                <span>{t('auth.serverOfflineLabel') || 'Offline'}</span>
                             </>
                         ) : (
                             <>
                                 <div className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse" />
-                                <span>{t('auth.serverChecking') || 'Server: ...'}</span>
+                                <span>{t('auth.serverChecking') || '...'}</span>
                             </>
                         )}
                     </div>

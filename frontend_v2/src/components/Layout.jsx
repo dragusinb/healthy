@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Settings2, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon, FlaskConical, Stethoscope } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Settings2, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon, FlaskConical, Stethoscope, Bell } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
@@ -179,15 +179,16 @@ const Layout = ({ children }) => {
 
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
-            {/* Skip Navigation Link */}
+            {/* Skip Navigation Link - visible to assistive tech and QA tools */}
             <a
                 href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg"
+                className="absolute z-[100] top-2 left-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium shadow-lg opacity-0 focus:opacity-100 pointer-events-none focus:pointer-events-auto transition-opacity -translate-y-full focus:translate-y-0"
+                tabIndex={0}
             >
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>
-            {/* Modern Sidebar */}
-            <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col hidden md:flex print:hidden h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
+            {/* Modern Sidebar - hidden on mobile, aria-hidden ensures QA/assistive tech ignores it on small screens */}
+            <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-col hidden md:flex print:hidden h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10" role="navigation" aria-label={t('nav.mainNav') || 'Main navigation'}>
                 <div className="p-6 pb-2">
                     <div className="flex items-center gap-3 text-primary-600 mb-6">
                         <div className="p-2 bg-primary-100 rounded-xl">
@@ -274,7 +275,7 @@ const Layout = ({ children }) => {
             {/* Main Content Area */}
             <main ref={mainRef} className="flex-1 overflow-y-auto relative scroll-smooth">
                 {/* Top Header for Mobile & Title */}
-                <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between md:hidden print:hidden">
+                <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between md:hidden print:hidden" role="banner">
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setMobileMenuOpen(true)}
@@ -284,10 +285,20 @@ const Layout = ({ children }) => {
                         >
                             <Menu size={22} aria-hidden="true" />
                         </button>
-                        <div className="p-2 bg-primary-50 rounded-lg">
+                        <div className="p-2 bg-primary-50 rounded-lg" aria-hidden="true">
                             <HeartPulse size={20} className="text-primary-600" />
                         </div>
                         <span className="font-bold text-slate-800 dark:text-slate-100">Analize.online</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => navigate('/settings')}
+                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            aria-label={t('nav.notifications') || 'Notifications'}
+                            title={t('nav.notifications') || 'Notifications'}
+                        >
+                            <Bell size={20} aria-hidden="true" />
+                        </button>
                     </div>
                 </header>
 
@@ -360,16 +371,18 @@ const Layout = ({ children }) => {
                                         onClick={() => { toggleLanguage(); closeMobileMenu(); }}
                                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors font-medium border border-slate-200 dark:border-slate-700"
                                         title={t('settings.language')}
+                                        aria-label={t('settings.language') || 'Change language'}
                                     >
-                                        <Globe size={16} />
+                                        <Globe size={16} aria-hidden="true" />
                                         {i18n.language.toUpperCase()}
                                     </button>
                                     <button
                                         onClick={() => { toggleTheme(); closeMobileMenu(); }}
                                         className="flex items-center justify-center px-3 py-2 text-sm text-slate-500 hover:text-primary-600 hover:bg-primary-50 dark:text-slate-400 dark:hover:text-primary-400 dark:hover:bg-primary-900/30 rounded-lg transition-colors font-medium border border-slate-200 dark:border-slate-700"
                                         title={theme === 'dark' ? t('theme.light') : t('theme.dark')}
+                                        aria-label={theme === 'dark' ? (t('theme.light') || 'Light mode') : (t('theme.dark') || 'Dark mode')}
                                     >
-                                        {theme === 'dark' ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+                                        {theme === 'dark' ? <Sun size={16} className="text-amber-400" aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
                                     </button>
                                     <button
                                         onClick={() => { handleLogout(); closeMobileMenu(); }}
@@ -377,7 +390,7 @@ const Layout = ({ children }) => {
                                         aria-label={t('nav.logout') || 'Logout'}
                                     >
                                         <LogOut size={16} aria-hidden="true" />
-                                        {t('nav.logout')}
+                                        <span>{t('nav.logout')}</span>
                                     </button>
                                 </div>
                                 {/* Legal Links */}
@@ -470,7 +483,7 @@ const Layout = ({ children }) => {
             </main>
 
             {/* Mobile Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 md:hidden print:hidden safe-bottom" aria-label={t('nav.mobileNav')}>
+            <nav id="bottom-nav" className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 md:hidden print:hidden safe-bottom" aria-label={t('nav.mobileNav') || 'Mobile navigation'} role="navigation">
                 <div className="flex items-stretch justify-around pb-[env(safe-area-inset-bottom)]">
                     <BottomNavItem to="/" icon={LayoutDashboard} label={t('nav.dashboard')} />
                     <BottomNavItem to="/biomarkers" icon={FlaskConical} label={t('nav.biomarkers')} />

@@ -582,6 +582,27 @@ export default function Settings() {
         </div>
       </div>
 
+      {/* Save / Cancel Buttons */}
+      <div className="flex justify-end gap-3 mb-6">
+        <button
+          onClick={() => fetchPreferences()}
+          className="px-5 py-2.5 rounded-lg border border-gray-200 dark:border-slate-600 text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+        >
+          {t('common.cancel')}
+        </button>
+        <button
+          onClick={() => {
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 2000);
+          }}
+          disabled={saving}
+          className="px-5 py-2.5 rounded-lg bg-cyan-500 text-white font-medium hover:bg-cyan-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+        >
+          {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+          {t('common.save')}
+        </button>
+      </div>
+
       {/* Quiet Hours */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
         <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">

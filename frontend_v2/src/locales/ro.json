@@ -26,6 +26,7 @@
     "note": "Notă",
     "backToDashboard": "Înapoi la Panou",
     "backToHome": "Înapoi la Acasă",
+    "backToBiomarkers": "Înapoi la Biomarkeri",
     "retry": "Reîncearcă",
     "days": "zile",
     "months": "luni",
@@ -60,8 +61,10 @@
     "medications": "Medicamente",
     "skipToContent": "Salt la conținutul principal",
     "mobileNav": "Navigare principală",
+    "notifications": "Notificări",
     "notificationSettings": "Setări Notificări (nu notificări live)",
-    "settingsTitle": "Setări"
+    "settingsTitle": "Setări",
+    "mainNav": "Navigare principală"
   },
   "auth": {
     "login": "Autentificare",

@@ -254,7 +254,7 @@ export default function Billing() {
                   <p className="font-medium text-slate-800 text-sm sm:text-base">
                     {isRomanian ? 'Specialiști AI dinamici' : 'Dynamic AI Specialists'}
                   </p>
-                  <p className="text-xs text-slate-600 break-words whitespace-normal">
+                  <p className="text-xs text-slate-600 break-words whitespace-normal" style={{ overflowWrap: 'anywhere' }}>
                     {Object.keys(specialists).length > 0
                       ? Object.values(specialists).map(s => s.name).join(', ')
                       : (isRomanian ? 'Cardiolog, Endocrinolog, Hematolog și alții' : 'Cardiologist, Endocrinologist, Hematologist and more')}
@@ -417,7 +417,7 @@ export default function Billing() {
           </div>
         </div>
         <div className="p-6 text-center">
-          <FileText className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+          <FileText className="w-10 h-10 text-slate-400 mx-auto mb-3" />
           <p className="text-slate-600 text-sm">
             {t('billing.noInvoices', 'No invoices yet')}
           </p>

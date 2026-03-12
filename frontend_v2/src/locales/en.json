@@ -23,6 +23,7 @@
     "add": "Add",
     "backToDashboard": "Back to Dashboard",
     "backToHome": "Back to Home",
+    "backToBiomarkers": "Back to Biomarkers",
     "retry": "Retry",
     "days": "days",
     "months": "months",
@@ -57,8 +58,10 @@
     "medications": "Medications",
     "skipToContent": "Skip to main content",
     "mobileNav": "Main navigation",
+    "notifications": "Notifications",
     "notificationSettings": "Notification Settings (not live notifications)",
-    "settingsTitle": "Settings"
+    "settingsTitle": "Settings",
+    "mainNav": "Main navigation"
   },
   "auth": {
     "login": "Login",

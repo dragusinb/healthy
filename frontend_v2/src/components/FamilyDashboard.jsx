@@ -82,7 +82,7 @@ export default function FamilyDashboard() {
   if (!hasFamily) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
-        <Users className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+        <Users className="w-12 h-12 text-slate-500 mx-auto mb-3" />
         <h2 className="text-lg font-semibold text-slate-800 mb-1">
           {isRomanian ? 'Nu faci parte dintr-o familie' : 'Not in a family group'}
         </h2>

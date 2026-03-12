@@ -106,7 +106,7 @@ const MedicationItem = ({ med, onToggle, onDelete, onUndo, t }) => {
           "w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all border-2",
           med.taken_today
             ? "bg-emerald-500 border-emerald-500 text-white"
-            : "border-slate-300 text-slate-300 hover:border-primary-500 hover:text-primary-500"
+            : "border-slate-400 text-slate-400 hover:border-primary-500 hover:text-primary-500"
         )}
         aria-label="Mark as taken"
       >
@@ -174,11 +174,18 @@ export default function Medications() {
   const fetchData = useCallback(async () => {
     try {
       const [medsRes, adherenceRes] = await Promise.all([
-        api.get('/medications'),
-        api.get('/medications/adherence')
+        api.get('/medications').catch(e => {
+          if (e.response?.status === 401) return { data: [] };
+          throw e;
+        }),
+        api.get('/medications/adherence').catch(e => {
+          if (e.response?.status === 401) return { data: null };
+          throw e;
+        })
       ]);
-      setMedications(medsRes.data || []);
-      setAdherence(adherenceRes.data || null);
+      const meds = medsRes?.data || [];
+      setMedications(Array.isArray(meds) ? meds : []);
+      setAdherence(adherenceRes?.data || null);
     } catch (e) {
       console.error('Failed to load medications', e);
     } finally {
@@ -252,7 +259,7 @@ export default function Medications() {
       {adherence && totalCount > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="card p-4 text-center">
-            <Flame size={20} className={cn("mx-auto mb-1", adherence.streak > 0 ? "text-orange-500" : "text-slate-300")} />
+            <Flame size={20} className={cn("mx-auto mb-1", adherence.streak > 0 ? "text-orange-500" : "text-slate-400")} />
             <p className="text-2xl font-bold text-slate-800">{adherence.streak}</p>
             <p className="text-xs text-slate-500">{t('medications.streakDays')}</p>
           </div>
@@ -351,7 +358,7 @@ export default function Medications() {
                   title={`${day.date}: ${day.taken}/${day.total}`}
                 />
                 {i % 2 === 0 && (
-                  <span className="text-[9px] text-slate-400">
+                  <span className="text-[9px] text-slate-500">
                     {new Date(day.date).getDate()}
                   </span>
                 )}
