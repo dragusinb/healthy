@@ -50,6 +50,23 @@ const BottomNavItem = ({ to, icon: Icon, label }) => {
     );
 };
 
+const PAGE_TITLE_MAP = {
+    '/': 'nav.dashboard',
+    '/documents': 'nav.documents',
+    '/biomarkers': 'nav.biomarkers',
+    '/health': 'nav.doctorAI',
+    '/screenings': 'nav.screenings',
+    '/lifestyle': 'nav.lifestyle',
+    '/medications': 'nav.medications',
+    '/family': 'nav.family',
+    '/profile': 'nav.profile',
+    '/linked-accounts': 'nav.linkedAccounts',
+    '/settings': 'nav.settingsTitle',
+    '/billing': 'nav.billing',
+    '/support': 'nav.support',
+    '/admin': 'nav.admin',
+};
+
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -293,7 +310,9 @@ const Layout = ({ children }) => {
                     >
                         <Menu size={22} aria-hidden="true" />
                     </button>
-                    <span className="font-bold text-slate-800 dark:text-slate-100">Analize.online</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-100 truncate max-w-[180px]">
+                        {t(PAGE_TITLE_MAP[location.pathname] || PAGE_TITLE_MAP['/']) || 'Analize.online'}
+                    </span>
                     <button
                         onClick={() => navigate('/settings')}
                         className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"

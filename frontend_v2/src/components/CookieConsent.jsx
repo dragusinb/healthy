@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cookie, X, Settings, Check } from 'lucide-react';
+import { Cookie, X, Settings, Check, ExternalLink } from 'lucide-react';
 
 const COOKIE_CONSENT_KEY = 'cookie_consent';
 const COOKIE_PREFERENCES_KEY = 'cookie_preferences';
@@ -205,9 +205,10 @@ const CookieConsent = () => {
                                         href="/privacy"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-primary-600 hover:text-primary-700 underline"
+                                        className="text-primary-600 hover:text-primary-700 underline inline-flex items-center gap-1"
                                     >
                                         {t('cookies.learnMore')}
+                                        <ExternalLink size={12} className="inline" aria-hidden="true" />
                                     </a>
                                 </p>
                                 <p className="text-[10px] sm:text-xs text-slate-500 mt-1">
@@ -224,13 +225,13 @@ const CookieConsent = () => {
                             </button>
                             <button
                                 onClick={acceptEssential}
-                                className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm"
                             >
                                 {t('cookies.essentialOnly')}
                             </button>
                             <button
                                 onClick={() => setShowSettings(true)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors shadow-sm"
                             >
                                 <Settings size={14} />
                                 {t('cookies.customize')}

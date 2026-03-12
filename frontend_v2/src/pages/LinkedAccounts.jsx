@@ -307,7 +307,7 @@ const ProviderCard = ({ name, logoColor, icon: Icon = Building, isLinked, userna
                                     <button
                                         type="button"
                                         onClick={() => setIsEditing(false)}
-                                        className="flex-1 py-2 text-slate-500 font-medium hover:bg-slate-50 rounded-lg transition-colors"
+                                        className="flex-1 py-2 text-slate-700 font-medium border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors"
                                         disabled={linking}
                                     >
                                         {t('common.cancel')}
@@ -362,7 +362,7 @@ const ProviderCard = ({ name, logoColor, icon: Icon = Building, isLinked, userna
                                     <button
                                         type="button"
                                         onClick={() => setShowForm(false)}
-                                        className="flex-1 py-2 text-slate-500 font-medium hover:bg-slate-50 rounded-lg transition-colors"
+                                        className="flex-1 py-2 text-slate-700 font-medium border border-slate-300 hover:bg-slate-50 rounded-lg transition-colors"
                                         disabled={linking}
                                     >
                                         {t('common.cancel')}

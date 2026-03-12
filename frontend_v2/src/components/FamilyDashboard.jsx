@@ -82,7 +82,7 @@ export default function FamilyDashboard() {
   if (!hasFamily) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
-        <Users className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+        <Users className="w-12 h-12 text-slate-600 mx-auto mb-3" />
         <h2 className="text-lg font-semibold text-slate-800 mb-1">
           {isRomanian ? 'Nu faci parte dintr-o familie' : 'Not in a family group'}
         </h2>
@@ -127,7 +127,7 @@ export default function FamilyDashboard() {
               <h2 className="text-xl font-semibold text-slate-800">
                 {selectedMember.full_name || selectedMember.email}
               </h2>
-              <p className="text-slate-500">{selectedMember.email}</p>
+              <p className="text-slate-600">{selectedMember.email}</p>
               <div className="flex items-center gap-4 mt-2 text-sm">
                 <span className="flex items-center gap-1">
                   <FileText className="w-4 h-4" />
@@ -193,7 +193,7 @@ export default function FamilyDashboard() {
                       <div className="flex-1">
                         <p className="font-medium text-slate-800">{bio.canonical_name || bio.test_name}</p>
                         {bio.document_date && (
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-slate-600">
                             {new Date(bio.document_date).toLocaleDateString()}
                           </p>
                         )}
@@ -208,13 +208,13 @@ export default function FamilyDashboard() {
                             {bio.value || bio.numeric_value} {bio.unit}
                           </p>
                         ) : (
-                          <p className="text-slate-500 text-sm flex items-center gap-1">
+                          <p className="text-slate-600 text-sm flex items-center gap-1">
                             <Lock className="w-3 h-3" aria-hidden="true" />
                             {isRomanian ? 'Indisponibil' : 'Unavailable'}
                           </p>
                         )}
                         {bio.reference_range && (
-                          <p className="text-xs text-slate-500">{bio.reference_range}</p>
+                          <p className="text-xs text-slate-600">{bio.reference_range}</p>
                         )}
                       </div>
                       <div className="ml-4 w-6 flex justify-center">
@@ -227,7 +227,7 @@ export default function FamilyDashboard() {
               </div>
             ))}
             {memberBiomarkers.categories?.length === 0 && (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-600">
                 {isRomanian ? 'Nu există biomarkeri' : 'No biomarkers found'}
               </div>
             )}
@@ -277,7 +277,7 @@ export default function FamilyDashboard() {
                     <p className="font-semibold text-slate-800">
                       {member.full_name || member.email.split('@')[0]}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-600">
                       {member.role === 'owner' ? (isRomanian ? 'Proprietar' : 'Owner') : (isRomanian ? 'Membru' : 'Member')}
                       {member.is_current_user && (
                         <span className="ml-1 text-purple-600">({isRomanian ? 'Tu' : 'You'})</span>
@@ -290,7 +290,7 @@ export default function FamilyDashboard() {
                 }`}>
                   {member.vault_active
                     ? <Unlock className="w-4 h-4 text-green-600" aria-hidden="true" />
-                    : <Lock className="w-4 h-4 text-slate-500" aria-hidden="true" />
+                    : <Lock className="w-4 h-4 text-slate-600" aria-hidden="true" />
                   }
                 </div>
               </div>
@@ -299,11 +299,11 @@ export default function FamilyDashboard() {
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div className="text-center p-2 bg-slate-50 rounded-lg">
                   <p className="text-lg font-semibold text-slate-800">{member.document_count}</p>
-                  <p className="text-xs text-slate-500">{isRomanian ? 'Documente' : 'Docs'}</p>
+                  <p className="text-xs text-slate-600">{isRomanian ? 'Documente' : 'Docs'}</p>
                 </div>
                 <div className="text-center p-2 bg-slate-50 rounded-lg">
                   <p className="text-lg font-semibold text-slate-800">{member.biomarker_count}</p>
-                  <p className="text-xs text-slate-500">{isRomanian ? 'Biomarkeri' : 'Biomarkers'}</p>
+                  <p className="text-xs text-slate-600">{isRomanian ? 'Biomarkeri' : 'Biomarkers'}</p>
                 </div>
                 <div className={`text-center p-2 rounded-lg ${
                   member.alerts_count > 0 ? 'bg-amber-50' : 'bg-slate-50'
@@ -311,7 +311,7 @@ export default function FamilyDashboard() {
                   <p className={`text-lg font-semibold ${
                     member.alerts_count > 0 ? 'text-amber-600' : 'text-slate-800'
                   }`}>{member.alerts_count}</p>
-                  <p className="text-xs text-slate-500">{isRomanian ? 'Alerte' : 'Alerts'}</p>
+                  <p className="text-xs text-slate-600">{isRomanian ? 'Alerte' : 'Alerts'}</p>
                 </div>
               </div>
 
@@ -338,7 +338,7 @@ export default function FamilyDashboard() {
 
               {/* Last activity */}
               {member.last_activity && (
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     {isRomanian ? 'Ultima activitate' : 'Last activity'}

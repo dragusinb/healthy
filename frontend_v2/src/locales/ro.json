@@ -379,7 +379,8 @@
     "neverDone": "Niciodată făcut",
     "overdue": "Întârziat",
     "upToDate": "La zi",
-    "yearsOld": "ani"
+    "yearsOld": "ani",
+    "tests": "teste"
   },
   "linkedAccounts": {
     "title": "Conturi Conectate",

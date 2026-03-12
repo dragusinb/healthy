@@ -127,7 +127,7 @@ const Screenings = () => {
                             </div>
                             <span className="text-xl sm:text-2xl font-bold text-slate-800">{t('screenings.title') || 'Recommended Screenings'}</span>
                         </div>
-                        <p className="text-slate-500 mt-1">
+                        <p className="text-slate-600 mt-1">
                             {t('screenings.subtitle') || 'Personalized health screening recommendations based on your profile'}
                         </p>
                     </div>
@@ -176,7 +176,7 @@ const Screenings = () => {
                         <p className="font-medium text-slate-800">
                             {t('screenings.basedOnProfile') || 'Recommendations based on your profile'}
                         </p>
-                        <div className="flex flex-wrap gap-3 mt-1 text-sm text-slate-500">
+                        <div className="flex flex-wrap gap-3 mt-1 text-sm text-slate-600">
                             {profile.full_name && <span>{profile.full_name}</span>}
                             {profile.date_of_birth && (
                                 <span>
@@ -203,7 +203,7 @@ const Screenings = () => {
                             <p className="text-3xl font-bold text-slate-800">
                                 {gapAnalysis.recommended_tests?.length || 0}
                             </p>
-                            <p className="text-sm text-slate-500">{t('screenings.totalRecommended') || 'Recommended Tests'}</p>
+                            <p className="text-sm text-slate-600">{t('screenings.totalRecommended') || 'Recommended Tests'}</p>
                         </div>
                         <div className="card p-4 text-center bg-rose-50 border-rose-200">
                             <p className="text-3xl font-bold text-rose-600">
@@ -233,7 +233,7 @@ const Screenings = () => {
                             </h2>
                             <p className="text-slate-700 leading-relaxed">{gapAnalysis.summary}</p>
                             {gapAnalysis.created_at && (
-                                <p className="text-sm text-slate-500 mt-3">
+                                <p className="text-sm text-slate-600 mt-3">
                                     {t('screenings.lastUpdated') || 'Last updated'}: {new Date(gapAnalysis.created_at).toLocaleDateString()}
                                 </p>
                             )}
@@ -250,7 +250,7 @@ const Screenings = () => {
                                         <CategoryIcon size={20} className="text-slate-600" />
                                     </div>
                                     <h2 className="text-lg font-semibold text-slate-800">{category}</h2>
-                                    <span className="text-sm text-slate-500">({tests.length} tests)</span>
+                                    <span className="text-sm text-slate-600">({tests.length} {t('screenings.tests') || 'tests'})</span>
                                 </div>
                                 <div className="divide-y divide-slate-50">
                                     {tests.map((test, i) => (
@@ -298,7 +298,7 @@ const Screenings = () => {
                                                 </div>
                                             </div>
                                             <p className="text-sm text-slate-600 mb-3">{test.reason}</p>
-                                            <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+                                            <div className="flex flex-wrap gap-4 text-xs sm:text-sm text-slate-600">
                                                 {test.frequency && (
                                                     <span className="flex items-center gap-1">
                                                         <Calendar size={12} />
@@ -334,7 +334,7 @@ const Screenings = () => {
                     <h2 className="text-xl font-semibold text-slate-800 mb-2" aria-label={t('screenings.noAnalysis') || 'No Recommendations Yet'}>
                         {t('screenings.noAnalysis') || 'No Recommendations Yet'}
                     </h2>
-                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                    <p className="text-slate-600 mb-6 max-w-md mx-auto">
                         {t('screenings.noAnalysisHint') || 'Get personalized health screening recommendations based on your age, gender, and medical history.'}
                     </p>
                     <button
@@ -363,7 +363,7 @@ const Screenings = () => {
             )}
 
             {/* Disclaimer */}
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-500">
+            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-600">
                 <Shield size={20} className="shrink-0 mt-0.5" />
                 <p>
                     <strong>{t('common.disclaimer') || 'Disclaimer'}:</strong> {t('screenings.disclaimer') || 'These recommendations are generated by AI based on general health guidelines and your profile. They are not a substitute for professional medical advice. Always consult with your healthcare provider about appropriate screenings for your individual needs.'}

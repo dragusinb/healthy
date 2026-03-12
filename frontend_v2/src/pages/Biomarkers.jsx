@@ -202,12 +202,12 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     )}
                 </div>
                 <div className="col-span-2 font-bold text-slate-800 flex items-baseline gap-1">
-                    {latest.value} <span className="text-slate-500 text-xs font-medium">{latest.unit}</span>
+                    {latest.value} <span className="text-slate-600 text-xs font-medium">{latest.unit}</span>
                 </div>
-                <div className="col-span-2 text-xs text-slate-500 font-medium">
+                <div className="col-span-2 text-xs text-slate-600 font-medium">
                     {latest.range}
                 </div>
-                <div className="col-span-2 text-xs text-slate-500">
+                <div className="col-span-2 text-xs text-slate-600">
                     {new Date(latest.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
                 </div>
                 <div className="col-span-1 text-center flex items-center justify-center gap-1">
@@ -290,11 +290,11 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         </div>
                         <div className="flex items-baseline gap-2 flex-wrap">
                             <span className="font-bold text-slate-800">{latest.value}</span>
-                            <span className="text-slate-500 text-xs">{latest.unit}</span>
-                            <span className="text-slate-500" aria-hidden="true">•</span>
-                            <span className="text-xs text-slate-500">{latest.range}</span>
+                            <span className="text-slate-600 text-xs">{latest.unit}</span>
+                            <span className="text-slate-600" aria-hidden="true">•</span>
+                            <span className="text-xs text-slate-600">{latest.range}</span>
                         </div>
-                        <div className="text-xs text-slate-500 mt-1">
+                        <div className="text-xs text-slate-600 mt-1">
                             {new Date(latest.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' })}
                         </div>
                     </div>
@@ -342,17 +342,17 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         showOnlyIssues && bio.status === 'normal' && "!hidden"
                     )}
                 >
-                    <div className="col-span-4 pl-8 text-slate-500 flex items-center gap-2">
-                        <History size={12} className="text-slate-500" />
+                    <div className="col-span-4 pl-8 text-slate-600 flex items-center gap-2">
+                        <History size={12} className="text-slate-600" />
                         <span className="truncate text-xs">{bio.name !== group.canonical_name ? bio.name : ''}</span>
                     </div>
                     <div className="col-span-2 text-slate-700 flex items-baseline gap-1">
-                        {bio.value} <span className="text-slate-500 text-xs">{bio.unit}</span>
+                        {bio.value} <span className="text-slate-600 text-xs">{bio.unit}</span>
                     </div>
-                    <div className="col-span-2 text-xs text-slate-500">
+                    <div className="col-span-2 text-xs text-slate-600">
                         {bio.range}
                     </div>
-                    <div className="col-span-2 text-xs text-slate-500">
+                    <div className="col-span-2 text-xs text-slate-600">
                         {new Date(bio.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
                     </div>
                     <div className="col-span-1 text-center">
@@ -389,19 +389,19 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                 >
                     <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 text-slate-500 mb-1">
-                                <History size={12} className="text-slate-500 flex-shrink-0" />
+                            <div className="flex items-center gap-2 text-slate-600 mb-1">
+                                <History size={12} className="text-slate-600 flex-shrink-0" />
                                 {bio.name !== group.canonical_name && (
                                     <span className="truncate text-xs">{bio.name}</span>
                                 )}
                             </div>
                             <div className="flex items-baseline gap-2 flex-wrap">
                                 <span className="font-medium text-slate-700">{bio.value}</span>
-                                <span className="text-slate-500 text-xs">{bio.unit}</span>
-                                <span className="text-slate-500" aria-hidden="true">•</span>
-                                <span className="text-xs text-slate-500">{bio.range}</span>
+                                <span className="text-slate-600 text-xs">{bio.unit}</span>
+                                <span className="text-slate-600" aria-hidden="true">•</span>
+                                <span className="text-xs text-slate-600">{bio.range}</span>
                             </div>
-                            <div className="text-xs text-slate-500 mt-0.5">
+                            <div className="text-xs text-slate-600 mt-0.5">
                                 {new Date(bio.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' })}
                             </div>
                         </div>
@@ -464,10 +464,10 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                     </div>
                     <div className="text-left min-w-0 overflow-hidden">
                         <h3 className="font-semibold text-slate-800 text-xs sm:text-sm md:text-base whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] sm:max-w-[220px] md:max-w-none">{t(category.nameKey)}</h3>
-                        <p className="text-xs text-slate-500 truncate">
+                        <p className="text-xs text-slate-600 truncate">
                             {visibleCount} {t('biomarkers.tests')}
                             {lastUpdatedDate && (
-                                <span className="text-slate-500 ml-1 sm:ml-2">
+                                <span className="text-slate-600 ml-1 sm:ml-2">
                                     <span aria-hidden="true">·</span> {t('biomarkers.lastUpdated')}: {lastUpdatedDate}
                                 </span>
                             )}
@@ -521,7 +521,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         </button>
                     </div>
                     {/* Desktop header */}
-                    <div className="hidden md:grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <div className="hidden md:grid grid-cols-12 gap-4 p-3 bg-slate-50/50 text-xs font-bold text-slate-600 uppercase tracking-wider">
                         <div className="col-span-4 pl-2">{t('biomarkers.testName')}</div>
                         <div className="col-span-2">{t('biomarkers.value')}</div>
                         <div className="col-span-2">{t('biomarkers.refRange')}</div>
@@ -530,7 +530,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         <div className="col-span-1 text-right pr-2">Status</div>
                     </div>
                     {/* Mobile header */}
-                    <div className="md:hidden p-3 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <div className="md:hidden p-3 bg-slate-50/50 text-xs font-bold text-slate-600 uppercase tracking-wider">
                         {t('biomarkers.testResults')}
                     </div>
                     <div className="divide-y divide-slate-100 md:divide-slate-50">
@@ -845,7 +845,7 @@ const Biomarkers = () => {
             {/* Summary / Pagination indicator */}
             <div className="mb-6 flex flex-wrap items-center gap-3 text-sm text-slate-600" role="status" aria-live="polite" data-testid="biomarker-count">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full font-medium">
-                    <Activity size={14} className="text-slate-500" />
+                    <Activity size={14} className="text-slate-600" />
                     {t('biomarkers.showingCount', { count: totalFiltered })}
                 </span>
                 {totalIssues > 0 && (
@@ -855,7 +855,7 @@ const Biomarkers = () => {
                     </span>
                 )}
                 {globalLastUpdated && (
-                    <span className="text-slate-500 flex items-center gap-1.5">
+                    <span className="text-slate-600 flex items-center gap-1.5">
                         <Calendar size={14} />
                         {t('biomarkers.lastUpdated')}: {globalLastUpdated}
                     </span>

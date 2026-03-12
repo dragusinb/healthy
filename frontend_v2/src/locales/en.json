@@ -342,7 +342,8 @@
     "neverDone": "Never done",
     "overdue": "Overdue",
     "upToDate": "Up to date",
-    "yearsOld": "years old"
+    "yearsOld": "years old",
+    "tests": "tests"
   },
   "linkedAccounts": {
     "title": "Linked Accounts",
