@@ -26,8 +26,8 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to })
 
                 <div>
                     <h3 className="text-4xl font-bold text-slate-800 tracking-tight">{value}</h3>
-                    <p className="text-slate-500 font-medium text-sm mt-1">{title}</p>
-                    {subtitle && <p className="text-xs text-slate-500 mt-2 font-medium">{subtitle}</p>}
+                    <p className="text-slate-600 font-medium text-sm mt-1">{title}</p>
+                    {subtitle && <p className="text-xs text-slate-600 mt-2 font-medium">{subtitle}</p>}
                 </div>
             </div>
             {/* Decorative background circle */}
@@ -199,7 +199,7 @@ const Dashboard = () => {
                                         <h3 className="font-bold text-slate-800 text-lg">
                                             {healthOverview.profile?.full_name || t('dashboard.unknownPatient') || 'Unknown Patient'}
                                         </h3>
-                                        <div className="flex items-center gap-3 text-sm text-slate-500">
+                                        <div className="flex items-center gap-3 text-sm text-slate-600">
                                             {healthOverview.profile?.age && (
                                                 <span className="flex items-center gap-1">
                                                     <Calendar size={12} />
@@ -225,7 +225,7 @@ const Dashboard = () => {
                                 {/* Tracking Timeline */}
                                 <div className="p-3 bg-slate-50 rounded-xl space-y-2">
                                     <div className="flex items-center justify-between text-sm">
-                                        <span className="text-slate-500 flex items-center gap-1.5">
+                                        <span className="text-slate-600 flex items-center gap-1.5">
                                             <Clock size={14} />
                                             {t('dashboard.trackingSince') || 'Tracking since'}
                                         </span>
@@ -237,7 +237,7 @@ const Dashboard = () => {
                                     </div>
                                     {healthOverview.timeline?.days_tracking != null && (
                                         <div className="flex items-center justify-between text-sm">
-                                            <span className="text-slate-500">{t('dashboard.duration') || 'Duration'}</span>
+                                            <span className="text-slate-600">{t('dashboard.duration') || 'Duration'}</span>
                                             <span className="font-medium text-primary-600">
                                                 {(() => {
                                                     const days = healthOverview.timeline.days_tracking;
@@ -251,7 +251,7 @@ const Dashboard = () => {
                                         </div>
                                     )}
                                     <div className="flex items-center justify-between text-sm">
-                                        <span className="text-slate-500">{t('dashboard.totalRecords') || 'Total records'}</span>
+                                        <span className="text-slate-600">{t('dashboard.totalRecords') || 'Total records'}</span>
                                         <span className="font-medium text-slate-700">{healthOverview.timeline?.total_documents || 0}</span>
                                     </div>
                                 </div>
@@ -401,7 +401,7 @@ const Dashboard = () => {
                     </div>
                     <div>
                         <h4 className="font-bold text-slate-800">{t('dashboard.uploadDocument')}</h4>
-                        <p className="text-sm text-slate-500">{t('dashboard.addNewPdf')}</p>
+                        <p className="text-sm text-slate-600">{t('dashboard.addNewPdf')}</p>
                     </div>
                     <ArrowRight size={18} className="ml-auto text-slate-500 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
                 </Link>
@@ -450,7 +450,7 @@ const Dashboard = () => {
                         </p>
                     </div>
                 ) : (
-                    <Link to="/health" className="block text-center py-12 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
+                    <Link to="/health" className="block text-center py-12 text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
                         <Brain size={40} className="mx-auto mb-3 opacity-50" />
                         <p className="text-lg font-medium">{t('dashboard.noFindingsYet') || 'No AI analysis yet'}</p>
                         <p className="text-sm mt-1">{t('dashboard.runAnalysisHint') || 'Run your first AI health analysis to see findings'}</p>

@@ -357,9 +357,9 @@ export default function Pricing() {
               <h2 className="text-xl font-bold text-slate-800 mb-2">Free</h2>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold text-slate-800">0</span>
-                <span className="text-slate-500">RON</span>
+                <span className="text-slate-600">RON</span>
               </div>
-              <p className="text-slate-500 mt-2 text-sm">
+              <p className="text-slate-600 mt-2 text-sm">
                 {isRomanian
                   ? 'Pentru a incepe sa iti monitorizezi sanatatea'
                   : 'To start monitoring your health'}
@@ -383,11 +383,11 @@ export default function Pricing() {
                 <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
                 <span>{isRomanian ? 'Doar analiza generala' : 'General analysis only'}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500">
+              <div className="flex items-center gap-2 text-slate-600">
                 <X className="w-5 h-5 flex-shrink-0" />
                 <span className="line-through">{isRomanian ? 'Specialisti AI' : 'AI Specialists'}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500">
+              <div className="flex items-center gap-2 text-slate-600">
                 <X className="w-5 h-5 flex-shrink-0" />
                 <span className="line-through">{isRomanian ? 'Export PDF' : 'PDF Export'}</span>
               </div>
@@ -420,7 +420,7 @@ export default function Pricing() {
                 <span className="text-4xl font-bold text-slate-800">
                   {activePremium?.price || 5}
                 </span>
-                <span className="text-slate-500">
+                <span className="text-slate-600">
                   RON / {selectedPeriod === 'yearly' ? (isRomanian ? 'an' : 'year') : (isRomanian ? 'luna' : 'month')}
                 </span>
               </div>
@@ -430,7 +430,7 @@ export default function Pricing() {
                 </p>
               )}
               {selectedPeriod === 'monthly' && (
-                <p className="text-slate-500 text-sm mt-1">
+                <p className="text-slate-600 text-sm mt-1">
                   {isRomanian ? 'Mai putin decat o cafea' : 'Less than a coffee'}
                 </p>
               )}
@@ -500,7 +500,7 @@ export default function Pricing() {
                 <span className="text-4xl font-bold text-slate-800">
                   {familyPlan?.price || 10}
                 </span>
-                <span className="text-slate-500">RON / {isRomanian ? 'luna' : 'month'}</span>
+                <span className="text-slate-600">RON / {isRomanian ? 'luna' : 'month'}</span>
               </div>
               <p className="text-purple-600 text-sm mt-1 font-medium">
                 {isRomanian
@@ -531,7 +531,7 @@ export default function Pricing() {
             </div>
 
             <div className="space-y-2 mb-6 flex-grow text-sm">
-              <div className="text-xs text-slate-500 uppercase tracking-wide mb-2">
+              <div className="text-xs text-slate-600 uppercase tracking-wide mb-2">
                 {isRomanian ? 'Fiecare membru primeste:' : 'Each member gets:'}
               </div>
               <div className="flex items-center gap-2 text-slate-700">
@@ -588,7 +588,7 @@ export default function Pricing() {
                   <benefit.icon className={`w-5 h-5 ${benefit.color}`} />
                 </div>
                 <h3 className="font-semibold text-slate-800 mb-1">{benefit.title}</h3>
-                <p className="text-sm text-slate-500">{benefit.description}</p>
+                <p className="text-sm text-slate-600">{benefit.description}</p>
               </div>
             ))}
           </div>
@@ -620,7 +620,7 @@ export default function Pricing() {
                   <benefit.icon className="w-6 h-6 text-purple-600" />
                 </div>
                 <h3 className="font-semibold text-slate-800 mb-2">{benefit.title}</h3>
-                <p className="text-sm text-slate-500">{benefit.description}</p>
+                <p className="text-sm text-slate-600">{benefit.description}</p>
               </div>
             ))}
           </div>
@@ -631,7 +631,7 @@ export default function Pricing() {
             </h3>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="text-center p-4 bg-slate-50 rounded-lg">
-                <p className="text-sm text-slate-500 mb-1">{isRomanian ? 'Cu 5 planuri Premium separate' : 'With 5 separate Premium plans'}</p>
+                <p className="text-sm text-slate-600 mb-1">{isRomanian ? 'Cu 5 planuri Premium separate' : 'With 5 separate Premium plans'}</p>
                 <p className="text-2xl font-bold text-slate-800">5 x 5 = <span className="text-rose-500">25 RON</span>/luna</p>
               </div>
               <div className="text-center p-4 bg-purple-100 rounded-lg">
@@ -697,7 +697,7 @@ export default function Pricing() {
 
       {/* FAQ or Info */}
       <div className="max-w-6xl mx-auto px-6 pb-20 text-center">
-        <p className="text-slate-500">
+        <p className="text-slate-600">
           {isRomanian ? 'Intrebari?' : 'Questions?'}{' '}
           <a href="mailto:support@analize.online" className="text-cyan-600 hover:underline">
             support@analize.online

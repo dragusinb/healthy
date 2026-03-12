@@ -97,7 +97,7 @@ const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t })
                             <h2 id="error-modal-title" className="text-xl font-bold text-slate-800 mb-1">
                                 {t(errorConfig.titleKey) || 'Connection Problem'}
                             </h2>
-                            <p className="text-sm text-slate-500 mb-2">
+                            <p className="text-sm text-slate-600 mb-2">
                                 {account.provider_name}
                             </p>
                         </div>
@@ -111,7 +111,7 @@ const ErrorModal = ({ account, onClose, onAcknowledge, onUpdateCredentials, t })
                             {t(errorConfig.descKey) || 'There was a problem connecting to your medical provider account.'}
                         </p>
                         {account.last_sync_error && (
-                            <p className="text-xs text-slate-500 font-mono mt-2 p-2 bg-slate-100 rounded">
+                            <p className="text-xs text-slate-600 font-mono mt-2 p-2 bg-slate-100 rounded">
                                 {account.last_sync_error}
                             </p>
                         )}
@@ -268,7 +268,7 @@ const ProviderCard = ({ name, logoColor, icon: Icon = Building, isLinked, userna
                                 </button>
                                 {syncing && getStatusDisplay()}
                                 {!syncing && (
-                                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 mt-2">
+                                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-600 mt-2">
                                         <Clock size={12} />
                                         {account?.last_sync ? (
                                             <span>{t('linkedAccounts.lastSync')}: {new Date(account.last_sync).toLocaleString()}</span>
@@ -544,7 +544,7 @@ const LinkedAccounts = () => {
     return (
         <div>
             <div className="mb-8">
-                <p className="text-slate-500">{t('linkedAccounts.subtitle')}</p>
+                <p className="text-slate-600">{t('linkedAccounts.subtitle')}</p>
             </div>
 
             {message && (

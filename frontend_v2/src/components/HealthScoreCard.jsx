@@ -45,7 +45,7 @@ const ScoreRing = ({ score, grade, size = 140 }) => {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={cn("text-3xl font-bold", config.color)}>{score}</span>
-        <span className="text-xs text-slate-500 font-medium">/100</span>
+        <span className="text-xs text-slate-600 font-medium">/100</span>
       </div>
     </div>
   );
@@ -97,7 +97,7 @@ export default function HealthScoreCard() {
           </span>
 
           {!data.has_data && (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-600">
               {t('healthScore.noData')}
             </p>
           )}
@@ -114,7 +114,7 @@ export default function HealthScoreCard() {
                       style={{ width: `${comp.score}%` }}
                     />
                   </div>
-                  <span className="text-xs text-slate-500 whitespace-nowrap">
+                  <span className="text-xs text-slate-600 whitespace-nowrap">
                     {t(`healthScore.${key}`)}
                   </span>
                 </div>

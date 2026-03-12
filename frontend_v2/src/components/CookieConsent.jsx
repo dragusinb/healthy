@@ -119,7 +119,7 @@ const CookieConsent = () => {
                         <div className="flex items-start justify-between p-3 bg-slate-50 rounded-lg">
                             <div>
                                 <p className="font-medium text-slate-700">{t('cookies.essential')}</p>
-                                <p className="text-sm text-slate-500">{t('cookies.essentialDesc')}</p>
+                                <p className="text-sm text-slate-600">{t('cookies.essentialDesc')}</p>
                             </div>
                             <div className="flex items-center h-6">
                                 <div className="w-10 h-5 bg-primary-500 rounded-full flex items-center justify-end px-0.5">
@@ -132,7 +132,7 @@ const CookieConsent = () => {
                         <div className="flex items-start justify-between p-3 bg-slate-50 rounded-lg">
                             <div>
                                 <p className="font-medium text-slate-700">{t('cookies.analytics')}</p>
-                                <p className="text-sm text-slate-500">{t('cookies.analyticsDesc')}</p>
+                                <p className="text-sm text-slate-600">{t('cookies.analyticsDesc')}</p>
                             </div>
                             <button
                                 onClick={() => setPreferences(p => ({ ...p, analytics: !p.analytics }))}
@@ -148,7 +148,7 @@ const CookieConsent = () => {
                         <div className="flex items-start justify-between p-3 bg-slate-50 rounded-lg">
                             <div>
                                 <p className="font-medium text-slate-700">{t('cookies.marketing')}</p>
-                                <p className="text-sm text-slate-500">{t('cookies.marketingDesc')}</p>
+                                <p className="text-sm text-slate-600">{t('cookies.marketingDesc')}</p>
                             </div>
                             <button
                                 onClick={() => setPreferences(p => ({ ...p, marketing: !p.marketing }))}

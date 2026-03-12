@@ -58,7 +58,7 @@ export default function InstallBanner() {
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-slate-800 text-sm">{t('pwa.installTitle')}</p>
-        <p className="text-xs text-slate-500 mt-0.5">{t('pwa.installDescription')}</p>
+        <p className="text-xs text-slate-600 mt-0.5">{t('pwa.installDescription')}</p>
       </div>
       <button
         onClick={handleInstall}

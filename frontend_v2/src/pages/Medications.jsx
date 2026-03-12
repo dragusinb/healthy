@@ -118,7 +118,7 @@ const MedicationItem = ({ med, onToggle, onDelete, onUndo, t }) => {
         <p className={cn("font-medium text-sm", med.taken_today ? "text-emerald-700" : "text-slate-800")}>
           {med.name}
         </p>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="flex items-center gap-2 text-xs text-slate-600">
           {med.dosage && <span>{med.dosage}</span>}
           {med.dosage && med.time_of_day && <span>·</span>}
           {med.time_of_day && (
@@ -270,22 +270,22 @@ export default function Medications() {
           <div className="card p-4 text-center">
             <Flame size={20} className={cn("mx-auto mb-1", adherence.streak > 0 ? "text-orange-500" : "text-slate-500")} />
             <p className="text-2xl font-bold text-slate-800">{adherence.streak}</p>
-            <p className="text-xs text-slate-500">{t('medications.streakDays')}</p>
+            <p className="text-xs text-slate-600">{t('medications.streakDays')}</p>
           </div>
           <div className="card p-4 text-center">
             <Check size={20} className="mx-auto mb-1 text-emerald-500" />
             <p className="text-2xl font-bold text-slate-800">{takenCount}/{totalCount}</p>
-            <p className="text-xs text-slate-500">{t('medications.takenToday')}</p>
+            <p className="text-xs text-slate-600">{t('medications.takenToday')}</p>
           </div>
           <div className="card p-4 text-center">
             <Calendar size={20} className="mx-auto mb-1 text-primary-500" />
             <p className="text-2xl font-bold text-slate-800">{adherence.adherence_pct}%</p>
-            <p className="text-xs text-slate-500">{t('medications.adherence30d')}</p>
+            <p className="text-xs text-slate-600">{t('medications.adherence30d')}</p>
           </div>
           <div className="card p-4 text-center">
             <Pill size={20} className="mx-auto mb-1 text-violet-500" />
             <p className="text-2xl font-bold text-slate-800">{totalCount}</p>
-            <p className="text-xs text-slate-500">{t('medications.activeMeds')}</p>
+            <p className="text-xs text-slate-600">{t('medications.activeMeds')}</p>
           </div>
         </div>
       )}
@@ -308,7 +308,7 @@ export default function Medications() {
         {/* Progress bar */}
         {totalCount > 0 && (
           <div className="mb-4">
-            <div className="flex justify-between text-xs text-slate-500 mb-1">
+            <div className="flex justify-between text-xs text-slate-600 mb-1">
               <span>{takenCount} / {totalCount} {t('medications.taken')}</span>
               <span>{Math.round((takenCount / totalCount) * 100)}%</span>
             </div>
@@ -367,7 +367,7 @@ export default function Medications() {
                   title={`${day.date}: ${day.taken}/${day.total}`}
                 />
                 {i % 2 === 0 && (
-                  <span className="text-[9px] text-slate-500">
+                  <span className="text-[9px] text-slate-600">
                     {new Date(day.date).getDate()}
                   </span>
                 )}

@@ -205,11 +205,10 @@ const Layout = ({ children }) => {
 
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
-            {/* Skip Navigation Link - visible to assistive tech and QA tools */}
+            {/* Skip Navigation Link */}
             <a
                 href="#main-content"
-                className="absolute z-[100] top-2 left-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium shadow-lg opacity-0 focus:opacity-100 pointer-events-none focus:pointer-events-auto transition-opacity -translate-y-full focus:translate-y-0"
-                tabIndex={0}
+                className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg"
             >
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>

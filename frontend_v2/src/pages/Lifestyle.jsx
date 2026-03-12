@@ -250,7 +250,7 @@ const Lifestyle = () => {
                         </div>
                         {t('lifestyle.title')}
                     </h1>
-                    <p className="text-slate-500 mt-1">{t('lifestyle.subtitle')}</p>
+                    <p className="text-slate-600 mt-1">{t('lifestyle.subtitle')}</p>
                 </div>
 
                 <button
@@ -364,7 +364,7 @@ const Lifestyle = () => {
 
                     {/* Date */}
                     {latestData?.created_at && (
-                        <p className="text-sm text-slate-500 text-right">
+                        <p className="text-sm text-slate-600 text-right">
                             {new Date(latestData.created_at).toLocaleDateString()}
                         </p>
                     )}
@@ -380,7 +380,7 @@ const Lifestyle = () => {
                                             <ThumbsUp size={15} className="text-emerald-600" />
                                             {t('lifestyle.foodPref.yourPreferences')}
                                         </h3>
-                                        <span className="text-xs text-slate-500">{t('lifestyle.foodPref.hint')}</span>
+                                        <span className="text-xs text-slate-600">{t('lifestyle.foodPref.hint')}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {Object.entries(foodPreferences).map(([name, pref]) => (
@@ -432,7 +432,7 @@ const Lifestyle = () => {
                                         </>
                                     )}
                                 </button>
-                                <span className="text-xs text-slate-500">{t('lifestyle.newMenuHint')}</span>
+                                <span className="text-xs text-slate-600">{t('lifestyle.newMenuHint')}</span>
                             </div>
 
                             {/* Summary */}
@@ -449,7 +449,7 @@ const Lifestyle = () => {
                             {/* Daily Targets */}
                             {nutrition.daily_targets && Object.keys(nutrition.daily_targets).length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.dailyTargets')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.dailyTargets')}</h3>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                         {nutrition.daily_targets.calories && (
                                             <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl border border-orange-100">
@@ -494,7 +494,7 @@ const Lifestyle = () => {
                             {/* 7-Day Meal Plan */}
                             {nutrition.meal_plan?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <Calendar size={16} />
                                         {t('lifestyle.nutrition.mealPlan')}
                                     </h3>
@@ -519,7 +519,7 @@ const Lifestyle = () => {
                                                             <div key={j} className="flex gap-3 p-3 bg-white rounded-lg border border-slate-100">
                                                                 <div className="shrink-0 w-20 text-center">
                                                                     <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded">{meal.time}</span>
-                                                                    <p className="text-xs text-slate-500 mt-1 font-medium">{meal.meal}</p>
+                                                                    <p className="text-xs text-slate-600 mt-1 font-medium">{meal.meal}</p>
                                                                     {meal.calories && <p className="text-xs text-orange-500 mt-0.5">{meal.calories}</p>}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
@@ -533,7 +533,7 @@ const Lifestyle = () => {
                                                                         ))}
                                                                     </ul>
                                                                     {meal.notes && (
-                                                                        <p className="text-xs text-slate-500 mt-2 italic border-t border-slate-50 pt-1">{meal.notes}</p>
+                                                                        <p className="text-xs text-slate-600 mt-2 italic border-t border-slate-50 pt-1">{meal.notes}</p>
                                                                     )}
                                                                     {meal.recipe && (
                                                                         <div className="mt-2 border-t border-slate-100 pt-2">
@@ -571,7 +571,7 @@ const Lifestyle = () => {
                             {/* Priority Foods */}
                             {nutrition.priority_foods?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.priorityFoods')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.priorityFoods')}</h3>
                                     <div className="space-y-4">
                                         {nutrition.priority_foods.map((group, i) => (
                                             <div key={i} className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
@@ -602,7 +602,7 @@ const Lifestyle = () => {
                             {/* Foods to Reduce */}
                             {nutrition.foods_to_reduce?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.foodsToReduce')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.foodsToReduce')}</h3>
                                     <div className="space-y-3">
                                         {nutrition.foods_to_reduce.map((item, i) => (
                                             <div key={i} className="p-4 bg-amber-50 rounded-xl border border-amber-100">
@@ -638,7 +638,7 @@ const Lifestyle = () => {
                             {/* Meal Timing (backwards compat) */}
                             {nutrition.meal_timing?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.mealTiming')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.mealTiming')}</h3>
                                     <div className="space-y-3">
                                         {nutrition.meal_timing.map((meal, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
@@ -646,7 +646,7 @@ const Lifestyle = () => {
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <span className="font-semibold text-slate-800">{meal.meal}</span>
-                                                        <span className="text-xs text-slate-500 bg-slate-200 px-2 py-0.5 rounded">{meal.timing}</span>
+                                                        <span className="text-xs text-slate-600 bg-slate-200 px-2 py-0.5 rounded">{meal.timing}</span>
                                                     </div>
                                                     <p className="text-sm text-slate-600 mt-0.5">{meal.focus}</p>
                                                 </div>
@@ -659,7 +659,7 @@ const Lifestyle = () => {
                             {/* Shopping List */}
                             {nutrition.shopping_list?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <ShoppingCart size={16} />
                                         {t('lifestyle.nutrition.shoppingList')}
                                     </h3>
@@ -685,7 +685,7 @@ const Lifestyle = () => {
                             {/* Supplements */}
                             {nutrition.supplements_to_discuss?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.supplements')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.supplements')}</h3>
                                     <div className="space-y-3">
                                         {nutrition.supplements_to_discuss.map((supp, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-violet-50 rounded-lg border border-violet-100">
@@ -740,7 +740,7 @@ const Lifestyle = () => {
                             {/* Current Assessment */}
                             {exercise.current_assessment && Object.keys(exercise.current_assessment).length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.exercise.assessment')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.assessment')}</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         {exercise.current_assessment.activity_level && (
                                             <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
@@ -771,7 +771,7 @@ const Lifestyle = () => {
                             {/* 7-Day Exercise Schedule */}
                             {exercise.weekly_schedule?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <Calendar size={16} />
                                         {t('lifestyle.exercise.weeklySchedule')}
                                     </h3>
@@ -796,7 +796,7 @@ const Lifestyle = () => {
                                                             </div>
                                                             <div>
                                                                 <span className={cn("font-semibold", isRestDay ? "text-blue-800" : "text-emerald-800")}>{day.day}</span>
-                                                                <span className="text-sm text-slate-500 ml-2">- {day.focus}</span>
+                                                                <span className="text-sm text-slate-600 ml-2">- {day.focus}</span>
                                                             </div>
                                                             {day.total_duration && (
                                                                 <span className="text-xs bg-white px-2 py-1 rounded-full text-slate-600 border border-slate-200 ml-2 hidden sm:inline">
@@ -889,7 +889,7 @@ const Lifestyle = () => {
 
                                                             {/* Day Notes */}
                                                             {day.notes && (
-                                                                <p className="text-xs text-slate-500 italic px-1">{day.notes}</p>
+                                                                <p className="text-xs text-slate-600 italic px-1">{day.notes}</p>
                                                             )}
                                                         </div>
                                                     )}
@@ -903,7 +903,7 @@ const Lifestyle = () => {
                             {/* Weekly Plan (backwards compat for old data) */}
                             {!exercise.weekly_schedule?.length && exercise.weekly_plan?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.exercise.weeklyPlan')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.weeklyPlan')}</h3>
                                     <div className="space-y-4">
                                         {exercise.weekly_plan.map((activity, i) => (
                                             <div key={i} className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
@@ -933,7 +933,7 @@ const Lifestyle = () => {
                             {/* Daily Habits */}
                             {exercise.daily_habits?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.exercise.dailyHabits')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.dailyHabits')}</h3>
                                     <div className="space-y-3">
                                         {exercise.daily_habits.map((habit, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
@@ -941,7 +941,7 @@ const Lifestyle = () => {
                                                 <div>
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="font-semibold text-slate-800">{habit.habit}</span>
-                                                        {habit.when && <span className="text-xs text-slate-500 bg-slate-200 px-2 py-0.5 rounded">{habit.when}</span>}
+                                                        {habit.when && <span className="text-xs text-slate-600 bg-slate-200 px-2 py-0.5 rounded">{habit.when}</span>}
                                                         {habit.duration && <span className="text-xs text-blue-500 bg-blue-50 px-2 py-0.5 rounded">{habit.duration}</span>}
                                                     </div>
                                                     {habit.details && <p className="text-sm text-slate-600 mt-0.5">{habit.details}</p>}
@@ -956,7 +956,7 @@ const Lifestyle = () => {
                             {/* Progression */}
                             {exercise.progression && Object.keys(exercise.progression).length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.exercise.progression')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.progression')}</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         {exercise.progression.current_week && (
                                             <div className="p-4 bg-emerald-50 rounded-xl border-2 border-emerald-300 relative">
@@ -989,7 +989,7 @@ const Lifestyle = () => {
                             {/* Equipment Needed */}
                             {exercise.equipment_needed?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">{t('lifestyle.exercise.equipmentNeeded')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">{t('lifestyle.exercise.equipmentNeeded')}</h3>
                                     <div className="flex flex-wrap gap-2">
                                         {exercise.equipment_needed.map((eq, i) => (
                                             <span key={i} className="text-sm bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -1003,7 +1003,7 @@ const Lifestyle = () => {
                             {/* Precautions */}
                             {exercise.precautions?.length > 0 && (
                                 <div className="card p-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">{t('lifestyle.exercise.precautions')}</h3>
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.precautions')}</h3>
                                     <div className="space-y-3">
                                         {exercise.precautions.map((prec, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
@@ -1045,7 +1045,7 @@ const Lifestyle = () => {
                         <Leaf size={32} className="text-emerald-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('lifestyle.noAnalysisYet')}</h3>
-                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                    <p className="text-slate-600 mb-6 max-w-md mx-auto">
                         {t('lifestyle.noAnalysisHint')}
                     </p>
                     <button
@@ -1060,7 +1060,7 @@ const Lifestyle = () => {
             )}
 
             {/* Disclaimer */}
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-500">
+            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-600">
                 <Shield size={20} className="shrink-0 mt-0.5" />
                 <p>
                     <strong>{t('lifestyle.disclaimer_label')}:</strong> {t('lifestyle.disclaimer')}

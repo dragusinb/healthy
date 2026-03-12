@@ -223,7 +223,7 @@ const HealthReports = () => {
                         </div>
                         {t('healthReports.title')}
                     </h2>
-                    <p className="text-slate-500 mt-1">{t('healthReports.subtitle')}</p>
+                    <p className="text-slate-600 mt-1">{t('healthReports.subtitle')}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -337,7 +337,7 @@ const HealthReports = () => {
                     <div className="p-6 border-b border-slate-100">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.latestAnalysis')}</h2>
-                            <span className="text-sm text-slate-500">
+                            <span className="text-sm text-slate-600">
                                 {new Date(latestReport.created_at).toLocaleDateString()}
                             </span>
                         </div>
@@ -359,7 +359,7 @@ const HealthReports = () => {
                                     </div>
                                 );
                             })()}
-                            <span className="text-slate-500">
+                            <span className="text-slate-600">
                                 {latestReport.biomarkers_analyzed} {t('healthReports.biomarkersAnalyzed')}
                             </span>
                         </div>
@@ -372,7 +372,7 @@ const HealthReports = () => {
                         {/* Key Findings */}
                         {latestReport.findings?.length > 0 && (
                             <div className="mb-6">
-                                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                                     {t('healthReports.keyFindings')}
                                 </h3>
                                 <div className="space-y-3">
@@ -427,7 +427,7 @@ const HealthReports = () => {
                         {/* Recommendations */}
                         {latestReport.recommendations?.length > 0 && (
                             <div>
-                                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                                     {t('healthReports.recommendations')}
                                 </h3>
                                 <div className="space-y-2">
@@ -443,7 +443,7 @@ const HealthReports = () => {
                                             </div>
                                             <div>
                                                 <p className="font-medium text-slate-800">{rec.action}</p>
-                                                <p className="text-sm text-slate-500">{rec.reason}</p>
+                                                <p className="text-sm text-slate-600">{rec.reason}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -455,10 +455,10 @@ const HealthReports = () => {
             ) : !analyzing && (
                 <div className="card p-12 text-center">
                     <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Brain size={32} className="text-slate-500" />
+                        <Brain size={32} className="text-slate-600" />
                     </div>
                     <h3 className="text-xl font-semibold text-slate-800 mb-2">{t('healthReports.noAnalysisYet')}</h3>
-                    <p className="text-slate-500 mb-6 max-w-md mx-auto">
+                    <p className="text-slate-600 mb-6 max-w-md mx-auto">
                         {t('healthReports.noAnalysisHint')}
                     </p>
                     <button
@@ -486,7 +486,7 @@ const HealthReports = () => {
                     <div className="card overflow-hidden">
                         <div className="p-6 border-b border-slate-100">
                             <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.specialistAnalyses')}</h2>
-                            <p className="text-sm text-slate-500 mt-1">
+                            <p className="text-sm text-slate-600 mt-1">
                                 From analysis on {new Date(latestSession.session_date).toLocaleDateString()}
                             </p>
                         </div>
@@ -508,7 +508,7 @@ const HealthReports = () => {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-semibold text-slate-800 break-words overflow-hidden">{report.title}</h3>
-                                                <p className="text-sm text-slate-500 mt-1 line-clamp-2">{report.summary}</p>
+                                                <p className="text-sm text-slate-600 mt-1 line-clamp-2">{report.summary}</p>
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className={cn(
                                                         "text-xs px-2 py-0.5 rounded-full",
@@ -542,13 +542,13 @@ const HealthReports = () => {
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold text-slate-800">{t('healthReports.reportHistory')}</h2>
-                                <p className="text-sm text-slate-500">{reportHistory.length} {t('healthReports.analysisSessions') || 'analysis sessions'}</p>
+                                <p className="text-sm text-slate-600">{reportHistory.length} {t('healthReports.analysisSessions') || 'analysis sessions'}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             {compareMode ? (
                                 <>
-                                    <span className="text-sm text-slate-500">
+                                    <span className="text-sm text-slate-600">
                                         {t('healthReports.selectToCompare') || 'Select 2 to compare'} ({selectedForCompare.length}/2)
                                     </span>
                                     {selectedForCompare.length === 2 && (
@@ -598,13 +598,13 @@ const HealthReports = () => {
                             {/* Summary Stats */}
                             <div className="grid grid-cols-3 gap-4 mb-4">
                                 <div className="bg-white/70 rounded-lg p-3 text-center">
-                                    <p className="text-sm text-slate-500">Time Between</p>
+                                    <p className="text-sm text-slate-600">Time Between</p>
                                     <p className="text-xl font-bold text-slate-800">
                                         {comparisonData.comparison.days_between} days
                                     </p>
                                 </div>
                                 <div className="bg-white/70 rounded-lg p-3 text-center">
-                                    <p className="text-sm text-slate-500">Risk Level Change</p>
+                                    <p className="text-sm text-slate-600">Risk Level Change</p>
                                     <div className="flex items-center justify-center gap-2">
                                         {comparisonData.comparison.risk_change === 'improved' ? (
                                             <TrendingDown size={20} className="text-teal-600" />
@@ -624,7 +624,7 @@ const HealthReports = () => {
                                     </div>
                                 </div>
                                 <div className="bg-white/70 rounded-lg p-3 text-center">
-                                    <p className="text-sm text-slate-500">Biomarkers Change</p>
+                                    <p className="text-sm text-slate-600">Biomarkers Change</p>
                                     <p className="text-xl font-bold text-slate-800">
                                         {comparisonData.comparison.biomarkers_change > 0 ? '+' : ''}
                                         {comparisonData.comparison.biomarkers_change || 0}
@@ -640,7 +640,7 @@ const HealthReports = () => {
                                             <span className="text-xs bg-slate-100 px-2 py-1 rounded font-medium">
                                                 {idx === 0 ? 'Older' : 'Newer'}
                                             </span>
-                                            <span className="text-xs text-slate-500">
+                                            <span className="text-xs text-slate-600">
                                                 {new Date(report.created_at).toLocaleDateString()}
                                             </span>
                                         </div>
@@ -652,7 +652,7 @@ const HealthReports = () => {
                                             {report.risk_level}
                                         </div>
                                         <p className="text-sm text-slate-700 line-clamp-3">{report.summary}</p>
-                                        <p className="text-xs text-slate-500 mt-2">
+                                        <p className="text-xs text-slate-600 mt-2">
                                             {report.biomarkers_analyzed} biomarkers analyzed
                                         </p>
                                     </div>
@@ -707,10 +707,10 @@ const HealthReports = () => {
                                                     {session.general.risk_level}
                                                 </span>
                                             </div>
-                                            <p className="text-sm text-slate-500 mt-1 line-clamp-2">
+                                            <p className="text-sm text-slate-600 mt-1 line-clamp-2">
                                                 {session.general.summary}
                                             </p>
-                                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-600">
                                                 <span>{session.general.biomarkers_analyzed} biomarkers</span>
                                             </div>
 
@@ -772,7 +772,7 @@ const HealthReports = () => {
                         <div className="sticky top-0 bg-white border-b border-slate-100 p-6 flex items-center justify-between">
                             <div>
                                 <h2 className="text-xl font-bold text-slate-800">{selectedReport.title}</h2>
-                                <p className="text-sm text-slate-500 mt-1">
+                                <p className="text-sm text-slate-600 mt-1">
                                     {new Date(selectedReport.created_at).toLocaleDateString()}
                                 </p>
                             </div>
@@ -808,7 +808,7 @@ const HealthReports = () => {
                             {/* Findings */}
                             {selectedReport.findings?.length > 0 && (
                                 <div className="mb-6">
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                                         {t('healthReports.findings')}
                                     </h3>
                                     <div className="space-y-3">
@@ -889,7 +889,7 @@ const HealthReports = () => {
                             {/* Recommendations */}
                             {selectedReport.recommendations?.length > 0 && (
                                 <div>
-                                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                                    <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">
                                         {t('healthReports.recommendations')}
                                     </h3>
                                     <div className="space-y-2">
@@ -905,7 +905,7 @@ const HealthReports = () => {
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-slate-800">{rec.action}</p>
-                                                    <p className="text-sm text-slate-500">{rec.reason}</p>
+                                                    <p className="text-sm text-slate-600">{rec.reason}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -918,7 +918,7 @@ const HealthReports = () => {
             )}
 
             {/* Disclaimer */}
-            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-500">
+            <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl text-sm text-slate-600">
                 <Shield size={20} className="shrink-0 mt-0.5" />
                 <p>
                     <strong>{t('common.disclaimer') || 'Disclaimer'}:</strong> {t('healthReports.disclaimer')}

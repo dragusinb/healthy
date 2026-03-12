@@ -327,7 +327,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.newDocuments')}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.newDocumentsDesc')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.newDocumentsDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -343,7 +343,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.abnormalBiomarkers')}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.abnormalBiomarkersDesc')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.abnormalBiomarkersDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -359,7 +359,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.analysisComplete')}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.analysisCompleteDesc')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.analysisCompleteDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -375,7 +375,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.syncFailed')}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.syncFailedDesc')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.syncFailedDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -391,7 +391,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800 dark:text-gray-100">{t('notifications.reminders')}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.remindersDesc')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 sm:line-clamp-none">{t('notifications.remindersDesc')}</p>
             </div>
             <div className="flex-shrink-0">
               <Toggle
@@ -558,7 +558,7 @@ export default function Settings() {
             <Clock className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('notifications.frequency')}</h2>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('notifications.frequencyDesc')}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{t('notifications.frequencyDesc')}</p>
         </div>
 
         <div className="px-6 py-4">
@@ -606,7 +606,7 @@ export default function Settings() {
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
         <div className="px-6 py-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-100 dark:border-slate-600">
           <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('notifications.quietHours')}</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('notifications.quietHoursDesc')}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{t('notifications.quietHoursDesc')}</p>
         </div>
 
         <div className="px-6 py-4">
@@ -652,7 +652,7 @@ export default function Settings() {
             <Shield className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             <h2 className="font-semibold text-gray-800 dark:text-gray-100">{t('settings.privacyData') || 'Privacy & Data'}</h2>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('settings.privacyDataDesc') || 'Manage your personal data'}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{t('settings.privacyDataDesc') || 'Manage your personal data'}</p>
         </div>
 
         <div className="divide-y divide-gray-100 dark:divide-slate-700">
@@ -660,7 +660,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-gray-800 dark:text-gray-100">{t('settings.exportData') || 'Export My Data'}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.exportDataDesc') || 'Download all your personal data as JSON'}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('settings.exportDataDesc') || 'Download all your personal data as JSON'}</p>
             </div>
             <button
               onClick={handleExportData}
@@ -676,7 +676,7 @@ export default function Settings() {
           <div className="px-6 py-4 flex items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-rose-600">{t('settings.deleteAccount') || 'Delete Account'}</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{t('settings.deleteAccountDesc') || 'Permanently delete your account and all data'}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('settings.deleteAccountDesc') || 'Permanently delete your account and all data'}</p>
             </div>
             <button
               onClick={() => setShowDeleteModal(true)}
@@ -699,7 +699,7 @@ export default function Settings() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-gray-800">{t('settings.deleteAccountTitle') || 'Delete Account'}</h3>
-                <p className="text-sm text-gray-500">{t('settings.deleteAccountWarning') || 'This action cannot be undone'}</p>
+                <p className="text-sm text-gray-600">{t('settings.deleteAccountWarning') || 'This action cannot be undone'}</p>
               </div>
             </div>
 

@@ -298,7 +298,7 @@ const Profile = () => {
                         <User size={24} className="text-primary-600" />
                     </div>
                     <div>
-                        <p className="text-slate-500 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
+                        <p className="text-slate-600 text-sm">{t('profile.subtitle') || 'This information helps AI provide better health insights'}</p>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -416,7 +416,7 @@ const Profile = () => {
                         <ProfileField icon={Calendar} label={t('profile.dateOfBirth') || 'Date of Birth'}>
                             <fieldset>
                                 <legend className="sr-only">{t('profile.dateOfBirth') || 'Date of Birth'}</legend>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                                 <select
                                     id="dob_day"
                                     value={(() => { const p = (profile.date_of_birth || '').split('-'); return p.length === 3 && p[2] ? parseInt(p[2], 10) || '' : ''; })()}
@@ -590,7 +590,7 @@ const Profile = () => {
                         <ProfileField icon={Heart} label={t('profile.bmi') || 'BMI'}>
                             <div
                                 aria-label={t('profile.bmi') || 'BMI'}
-                                className={cn("input bg-white min-w-[140px]", bmi && getBMICategory(parseFloat(bmi)).color)}
+                                className={cn("input bg-white w-full", bmi && getBMICategory(parseFloat(bmi)).color)}
                             >
                                 {bmi ? `${bmi} — ${getBMICategory(parseFloat(bmi)).label}` : (t('profile.enterHeightWeight') || 'Enter height & weight')}
                             </div>
@@ -681,7 +681,7 @@ const Profile = () => {
                             {profile.allergies.map((allergy, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-700 rounded-full text-sm border border-rose-200">
                                     {allergy}
-                                    <button onClick={() => removeArrayItem('allergies', allergy)} className="hover:text-rose-900 min-h-[44px] min-w-[44px] flex items-center justify-center -mr-2" aria-label="Remove">×</button>
+                                    <button onClick={() => removeArrayItem('allergies', allergy)} className="hover:text-rose-900 min-h-[44px] min-w-[44px] flex items-center justify-center text-lg" aria-label="Remove">×</button>
                                 </span>
                             ))}
                         </div>
@@ -712,7 +712,7 @@ const Profile = () => {
                             {profile.chronic_conditions.map((condition, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-sm border border-amber-200">
                                     {condition}
-                                    <button onClick={() => removeArrayItem('chronic_conditions', condition)} className="hover:text-amber-900 min-h-[44px] min-w-[44px] flex items-center justify-center -mr-2" aria-label="Remove">×</button>
+                                    <button onClick={() => removeArrayItem('chronic_conditions', condition)} className="hover:text-amber-900 min-h-[44px] min-w-[44px] flex items-center justify-center text-lg" aria-label="Remove">×</button>
                                 </span>
                             ))}
                         </div>
@@ -743,7 +743,7 @@ const Profile = () => {
                             {profile.current_medications.map((med, i) => (
                                 <span key={i} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200">
                                     {med}
-                                    <button onClick={() => removeArrayItem('current_medications', med)} className="hover:text-blue-900 min-h-[44px] min-w-[44px] flex items-center justify-center -mr-2" aria-label="Remove">×</button>
+                                    <button onClick={() => removeArrayItem('current_medications', med)} className="hover:text-blue-900 min-h-[44px] min-w-[44px] flex items-center justify-center text-lg" aria-label="Remove">×</button>
                                 </span>
                             ))}
                         </div>

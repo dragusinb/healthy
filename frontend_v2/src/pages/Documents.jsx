@@ -298,7 +298,7 @@ const Documents = () => {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-slate-800">{stats.total_documents}</p>
-                                <p className="text-xs text-slate-500 uppercase tracking-wide">{t('documents.totalDocuments') || 'Documents'}</p>
+                                <p className="text-xs text-slate-600 uppercase tracking-wide">{t('documents.totalDocuments') || 'Documents'}</p>
                             </div>
                         </div>
                         <div className="h-10 w-px bg-slate-200 hidden sm:block" />
@@ -308,7 +308,7 @@ const Documents = () => {
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-slate-800">{stats.total_biomarkers}</p>
-                                <p className="text-xs text-slate-500 uppercase tracking-wide">{t('documents.totalBiomarkers') || 'Biomarkers'}</p>
+                                <p className="text-xs text-slate-600 uppercase tracking-wide">{t('documents.totalBiomarkers') || 'Biomarkers'}</p>
                             </div>
                         </div>
                         {Object.keys(stats.by_provider || {}).length > 0 && (
@@ -320,9 +320,9 @@ const Documents = () => {
                                             key={provider}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm shadow-sm"
                                         >
-                                            <Building size={14} className="text-slate-500" />
+                                            <Building size={14} className="text-slate-600" />
                                             <span className="font-medium text-slate-700">{provider}</span>
-                                            <span className="text-slate-500">·</span>
+                                            <span className="text-slate-600">·</span>
                                             <span className="font-bold text-primary-600">{count}</span>
                                         </span>
                                     ))}
@@ -383,7 +383,7 @@ const Documents = () => {
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
                 {/* Table Header */}
-                <div className="grid grid-cols-12 gap-4 p-5 border-b border-slate-100 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <div className="grid grid-cols-12 gap-4 p-5 border-b border-slate-100 bg-slate-50/50 text-xs font-bold text-slate-600 uppercase tracking-wider">
                     <div className="col-span-4 pl-2">{t('documents.documentDetails')}</div>
                     <div className="col-span-2">{t('documents.testDate')}</div>
                     <div className="col-span-2">{t('documents.provider')}</div>
@@ -406,7 +406,7 @@ const Documents = () => {
                                     <div className="min-w-0">
                                         <p className="font-semibold text-slate-900 truncate text-sm" title={doc.filename}>{doc.filename}</p>
                                         <div className="flex items-center gap-2 mt-0.5">
-                                            <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
+                                            <span className="text-xs text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
                                             {doc.patient_name && (
                                                 <span className="text-xs text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1">
                                                     <User size={10} />
@@ -481,7 +481,7 @@ const Documents = () => {
                             </div>
                             <div>
                                 <h3 id="delete-modal-title" className="text-lg font-bold text-slate-800">{t('documents.deleteConfirmTitle')}</h3>
-                                <p className="text-sm text-slate-500">{t('documents.deleteConfirmText')}</p>
+                                <p className="text-sm text-slate-600">{t('documents.deleteConfirmText')}</p>
                             </div>
                         </div>
 

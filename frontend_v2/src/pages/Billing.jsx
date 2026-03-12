@@ -307,7 +307,7 @@ export default function Billing() {
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-3xl font-bold text-slate-800">5</span>
-                  <span className="text-slate-500">RON / lună</span>
+                  <span className="text-slate-600">RON / lună</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 mb-4">{t('billing.lessThanCoffee', 'Mai puțin decât o cafea')}</p>
                 <button
@@ -330,7 +330,7 @@ export default function Billing() {
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-3xl font-bold text-slate-800">40</span>
-                  <span className="text-slate-500">RON / an</span>
+                  <span className="text-slate-600">RON / an</span>
                 </div>
                 <p className="text-xs text-green-600 mb-4">{t('billing.save20', 'Economisești 20 RON pe an')}</p>
                 <button
@@ -356,7 +356,7 @@ export default function Billing() {
               </div>
               <div className="text-right">
                 <span className="text-2xl font-bold text-slate-800">10</span>
-                <span className="text-slate-500"> RON / lună</span>
+                <span className="text-slate-600"> RON / lună</span>
               </div>
             </div>
 
@@ -417,7 +417,7 @@ export default function Billing() {
           </div>
         </div>
         <div className="p-6 text-center">
-          <FileText className="w-10 h-10 text-slate-500 mx-auto mb-3" />
+          <FileText className="w-10 h-10 text-slate-600 mx-auto mb-3" />
           <p className="text-slate-600 text-sm">
             {t('billing.noInvoices', 'No invoices yet')}
           </p>

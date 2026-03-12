@@ -50,7 +50,7 @@ export default function OnboardingWizard({ onDismiss }) {
               <StepIcon size={24} className="text-white" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
                 {t('onboarding.step')} {currentStep + 1}/{steps.length}
               </p>
               <h3 className="text-xl font-bold text-slate-800">

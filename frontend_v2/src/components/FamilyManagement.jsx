@@ -143,7 +143,7 @@ export default function FamilyManagement({ familyInfo, tier, onRefresh }) {
             <h3 className="text-lg font-semibold text-slate-800">
               {isRomanian ? 'Planul Family' : 'Family Plan'}
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-600">
               {isRomanian ? 'Creează-ți grupul de familie' : 'Create your family group'}
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function FamilyManagement({ familyInfo, tier, onRefresh }) {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-slate-800">{familyInfo.name}</h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-600">
                 {isRomanian
                   ? `${familyInfo.members?.length || 1} / ${familyInfo.max_members} membri`
                   : `${familyInfo.members?.length || 1} / ${familyInfo.max_members} members`}
@@ -292,7 +292,7 @@ export default function FamilyManagement({ familyInfo, tier, onRefresh }) {
             </div>
             <div>
               <h3 className="text-lg font-semibold text-slate-800">{familyInfo.name}</h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-600">
                 {isRomanian ? 'Membru al grupului familiei' : 'Family group member'}
               </p>
             </div>
@@ -318,7 +318,7 @@ export default function FamilyManagement({ familyInfo, tier, onRefresh }) {
 
           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl mb-4">
             <div>
-              <p className="text-sm text-slate-500">{isRomanian ? 'Proprietar grup' : 'Group owner'}</p>
+              <p className="text-sm text-slate-600">{isRomanian ? 'Proprietar grup' : 'Group owner'}</p>
               <p className="font-medium text-slate-800">{familyInfo.owner_email}</p>
             </div>
             <Crown className="text-amber-500" size={24} />
@@ -348,7 +348,7 @@ export default function FamilyManagement({ familyInfo, tier, onRefresh }) {
           <h3 className="text-lg font-semibold text-slate-800">
             {isRomanian ? 'Alătură-te unei Familii' : 'Join a Family'}
           </h3>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600">
             {isRomanian ? 'Obține acces Premium gratuit' : 'Get free Premium access'}
           </p>
         </div>

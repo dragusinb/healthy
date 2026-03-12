@@ -698,8 +698,8 @@ const Login = () => {
     };
 
     return (
-        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-100/60 via-white to-teal-100/60 pt-4 pb-8 overflow-y-auto">
-            <a href="#login-form" className="absolute z-[100] top-2 left-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium shadow-lg opacity-0 focus:opacity-100 pointer-events-none focus:pointer-events-auto transition-opacity -translate-y-full focus:translate-y-0" tabIndex={0}>
+        <div className="flex min-h-screen items-start sm:items-center justify-center bg-gradient-to-br from-primary-100/60 via-white to-teal-100/60 bg-fixed pt-4 pb-8 overflow-y-auto">
+            <a href="#login-form" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium focus:shadow-lg">
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>
             {/* Login Success Modal - Vault Unlocked */}
@@ -766,7 +766,7 @@ const Login = () => {
                         <HeartPulse size={32} className="text-primary-600" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-800">{t('auth.appName')}</h1>
-                    <p className="text-slate-500 mt-1">{t('auth.trackHealthJourney')}</p>
+                    <p className="text-slate-600 mt-1">{t('auth.trackHealthJourney')}</p>
                 </div>
 
                 {/* Login/Register Card */}
@@ -1032,7 +1032,7 @@ const Login = () => {
 
                     {/* Toggle Login/Register */}
                     <div className="mt-6 text-center border-t border-slate-100 pt-5">
-                        <p className="text-sm text-slate-500 mb-2">
+                        <p className="text-sm text-slate-600 mb-2">
                             {isRegisterMode ? t('auth.hasAccount') : t('auth.noAccount')}
                         </p>
                         <button
@@ -1045,7 +1045,7 @@ const Login = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="text-center text-sm text-slate-500 mt-6">
+                <div className="text-center text-sm text-slate-600 mt-6">
                     <p>{t('auth.dataSecure')}</p>
                     <div className="mt-2 space-x-3">
                         <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
