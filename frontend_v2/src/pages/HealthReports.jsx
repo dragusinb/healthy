@@ -217,12 +217,12 @@ const HealthReports = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
                         <div className="p-2 bg-primary-100 text-primary-600 rounded-xl">
                             <Brain size={24} />
                         </div>
                         {t('healthReports.title')}
-                    </h2>
+                    </h1>
                     <p className="text-slate-600 mt-1">{t('healthReports.subtitle')}</p>
                 </div>
 
@@ -507,7 +507,7 @@ const HealthReports = () => {
                                                 <Icon size={24} className="text-teal-600" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="font-semibold text-slate-800 break-words overflow-hidden">{report.title}</h3>
+                                                <h3 className="font-semibold text-slate-800 break-words">{report.title}</h3>
                                                 <p className="text-sm text-slate-600 mt-1 line-clamp-2">{report.summary}</p>
                                                 <div className="flex items-center gap-2 mt-2">
                                                     <span className={cn(

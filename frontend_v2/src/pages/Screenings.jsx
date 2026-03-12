@@ -125,7 +125,7 @@ const Screenings = () => {
                             <div className="p-2 bg-violet-100 text-violet-600 rounded-xl">
                                 <ClipboardList size={24} />
                             </div>
-                            <span className="text-xl sm:text-2xl font-bold text-slate-800">{t('screenings.title') || 'Recommended Screenings'}</span>
+                            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">{t('screenings.title') || 'Recommended Screenings'}</h1>
                         </div>
                         <p className="text-slate-600 mt-1">
                             {t('screenings.subtitle') || 'Personalized health screening recommendations based on your profile'}

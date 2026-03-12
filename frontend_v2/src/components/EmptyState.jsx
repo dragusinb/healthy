@@ -10,7 +10,7 @@ const EmptyState = ({ icon: Icon, title, description, actionLabel, actionTo, act
             <Icon size={40} className="text-primary-500" />
         </div>
         <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">{title}</h3>
-        <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-8 leading-relaxed">{description}</p>
+        <p className="text-slate-600 dark:text-slate-400 max-w-sm mb-8 leading-relaxed">{description}</p>
         {actionLabel && actionTo && (
             <Link
                 to={actionTo}
