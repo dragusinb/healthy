@@ -209,9 +209,9 @@ const Evolution = () => {
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{t('evolution.latestValue')}</p>
                     <p className={cn("text-4xl font-bold mt-2", data[data.length - 1]?.flags !== 'NORMAL' ? "text-rose-600" : "text-gray-900")}>
-                        {data[data.length - 1]?.value} <span className="text-lg font-normal text-gray-400">{data[data.length - 1]?.unit}</span>
+                        {data[data.length - 1]?.value} <span className="text-lg font-normal text-gray-500">{data[data.length - 1]?.unit}</span>
                     </p>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500 mt-1">
                         {data[data.length - 1]?.timestamp ? formatTooltipDate(data[data.length - 1].timestamp, locale) : ''}
                     </p>
                 </div>
@@ -221,7 +221,7 @@ const Evolution = () => {
                     <p className="text-2xl font-semibold text-gray-800 mt-2">
                         {data.length > 0 ? (data[data.length - 1]?.ref_range || 'N/A') : 'N/A'}
                     </p>
-                    <p className="text-sm text-gray-400 mt-2">{t('evolution.standardRange')}</p>
+                    <p className="text-sm text-gray-500 mt-2">{t('evolution.standardRange')}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -229,7 +229,7 @@ const Evolution = () => {
                     <p className="text-4xl font-bold text-blue-600 mt-2">
                         {data.length}
                     </p>
-                    <p className="text-sm text-gray-400 mt-1">{t('evolution.recordedMeasurements')}</p>
+                    <p className="text-sm text-gray-500 mt-1">{t('evolution.recordedMeasurements')}</p>
                 </div>
             </div>
 

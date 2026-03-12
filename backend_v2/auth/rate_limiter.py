@@ -87,7 +87,7 @@ class RateLimiter:
                 logger.warning(f"Rate limit lockout for {key}, {remaining}s remaining")
                 raise HTTPException(
                     status_code=429,
-                    detail=f"Too many failed attempts. Please try again in {remaining_minutes} minute{'s' if remaining_minutes != 1 else ''}.",
+                    detail=f"Account temporarily locked due to too many failed attempts. Please wait {remaining_minutes} minute{'s' if remaining_minutes != 1 else ''} before trying again.",
                     headers={"Retry-After": str(remaining)}
                 )
 
@@ -105,7 +105,7 @@ class RateLimiter:
                     logger.warning(f"Rate limit exceeded for {key}, locked out for {lockout_seconds}s")
                     raise HTTPException(
                         status_code=429,
-                        detail=f"Too many failed attempts. Please try again in {lockout_minutes} minute{'s' if lockout_minutes != 1 else ''}.",
+                        detail=f"Account temporarily locked due to too many failed attempts. Please wait {lockout_minutes} minute{'s' if lockout_minutes != 1 else ''} before trying again.",
                         headers={"Retry-After": str(lockout_seconds)}
                     )
                 else:

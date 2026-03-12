@@ -90,7 +90,7 @@ const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
                 {/* Recovery Key Display */}
                 <div className="bg-slate-900 rounded-xl p-4 mb-6">
                     <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-medium text-slate-400 uppercase tracking-wide flex items-center gap-2">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wide flex items-center gap-2">
                             <Key size={12} />
                             {i18n.language === 'ro' ? 'Cheia ta de recuperare' : 'Your recovery key'}
                         </span>
@@ -147,7 +147,7 @@ const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
                     <button
                         type="button"
                         onClick={() => setConfirmed(!confirmed)}
-                        className={`mt-0.5 flex-shrink-0 transition-colors ${confirmed ? 'text-teal-600' : 'text-slate-400'}`}
+                        className={`mt-0.5 flex-shrink-0 transition-colors ${confirmed ? 'text-teal-600' : 'text-slate-500'}`}
                     >
                         {confirmed ? <CheckSquare size={24} /> : <Square size={24} />}
                     </button>
@@ -165,7 +165,7 @@ const RecoveryKeyModal = ({ recoveryKey, onClose, t, i18n }) => {
                     className={`w-full py-4 px-4 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-2 ${
                         confirmed
                             ? 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white hover:from-teal-600 hover:to-emerald-600 shadow-lg shadow-teal-500/30'
-                            : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                            : 'bg-slate-100 text-slate-500 cursor-not-allowed'
                     }`}
                 >
                     {confirmed ? <CheckCircle size={20} aria-hidden="true" /> : <Lock size={20} aria-hidden="true" />}
@@ -311,7 +311,7 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                             {i18n.language === 'ro' ? 'Creează Parola' : 'Create Password'}
                         </label>
                         <div className="relative">
-                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
@@ -327,12 +327,12 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 aria-label={showPassword ? (i18n.language === 'ro' ? 'Ascunde parola' : 'Hide password') : (i18n.language === 'ro' ? 'Arată parola' : 'Show password')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600"
                             >
                                 {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                             </button>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-500 mt-1">
                             {i18n.language === 'ro' ? 'Minim 6 caractere' : 'Minimum 6 characters'}
                         </p>
                     </div>
@@ -342,7 +342,7 @@ const SetupPasswordModal = ({ onComplete, onCancel, t, i18n }) => {
                             {i18n.language === 'ro' ? 'Confirmă Parola' : 'Confirm Password'}
                         </label>
                         <div className="relative">
-                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={confirmPassword}
@@ -459,7 +459,7 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
                             {i18n.language === 'ro' ? 'Parola de securitate' : 'Security Password'}
                         </label>
                         <div className="relative">
-                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                            <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 value={password}
@@ -474,12 +474,12 @@ const UnlockDataModal = ({ onComplete, onCancel, t, i18n }) => {
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 aria-label={showPassword ? (i18n.language === 'ro' ? 'Ascunde parola' : 'Hide password') : (i18n.language === 'ro' ? 'Arată parola' : 'Show password')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600"
                             >
                                 {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                             </button>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-500 mt-1">
                             {i18n.language === 'ro'
                                 ? 'Aceasta este parola pe care ai creat-o prima dată când ai folosit aplicația'
                                 : 'This is the password you created when you first used the app'}
@@ -721,7 +721,7 @@ const Login = () => {
                                 {i18n.language === 'ro' ? 'Documentele tale sunt accesibile' : 'Your documents are accessible'}
                             </span>
                         </div>
-                        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-400">
+                        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-500">
                             <div className="w-4 h-4 border-2 border-slate-300 border-t-teal-500 rounded-full animate-spin" />
                             {i18n.language === 'ro' ? 'Se deschide panoul...' : 'Opening dashboard...'}
                         </div>
@@ -830,7 +830,7 @@ const Login = () => {
                         <div>
                             <label htmlFor="login-email" className="block text-sm font-medium text-slate-700 mb-1">{t('auth.email')}</label>
                             <div className="relative">
-                                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                                 <input
                                     id="login-email"
                                     type="email"
@@ -846,7 +846,7 @@ const Login = () => {
                         <div>
                             <label htmlFor="login-password" className="block text-sm font-medium text-slate-700 mb-1">{t('auth.password')}</label>
                             <div className="relative">
-                                <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                                <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                                 <input
                                     id="login-password"
                                     type={showPassword ? "text" : "password"}
@@ -862,14 +862,14 @@ const Login = () => {
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     aria-label={showPassword ? t('auth.hidePassword') || 'Hide password' : t('auth.showPassword') || 'Show password'}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600 transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                                 </button>
                             </div>
                             {isRegisterMode && (
                                 <>
-                                <p className="text-xs text-slate-400 mt-1">{t('auth.passwordMinLength')}</p>
+                                <p className="text-xs text-slate-500 mt-1">{t('auth.passwordMinLength')}</p>
                                 {password.length > 0 && (() => {
                                     let strength = 0;
                                     let label = '';
@@ -914,7 +914,7 @@ const Login = () => {
                             <div>
                                 <label htmlFor="login-confirm-password" className="block text-sm font-medium text-slate-700 mb-1">{t('auth.confirmPassword')}</label>
                                 <div className="relative">
-                                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                                    <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true" />
                                     <input
                                         id="login-confirm-password"
                                         type={showConfirmPassword ? "text" : "password"}
@@ -929,7 +929,7 @@ const Login = () => {
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                         aria-label={showConfirmPassword ? t('auth.hidePassword') || 'Hide password' : t('auth.showPassword') || 'Show password'}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600 transition-colors"
                                     >
                                         {showConfirmPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                                     </button>
@@ -976,7 +976,7 @@ const Login = () => {
                                 <button
                                     type="button"
                                     onClick={() => setAcceptedTerms(!acceptedTerms)}
-                                    className={`mt-0.5 flex-shrink-0 ${acceptedTerms ? 'text-primary-600' : 'text-slate-400'}`}
+                                    className={`mt-0.5 flex-shrink-0 ${acceptedTerms ? 'text-primary-600' : 'text-slate-500'}`}
                                     role="checkbox"
                                     aria-checked={acceptedTerms}
                                     aria-label={t('auth.acceptTerms') || 'Accept terms and conditions'}
@@ -1042,7 +1042,7 @@ const Login = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="text-center text-sm text-slate-400 mt-6">
+                <div className="text-center text-sm text-slate-500 mt-6">
                     <p>{t('auth.dataSecure')}</p>
                     <div className="mt-2 space-x-3">
                         <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
@@ -1059,7 +1059,7 @@ const Login = () => {
                             ? 'text-teal-600 bg-teal-50'
                             : serverStatus === 'offline'
                                 ? 'text-rose-600 bg-rose-50'
-                                : 'text-slate-400 bg-slate-50'
+                                : 'text-slate-500 bg-slate-50'
                     }`}>
                         {serverStatus === 'online' ? (
                             <>

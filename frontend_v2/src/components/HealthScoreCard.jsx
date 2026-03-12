@@ -141,7 +141,7 @@ export default function HealthScoreCard() {
                 <div key={i} className="flex items-start gap-2 text-sm text-slate-600 bg-slate-50 rounded-lg p-2">
                   {insight.includes('improving') ? <TrendingUp size={14} className="text-emerald-500 mt-0.5 shrink-0" /> :
                    insight.includes('declining') || insight.includes('attention') ? <TrendingDown size={14} className="text-rose-500 mt-0.5 shrink-0" /> :
-                   <Minus size={14} className="text-slate-400 mt-0.5 shrink-0" />}
+                   <Minus size={14} className="text-slate-500 mt-0.5 shrink-0" />}
                   <span>{t(`healthScore.insight_${insight}`)}</span>
                 </div>
               ))}

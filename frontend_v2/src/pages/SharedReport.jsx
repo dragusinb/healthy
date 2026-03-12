@@ -212,7 +212,7 @@ export default function SharedReport() {
                       </span>
                     )}
                   </div>
-                  {expandedReports[i] ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
+                  {expandedReports[i] ? <ChevronUp size={18} className="text-slate-500" /> : <ChevronDown size={18} className="text-slate-500" />}
                 </button>
                 {expandedReports[i] && (
                   <div className="px-4 pb-4 border-t border-slate-100 pt-3">
@@ -244,7 +244,7 @@ export default function SharedReport() {
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center text-sm text-slate-400">
+        <div className="mt-8 text-center text-sm text-slate-500">
           <p>{t('sharing.poweredBy')} <a href="https://analize.online" className="text-primary-600 hover:underline">Analize.Online</a></p>
         </div>
       </main>

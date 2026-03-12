@@ -106,7 +106,7 @@ const MedicationItem = ({ med, onToggle, onDelete, onUndo, t }) => {
           "w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all border-2",
           med.taken_today
             ? "bg-emerald-500 border-emerald-500 text-white"
-            : "border-slate-400 text-slate-400 hover:border-primary-500 hover:text-primary-500"
+            : "border-slate-400 text-slate-500 hover:border-primary-500 hover:text-primary-500"
         )}
         aria-label="Mark as taken"
       >
@@ -133,7 +133,7 @@ const MedicationItem = ({ med, onToggle, onDelete, onUndo, t }) => {
       <div className="relative">
         <button
           onClick={() => setShowActions(!showActions)}
-          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+          className="p-2 text-slate-500 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
           aria-label="More actions"
         >
           <MoreVertical size={16} />
@@ -142,7 +142,7 @@ const MedicationItem = ({ med, onToggle, onDelete, onUndo, t }) => {
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowActions(false)} />
             <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 py-1 min-w-[140px]">
-              {med.taken_today && med.today_logs?.length > 0 && (
+              {med.taken_today && Array.isArray(med.today_logs) && med.today_logs.length > 0 && (
                 <button
                   onClick={() => { onUndo(med); setShowActions(false); }}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
@@ -183,9 +183,18 @@ export default function Medications() {
           throw e;
         })
       ]);
-      const meds = medsRes?.data || [];
-      setMedications(Array.isArray(meds) ? meds : []);
-      setAdherence(adherenceRes?.data || null);
+      const medsRaw = medsRes?.data;
+      setMedications(Array.isArray(medsRaw) ? medsRaw : []);
+      const adhRaw = adherenceRes?.data;
+      if (adhRaw && typeof adhRaw === 'object') {
+        // Guard daily_data to always be an array
+        setAdherence({
+          ...adhRaw,
+          daily_data: Array.isArray(adhRaw.daily_data) ? adhRaw.daily_data : []
+        });
+      } else {
+        setAdherence(null);
+      }
     } catch (e) {
       console.error('Failed to load medications', e);
     } finally {
@@ -259,7 +268,7 @@ export default function Medications() {
       {adherence && totalCount > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="card p-4 text-center">
-            <Flame size={20} className={cn("mx-auto mb-1", adherence.streak > 0 ? "text-orange-500" : "text-slate-400")} />
+            <Flame size={20} className={cn("mx-auto mb-1", adherence.streak > 0 ? "text-orange-500" : "text-slate-500")} />
             <p className="text-2xl font-bold text-slate-800">{adherence.streak}</p>
             <p className="text-xs text-slate-500">{t('medications.streakDays')}</p>
           </div>

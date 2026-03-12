@@ -65,7 +65,7 @@ export default function HealthTimeline({ limit = 8 }) {
 
   if (events.length === 0) {
     return (
-      <div className="text-center py-8 text-slate-400">
+      <div className="text-center py-8 text-slate-500">
         <Clock size={32} className="mx-auto mb-2 opacity-50" />
         <p className="text-sm">{t('healthTimeline.noEvents')}</p>
       </div>
@@ -100,7 +100,7 @@ export default function HealthTimeline({ limit = 8 }) {
                 <p className="text-sm font-medium text-slate-700 truncate group-hover:text-primary-600 transition-colors">
                   {event.title}
                 </p>
-                <div className="flex items-center gap-2 text-xs text-slate-400">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
                   <span>{event.subtitle}</span>
                   <span>·</span>
                   <span>{formatTimeAgo(event.date, t)}</span>

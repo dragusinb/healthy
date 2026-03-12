@@ -213,7 +213,7 @@ export default function SupportTickets() {
             {tickets.length === 0 ? (
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
                     <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <MessageSquare size={32} className="text-slate-400" />
+                        <MessageSquare size={32} className="text-slate-500" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-700 mb-2">{t('tickets.noTickets')}</h3>
                     <p className="text-slate-500">{t('tickets.noTicketsHint')}</p>
@@ -241,7 +241,7 @@ export default function SupportTickets() {
                                                 <StatusBadge status={ticket.status} />
                                             </div>
                                             <p className="text-slate-700 truncate">{ticket.description.substring(0, 80)}...</p>
-                                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
                                                 <span className="flex items-center gap-1">
                                                     <Clock size={12} />
                                                     {formatDate(ticket.created_at)}
@@ -259,7 +259,7 @@ export default function SupportTickets() {
                                                 )}
                                             </div>
                                         </div>
-                                        <ChevronRight size={20} className="text-slate-300 flex-shrink-0" />
+                                        <ChevronRight size={20} className="text-slate-500 flex-shrink-0" />
                                     </div>
                                 </div>
                             ))}
@@ -269,7 +269,7 @@ export default function SupportTickets() {
                     {/* Ticket Detail */}
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                         {!selectedTicket ? (
-                            <div className="p-12 text-center text-slate-400">
+                            <div className="p-12 text-center text-slate-500">
                                 <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
                                 <p>{t('tickets.selectTicket')}</p>
                             </div>
@@ -293,7 +293,7 @@ export default function SupportTickets() {
 
                                 {/* Page URL */}
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-400 uppercase mb-1">{t('tickets.pageUrl')}</label>
+                                    <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t('tickets.pageUrl')}</label>
                                     <a
                                         href={ticketDetail.page_url}
                                         target="_blank"
@@ -307,7 +307,7 @@ export default function SupportTickets() {
 
                                 {/* Description */}
                                 <div>
-                                    <label className="block text-xs font-medium text-slate-400 uppercase mb-1">{t('tickets.description')}</label>
+                                    <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t('tickets.description')}</label>
                                     <p className="text-slate-700 whitespace-pre-wrap bg-slate-50 rounded-lg p-3">
                                         {ticketDetail.description}
                                     </p>
@@ -316,7 +316,7 @@ export default function SupportTickets() {
                                 {/* AI Response */}
                                 {ticketDetail.ai_response && (
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-400 uppercase mb-1">{t('tickets.aiResponse')}</label>
+                                        <label className="block text-xs font-medium text-slate-500 uppercase mb-1">{t('tickets.aiResponse')}</label>
                                         <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                                             <p className="text-green-800 whitespace-pre-wrap">{ticketDetail.ai_response}</p>
                                             {ticketDetail.ai_fixed_at && (
@@ -331,7 +331,7 @@ export default function SupportTickets() {
                                 {/* Attachments */}
                                 {ticketDetail.attachments && ticketDetail.attachments.length > 0 && (
                                     <div>
-                                        <label className="block text-xs font-medium text-slate-400 uppercase mb-2">{t('tickets.attachments')}</label>
+                                        <label className="block text-xs font-medium text-slate-500 uppercase mb-2">{t('tickets.attachments')}</label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {ticketDetail.attachments.map((att) => {
                                                 const isImage = att.file_type?.startsWith('image/');
@@ -355,21 +355,21 @@ export default function SupportTickets() {
                                                                     </div>
                                                                 </>
                                                             ) : attachmentErrors[att.id] ? (
-                                                                <div className="w-full h-32 flex flex-col items-center justify-center text-slate-400">
+                                                                <div className="w-full h-32 flex flex-col items-center justify-center text-slate-500">
                                                                     <AlertCircle size={24} />
                                                                     <span className="text-xs mt-1">{t('common.error')}</span>
                                                                 </div>
                                                             ) : (
                                                                 <div className="w-full h-32 flex items-center justify-center">
-                                                                    <Loader2 size={24} className="animate-spin text-slate-400" />
+                                                                    <Loader2 size={24} className="animate-spin text-slate-500" />
                                                                 </div>
                                                             )
                                                         ) : (
                                                             <div className="flex items-center gap-3 p-3">
-                                                                <Image size={20} className="text-slate-400" />
+                                                                <Image size={20} className="text-slate-500" />
                                                                 <div>
                                                                     <p className="text-sm font-medium text-slate-700">{att.file_name}</p>
-                                                                    <p className="text-xs text-slate-400">{Math.round(att.file_size / 1024)} KB</p>
+                                                                    <p className="text-xs text-slate-500">{Math.round(att.file_size / 1024)} KB</p>
                                                                 </div>
                                                             </div>
                                                         )}
@@ -386,7 +386,7 @@ export default function SupportTickets() {
                                 {/* Admin Controls - only show when viewing all tickets */}
                                 {isAdmin && viewMode === 'all' && (
                                     <div className="border-t border-slate-200 pt-4 mt-4">
-                                        <label className="block text-xs font-medium text-slate-400 uppercase mb-2">
+                                        <label className="block text-xs font-medium text-slate-500 uppercase mb-2">
                                             {t('tickets.updateStatus')}
                                         </label>
 
@@ -434,7 +434,7 @@ export default function SupportTickets() {
                                                 {t('tickets.markSkipped')}
                                             </button>
                                             {updatingStatus && (
-                                                <Loader2 size={20} className="animate-spin text-slate-400" />
+                                                <Loader2 size={20} className="animate-spin text-slate-500" />
                                             )}
                                         </div>
                                     </div>

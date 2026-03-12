@@ -46,7 +46,7 @@ export default function ShareReportModal({ onClose, reportIds = [] }) {
             <Share2 size={20} className="text-primary-600" />
             {t('sharing.title')}
           </h3>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" aria-label="Close">
+          <button onClick={onClose} className="p-2 text-slate-500 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" aria-label="Close">
             <X size={18} />
           </button>
         </div>

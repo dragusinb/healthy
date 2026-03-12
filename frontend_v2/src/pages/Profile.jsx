@@ -12,7 +12,7 @@ import { cn } from '../lib/utils';
 const ProfileField = ({ icon: Icon, label, children, className, htmlFor }) => (
     <div className={cn("space-y-2 [&_input]:min-h-[44px] [&_select]:min-h-[44px] [&_.input]:min-h-[44px]", className)}>
         <label htmlFor={htmlFor} className="flex items-center gap-2 text-sm font-medium text-slate-700">
-            <Icon size={16} className="text-slate-400" aria-hidden="true" />
+            <Icon size={16} className="text-slate-500" aria-hidden="true" />
             {label}
         </label>
         {children}

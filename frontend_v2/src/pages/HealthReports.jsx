@@ -405,7 +405,7 @@ const HealthReports = () => {
                                                                     {documentId && (
                                                                         <button
                                                                             onClick={() => openPdf(documentId)}
-                                                                            className="p-0.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                                                            className="p-0.5 text-slate-500 hover:text-primary-600 rounded transition-colors"
                                                                             title="View source PDF"
                                                                             aria-label="View source PDF"
                                                                         >
@@ -611,7 +611,7 @@ const HealthReports = () => {
                                         ) : comparisonData.comparison.risk_change === 'worsened' ? (
                                             <TrendingUp size={20} className="text-rose-600" />
                                         ) : (
-                                            <Minus size={20} className="text-slate-400" />
+                                            <Minus size={20} className="text-slate-500" />
                                         )}
                                         <span className={cn(
                                             "text-lg font-bold capitalize",
@@ -834,7 +834,7 @@ const HealthReports = () => {
                                                             {documentId && (
                                                                 <button
                                                                     onClick={() => openPdf(documentId)}
-                                                                    className="p-1 text-slate-400 hover:text-primary-600 hover:bg-white/50 rounded transition-colors"
+                                                                    className="p-1 text-slate-500 hover:text-primary-600 hover:bg-white/50 rounded transition-colors"
                                                                     title="View source PDF"
                                                                     aria-label="View source PDF"
                                                                 >
@@ -867,7 +867,7 @@ const HealthReports = () => {
                                                                         {docId && (
                                                                             <button
                                                                                 onClick={() => openPdf(docId)}
-                                                                                className="p-0.5 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                                                                className="p-0.5 text-slate-500 hover:text-primary-600 rounded transition-colors"
                                                                                 title="View source PDF"
                                                                                 aria-label="View source PDF"
                                                                             >

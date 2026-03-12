@@ -87,7 +87,7 @@ const VerifyEmail = () => {
                             >
                                 {t('auth.goToLogin') || 'Go to Login'}
                             </Link>
-                            <p className="text-sm text-slate-400">
+                            <p className="text-sm text-slate-500">
                                 {t('auth.needNewLink') || 'Need a new verification link? Login and request one from your profile.'}
                             </p>
                         </div>

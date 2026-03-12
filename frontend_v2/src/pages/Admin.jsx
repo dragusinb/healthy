@@ -46,7 +46,7 @@ const ErrorModal = ({ job, onClose, t }) => {
                             </div>
                         </div>
                         <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg" aria-label="Close">
-                            <X size={20} className="text-slate-400" />
+                            <X size={20} className="text-slate-500" />
                         </button>
                     </div>
                 </div>
@@ -187,7 +187,7 @@ const ScheduleVisual = ({ history, nextRuns, t }) => {
             <div className="flex gap-1 flex-wrap">
                 {[...days, ...futureDays].map((day, idx) => (
                     <div key={day.date} className="flex flex-col items-center">
-                        <span className="text-[10px] text-slate-400 mb-1">{day.dayName}</span>
+                        <span className="text-[10px] text-slate-500 mb-1">{day.dayName}</span>
                         <div
                             className={cn(
                                 "w-10 h-10 rounded-lg border-2 flex items-center justify-center text-xs font-medium transition-all cursor-default",
@@ -197,14 +197,14 @@ const ScheduleVisual = ({ history, nextRuns, t }) => {
                             title={getBoxTooltip(day)}
                         >
                             {day.isFuture ? (
-                                day.hasScheduled ? <Clock size={14} className="text-blue-500" /> : <span className="text-slate-300">{day.dayNum}</span>
+                                day.hasScheduled ? <Clock size={14} className="text-blue-500" /> : <span className="text-slate-500">{day.dayNum}</span>
                             ) : (
                                 day.total ? (
                                     <span className={cn(
                                         day.failed > 0 && day.completed === 0 ? "text-rose-700" :
                                             day.failed > 0 ? "text-amber-700" : "text-teal-700"
                                     )}>{day.total}</span>
-                                ) : <span className="text-slate-300">{day.dayNum}</span>
+                                ) : <span className="text-slate-500">{day.dayNum}</span>
                             )}
                         </div>
                     </div>
@@ -250,7 +250,7 @@ const StatCard = ({ icon: Icon, label, value, subValue, color = "primary" }) => 
                 <div>
                     <p className="text-sm text-slate-500">{label}</p>
                     <p className="text-2xl font-bold text-slate-800">{value}</p>
-                    {subValue && <p className="text-xs text-slate-400">{subValue}</p>}
+                    {subValue && <p className="text-xs text-slate-500">{subValue}</p>}
                 </div>
             </div>
         </div>
@@ -283,7 +283,7 @@ const ServerGauge = ({ label, percent, used, total, color = "primary" }) => {
                     style={{ width: `${percent}%` }}
                 />
             </div>
-            <p className="text-xs text-slate-400 mt-1">{used} / {total}</p>
+            <p className="text-xs text-slate-500 mt-1">{used} / {total}</p>
         </div>
     );
 };
@@ -635,7 +635,7 @@ const Admin = () => {
                                     );
                                 })}
                             </div>
-                            <div className="flex justify-between text-xs text-slate-400 mt-1">
+                            <div className="flex justify-between text-xs text-slate-500 mt-1">
                                 <span>{openaiUsage.daily[openaiUsage.daily.length - 1]?.date?.slice(5)}</span>
                                 <span>{openaiUsage.daily[0]?.date?.slice(5)}</span>
                             </div>
@@ -644,7 +644,7 @@ const Admin = () => {
 
                     {/* No data state */}
                     {(!openaiUsage.daily || openaiUsage.daily.length === 0) && openaiUsage.totals.calls === 0 && (
-                        <div className="text-center py-8 text-slate-400">
+                        <div className="text-center py-8 text-slate-500">
                             <Cpu size={32} className="mx-auto mb-2 opacity-50" />
                             <p>{t('admin.noOpenaiData') || 'No OpenAI usage data yet. Data will appear after API calls are made.'}</p>
                         </div>
@@ -778,7 +778,7 @@ const Admin = () => {
                                                     <p className={cn("font-bold", style.text)}>
                                                         {new Date(job.next_run).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </p>
-                                                    <p className="text-xs text-slate-400">
+                                                    <p className="text-xs text-slate-500">
                                                         {new Date(job.next_run).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
                                                     </p>
                                                 </div>
@@ -913,7 +913,7 @@ const Admin = () => {
                                         {user.is_admin ? (
                                             <CheckCircle size={16} className="inline text-teal-500" />
                                         ) : (
-                                            <span className="text-slate-300">-</span>
+                                            <span className="text-slate-500">-</span>
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-center text-sm text-slate-600">{user.documents}</td>
@@ -973,7 +973,7 @@ const Admin = () => {
                                     >
                                         <td className="px-4 py-3 text-sm text-slate-600">
                                             <div className="flex items-center gap-1.5">
-                                                <User size={14} className="text-slate-400" />
+                                                <User size={14} className="text-slate-500" />
                                                 <span className="truncate max-w-[120px]" title={job.user_email}>
                                                     {job.user_email?.split('@')[0] || 'Unknown'}
                                                 </span>
@@ -1003,10 +1003,10 @@ const Admin = () => {
                                                     </span>
                                                 </div>
                                             ) : (
-                                                <span className="text-slate-300">-</span>
+                                                <span className="text-slate-500">-</span>
                                             )}
                                         </td>
-                                        <td className="px-4 py-3 text-right text-xs text-slate-400">
+                                        <td className="px-4 py-3 text-right text-xs text-slate-500">
                                             {job.created_at ? new Date(job.created_at).toLocaleString() : '-'}
                                         </td>
                                     </tr>
@@ -1014,7 +1014,7 @@ const Admin = () => {
                             })}
                             {syncJobs.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                                    <td colSpan={6} className="px-4 py-8 text-center text-slate-500">
                                         {t('admin.noSyncJobs')}
                                     </td>
                                 </tr>

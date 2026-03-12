@@ -50,7 +50,7 @@ export default function OnboardingWizard({ onDismiss }) {
               <StepIcon size={24} className="text-white" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 {t('onboarding.step')} {currentStep + 1}/{steps.length}
               </p>
               <h3 className="text-xl font-bold text-slate-800">
@@ -58,7 +58,7 @@ export default function OnboardingWizard({ onDismiss }) {
               </h3>
             </div>
           </div>
-          <button onClick={handleSkip} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" aria-label="Close">
+          <button onClick={handleSkip} className="p-2 text-slate-500 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" aria-label="Close">
             <X size={18} />
           </button>
         </div>
@@ -105,7 +105,7 @@ export default function OnboardingWizard({ onDismiss }) {
                   <p className="font-medium text-slate-800">{t('onboarding.connect.uploadPdf')}</p>
                   <p className="text-sm text-slate-500">{t('onboarding.connect.uploadPdfDesc')}</p>
                 </div>
-                <ChevronRight size={18} className="text-slate-400 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight size={18} className="text-slate-500 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           )}

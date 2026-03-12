@@ -234,7 +234,7 @@ const Documents = () => {
                 <div className="flex items-center gap-3">
                     {patients.length > 1 && (
                         <div className="flex items-center gap-2">
-                            <User size={16} className="text-slate-400" />
+                            <User size={16} className="text-slate-500" />
                             <select
                                 value={patientFilter}
                                 onChange={(e) => setPatientFilter(e.target.value)}
@@ -320,9 +320,9 @@ const Documents = () => {
                                             key={provider}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm shadow-sm"
                                         >
-                                            <Building size={14} className="text-slate-400" />
+                                            <Building size={14} className="text-slate-500" />
                                             <span className="font-medium text-slate-700">{provider}</span>
-                                            <span className="text-slate-400">·</span>
+                                            <span className="text-slate-500">·</span>
                                             <span className="font-bold text-primary-600">{count}</span>
                                         </span>
                                     ))}
@@ -406,7 +406,7 @@ const Documents = () => {
                                     <div className="min-w-0">
                                         <p className="font-semibold text-slate-900 truncate text-sm" title={doc.filename}>{doc.filename}</p>
                                         <div className="flex items-center gap-2 mt-0.5">
-                                            <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
+                                            <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 font-mono">PDF</span>
                                             {doc.patient_name && (
                                                 <span className="text-xs text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 flex items-center gap-1">
                                                     <User size={10} />
@@ -418,12 +418,12 @@ const Documents = () => {
                                 </div>
 
                                 <div className="col-span-2 flex items-center gap-2 text-slate-600 text-sm">
-                                    <Calendar size={14} className="text-slate-400 hidden sm:block" />
+                                    <Calendar size={14} className="text-slate-500 hidden sm:block" />
                                     {doc.document_date ? new Date(doc.document_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : t('documents.unknown')}
                                 </div>
 
                                 <div className="col-span-2 flex items-center gap-2 text-slate-600 text-sm">
-                                    <Building size={14} className="text-slate-400 hidden sm:block" />
+                                    <Building size={14} className="text-slate-500 hidden sm:block" />
                                     <span className="truncate">{doc.provider || 'Upload'}</span>
                                 </div>
 
@@ -442,7 +442,7 @@ const Documents = () => {
                                 <div className="col-span-2 flex items-center justify-end gap-1 pr-2">
                                     <button
                                         onClick={() => handleViewPdf(doc.id, doc.filename)}
-                                        className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                                        className="p-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                                         title={t('documents.viewPdf')}
                                         aria-label={t('documents.viewPdf')}
                                     >
@@ -450,7 +450,7 @@ const Documents = () => {
                                     </button>
                                     <Link
                                         to={`/biomarkers?doc=${doc.id}`}
-                                        className="p-2 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                                        className="p-2 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
                                         title={t('documents.viewBiomarkers')}
                                         aria-label={t('documents.viewBiomarkers')}
                                     >
@@ -458,7 +458,7 @@ const Documents = () => {
                                     </Link>
                                     <button
                                         onClick={() => setDeleteConfirm(doc)}
-                                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                        className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                                         title={t('documents.deleteDocument')}
                                         aria-label={t('documents.deleteDocument')}
                                     >

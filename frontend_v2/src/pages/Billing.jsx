@@ -417,7 +417,7 @@ export default function Billing() {
           </div>
         </div>
         <div className="p-6 text-center">
-          <FileText className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+          <FileText className="w-10 h-10 text-slate-500 mx-auto mb-3" />
           <p className="text-slate-600 text-sm">
             {t('billing.noInvoices', 'No invoices yet')}
           </p>

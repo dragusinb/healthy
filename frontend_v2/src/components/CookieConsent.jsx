@@ -108,7 +108,7 @@ const CookieConsent = () => {
                         </h3>
                         <button
                             onClick={() => setShowSettings(false)}
-                            className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                            className="p-1 text-slate-500 hover:text-slate-600 rounded-lg"
                         >
                             <X size={20} />
                         </button>

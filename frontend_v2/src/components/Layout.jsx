@@ -24,7 +24,7 @@ const SidebarItem = ({ to, icon: Icon, label, onClick, title }) => (
     >
         {({ isActive }) => (
             <>
-                <Icon size={18} className={isActive ? "text-primary-600 dark:text-primary-400" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300"} />
+                <Icon size={18} className={isActive ? "text-primary-600 dark:text-primary-400" : "text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300"} />
                 <span>{label}</span>
             </>
         )}
@@ -41,7 +41,7 @@ const BottomNavItem = ({ to, icon: Icon, label }) => {
                 "flex flex-col items-center justify-center gap-0.5 flex-1 py-2 text-[10px] font-medium transition-colors min-w-0",
                 isActive
                     ? "text-primary-600 dark:text-primary-400"
-                    : "text-slate-400 dark:text-slate-500"
+                    : "text-slate-500 dark:text-slate-500"
             )}
         >
             <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
@@ -229,7 +229,7 @@ const Layout = ({ children }) => {
                         </div>
                         <div className="overflow-hidden flex-1">
                             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{user?.email?.split('@')[0]}</p>
-                            <p className="text-xs text-slate-400 truncate font-medium">
+                            <p className="text-xs text-slate-500 truncate font-medium">
                                 {user?.is_admin ? t('nav.admin') : t('billing.freePlan', 'Free Plan')}
                             </p>
                         </div>
@@ -260,7 +260,7 @@ const Layout = ({ children }) => {
                         </button>
                     </div>
                     {/* Legal Links */}
-                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-400">
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-500">
                         <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
                             {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                         </a>
@@ -276,30 +276,23 @@ const Layout = ({ children }) => {
             <main ref={mainRef} className="flex-1 overflow-y-auto relative scroll-smooth">
                 {/* Top Header for Mobile & Title */}
                 <header className="sticky top-0 z-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center justify-between md:hidden print:hidden" role="banner">
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setMobileMenuOpen(true)}
-                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors -ml-1"
-                            aria-label={t('nav.openMenu') || 'Open menu'}
-                            aria-expanded={mobileMenuOpen}
-                        >
-                            <Menu size={22} aria-hidden="true" />
-                        </button>
-                        <div className="p-2 bg-primary-50 rounded-lg" aria-hidden="true">
-                            <HeartPulse size={20} className="text-primary-600" />
-                        </div>
-                        <span className="font-bold text-slate-800 dark:text-slate-100">Analize.online</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => navigate('/settings')}
-                            className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                            aria-label={t('nav.notifications') || 'Notifications'}
-                            title={t('nav.notifications') || 'Notifications'}
-                        >
-                            <Bell size={20} aria-hidden="true" />
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => setMobileMenuOpen(true)}
+                        className="min-h-11 min-w-11 flex items-center justify-center text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors -ml-1"
+                        aria-label={t('nav.openMenu') || 'Open menu'}
+                        aria-expanded={mobileMenuOpen}
+                    >
+                        <Menu size={22} aria-hidden="true" />
+                    </button>
+                    <span className="font-bold text-slate-800 dark:text-slate-100">Analize.online</span>
+                    <button
+                        onClick={() => navigate('/settings')}
+                        className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                        aria-label={t('nav.notifications') || 'Notifications'}
+                        title={t('nav.notifications') || 'Notifications'}
+                    >
+                        <Bell size={20} aria-hidden="true" />
+                    </button>
                 </header>
 
                 {/* Mobile Menu Drawer */}
@@ -322,7 +315,7 @@ const Layout = ({ children }) => {
                                     </div>
                                     <button
                                         onClick={closeMobileMenu}
-                                        className="min-h-11 min-w-11 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                                        className="min-h-11 min-w-11 flex items-center justify-center text-slate-500 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                                         aria-label={t('nav.closeMenu') || 'Close menu'}
                                     >
                                         <X size={20} aria-hidden="true" />
@@ -361,7 +354,7 @@ const Layout = ({ children }) => {
                                     </div>
                                     <div className="overflow-hidden flex-1">
                                         <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{user?.email?.split('@')[0]}</p>
-                                        <p className="text-xs text-slate-400 truncate font-medium">
+                                        <p className="text-xs text-slate-500 truncate font-medium">
                                             {user?.is_admin ? t('nav.admin') : t('billing.freePlan', 'Free Plan')}
                                         </p>
                                     </div>
@@ -394,7 +387,7 @@ const Layout = ({ children }) => {
                                     </button>
                                 </div>
                                 {/* Legal Links */}
-                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-400">
+                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-500">
                                     <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
                                         {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                                     </a>

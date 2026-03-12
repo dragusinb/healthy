@@ -169,7 +169,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     {historyCount > 1 && (
                         <button
                             onClick={() => onToggleHistory(group.canonical_name)}
-                            className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
                             aria-label={isExpanded ? t('biomarkers.collapseHistory') : t('biomarkers.expandHistory')}
                             aria-expanded={isExpanded}
                         >
@@ -184,7 +184,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         {group.canonical_name}
                     </Link>
                     {historyCount > 1 && (
-                        <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                        <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
                             {historyCount}x
                         </span>
                     )}
@@ -193,7 +193,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             "p-0.5 rounded",
                             trend === 'up' && "text-amber-500",
                             trend === 'down' && "text-blue-500",
-                            trend === 'stable' && "text-slate-400"
+                            trend === 'stable' && "text-slate-500"
                         )}>
                             {trend === 'up' && <TrendingUp size={12} />}
                             {trend === 'down' && <TrendingDown size={12} />}
@@ -202,7 +202,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     )}
                 </div>
                 <div className="col-span-2 font-bold text-slate-800 flex items-baseline gap-1">
-                    {latest.value} <span className="text-slate-400 text-xs font-medium">{latest.unit}</span>
+                    {latest.value} <span className="text-slate-500 text-xs font-medium">{latest.unit}</span>
                 </div>
                 <div className="col-span-2 text-xs text-slate-500 font-medium">
                     {latest.range}
@@ -214,7 +214,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     {latest.document_id && (
                         <button
                             onClick={(e) => openPdf(latest.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
-                            className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                            className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             aria-label={t('documents.viewPdf')}
                         >
                             <Eye size={14} aria-hidden="true" />
@@ -223,7 +223,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     <button
                         onClick={(e) => { e.stopPropagation(); onDownload('biomarker', group.canonical_name); }}
                         disabled={downloading === `biomarker:${group.canonical_name}`}
-                        className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
+                        className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
                         aria-label={t('biomarkers.downloadBiomarker')}
                         title={t('biomarkers.downloadBiomarker')}
                     >
@@ -258,7 +258,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             {historyCount > 1 && (
                                 <button
                                     onClick={() => onToggleHistory(group.canonical_name)}
-                                    className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors flex-shrink-0"
+                                    className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-100 rounded transition-colors flex-shrink-0"
                                     aria-label={isExpanded ? t('common.collapse') || 'Collapse' : t('common.expand') || 'Expand'}
                                 >
                                     {isExpanded ? <ChevronDown size={14} aria-hidden="true" /> : <ChevronRight size={14} aria-hidden="true" />}
@@ -271,7 +271,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                                 {group.canonical_name}
                             </Link>
                             {historyCount > 1 && (
-                                <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">
+                                <span className="text-xs text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded flex-shrink-0">
                                     {historyCount}x
                                 </span>
                             )}
@@ -280,7 +280,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                                     "p-0.5 rounded flex-shrink-0",
                                     trend === 'up' && "text-amber-500",
                                     trend === 'down' && "text-blue-500",
-                                    trend === 'stable' && "text-slate-400"
+                                    trend === 'stable' && "text-slate-500"
                                 )}>
                                     {trend === 'up' && <TrendingUp size={12} />}
                                     {trend === 'down' && <TrendingDown size={12} />}
@@ -290,11 +290,11 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                         </div>
                         <div className="flex items-baseline gap-2 flex-wrap">
                             <span className="font-bold text-slate-800">{latest.value}</span>
-                            <span className="text-slate-400 text-xs">{latest.unit}</span>
-                            <span className="text-slate-400" aria-hidden="true">•</span>
+                            <span className="text-slate-500 text-xs">{latest.unit}</span>
+                            <span className="text-slate-500" aria-hidden="true">•</span>
                             <span className="text-xs text-slate-500">{latest.range}</span>
                         </div>
-                        <div className="text-xs text-slate-400 mt-1">
+                        <div className="text-xs text-slate-500 mt-1">
                             {new Date(latest.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' })}
                         </div>
                     </div>
@@ -343,23 +343,23 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     )}
                 >
                     <div className="col-span-4 pl-8 text-slate-500 flex items-center gap-2">
-                        <History size={12} className="text-slate-400" />
+                        <History size={12} className="text-slate-500" />
                         <span className="truncate text-xs">{bio.name !== group.canonical_name ? bio.name : ''}</span>
                     </div>
                     <div className="col-span-2 text-slate-700 flex items-baseline gap-1">
-                        {bio.value} <span className="text-slate-400 text-xs">{bio.unit}</span>
+                        {bio.value} <span className="text-slate-500 text-xs">{bio.unit}</span>
                     </div>
-                    <div className="col-span-2 text-xs text-slate-400">
+                    <div className="col-span-2 text-xs text-slate-500">
                         {bio.range}
                     </div>
-                    <div className="col-span-2 text-xs text-slate-400">
+                    <div className="col-span-2 text-xs text-slate-500">
                         {new Date(bio.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })}
                     </div>
                     <div className="col-span-1 text-center">
                         {bio.document_id && (
                             <button
                                 onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
-                                className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                className="inline-flex items-center justify-center min-h-11 min-w-11 text-slate-500 hover:text-primary-600 rounded transition-colors"
                                 aria-label={t('documents.viewPdf') || 'View PDF'}
                             >
                                 <Eye size={12} aria-hidden="true" />
@@ -390,18 +390,18 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                     <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 text-slate-500 mb-1">
-                                <History size={12} className="text-slate-400 flex-shrink-0" />
+                                <History size={12} className="text-slate-500 flex-shrink-0" />
                                 {bio.name !== group.canonical_name && (
                                     <span className="truncate text-xs">{bio.name}</span>
                                 )}
                             </div>
                             <div className="flex items-baseline gap-2 flex-wrap">
                                 <span className="font-medium text-slate-700">{bio.value}</span>
-                                <span className="text-slate-400 text-xs">{bio.unit}</span>
-                                <span className="text-slate-400" aria-hidden="true">•</span>
-                                <span className="text-xs text-slate-400">{bio.range}</span>
+                                <span className="text-slate-500 text-xs">{bio.unit}</span>
+                                <span className="text-slate-500" aria-hidden="true">•</span>
+                                <span className="text-xs text-slate-500">{bio.range}</span>
                             </div>
-                            <div className="text-xs text-slate-400 mt-0.5">
+                            <div className="text-xs text-slate-500 mt-0.5">
                                 {new Date(bio.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: '2-digit' })}
                             </div>
                         </div>
@@ -409,7 +409,7 @@ const BiomarkerRow = ({ group, t, expandedHistory, onToggleHistory, showOnlyIssu
                             {bio.document_id && (
                                 <button
                                     onClick={(e) => openPdf(bio.document_id, e, t('documents.pdfOpenError'), t('documents.vaultLocked'), onPdfError)}
-                                    className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-400 hover:text-primary-600 rounded transition-colors"
+                                    className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-500 hover:text-primary-600 rounded transition-colors"
                                     aria-label={t('documents.viewPdf') || 'View PDF'}
                                 >
                                     <Eye size={14} aria-hidden="true" />
@@ -467,7 +467,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         <p className="text-xs text-slate-500 truncate">
                             {visibleCount} {t('biomarkers.tests')}
                             {lastUpdatedDate && (
-                                <span className="text-slate-400 ml-1 sm:ml-2">
+                                <span className="text-slate-500 ml-1 sm:ml-2">
                                     <span aria-hidden="true">·</span> {t('biomarkers.lastUpdated')}: {lastUpdatedDate}
                                 </span>
                             )}
@@ -485,7 +485,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         tabIndex={0}
                         onClick={(e) => { e.stopPropagation(); onDownload('category', categoryKey); }}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); e.preventDefault(); onDownload('category', categoryKey); } }}
-                        className="hidden sm:inline-flex min-h-11 min-w-11 items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
+                        className="hidden sm:inline-flex min-h-11 min-w-11 items-center justify-center text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors disabled:opacity-50"
                         title={t('biomarkers.downloadCategory')}
                         aria-label={t('biomarkers.downloadCategory')}
                     >
@@ -496,7 +496,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         )}
                     </span>
                     <span className="min-h-11 min-w-11 inline-flex items-center justify-center" aria-hidden="true">
-                        {expanded ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+                        {expanded ? <ChevronDown size={20} className="text-slate-500" /> : <ChevronRight size={20} className="text-slate-500" />}
                     </span>
                 </div>
             </button>
@@ -789,7 +789,7 @@ const Biomarkers = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                     <div className="relative flex-1 md:flex-none group">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" size={18} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary-500 transition-colors" size={18} />
                         <input
                             type="text"
                             placeholder={t('biomarkers.searchTests')}
@@ -822,7 +822,7 @@ const Biomarkers = () => {
                             </button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <ArrowUpDown size={14} className="text-slate-400 hidden sm:block" />
+                            <ArrowUpDown size={14} className="text-slate-500 hidden sm:block" />
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
@@ -837,7 +837,7 @@ const Biomarkers = () => {
                 </div>
                 <div className="flex gap-1 text-sm items-center">
                     <button onClick={expandAll} className="text-primary-600 hover:text-primary-700 font-medium min-h-11 px-2">{t('biomarkers.expandAll')}</button>
-                    <span className="text-slate-300">|</span>
+                    <span className="text-slate-500">|</span>
                     <button onClick={collapseAll} className="text-primary-600 hover:text-primary-700 font-medium min-h-11 px-2">{t('biomarkers.collapseAll')}</button>
                 </div>
             </div>
@@ -845,7 +845,7 @@ const Biomarkers = () => {
             {/* Summary / Pagination indicator */}
             <div className="mb-6 flex flex-wrap items-center gap-3 text-sm text-slate-600" role="status" aria-live="polite" data-testid="biomarker-count">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full font-medium">
-                    <Activity size={14} className="text-slate-400" />
+                    <Activity size={14} className="text-slate-500" />
                     {t('biomarkers.showingCount', { count: totalFiltered })}
                 </span>
                 {totalIssues > 0 && (
@@ -855,7 +855,7 @@ const Biomarkers = () => {
                     </span>
                 )}
                 {globalLastUpdated && (
-                    <span className="text-slate-400 flex items-center gap-1.5">
+                    <span className="text-slate-500 flex items-center gap-1.5">
                         <Calendar size={14} />
                         {t('biomarkers.lastUpdated')}: {globalLastUpdated}
                     </span>

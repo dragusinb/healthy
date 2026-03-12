@@ -21,7 +21,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, colorClass, delay, to })
                     <div className={cn("p-3 rounded-2xl shadow-sm transition-colors", colorClass)}>
                         <Icon size={24} className="text-white" />
                     </div>
-                    {to && <ArrowRight size={18} className="text-slate-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />}
+                    {to && <ArrowRight size={18} className="text-slate-500 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />}
                 </div>
 
                 <div>
@@ -403,7 +403,7 @@ const Dashboard = () => {
                         <h4 className="font-bold text-slate-800">{t('dashboard.uploadDocument')}</h4>
                         <p className="text-sm text-slate-500">{t('dashboard.addNewPdf')}</p>
                     </div>
-                    <ArrowRight size={18} className="ml-auto text-slate-400 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
+                    <ArrowRight size={18} className="ml-auto text-slate-500 group-hover:text-primary-500 group-hover:translate-x-1 transition-all" />
                 </Link>
 
                 {/* AI Analysis CTA */}

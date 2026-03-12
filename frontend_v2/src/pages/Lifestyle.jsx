@@ -110,7 +110,7 @@ const Lifestyle = () => {
                     title={t('lifestyle.foodPref.like')}
                     className={cn(
                         "p-0.5 rounded transition-colors",
-                        pref === 'liked' ? "text-emerald-600" : "text-slate-300 hover:text-emerald-400"
+                        pref === 'liked' ? "text-emerald-600" : "text-slate-500 hover:text-emerald-400"
                     )}
                 >
                     <ThumbsUp size={13} />
@@ -121,7 +121,7 @@ const Lifestyle = () => {
                     title={t('lifestyle.foodPref.dislike')}
                     className={cn(
                         "p-0.5 rounded transition-colors",
-                        pref === 'disliked' ? "text-rose-500" : "text-slate-300 hover:text-rose-400"
+                        pref === 'disliked' ? "text-rose-500" : "text-slate-500 hover:text-rose-400"
                     )}
                 >
                     <ThumbsDown size={13} />
@@ -364,7 +364,7 @@ const Lifestyle = () => {
 
                     {/* Date */}
                     {latestData?.created_at && (
-                        <p className="text-sm text-slate-400 text-right">
+                        <p className="text-sm text-slate-500 text-right">
                             {new Date(latestData.created_at).toLocaleDateString()}
                         </p>
                     )}
@@ -380,7 +380,7 @@ const Lifestyle = () => {
                                             <ThumbsUp size={15} className="text-emerald-600" />
                                             {t('lifestyle.foodPref.yourPreferences')}
                                         </h3>
-                                        <span className="text-xs text-slate-400">{t('lifestyle.foodPref.hint')}</span>
+                                        <span className="text-xs text-slate-500">{t('lifestyle.foodPref.hint')}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {Object.entries(foodPreferences).map(([name, pref]) => (
@@ -432,7 +432,7 @@ const Lifestyle = () => {
                                         </>
                                     )}
                                 </button>
-                                <span className="text-xs text-slate-400">{t('lifestyle.newMenuHint')}</span>
+                                <span className="text-xs text-slate-500">{t('lifestyle.newMenuHint')}</span>
                             </div>
 
                             {/* Summary */}

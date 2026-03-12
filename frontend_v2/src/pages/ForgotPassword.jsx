@@ -41,7 +41,7 @@ const ForgotPassword = () => {
                     <p className="text-slate-500 mb-6">
                         {t('auth.resetLinkSent') || 'If an account exists with this email, we\'ve sent a password reset link.'}
                     </p>
-                    <p className="text-sm text-slate-400 mb-6">
+                    <p className="text-sm text-slate-500 mb-6">
                         {t('auth.checkSpam') || 'Don\'t see it? Check your spam folder.'}
                     </p>
                     <Link
