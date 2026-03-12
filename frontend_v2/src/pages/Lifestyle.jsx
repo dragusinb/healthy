@@ -43,12 +43,44 @@ const Lifestyle = () => {
             // Try common field names for display text
             const textField = val.name || val.text || val.title || val.description || val.exercise
                 || val.item || val.label || val.activity || val.habit || val.supplement
-                || val.concern || val.category || val.meal || val.food || val.value;
+                || val.concern || val.category || val.meal || val.food || val.value
+                || val.day || val.time || val.type || val.note || val.reason
+                || val.target || val.focus || val.duration || val.frequency
+                || val.recommendation || val.benefit || val.warning || val.tip
+                || val.amount || val.quantity || val.serving || val.portion;
             if (textField) return String(textField);
-            // Last resort: readable JSON
-            try { return JSON.stringify(val); } catch { return '[object]'; }
+            // Extract all string/number values from the object as readable text
+            const values = Object.values(val);
+            const textParts = [];
+            for (const v of values) {
+                if (typeof v === 'string' && v.trim()) textParts.push(v);
+                else if (typeof v === 'number') textParts.push(String(v));
+            }
+            if (textParts.length > 0) return textParts.join(' - ');
+            // Recurse into nested objects/arrays
+            for (const v of values) {
+                if (Array.isArray(v) || (typeof v === 'object' && v !== null)) {
+                    const nested = str(v);
+                    if (nested) return nested;
+                }
+            }
+            return '';
         }
         return String(val);
+    };
+
+    // Safely ensure value is an array for iteration
+    const toArr = (val) => {
+        if (Array.isArray(val)) return val;
+        if (val && typeof val === 'object') return Object.values(val);
+        return [];
+    };
+
+    // Check if data has items (works for both arrays and objects)
+    const hasItems = (val) => {
+        if (Array.isArray(val)) return val.length > 0;
+        if (val && typeof val === 'object') return Object.keys(val).length > 0;
+        return false;
     };
 
     const toggleDay = (key) => {
@@ -571,14 +603,14 @@ const Lifestyle = () => {
                             )}
 
                             {/* 7-Day Meal Plan */}
-                            {nutrition.meal_plan?.length > 0 && (
+                            {hasItems(nutrition.meal_plan) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <Calendar size={16} />
                                         {t('lifestyle.nutrition.mealPlan')}
                                     </h3>
                                     <div className="space-y-3">
-                                        {nutrition.meal_plan.map((day, i) => (
+                                        {toArr(nutrition.meal_plan).map((day, i) => (
                                             <div key={i} className="border border-emerald-100 rounded-xl overflow-hidden">
                                                 <button
                                                     onClick={() => toggleDay(`meal-${i}`)}
@@ -594,7 +626,7 @@ const Lifestyle = () => {
                                                 </button>
                                                 {expandedDays[`meal-${i}`] && day.meals && (
                                                     <div className="p-4 space-y-3">
-                                                        {day.meals.map((meal, j) => (
+                                                        {toArr(day.meals).map((meal, j) => (
                                                             <div key={j} className="flex gap-3 p-3 bg-white rounded-lg border border-slate-100">
                                                                 <div className="shrink-0 w-20 text-center">
                                                                     <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded">{str(meal.time)}</span>
@@ -603,7 +635,7 @@ const Lifestyle = () => {
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
                                                                     <ul className="space-y-1">
-                                                                        {meal.items?.map((item, k) => (
+                                                                        {toArr(meal.items).map((item, k) => (
                                                                             <li key={k} className="text-sm text-slate-700 flex items-start gap-1.5">
                                                                                 <CheckCircle size={14} className="text-emerald-400 shrink-0 mt-0.5" />
                                                                                 <span>{str(item)}</span>
@@ -648,11 +680,11 @@ const Lifestyle = () => {
                             )}
 
                             {/* Priority Foods */}
-                            {nutrition.priority_foods?.length > 0 && (
+                            {hasItems(nutrition.priority_foods) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.priorityFoods')}</h3>
                                     <div className="space-y-4">
-                                        {nutrition.priority_foods.map((group, i) => (
+                                        {toArr(nutrition.priority_foods).map((group, i) => (
                                             <div key={i} className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                                                 <div className="flex items-center justify-between mb-2">
                                                     <h4 className="font-semibold text-emerald-800">{str(group.category)}</h4>
@@ -664,7 +696,7 @@ const Lifestyle = () => {
                                                 </div>
                                                 <p className="text-sm text-emerald-700 mb-3">{str(group.reason)}</p>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {group.foods?.map((food, j) => (
+                                                    {toArr(group.foods).map((food, j) => (
                                                         <span key={j} className="inline-flex items-center gap-1 text-sm bg-white px-3 py-1.5 rounded-lg border border-emerald-200 text-slate-700">
                                                             <CheckCircle size={14} className="text-emerald-500 shrink-0" />
                                                             {str(food)}
@@ -679,17 +711,17 @@ const Lifestyle = () => {
                             )}
 
                             {/* Foods to Reduce */}
-                            {nutrition.foods_to_reduce?.length > 0 && (
+                            {hasItems(nutrition.foods_to_reduce) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.foodsToReduce')}</h3>
                                     <div className="space-y-3">
-                                        {nutrition.foods_to_reduce.map((item, i) => (
+                                        {toArr(nutrition.foods_to_reduce).map((item, i) => (
                                             <div key={i} className="p-4 bg-amber-50 rounded-xl border border-amber-100">
                                                 <h4 className="font-semibold text-amber-800 mb-1">{str(item.category)}</h4>
                                                 <p className="text-sm text-amber-700 mb-2">{str(item.reason)}</p>
-                                                {item.examples?.length > 0 && (
+                                                {hasItems(item.examples) && (
                                                     <div className="flex items-center gap-2 flex-wrap mb-2">
-                                                        {item.examples.map((ex, j) => (
+                                                        {toArr(item.examples).map((ex, j) => (
                                                             <span key={j} className="inline-flex items-center gap-1 text-xs bg-amber-100 px-2 py-1 rounded border border-amber-200 text-amber-800">
                                                                 {str(ex)}
                                                                 <FoodPrefButtons text={str(ex)} source="foods_to_reduce" />
@@ -697,10 +729,10 @@ const Lifestyle = () => {
                                                         ))}
                                                     </div>
                                                 )}
-                                                {item.alternatives?.length > 0 && (
+                                                {hasItems(item.alternatives) && (
                                                     <div className="flex items-center gap-2 flex-wrap">
                                                         <span className="text-xs text-emerald-600 font-medium">{t('lifestyle.nutrition.alternatives')}:</span>
-                                                        {item.alternatives.map((alt, j) => (
+                                                        {toArr(item.alternatives).map((alt, j) => (
                                                             <span key={j} className="inline-flex items-center gap-1 text-xs bg-white px-2 py-1 rounded border border-emerald-200 text-emerald-700">
                                                                 {str(alt)}
                                                                 <FoodPrefButtons text={str(alt)} source="alternatives" />
@@ -715,11 +747,11 @@ const Lifestyle = () => {
                             )}
 
                             {/* Meal Timing (backwards compat) */}
-                            {nutrition.meal_timing?.length > 0 && (
+                            {hasItems(nutrition.meal_timing) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.mealTiming')}</h3>
                                     <div className="space-y-3">
-                                        {nutrition.meal_timing.map((meal, i) => (
+                                        {toArr(nutrition.meal_timing).map((meal, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
                                                 <Clock size={18} className="text-emerald-500 shrink-0 mt-0.5" />
                                                 <div>
@@ -736,18 +768,18 @@ const Lifestyle = () => {
                             )}
 
                             {/* Shopping List */}
-                            {nutrition.shopping_list?.length > 0 && (
+                            {hasItems(nutrition.shopping_list) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <ShoppingCart size={16} />
                                         {t('lifestyle.nutrition.shoppingList')}
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {nutrition.shopping_list.map((cat, i) => (
+                                        {toArr(nutrition.shopping_list).map((cat, i) => (
                                             <div key={i} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                                                 <h4 className="font-semibold text-slate-700 mb-2 text-sm">{str(cat.category)}</h4>
                                                 <ul className="space-y-1">
-                                                    {cat.items?.map((item, j) => (
+                                                    {toArr(cat.items).map((item, j) => (
                                                         <li key={j} className="text-sm text-slate-600 flex items-start gap-1.5">
                                                             <span className="text-emerald-400 shrink-0">-</span>
                                                             <span>{str(item)}</span>
@@ -762,11 +794,11 @@ const Lifestyle = () => {
                             )}
 
                             {/* Supplements */}
-                            {nutrition.supplements_to_discuss?.length > 0 && (
+                            {hasItems(nutrition.supplements_to_discuss) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.nutrition.supplements')}</h3>
                                     <div className="space-y-3">
-                                        {nutrition.supplements_to_discuss.map((supp, i) => (
+                                        {toArr(nutrition.supplements_to_discuss).map((supp, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-violet-50 rounded-lg border border-violet-100">
                                                 <Target size={18} className="text-violet-500 shrink-0 mt-0.5" />
                                                 <div>
@@ -783,14 +815,14 @@ const Lifestyle = () => {
                             )}
 
                             {/* Nutrition Warnings */}
-                            {nutrition.warnings?.length > 0 && (
+                            {hasItems(nutrition.warnings) && (
                                 <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
                                     <h3 className="font-semibold text-rose-800 flex items-center gap-2 mb-2">
                                         <AlertTriangle size={18} />
                                         {t('lifestyle.warnings')}
                                     </h3>
                                     <ul className="space-y-1">
-                                        {nutrition.warnings.map((w, i) => (
+                                        {toArr(nutrition.warnings).map((w, i) => (
                                             <li key={i} className="text-sm text-rose-700 flex items-start gap-2">
                                                 <span className="shrink-0 mt-1">-</span>
                                                 {str(w)}
@@ -833,11 +865,11 @@ const Lifestyle = () => {
                                                 <p className="font-semibold text-slate-800 capitalize">{str(exercise.current_assessment.exercise_readiness)}</p>
                                             </div>
                                         )}
-                                        {exercise.current_assessment.key_health_factors?.length > 0 && (
+                                        {hasItems(exercise.current_assessment?.key_health_factors) && (
                                             <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
                                                 <p className="text-xs text-amber-600 font-medium mb-1">{t('lifestyle.exercise.healthFactors')}</p>
                                                 <ul className="text-sm text-slate-700 space-y-0.5">
-                                                    {exercise.current_assessment.key_health_factors.map((f, i) => (
+                                                    {toArr(exercise.current_assessment.key_health_factors).map((f, i) => (
                                                         <li key={i}>- {str(f)}</li>
                                                     ))}
                                                 </ul>
@@ -848,14 +880,14 @@ const Lifestyle = () => {
                             )}
 
                             {/* 7-Day Exercise Schedule */}
-                            {exercise.weekly_schedule?.length > 0 && (
+                            {hasItems(exercise.weekly_schedule) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4 flex items-center gap-2">
                                         <Calendar size={16} />
                                         {t('lifestyle.exercise.weeklySchedule')}
                                     </h3>
                                     <div className="space-y-3">
-                                        {exercise.weekly_schedule.map((day, i) => {
+                                        {toArr(exercise.weekly_schedule).map((day, i) => {
                                             const isRestDay = day.focus?.toLowerCase().includes('rest') || day.focus?.toLowerCase().includes('odihna') || day.focus?.toLowerCase().includes('recuperare');
                                             return (
                                                 <div key={i} className={cn("border rounded-xl overflow-hidden", isRestDay ? "border-blue-100" : "border-emerald-100")}>
@@ -895,7 +927,7 @@ const Lifestyle = () => {
                                                                         {t('lifestyle.exercise.warmup')} ({str(day.warmup.duration)})
                                                                     </h5>
                                                                     <ul className="space-y-1">
-                                                                        {day.warmup.exercises?.map((ex, j) => (
+                                                                        {toArr(day.warmup.exercises).map((ex, j) => (
                                                                             <li key={j} className="text-sm text-slate-700 flex items-start gap-1.5">
                                                                                 <span className="text-orange-400 shrink-0">-</span>
                                                                                 {str(ex)}
@@ -906,14 +938,14 @@ const Lifestyle = () => {
                                                             )}
 
                                                             {/* Main Workout */}
-                                                            {day.main_workout?.length > 0 && (
+                                                            {hasItems(day.main_workout) && (
                                                                 <div>
                                                                     <h5 className="text-xs font-bold text-emerald-700 uppercase mb-2 flex items-center gap-1">
                                                                         <Dumbbell size={12} />
                                                                         {t('lifestyle.exercise.mainWorkout')}
                                                                     </h5>
                                                                     <div className="space-y-3">
-                                                                        {day.main_workout.map((ex, j) => (
+                                                                        {toArr(day.main_workout).map((ex, j) => (
                                                                             <div key={j} className="p-3 bg-white rounded-lg border border-slate-100">
                                                                                 <div className="flex items-center justify-between mb-1 flex-wrap gap-1">
                                                                                     <h6 className="font-semibold text-slate-800 text-sm">{str(ex.exercise)}</h6>
@@ -956,7 +988,7 @@ const Lifestyle = () => {
                                                                         {t('lifestyle.exercise.cooldown')} ({str(day.cooldown.duration)})
                                                                     </h5>
                                                                     <ul className="space-y-1">
-                                                                        {day.cooldown.exercises?.map((ex, j) => (
+                                                                        {toArr(day.cooldown.exercises).map((ex, j) => (
                                                                             <li key={j} className="text-sm text-slate-700 flex items-start gap-1.5">
                                                                                 <span className="text-blue-400 shrink-0">-</span>
                                                                                 {str(ex)}
@@ -980,11 +1012,11 @@ const Lifestyle = () => {
                             )}
 
                             {/* Weekly Plan (backwards compat for old data) */}
-                            {!exercise.weekly_schedule?.length && exercise.weekly_plan?.length > 0 && (
+                            {!hasItems(exercise.weekly_schedule) && hasItems(exercise.weekly_plan) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.weeklyPlan')}</h3>
                                     <div className="space-y-4">
-                                        {exercise.weekly_plan.map((activity, i) => (
+                                        {toArr(exercise.weekly_plan).map((activity, i) => (
                                             <div key={i} className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                                                 <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                                                     <h4 className="font-semibold text-emerald-800 flex items-center gap-2">
@@ -1010,11 +1042,11 @@ const Lifestyle = () => {
                             )}
 
                             {/* Daily Habits */}
-                            {exercise.daily_habits?.length > 0 && (
+                            {hasItems(exercise.daily_habits) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.dailyHabits')}</h3>
                                     <div className="space-y-3">
-                                        {exercise.daily_habits.map((habit, i) => (
+                                        {toArr(exercise.daily_habits).map((habit, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
                                                 <Footprints size={18} className="text-emerald-500 shrink-0 mt-0.5" />
                                                 <div>
@@ -1066,11 +1098,11 @@ const Lifestyle = () => {
                             )}
 
                             {/* Equipment Needed */}
-                            {exercise.equipment_needed?.length > 0 && (
+                            {hasItems(exercise.equipment_needed) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3">{t('lifestyle.exercise.equipmentNeeded')}</h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {exercise.equipment_needed.map((eq, i) => (
+                                        {toArr(exercise.equipment_needed).map((eq, i) => (
                                             <span key={i} className="text-sm bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200">
                                                 {str(eq)}
                                             </span>
@@ -1080,11 +1112,11 @@ const Lifestyle = () => {
                             )}
 
                             {/* Precautions */}
-                            {exercise.precautions?.length > 0 && (
+                            {hasItems(exercise.precautions) && (
                                 <div className="card p-6">
                                     <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-4">{t('lifestyle.exercise.precautions')}</h3>
                                     <div className="space-y-3">
-                                        {exercise.precautions.map((prec, i) => (
+                                        {toArr(exercise.precautions).map((prec, i) => (
                                             <div key={i} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
                                                 <AlertTriangle size={18} className="text-amber-500 shrink-0 mt-0.5" />
                                                 <div>
@@ -1098,14 +1130,14 @@ const Lifestyle = () => {
                             )}
 
                             {/* Exercise Warnings */}
-                            {exercise.warnings?.length > 0 && (
+                            {hasItems(exercise.warnings) && (
                                 <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
                                     <h3 className="font-semibold text-rose-800 flex items-center gap-2 mb-2">
                                         <AlertTriangle size={18} />
                                         {t('lifestyle.warnings')}
                                     </h3>
                                     <ul className="space-y-1">
-                                        {exercise.warnings.map((w, i) => (
+                                        {toArr(exercise.warnings).map((w, i) => (
                                             <li key={i} className="text-sm text-rose-700 flex items-start gap-2">
                                                 <span className="shrink-0 mt-1">-</span>
                                                 {str(w)}
