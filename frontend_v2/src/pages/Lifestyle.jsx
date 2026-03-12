@@ -265,8 +265,51 @@ const Lifestyle = () => {
     const hasReport = latestData?.has_report;
 
     // Debug: log actual data structure to help diagnose rendering issues
-    if (nutrition) console.log('[Lifestyle] nutrition keys:', Object.keys(nutrition), 'meal_plan type:', typeof nutrition.meal_plan, Array.isArray(nutrition.meal_plan) ? `array[${nutrition.meal_plan.length}]` : '', nutrition.meal_plan?.[0] ? 'first day keys: ' + Object.keys(nutrition.meal_plan[0]) : '');
-    if (exercise) console.log('[Lifestyle] exercise keys:', Object.keys(exercise), 'weekly_schedule type:', typeof exercise.weekly_schedule, Array.isArray(exercise.weekly_schedule) ? `array[${exercise.weekly_schedule.length}]` : '');
+    if (nutrition) console.log('[Lifestyle] nutrition type:', typeof nutrition, 'keys:', typeof nutrition === 'object' ? Object.keys(nutrition) : 'N/A', 'meal_plan type:', typeof nutrition.meal_plan, Array.isArray(nutrition.meal_plan) ? `array[${nutrition.meal_plan.length}]` : '', nutrition.meal_plan?.[0] ? 'first day keys: ' + Object.keys(nutrition.meal_plan[0]) : '');
+    if (exercise) console.log('[Lifestyle] exercise type:', typeof exercise, 'keys:', typeof exercise === 'object' ? Object.keys(exercise) : 'N/A', 'weekly_schedule type:', typeof exercise.weekly_schedule, Array.isArray(exercise.weekly_schedule) ? `array[${exercise.weekly_schedule.length}]` : '');
+
+    // TEMPORARY DEBUG: Show data structure on page (remove after fixing)
+    const debugInfo = [];
+    if (nutrition) {
+        debugInfo.push(`NUTRITION type=${typeof nutrition}`);
+        if (typeof nutrition === 'object') {
+            debugInfo.push(`  keys: ${Object.keys(nutrition).join(', ')}`);
+            if (nutrition.meal_plan) {
+                debugInfo.push(`  meal_plan: ${Array.isArray(nutrition.meal_plan) ? 'array[' + nutrition.meal_plan.length + ']' : typeof nutrition.meal_plan}`);
+                if (Array.isArray(nutrition.meal_plan) && nutrition.meal_plan[0]) {
+                    const day0 = nutrition.meal_plan[0];
+                    debugInfo.push(`    [0] keys: ${typeof day0 === 'object' ? Object.keys(day0).join(', ') : typeof day0}`);
+                    if (day0.meals && Array.isArray(day0.meals) && day0.meals[0]) {
+                        const meal0 = day0.meals[0];
+                        debugInfo.push(`      meals[0] keys: ${typeof meal0 === 'object' ? Object.keys(meal0).join(', ') : typeof meal0}`);
+                        if (meal0.items && Array.isArray(meal0.items)) {
+                            debugInfo.push(`        items[0]: type=${typeof meal0.items[0]}, val=${JSON.stringify(meal0.items[0]).substring(0, 200)}`);
+                        }
+                    }
+                }
+            }
+        } else {
+            debugInfo.push(`  value: ${String(nutrition).substring(0, 300)}`);
+        }
+    }
+    if (exercise) {
+        debugInfo.push(`EXERCISE type=${typeof exercise}`);
+        if (typeof exercise === 'object') {
+            debugInfo.push(`  keys: ${Object.keys(exercise).join(', ')}`);
+            if (exercise.weekly_schedule) {
+                debugInfo.push(`  weekly_schedule: ${Array.isArray(exercise.weekly_schedule) ? 'array[' + exercise.weekly_schedule.length + ']' : typeof exercise.weekly_schedule}`);
+                if (Array.isArray(exercise.weekly_schedule) && exercise.weekly_schedule[0]) {
+                    const day0 = exercise.weekly_schedule[0];
+                    debugInfo.push(`    [0] keys: ${typeof day0 === 'object' ? Object.keys(day0).join(', ') : typeof day0}`);
+                    if (day0.main_workout && Array.isArray(day0.main_workout) && day0.main_workout[0]) {
+                        debugInfo.push(`      main_workout[0] keys: ${typeof day0.main_workout[0] === 'object' ? Object.keys(day0.main_workout[0]).join(', ') : typeof day0.main_workout[0]}`);
+                    }
+                }
+            }
+        } else {
+            debugInfo.push(`  value: ${String(exercise).substring(0, 300)}`);
+        }
+    }
 
     return (
         <div className="space-y-6">
@@ -390,6 +433,13 @@ const Lifestyle = () => {
                             {t('lifestyle.tabs.exercise')}
                         </button>
                     </div>
+
+                    {/* TEMPORARY DEBUG - remove after fixing */}
+                    {debugInfo.length > 0 && (
+                        <pre className="bg-yellow-100 border border-yellow-400 rounded p-3 text-xs font-mono whitespace-pre-wrap overflow-auto max-h-60">
+                            {debugInfo.join('\n')}
+                        </pre>
+                    )}
 
                     {/* Date */}
                     {latestData?.created_at && (
