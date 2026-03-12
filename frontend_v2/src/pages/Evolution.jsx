@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts';
-import { ArrowLeft, Activity, Calendar, AlertTriangle } from 'lucide-react';
+import { Activity, Calendar, AlertTriangle, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 // Convert date string to timestamp for proper time scaling
@@ -154,9 +154,13 @@ const Evolution = () => {
     if (error) {
         return (
             <div className="max-w-4xl mx-auto p-6 text-center">
-                <button onClick={() => navigate('/biomarkers')} className="mb-4 text-blue-600 hover:underline flex items-center justify-center gap-2" aria-label={t('common.backToBiomarkers') || 'Back to Biomarkers'}>
-                    <ArrowLeft size={16} aria-hidden="true" /> {t('nav.biomarkers') || 'Biomarkers'}
-                </button>
+                <nav className="text-sm text-slate-500 mb-4" aria-label="Breadcrumb">
+                    <button onClick={() => navigate('/biomarkers')} className="hover:text-primary-600 transition-colors">
+                        {t('nav.biomarkers') || 'Biomarkers'}
+                    </button>
+                    <ChevronRight size={14} className="inline mx-1 text-slate-400" aria-hidden="true" />
+                    <span className="text-slate-800 font-medium">{name}</span>
+                </nav>
                 <div className="bg-red-50 border border-red-200 rounded-xl p-6">
                     <AlertTriangle className="mx-auto text-red-500 mb-3" size={32} />
                     <p className="text-red-600 font-medium">{error}</p>
@@ -174,9 +178,13 @@ const Evolution = () => {
     if (data.length === 0) {
         return (
             <div className="max-w-4xl mx-auto p-6 text-center">
-                <button onClick={() => navigate('/biomarkers')} className="mb-4 text-blue-600 hover:underline flex items-center justify-center gap-2" aria-label={t('common.backToBiomarkers') || 'Back to Biomarkers'}>
-                    <ArrowLeft size={16} aria-hidden="true" /> {t('nav.biomarkers') || 'Biomarkers'}
-                </button>
+                <nav className="text-sm text-slate-500 mb-4" aria-label="Breadcrumb">
+                    <button onClick={() => navigate('/biomarkers')} className="hover:text-primary-600 transition-colors">
+                        {t('nav.biomarkers') || 'Biomarkers'}
+                    </button>
+                    <ChevronRight size={14} className="inline mx-1 text-slate-400" aria-hidden="true" />
+                    <span className="text-slate-800 font-medium">{name}</span>
+                </nav>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">{name}</h2>
                 <p className="text-gray-500">{t('evolution.noHistory')}</p>
             </div>
@@ -185,13 +193,13 @@ const Evolution = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-6">
-            <button
-                onClick={() => navigate('/biomarkers')}
-                className="mb-6 flex items-center gap-2 text-gray-500 hover:text-gray-800 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm"
-                aria-label={t('common.backToBiomarkers') || 'Back to Biomarkers'}
-            >
-                <ArrowLeft size={16} aria-hidden="true" /> {t('nav.biomarkers') || 'Biomarkers'}
-            </button>
+            <nav className="text-sm text-slate-500 mb-6" aria-label="Breadcrumb">
+                <button onClick={() => navigate('/biomarkers')} className="hover:text-primary-600 transition-colors">
+                    {t('nav.biomarkers') || 'Biomarkers'}
+                </button>
+                <ChevronRight size={14} className="inline mx-1 text-slate-400" aria-hidden="true" />
+                <span className="text-slate-800 font-medium">{name}</span>
+            </nav>
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>

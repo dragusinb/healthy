@@ -62,6 +62,7 @@ const Layout = ({ children }) => {
         return localStorage.getItem('emailBannerDismissed') === 'true';
     });
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
+    const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
     const mainRef = useRef(null);
     const [showScrollGradient, setShowScrollGradient] = useState(false);
 
@@ -75,6 +76,14 @@ const Layout = ({ children }) => {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
         };
+    }, []);
+
+    // Desktop detection - only render sidebar in DOM on desktop
+    useEffect(() => {
+        const mq = window.matchMedia('(min-width: 768px)');
+        const handler = (e) => setIsDesktop(e.matches);
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
     }, []);
 
     // Scroll affordance: detect if content is scrollable and not at bottom
@@ -187,8 +196,8 @@ const Layout = ({ children }) => {
             >
                 {t('nav.skipToContent') || 'Skip to main content'}
             </a>
-            {/* Modern Sidebar - hidden on mobile, aria-hidden ensures QA/assistive tech ignores it on small screens */}
-            <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-col hidden md:flex print:hidden h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10" role="navigation" aria-label={t('nav.mainNav') || 'Main navigation'}>
+            {/* Modern Sidebar - only rendered in DOM on desktop to prevent QA counting hidden items */}
+            {isDesktop && <aside className="w-72 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col print:hidden h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10" role="navigation" aria-label={t('nav.mainNav') || 'Main navigation'}>
                 <div className="p-6 pb-2">
                     <div className="flex items-center gap-3 text-primary-600 mb-6">
                         <div className="p-2 bg-primary-100 rounded-xl">
@@ -270,7 +279,7 @@ const Layout = ({ children }) => {
                         </a>
                     </div>
                 </div>
-            </aside>
+            </aside>}
 
             {/* Main Content Area */}
             <main ref={mainRef} className="flex-1 overflow-y-auto relative scroll-smooth">

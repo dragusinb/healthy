@@ -463,7 +463,7 @@ const CategorySection = ({ categoryKey, biomarkerGroups, expanded, onToggle, t, 
                         <Icon size={18} className={cn(colors.icon, "sm:w-5 sm:h-5")} />
                     </div>
                     <div className="text-left min-w-0 overflow-hidden">
-                        <h3 className="font-semibold text-slate-800 text-xs sm:text-sm md:text-base truncate max-w-[120px] sm:max-w-[200px] md:max-w-none">{t(category.nameKey)}</h3>
+                        <h3 className="font-semibold text-slate-800 text-xs sm:text-sm md:text-base whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px] sm:max-w-[220px] md:max-w-none">{t(category.nameKey)}</h3>
                         <p className="text-xs text-slate-500 truncate">
                             {visibleCount} {t('biomarkers.tests')}
                             {lastUpdatedDate && (
