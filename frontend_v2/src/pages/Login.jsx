@@ -840,6 +840,7 @@ const Login = () => {
                                     placeholder={t('auth.emailPlaceholder') || 'you@example.com'}
                                     autoComplete="email"
                                     required
+                                    maxLength={254}
                                 />
                             </div>
                         </div>
@@ -857,6 +858,7 @@ const Login = () => {
                                     autoComplete={isRegisterMode ? "new-password" : "current-password"}
                                     required
                                     minLength={isRegisterMode ? 6 : undefined}
+                                    maxLength={128}
                                 />
                                 <button
                                     type="button"
@@ -924,6 +926,7 @@ const Login = () => {
                                         placeholder="••••••••"
                                         autoComplete="new-password"
                                         required
+                                        maxLength={128}
                                     />
                                     <button
                                         type="button"

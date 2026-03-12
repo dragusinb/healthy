@@ -259,9 +259,9 @@ const Dashboard = () => {
 
                             {/* Health Status */}
                             <div className="space-y-4">
-                                <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
+                                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
                                     {t('dashboard.healthStatus') || 'Health Status'}
-                                </h4>
+                                </h3>
 
                                 {/* Analysis Status */}
                                 {healthOverview.health_status?.has_analysis ? (
@@ -298,9 +298,9 @@ const Dashboard = () => {
 
                             {/* Reminders & Warnings */}
                             <div className="space-y-4">
-                                <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
+                                <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">
                                     {t('dashboard.reminders') || 'Reminders'}
-                                </h4>
+                                </h3>
 
                                 {/* Overdue Screenings */}
                                 {healthOverview.reminders_count > 0 ? (

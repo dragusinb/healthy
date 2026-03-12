@@ -25,9 +25,9 @@ export default function Family() {
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">
+          <p className="text-2xl font-bold text-slate-800">
             {isRomanian ? 'Familia Mea' : 'My Family'}
-          </h2>
+          </p>
           <p className="text-slate-600">
             {isRomanian
               ? 'Gestionează și partajează datele de sănătate ale familiei'

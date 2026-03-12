@@ -4,7 +4,7 @@ import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
 import {
     User, Loader2, CheckCircle, AlertCircle, Save,
-    Calendar, MoveVertical, Scale, Droplets, Heart, Pill,
+    Calendar, Ruler, Scale, Droplets, Heart, Pill,
     Activity, Wine, Cigarette, AlertTriangle, Sparkles, Users
 } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -400,7 +400,7 @@ const Profile = () => {
                 {/* Basic Info Card */}
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.basicInfo') || 'Basic Information'}</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <ProfileField icon={User} label={t('profile.fullName') || 'Full Name'} htmlFor="full_name">
                             <input
                                 id="full_name"
@@ -526,8 +526,8 @@ const Profile = () => {
                             {useImperial ? 'ft/lbs → cm/kg' : 'cm/kg → ft/lbs'}
                         </button>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                        <ProfileField icon={MoveVertical} label={useImperial ? (t('profile.heightImperial') || 'Height (ft\'in")') : (t('profile.height') || 'Height (cm)')} htmlFor="height_cm">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        <ProfileField icon={Ruler} label={useImperial ? (t('profile.heightImperial') || 'Height (ft\'in")') : (t('profile.height') || 'Height (cm)')} htmlFor="height_cm">
                             {useImperial ? (
                                 <div className="flex items-center gap-2">
                                     <input
@@ -590,7 +590,7 @@ const Profile = () => {
                         <ProfileField icon={Heart} label={t('profile.bmi') || 'BMI'}>
                             <div
                                 aria-label={t('profile.bmi') || 'BMI'}
-                                className={cn("input bg-white", bmi && getBMICategory(parseFloat(bmi)).color)}
+                                className={cn("input bg-white min-w-[140px]", bmi && getBMICategory(parseFloat(bmi)).color)}
                             >
                                 {bmi ? `${bmi} — ${getBMICategory(parseFloat(bmi)).label}` : (t('profile.enterHeightWeight') || 'Enter height & weight')}
                             </div>
@@ -601,7 +601,7 @@ const Profile = () => {
                 {/* Lifestyle Card */}
                 <div className="card p-6">
                     <h2 className="text-lg font-semibold text-slate-800 mb-4">{t('profile.lifestyle') || 'Lifestyle'}</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         <ProfileField icon={Cigarette} label={t('profile.smoking') || 'Smoking'} htmlFor="smoking_status">
                             <select
                                 id="smoking_status"

@@ -146,7 +146,7 @@ export default function FeedbackButton() {
             {/* Floating Feedback Button */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 w-12 h-12 md:w-14 md:h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+                className="fixed bottom-[5.5rem] md:bottom-6 right-4 md:right-6 z-30 w-12 h-12 md:w-14 md:h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
                 title={t('feedback.buttonTitle')}
                 aria-label={t('feedback.buttonTitle') || 'Send feedback'}
             >

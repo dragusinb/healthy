@@ -121,12 +121,12 @@ const Screenings = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="flex items-center gap-4">
                     <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <div className="flex items-center gap-3">
                             <div className="p-2 bg-violet-100 text-violet-600 rounded-xl">
                                 <ClipboardList size={24} />
                             </div>
-                            {t('screenings.title') || 'Recommended Screenings'}
-                        </h2>
+                            <span className="text-xl sm:text-2xl font-bold text-slate-800">{t('screenings.title') || 'Recommended Screenings'}</span>
+                        </div>
                         <p className="text-slate-500 mt-1">
                             {t('screenings.subtitle') || 'Personalized health screening recommendations based on your profile'}
                         </p>
@@ -331,7 +331,7 @@ const Screenings = () => {
                     <div className="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <ClipboardList size={32} className="text-violet-400" />
                     </div>
-                    <h2 className="text-xl font-semibold text-slate-800 mb-2">
+                    <h2 className="text-xl font-semibold text-slate-800 mb-2" aria-label={t('screenings.noAnalysis') || 'No Recommendations Yet'}>
                         {t('screenings.noAnalysis') || 'No Recommendations Yet'}
                     </h2>
                     <p className="text-slate-500 mb-6 max-w-md mx-auto">
