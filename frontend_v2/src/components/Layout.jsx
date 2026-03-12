@@ -418,7 +418,7 @@ const Layout = ({ children }) => {
                     </div>
                 )}
 
-                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-4 pb-40 md:p-8 md:pb-28 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div id="main-content" className="relative z-0 max-w-7xl mx-auto p-4 pb-28 md:p-8 md:pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Email Verification Banner */}
                     {showVerificationBanner && (
                         <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
