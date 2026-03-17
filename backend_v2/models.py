@@ -298,6 +298,27 @@ class Subscription(Base):
     user = relationship("User", back_populates="subscription")
 
 
+class PaymentHistory(Base):
+    """Track payment history for invoices/receipts."""
+    __tablename__ = "payment_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    order_id = Column(String, unique=True, index=True)       # Netopia order ID
+    invoice_number = Column(String, unique=True, index=True)  # ANZ-2026-00001
+    plan_type = Column(String)        # premium_monthly, premium_yearly, family_monthly
+    tier = Column(String)             # premium, family
+    amount = Column(Float)
+    currency = Column(String, default="RON")
+    status = Column(String)           # confirmed, refunded, canceled
+    paid_at = Column(DateTime)
+    period_start = Column(DateTime, nullable=True)
+    period_end = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=utc_now)
+
+    user = relationship("User", back_populates="payments")
+
+
 class UsageTracker(Base):
     """Track user's usage against tier limits."""
     __tablename__ = "usage_trackers"
@@ -655,3 +676,4 @@ User.support_tickets = relationship("SupportTicket", back_populates="reporter")
 User.medications = relationship("Medication", back_populates="user")
 User.shared_reports = relationship("SharedReport", back_populates="user")
 User.food_preferences = relationship("FoodPreference", back_populates="user", cascade="all, delete-orphan")
+User.payments = relationship("PaymentHistory", back_populates="user")

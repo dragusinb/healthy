@@ -29,6 +29,7 @@ export default function Billing() {
   const [success, setSuccess] = useState(null);
   const [familyInfo, setFamilyInfo] = useState(null);
   const [specialists, setSpecialists] = useState({});
+  const [invoices, setInvoices] = useState([]);
 
   // Check for payment completion
   const paymentStatus = searchParams.get('payment');
@@ -46,14 +47,16 @@ export default function Billing() {
 
   const fetchData = async () => {
     try {
-      const [plansRes, familyRes, specialistsRes] = await Promise.all([
+      const [plansRes, familyRes, specialistsRes, invoicesRes] = await Promise.all([
         api.get('/subscription/plans'),
         api.get('/subscription/family').catch(() => ({ data: { has_family: false } })),
-        api.get('/health/specialists').catch(() => ({ data: { specialists: {} } }))
+        api.get('/health/specialists').catch(() => ({ data: { specialists: {} } })),
+        api.get('/subscription/invoices').catch(() => ({ data: { invoices: [] } }))
       ]);
       setPlans(plansRes.data.plans);
       setFamilyInfo(familyRes.data);
       setSpecialists(specialistsRes.data.specialists || {});
+      setInvoices(invoicesRes.data.invoices || []);
     } catch (err) {
       setError(t('common.error'));
     } finally {
@@ -293,7 +296,7 @@ export default function Billing() {
                 <Zap className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-slate-800 text-sm sm:text-base">{t('billing.benefit6Title', '30 analize AI / lună')}</p>
-                  <p className="text-xs sm:text-sm text-slate-600">{t('billing.benefit6Desc', 'De 10x mai multe decât planul gratuit')}</p>
+                  <p className="text-xs sm:text-sm text-slate-600">{t('billing.benefit6Desc', 'De 15x mai multe decât planul gratuit')}</p>
                 </div>
               </div>
             </div>
@@ -306,7 +309,7 @@ export default function Billing() {
                   <span className="text-sm font-medium text-slate-600">{t('billing.monthly', 'Lunar')}</span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-3xl font-bold text-slate-800">5</span>
+                  <span className="text-3xl font-bold text-slate-800">29</span>
                   <span className="text-slate-600">RON / lună</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-600 mb-4">{t('billing.lessThanCoffee', 'Mai puțin decât o cafea')}</p>
@@ -322,17 +325,17 @@ export default function Billing() {
               {/* Premium Yearly */}
               <div className="bg-white rounded-xl p-4 border-2 border-green-400 shadow-sm relative">
                 <span className="absolute -top-2 right-4 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  {t('billing.save33', '-33%')}
+                  {t('billing.save33', '-43%')}
                 </span>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-medium text-slate-600">{t('billing.yearly', 'Anual')}</span>
                   <span className="text-xs text-green-600 font-medium">{t('billing.bestValue', 'Cea mai bună valoare')}</span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-3xl font-bold text-slate-800">40</span>
+                  <span className="text-3xl font-bold text-slate-800">199</span>
                   <span className="text-slate-600">RON / an</span>
                 </div>
-                <p className="text-xs text-green-600 mb-4">{t('billing.save20', 'Economisești 20 RON pe an')}</p>
+                <p className="text-xs text-green-600 mb-4">{t('billing.save20', 'Economisești 149 RON pe an (~43%)')}</p>
                 <button
                   onClick={() => handleCheckout('premium_yearly')}
                   disabled={checkoutLoading}
@@ -355,7 +358,7 @@ export default function Billing() {
                 <p className="text-sm text-slate-600">{t('billing.familySubtitle', 'Premium pentru toată familia')}</p>
               </div>
               <div className="text-right">
-                <span className="text-2xl font-bold text-slate-800">10</span>
+                <span className="text-2xl font-bold text-slate-800">49</span>
                 <span className="text-slate-600"> RON / lună</span>
               </div>
             </div>
@@ -380,7 +383,7 @@ export default function Billing() {
 
             <div className="bg-white/50 rounded-lg p-3 mb-4 text-center">
               <p className="text-sm text-purple-700">
-                <span className="font-semibold">{t('billing.savingExample', 'Exemplu:')}</span> {t('billing.savingCalc', 'La 5 membri = 2 RON/persoană în loc de 5 RON')}
+                <span className="font-semibold">{t('billing.savingExample', 'Exemplu:')}</span> {t('billing.savingCalc', 'La 5 membri = 9,80 RON/persoană în loc de 29 RON')}
               </p>
             </div>
 
@@ -416,12 +419,70 @@ export default function Billing() {
             </h3>
           </div>
         </div>
-        <div className="p-6 text-center">
-          <FileText className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-600 text-sm">
-            {t('billing.noInvoices', 'No invoices yet')}
-          </p>
-        </div>
+        {invoices.length === 0 ? (
+          <div className="p-6 text-center">
+            <FileText className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+            <p className="text-slate-600 text-sm">
+              {t('billing.noInvoices', 'No invoices yet')}
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {invoices.map((inv) => (
+              <div key={inv.id} className="p-4 flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium text-slate-800 text-sm">{inv.invoice_number}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      inv.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                      inv.status === 'refunded' ? 'bg-amber-100 text-amber-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {t(`billing.status_${inv.status}`, inv.status)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-600 mt-1">
+                    {t(`billing.planLabel_${inv.plan_type}`, inv.plan_type)}
+                    {inv.period_start && inv.period_end && (
+                      <span className="text-slate-400 ml-2">
+                        ({t('billing.period', 'Period')}: {new Date(inv.period_start).toLocaleDateString()} - {new Date(inv.period_end).toLocaleDateString()})
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="text-right flex items-center gap-4">
+                  <div>
+                    <p className="font-semibold text-slate-800">{inv.amount} {inv.currency}</p>
+                    <p className="text-xs text-slate-500">
+                      {inv.paid_at ? new Date(inv.paid_at).toLocaleDateString() : '-'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await api.get(`/subscription/invoice/${inv.id}/pdf`, { responseType: 'blob' });
+                        const url = window.URL.createObjectURL(new Blob([res.data]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', `receipt-${inv.invoice_number}.pdf`);
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                        window.URL.revokeObjectURL(url);
+                      } catch {
+                        setError(t('billing.downloadError', 'Could not download receipt'));
+                      }
+                    }}
+                    className="p-2 text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+                    title={t('billing.downloadReceipt', 'Download receipt')}
+                  >
+                    <Download size={18} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Payment Info */}

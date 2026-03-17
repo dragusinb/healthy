@@ -732,7 +732,7 @@
     "featurePdfExport": "PDF report export",
     "featureShareReports": "Share reports with doctors",
     "month": "month",
-    "orYearly": "or {{price}}/year (save 33%)",
+    "orYearly": "or {{price}}/year (save 43%)",
     "upgradeCta": "Upgrade"
   },
   "pricing": {
@@ -745,7 +745,7 @@
     "freeDesc": "Perfect to get started",
     "premiumDesc": "Everything you need for complete monitoring",
     "familyDesc": "Premium for your whole family",
-    "yearlySavings": "Save 20 RON per year",
+    "yearlySavings": "Save 149 RON per year (~43%)",
     "popular": "Popular",
     "currentPlan": "Current plan",
     "getStarted": "Get started free",
@@ -908,7 +908,7 @@
     "reactivate": "Reactivate",
     "upgradeTitle": "Upgrade to Premium",
     "premiumMonthlyDesc": "Pay monthly, cancel anytime",
-    "premiumYearlyDesc": "Pay yearly, save 33%",
+    "premiumYearlyDesc": "Pay yearly, save 43%",
     "familyDesc": "Up to 5 members with all Premium benefits",
     "subscribe": "Subscribe",
     "getFamily": "Get Family",
@@ -923,7 +923,16 @@
     "securePayment": "Secure payment via Netopia",
     "paymentDisclaimer": "Payment is securely processed by Netopia. We don't store your card details.",
     "billingHistory": "Billing History",
-    "noInvoices": "No invoices yet"
+    "noInvoices": "No invoices yet",
+    "downloadReceipt": "Download receipt",
+    "downloadError": "Could not download receipt",
+    "planLabel_premium_monthly": "Premium Monthly",
+    "planLabel_premium_yearly": "Premium Yearly",
+    "planLabel_family_monthly": "Family Monthly",
+    "status_confirmed": "Paid",
+    "status_refunded": "Refunded",
+    "status_canceled": "Cancelled",
+    "period": "Period"
   },
   "family": {
     "premiumFeature": "Premium feature"

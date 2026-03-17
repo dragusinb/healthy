@@ -10,14 +10,14 @@ import logging
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.models import User, Subscription
-    from backend_v2.services.subscription_service import SubscriptionService
+    from backend_v2.models import User, Subscription, PaymentHistory
+    from backend_v2.services.subscription_service import SubscriptionService, PRICING
     from backend_v2.services.netopia_service import get_netopia_service
     from backend_v2.routers.documents import get_current_user
 except ImportError:
     from database import get_db
-    from models import User, Subscription
-    from services.subscription_service import SubscriptionService
+    from models import User, Subscription, PaymentHistory
+    from services.subscription_service import SubscriptionService, PRICING
     from services.netopia_service import get_netopia_service
     from routers.documents import get_current_user
 
@@ -98,6 +98,42 @@ async def netopia_ipn(
                     stripe_subscription_id=order_id  # Store order_id for reference
                 )
 
+                # Record payment history (skip if duplicate order_id)
+                existing_payment = db.query(PaymentHistory).filter(
+                    PaymentHistory.order_id == order_id
+                ).first()
+                if not existing_payment:
+                    # Generate invoice number: ANZ-YYYY-NNNNN
+                    year = datetime.now(timezone.utc).year
+                    last_payment = db.query(PaymentHistory).order_by(
+                        PaymentHistory.id.desc()
+                    ).first()
+                    next_seq = (last_payment.id + 1) if last_payment else 1
+                    invoice_number = f"ANZ-{year}-{next_seq:05d}"
+
+                    # Calculate period
+                    now = datetime.now(timezone.utc)
+                    if billing_cycle == "yearly":
+                        period_end = now + timedelta(days=365)
+                    else:
+                        period_end = now + timedelta(days=30)
+
+                    payment = PaymentHistory(
+                        user_id=user_id,
+                        order_id=order_id,
+                        invoice_number=invoice_number,
+                        plan_type=plan_type,
+                        tier=tier,
+                        amount=PRICING.get(plan_type, 0),
+                        currency="RON",
+                        status="confirmed",
+                        paid_at=now,
+                        period_start=now,
+                        period_end=period_end,
+                    )
+                    db.add(payment)
+                    db.commit()
+
                 logger.info(f"Subscription upgraded: user={user_id}, tier={tier}, order={order_id}")
 
             elif status == "pending":
@@ -107,6 +143,15 @@ async def netopia_ipn(
             elif status in ["canceled", "refunded"]:
                 # Payment cancelled or refunded - downgrade to free
                 subscription_service.downgrade_to_free(user_id)
+
+                # Update payment history status
+                existing_payment = db.query(PaymentHistory).filter(
+                    PaymentHistory.order_id == order_id
+                ).first()
+                if existing_payment:
+                    existing_payment.status = status
+                    db.commit()
+
                 logger.info(f"Subscription downgraded (payment {status}): user={user_id}, order={order_id}")
 
             # Return success response

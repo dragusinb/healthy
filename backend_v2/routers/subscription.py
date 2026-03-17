@@ -2,23 +2,25 @@
 Subscription management API endpoints.
 """
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 import os
+import io
 
 try:
     from backend_v2.database import get_db
     from backend_v2.routers.documents import get_current_user
-    from backend_v2.models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember, Document, TestResult, HealthReport
+    from backend_v2.models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember, Document, TestResult, HealthReport, PaymentHistory
     from backend_v2.services.subscription_service import SubscriptionService, TIER_LIMITS, PRICING
     from backend_v2.services.netopia_service import get_netopia_service
     from backend_v2.services.user_vault import get_user_vault
 except ImportError:
     from database import get_db
     from routers.documents import get_current_user
-    from models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember, Document, TestResult, HealthReport
+    from models import User, Subscription, UsageTracker, FamilyGroup, FamilyMember, Document, TestResult, HealthReport, PaymentHistory
     from services.subscription_service import SubscriptionService, TIER_LIMITS, PRICING
     from services.netopia_service import get_netopia_service
     from services.user_vault import get_user_vault
@@ -238,6 +240,234 @@ def reactivate_subscription(
         "message": "Subscription reactivated",
         "cancel_at_period_end": False
     }
+
+
+# =============================================================================
+# Invoice / Receipt Endpoints
+# =============================================================================
+
+PLAN_LABELS = {
+    "premium_monthly": {"en": "Premium Monthly", "ro": "Premium Lunar"},
+    "premium_yearly": {"en": "Premium Yearly", "ro": "Premium Anual"},
+    "family_monthly": {"en": "Family Monthly", "ro": "Family Lunar"},
+}
+
+
+@router.get("/invoices")
+def list_invoices(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """List user's payment history."""
+    payments = db.query(PaymentHistory).filter(
+        PaymentHistory.user_id == current_user.id
+    ).order_by(PaymentHistory.paid_at.desc()).all()
+
+    return {
+        "invoices": [
+            {
+                "id": p.id,
+                "invoice_number": p.invoice_number,
+                "plan_type": p.plan_type,
+                "tier": p.tier,
+                "amount": p.amount,
+                "currency": p.currency,
+                "status": p.status,
+                "paid_at": p.paid_at.isoformat() if p.paid_at else None,
+                "period_start": p.period_start.isoformat() if p.period_start else None,
+                "period_end": p.period_end.isoformat() if p.period_end else None,
+            }
+            for p in payments
+        ]
+    }
+
+
+@router.get("/invoice/{payment_id}/pdf")
+def download_invoice_pdf(
+    payment_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Generate and download a receipt PDF for a payment."""
+    payment = db.query(PaymentHistory).filter(
+        PaymentHistory.id == payment_id,
+        PaymentHistory.user_id == current_user.id
+    ).first()
+
+    if not payment:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.units import cm
+        from reportlab.lib.colors import HexColor
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.platypus import (
+            SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+            HRFlowable
+        )
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+    except ImportError:
+        raise HTTPException(status_code=500, detail="PDF generation not available")
+
+    # Get user name from vault or fallback
+    user_name = current_user.email
+    try:
+        user_vault = get_user_vault(current_user.id)
+        if user_vault and user_vault.is_unlocked and current_user.full_name_enc:
+            user_name = user_vault.decrypt_data(current_user.full_name_enc) or current_user.email
+        elif current_user.full_name:
+            user_name = current_user.full_name
+    except Exception:
+        pass
+
+    # Build PDF
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=2 * cm,
+        leftMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2 * cm
+    )
+
+    COLOR_PRIMARY = HexColor("#1976D2")
+    COLOR_DARK = HexColor("#212121")
+    COLOR_SECONDARY = HexColor("#757575")
+    COLOR_LIGHT_BG = HexColor("#F5F5F5")
+    COLOR_GREEN = HexColor("#388E3C")
+
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        "ReceiptTitle", parent=styles["Heading1"],
+        fontSize=22, textColor=COLOR_PRIMARY, spaceAfter=6
+    )
+    subtitle_style = ParagraphStyle(
+        "ReceiptSubtitle", parent=styles["Normal"],
+        fontSize=11, textColor=COLOR_SECONDARY, spaceAfter=12
+    )
+    heading_style = ParagraphStyle(
+        "ReceiptHeading", parent=styles["Heading2"],
+        fontSize=13, textColor=COLOR_DARK, spaceBefore=16, spaceAfter=8
+    )
+    normal_style = ParagraphStyle(
+        "ReceiptNormal", parent=styles["Normal"],
+        fontSize=10, textColor=COLOR_DARK, spaceAfter=4
+    )
+    small_style = ParagraphStyle(
+        "ReceiptSmall", parent=styles["Normal"],
+        fontSize=8, textColor=COLOR_SECONDARY, spaceAfter=2
+    )
+    right_style = ParagraphStyle(
+        "ReceiptRight", parent=styles["Normal"],
+        fontSize=10, textColor=COLOR_DARK, alignment=TA_RIGHT
+    )
+
+    elements = []
+
+    # Header
+    elements.append(Paragraph("Analize.online", title_style))
+    elements.append(Paragraph("Payment Receipt", subtitle_style))
+    elements.append(HRFlowable(width="100%", thickness=1, color=COLOR_PRIMARY))
+    elements.append(Spacer(1, 12))
+
+    # Receipt details
+    receipt_data = [
+        ["Receipt Number:", payment.invoice_number or "-"],
+        ["Date:", payment.paid_at.strftime("%d %B %Y") if payment.paid_at else "-"],
+        ["Status:", payment.status.capitalize() if payment.status else "-"],
+    ]
+    receipt_table = Table(receipt_data, colWidths=[4 * cm, 12 * cm])
+    receipt_table.setStyle(TableStyle([
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("TEXTCOLOR", (0, 0), (0, -1), COLOR_SECONDARY),
+        ("TEXTCOLOR", (1, 0), (1, -1), COLOR_DARK),
+        ("FONTNAME", (1, 0), (1, -1), "Helvetica-Bold"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("ALIGN", (0, 0), (0, -1), "LEFT"),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+    elements.append(receipt_table)
+    elements.append(Spacer(1, 16))
+
+    # Buyer info
+    elements.append(Paragraph("Buyer", heading_style))
+    elements.append(Paragraph(f"Name: {user_name}", normal_style))
+    elements.append(Paragraph(f"Email: {current_user.email}", normal_style))
+    elements.append(Spacer(1, 12))
+
+    # Line items table
+    elements.append(Paragraph("Details", heading_style))
+
+    plan_label = PLAN_LABELS.get(payment.plan_type, {}).get("en", payment.plan_type or "-")
+    period_str = ""
+    if payment.period_start and payment.period_end:
+        period_str = f"{payment.period_start.strftime('%d/%m/%Y')} - {payment.period_end.strftime('%d/%m/%Y')}"
+
+    items_data = [
+        ["Description", "Period", "Amount"],
+        [f"{plan_label} Subscription", period_str, f"{payment.amount:.2f} {payment.currency}"],
+    ]
+    items_table = Table(items_data, colWidths=[7 * cm, 5 * cm, 4 * cm])
+    items_table.setStyle(TableStyle([
+        # Header row
+        ("BACKGROUND", (0, 0), (-1, 0), COLOR_PRIMARY),
+        ("TEXTCOLOR", (0, 0), (-1, 0), HexColor("#FFFFFF")),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 10),
+        ("ALIGN", (2, 0), (2, -1), "RIGHT"),
+        # Data rows
+        ("FONTSIZE", (0, 1), (-1, -1), 10),
+        ("TEXTCOLOR", (0, 1), (-1, -1), COLOR_DARK),
+        ("BACKGROUND", (0, 1), (-1, -1), COLOR_LIGHT_BG),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#E0E0E0")),
+    ]))
+    elements.append(items_table)
+    elements.append(Spacer(1, 8))
+
+    # Total
+    total_data = [["Total:", f"{payment.amount:.2f} {payment.currency}"]]
+    total_table = Table(total_data, colWidths=[12 * cm, 4 * cm])
+    total_table.setStyle(TableStyle([
+        ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 12),
+        ("TEXTCOLOR", (0, 0), (-1, -1), COLOR_DARK),
+        ("ALIGN", (0, 0), (0, 0), "RIGHT"),
+        ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(total_table)
+    elements.append(Spacer(1, 24))
+
+    # Footer / Disclaimer
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=COLOR_SECONDARY))
+    elements.append(Spacer(1, 8))
+    elements.append(Paragraph(
+        "This is a payment receipt, not a fiscal invoice. "
+        "For fiscal invoices, please contact support@analize.online.",
+        small_style
+    ))
+    elements.append(Paragraph(
+        "Analize.online — https://analize.online",
+        small_style
+    ))
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    filename = f"receipt-{payment.invoice_number}.pdf"
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
 
 
 # =============================================================================
