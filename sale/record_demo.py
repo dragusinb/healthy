@@ -102,12 +102,29 @@ def slow_scroll(page, steps=5, delay_ms=600):
         page.wait_for_timeout(delay_ms)
 
 
-def wait_and_pause(page, seconds: float):
-    """Wait for network idle then pause for viewing."""
+def dismiss_vault_modal(page, password: str):
+    """Dismiss the vault unlock modal if it appears."""
+    try:
+        # Look for vault modal with password input
+        modal_pw = page.locator('div:has-text("Sesiune Expir") input[type="password"], div:has-text("Vault") input[type="password"]').first
+        if modal_pw.is_visible(timeout=2000):
+            modal_pw.fill(password)
+            page.wait_for_timeout(300)
+            # Click "Deblocare Seif" / unlock button
+            page.locator('button:has-text("Deblocare"), button:has-text("Unlock")').first.click()
+            page.wait_for_timeout(2000)
+    except Exception:
+        pass
+
+
+def wait_and_pause(page, seconds: float, password: str = None):
+    """Wait for network idle, dismiss vault modal if needed, then pause."""
     try:
         page.wait_for_load_state("networkidle", timeout=10000)
     except Exception:
         pass
+    if password:
+        dismiss_vault_modal(page, password)
     page.wait_for_timeout(int(seconds * 1000))
 
 
@@ -147,7 +164,7 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
             page.reload(wait_until="networkidle")
 
             inject_overlay(page, overlays["home"])
-            wait_and_pause(page, 4)
+            wait_and_pause(page, 4, password)
             slow_scroll(page, steps=3, delay_ms=800)
             page.wait_for_timeout(1000)
 
@@ -193,7 +210,7 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
             print("[3/10] Dashboard...")
             page.goto(f"{BASE_URL}/", wait_until="networkidle", timeout=20000)
             inject_overlay(page, overlays["dashboard"])
-            wait_and_pause(page, 5)
+            wait_and_pause(page, 5, password)
             slow_scroll(page, steps=3, delay_ms=700)
             page.wait_for_timeout(1000)
 
@@ -201,7 +218,7 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
             print("[4/10] Documents...")
             page.goto(f"{BASE_URL}/documents", wait_until="networkidle", timeout=20000)
             inject_overlay(page, overlays["documents"])
-            wait_and_pause(page, 4)
+            wait_and_pause(page, 4, password)
             slow_scroll(page, steps=2, delay_ms=700)
             page.wait_for_timeout(1000)
 
@@ -211,7 +228,7 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
                 f"{BASE_URL}/biomarkers", wait_until="networkidle", timeout=20000
             )
             inject_overlay(page, overlays["biomarkers"])
-            wait_and_pause(page, 5)
+            wait_and_pause(page, 5, password)
             slow_scroll(page, steps=4, delay_ms=700)
             page.wait_for_timeout(1000)
 
@@ -244,7 +261,7 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
                 )
 
             inject_overlay(page, overlays["evolution"])
-            wait_and_pause(page, 5)
+            wait_and_pause(page, 5, password)
             slow_scroll(page, steps=2, delay_ms=700)
             page.wait_for_timeout(1000)
 
@@ -252,7 +269,7 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
             print("[7/10] Health Reports (Doctor AI)...")
             page.goto(f"{BASE_URL}/health", wait_until="networkidle", timeout=20000)
             inject_overlay(page, overlays["health"])
-            wait_and_pause(page, 5)
+            wait_and_pause(page, 5, password)
             slow_scroll(page, steps=3, delay_ms=700)
             page.wait_for_timeout(1000)
 
@@ -262,7 +279,7 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
                 f"{BASE_URL}/lifestyle", wait_until="networkidle", timeout=20000
             )
             inject_overlay(page, overlays["lifestyle"])
-            wait_and_pause(page, 4)
+            wait_and_pause(page, 4, password)
             slow_scroll(page, steps=2, delay_ms=700)
             page.wait_for_timeout(1000)
 
@@ -270,13 +287,13 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
             print("[9/10] Billing...")
             page.goto(f"{BASE_URL}/billing", wait_until="networkidle", timeout=20000)
             inject_overlay(page, overlays["billing"])
-            wait_and_pause(page, 3)
+            wait_and_pause(page, 3, password)
 
             # ── 10. Settings ─────────────────────────────────────
             print("[10/10] Settings...")
             page.goto(f"{BASE_URL}/settings", wait_until="networkidle", timeout=20000)
             inject_overlay(page, overlays["settings"])
-            wait_and_pause(page, 3)
+            wait_and_pause(page, 3, password)
             slow_scroll(page, steps=2, delay_ms=600)
             page.wait_for_timeout(1000)
 
