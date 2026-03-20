@@ -267,7 +267,9 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
 
             # ── 7. Health Reports ────────────────────────────────
             print("[7/10] Health Reports (Doctor AI)...")
-            page.goto(f"{BASE_URL}/health", wait_until="networkidle", timeout=20000)
+            # Navigate via sidebar click — direct /health URL hits nginx backend proxy
+            page.locator('a[href="/health"], a:has-text("Doctor AI"), a:has-text("Health")').first.click()
+            page.wait_for_timeout(3000)
             inject_overlay(page, overlays["health"])
             wait_and_pause(page, 5, password)
             slow_scroll(page, steps=3, delay_ms=700)
