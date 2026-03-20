@@ -158,13 +158,18 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
             page.wait_for_timeout(1500)
 
             # Fill credentials with realistic typing speed
-            page.fill("#login-email", email)
+            email_input = page.locator(
+                "input[type=email], input[name=email], #login-email, "
+                "input[placeholder*=email], input[placeholder*=Email]"
+            ).first
+            email_input.fill(email)
             page.wait_for_timeout(400)
-            page.fill("#login-password", password)
+            pw_input = page.locator("input[type=password]").first
+            pw_input.fill(password)
             page.wait_for_timeout(600)
 
             # Submit login form
-            page.click('button[type="submit"]')
+            page.locator("button[type=submit]").first.click()
             page.wait_for_timeout(3000)
 
             # Wait for navigation to dashboard (redirect after login)
