@@ -267,9 +267,17 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
 
             # ── 7. Health Reports ────────────────────────────────
             print("[7/10] Health Reports (Doctor AI)...")
-            # Navigate via sidebar click — direct /health URL hits nginx backend proxy
-            page.locator('a[href="/health"], a:has-text("Doctor AI"), a:has-text("Health")').first.click()
-            page.wait_for_timeout(3000)
+            # Navigate via JS — direct /health URL hits nginx backend health check
+            dismiss_vault_modal(page, password)
+            page.evaluate("window.location.href = '/health'")
+            page.wait_for_timeout(4000)
+            # If we hit the backend JSON response, go via SPA routing
+            if page.url.endswith("/health") and "status" in page.inner_text("body")[:50]:
+                page.go_back()
+                page.wait_for_timeout(1000)
+                dismiss_vault_modal(page, password)
+                page.evaluate("document.querySelector('a[href=\"/health\"]').click()")
+                page.wait_for_timeout(3000)
             inject_overlay(page, overlays["health"])
             wait_and_pause(page, 5, password)
             slow_scroll(page, steps=3, delay_ms=700)
