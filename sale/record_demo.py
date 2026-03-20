@@ -138,6 +138,14 @@ def run_demo(email: str, password: str, headed: bool, lang: str):
             # ── 1. Landing page ──────────────────────────────────
             print("[1/10] Landing page...")
             page.goto(BASE_URL, wait_until="networkidle", timeout=30000)
+
+            # Dismiss cookie banner by setting consent in localStorage
+            page.evaluate("""() => {
+                localStorage.setItem('cookie_consent', 'true');
+                localStorage.setItem('cookie_preferences', JSON.stringify({essential: true, analytics: false, marketing: false}));
+            }""")
+            page.reload(wait_until="networkidle")
+
             inject_overlay(page, overlays["home"])
             wait_and_pause(page, 4)
             slow_scroll(page, steps=3, delay_ms=800)

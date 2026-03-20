@@ -36,27 +36,11 @@ const CookieConsent = () => {
         }
     }, []);
 
-    // Add padding-top to body so content isn't hidden behind the banner
+    // No body padding needed — banner is fixed to bottom
     useEffect(() => {
-        if (showBanner && bannerRef.current) {
-            const updatePadding = () => {
-                const height = bannerRef.current?.offsetHeight || 0;
-                document.body.style.paddingTop = `${height + 16}px`;
-            };
-            updatePadding();
-            // Update on resize in case banner height changes
-            window.addEventListener('resize', updatePadding);
-            // Also observe banner size changes
-            const observer = new ResizeObserver(updatePadding);
-            observer.observe(bannerRef.current);
-            return () => {
-                document.body.style.paddingTop = '';
-                window.removeEventListener('resize', updatePadding);
-                observer.disconnect();
-            };
-        } else {
-            document.body.style.paddingTop = '';
-        }
+        return () => {
+            document.body.style.paddingBottom = '';
+        };
     }, [showBanner]);
 
     const saveConsent = (prefs) => {
@@ -180,7 +164,7 @@ const CookieConsent = () => {
             )}
 
             {/* Cookie Banner */}
-            <div ref={bannerRef} className="fixed top-0 left-0 right-0 z-[9997] p-3 sm:p-4 animate-in slide-in-from-top duration-300 bg-white/95 backdrop-blur-sm shadow-lg">
+            <div ref={bannerRef} className="fixed bottom-0 left-0 right-0 z-[9997] p-3 sm:p-4 animate-in slide-in-from-bottom duration-300 bg-white/95 backdrop-blur-sm shadow-[0_-4px_24px_rgba(0,0,0,0.1)]">
                 <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl ring-1 ring-slate-900/5 border border-slate-200 p-3 sm:p-4 md:p-6 relative">
                     {/* Close X button - always visible */}
                     <button
