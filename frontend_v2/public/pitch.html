@@ -39,6 +39,10 @@
     --r-link-color: #06b6d4;
   }
 
+  html, body {
+    background: #050a18 !important;
+  }
+
   .reveal {
     font-family: 'Inter', -apple-system, sans-serif;
   }
@@ -48,9 +52,13 @@
     padding: 40px 60px;
   }
 
-  /* ─── Animated gradient background ─── */
+  /* ─── Force dark background on all slides ─── */
+  .reveal, .reveal .slide-background-content {
+    background: #050a18 !important;
+  }
+
   .reveal .slide-background {
-    background: var(--bg-deep);
+    background: #050a18 !important;
   }
 
   .reveal .slides section::before {
@@ -702,7 +710,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 1: TITLE -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section class="title-slide" data-background-gradient="radial-gradient(ellipse at 30% 60%, rgba(6, 182, 212, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 70% 30%, rgba(20, 184, 166, 0.06) 0%, transparent 50%), #050a18">
+<section class="title-slide" data-background-color="#050a18">
   <div class="title-glow"></div>
   <div style="margin-bottom: 12px;">
     <div class="accent-line" style="width: 120px; margin: 0 auto 24px;"></div>
@@ -721,7 +729,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 2: PROBLEMA -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.06) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-cyan">PROBLEMA</span>
   <h2>Datele medicale din România<br>sunt fragmentate și inaccesibile</h2>
   <div class="accent-line"></div>
@@ -752,7 +760,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 3: SOLUȚIA -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 20% 80%, rgba(20, 184, 166, 0.06) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-teal">SOLUȚIA</span>
   <h2>Un singur loc. Toate analizele.<br><span class="gradient-text">AI care le explică.</span></h2>
   <div class="accent-line"></div>
@@ -785,7 +793,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 4: INVENTAR -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 70% 70%, rgba(167, 139, 250, 0.05) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-violet">INVENTAR</span>
   <h2>Ce include platforma</h2>
   <div class="accent-line accent-line-violet"></div>
@@ -814,7 +822,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 5: CRAWLERE — MOAT TEHNIC -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 30% 30%, rgba(6, 182, 212, 0.06) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-cyan">MOAT TEHNIC</span>
   <h2>4 crawlere. Cel mai greu de replicat.</h2>
   <div class="accent-line"></div>
@@ -853,7 +861,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 6: AI PIPELINE -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 80% 70%, rgba(167, 139, 250, 0.06) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-violet">INTELIGENȚĂ ARTIFICIALĂ</span>
   <h2>Specialiști AI dinamici. <span class="gradient-text">Powered by GPT-4o.</span></h2>
   <div class="accent-line accent-line-violet"></div>
@@ -884,7 +892,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 7: SECURITATE -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 50% 50%, rgba(34, 197, 94, 0.05) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-green">SECURITATE</span>
   <h2>Criptare per utilizator. Nici admin-ul nu vede datele.</h2>
   <div class="accent-line accent-line-green"></div>
@@ -917,7 +925,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 8: AVANTAJ COMPETITIV -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 40% 40%, rgba(251, 191, 36, 0.04) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-amber">AVANTAJ COMPETITIV</span>
   <h2>Trei perspective de expert</h2>
   <div class="accent-line accent-line-amber"></div>
@@ -942,7 +950,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 9: PREȚ INCREMENTAL -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 60% 50%, rgba(251, 191, 36, 0.04) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-amber">EVALUARE</span>
   <h2>Model de preț incremental</h2>
   <div class="accent-line accent-line-amber"></div>
@@ -988,7 +996,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 10: BUILD VS BUY -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 50% 60%, rgba(6, 182, 212, 0.05) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-cyan">BUILD VS BUY</span>
   <h2>De ce să cumperi, nu să construiești?</h2>
   <div class="accent-line"></div>
@@ -1025,7 +1033,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 11: MODELE DE TRANZACȚIE -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 30% 70%, rgba(20, 184, 166, 0.05) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-teal">OPȚIUNI</span>
   <h2>Trei modele de tranzacție</h2>
   <div class="accent-line"></div>
@@ -1056,7 +1064,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 12: TRACȚIUNE -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 60% 30%, rgba(34, 197, 94, 0.05) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-green">TRACȚIUNE</span>
   <h2>Early, dar real</h2>
   <div class="accent-line accent-line-green"></div>
@@ -1105,7 +1113,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 13: RISCURI -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section data-background-gradient="radial-gradient(ellipse at 70% 40%, rgba(251, 191, 36, 0.04) 0%, transparent 50%), #050a18">
+<section data-background-color="#050a18">
   <span class="tag tag-amber">TRANSPARENȚĂ</span>
   <h2>Riscuri și cum le adresăm</h2>
   <div class="accent-line accent-line-amber"></div>
@@ -1143,7 +1151,7 @@
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 14: CTA -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<section class="title-slide" data-background-gradient="radial-gradient(ellipse at 50% 40%, rgba(6, 182, 212, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 30% 80%, rgba(20, 184, 166, 0.06) 0%, transparent 50%), #050a18">
+<section class="title-slide" data-background-color="#050a18">
   <h2 style="font-size: 2.4em; text-align: center;">Programează un demo live<br>de 15 minute.</h2>
 
   <div class="cta-card" style="max-width: 600px; margin: 32px auto 0; padding: 40px;">
