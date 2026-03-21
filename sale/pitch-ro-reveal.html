@@ -49,71 +49,47 @@
 
   .reveal .slides section {
     text-align: left;
-    padding: 40px 60px;
+    padding: 20px 40px;
+    height: 100%;
+    box-sizing: border-box;
   }
 
   /* ─── Force dark background on all slides ─── */
-  .reveal, .reveal .slide-background-content {
+  .reveal, .reveal .slide-background-content, .reveal .slide-background {
     background: #050a18 !important;
   }
 
-  .reveal .slide-background {
-    background: #050a18 !important;
-  }
-
-  .reveal .slides section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -30%;
-    width: 800px;
-    height: 800px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  .reveal .slides section::after {
-    content: '';
-    position: absolute;
-    bottom: -40%;
-    left: -20%;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(20, 184, 166, 0.05) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: -1;
-  }
+  /* Subtle ambient glow via box-shadow on slides */
 
   /* ─── Typography ─── */
   .reveal h1 {
-    font-size: 3.2em;
+    font-size: 2.6em;
     font-weight: 800;
     letter-spacing: -2px;
     line-height: 1.1;
     color: var(--white);
-    margin-bottom: 0.3em;
+    margin-bottom: 0.2em;
   }
 
   .reveal h2 {
-    font-size: 2.2em;
+    font-size: 1.6em;
     font-weight: 700;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
     line-height: 1.2;
-    color: var(--white);
-    margin-bottom: 0.4em;
-  }
-
-  .reveal h3 {
-    font-size: 1.3em;
-    font-weight: 600;
     color: var(--white);
     margin-bottom: 0.3em;
   }
 
+  .reveal h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.2em;
+  }
+
   .reveal p, .reveal li {
-    font-size: 0.85em;
-    line-height: 1.7;
+    font-size: 0.75em;
+    line-height: 1.6;
     color: var(--light);
   }
 
@@ -176,7 +152,7 @@
 
   /* ─── Stats ─── */
   .stat-number {
-    font-size: 3.5em;
+    font-size: 2.8em;
     font-weight: 800;
     line-height: 1;
     margin-bottom: 4px;
@@ -195,7 +171,7 @@
 
   /* ─── Hero stat ─── */
   .hero-stat {
-    font-size: 5em;
+    font-size: 3.5em;
     font-weight: 900;
     letter-spacing: -3px;
     line-height: 1;
@@ -638,38 +614,14 @@
     color: var(--mid);
   }
 
-  /* ─── Footer ─── */
+  /* ─── Footer — hidden, using Reveal slideNumber instead ─── */
   .slide-footer {
-    position: absolute;
-    bottom: 20px;
-    left: 60px;
-    right: 60px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.45em;
-    color: var(--dark);
-    border-top: 1px solid rgba(148, 163, 184, 0.06);
-    padding-top: 10px;
+    display: none;
   }
 
   /* ─── Title slide special ─── */
   .title-slide {
     text-align: center !important;
-    display: flex !important;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .title-glow {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
   }
 
   /* ─── Fragments ─── */
@@ -711,17 +663,14 @@
 <!-- SLIDE 1: TITLE -->
 <!-- ════════════════════════════════════════════════════════════ -->
 <section class="title-slide" data-background-color="#050a18">
-  <div class="title-glow"></div>
-  <div style="margin-bottom: 12px;">
-    <div class="accent-line" style="width: 120px; margin: 0 auto 24px;"></div>
-  </div>
-  <h1 style="font-size: 3.8em;"><span class="gradient-text">Analize.Online</span></h1>
-  <p style="font-size: 1.3em; color: var(--light); max-width: 700px; margin: 16px auto 0; line-height: 1.5;">
+  <div class="accent-line" style="width: 120px; margin: 0 auto 20px;"></div>
+  <h1><span class="gradient-text">Analize.Online</span></h1>
+  <p style="font-size: 1.1em; color: var(--light); max-width: 700px; margin: 12px auto 0; line-height: 1.5;">
     Prima platformă din România care unifică<br>toate analizele medicale cu inteligență artificială
   </p>
-  <div style="margin-top: 48px;">
-    <p style="font-size: 0.7em; color: var(--mid);">Pitch de vânzare / licențiere — Martie 2026</p>
-    <p style="font-size: 0.6em; color: var(--dark); margin-top: 8px;">Confidențial &nbsp;•&nbsp; contact@analize.online</p>
+  <div style="margin-top: 30px;">
+    <p style="font-size: 0.65em; color: var(--mid);">Pitch de vânzare / licențiere — Martie 2026</p>
+    <p style="font-size: 0.55em; color: var(--dark); margin-top: 6px;">Confidențial &nbsp;•&nbsp; contact@analize.online</p>
   </div>
   <div class="slide-footer"><span>analize.online</span><span>1 / 14</span></div>
 </section>
@@ -1152,7 +1101,7 @@
 <!-- SLIDE 14: CTA -->
 <!-- ════════════════════════════════════════════════════════════ -->
 <section class="title-slide" data-background-color="#050a18">
-  <h2 style="font-size: 2.4em; text-align: center;">Programează un demo live<br>de 15 minute.</h2>
+  <h2 style="text-align: center;">Programează un demo live<br>de 15 minute.</h2>
 
   <div class="cta-card" style="max-width: 600px; margin: 32px auto 0; padding: 40px;">
     <p style="font-size: 0.8em; color: rgba(255,255,255,0.7);">Contact</p>
@@ -1176,20 +1125,19 @@
 <script>
   Reveal.initialize({
     hash: true,
-    slideNumber: false,
+    slideNumber: true,
     controls: true,
     controlsLayout: 'edges',
     progress: true,
-    center: false,
+    center: true,
     transition: 'slide',
     transitionSpeed: 'default',
     backgroundTransition: 'fade',
-    width: 1280,
-    height: 720,
-    margin: 0,
+    width: 1100,
+    height: 700,
+    margin: 0.04,
     minScale: 0.2,
     maxScale: 2.0,
-    // PDF export: append ?print-pdf to URL, then Ctrl+P
     pdfSeparateFragments: false,
   });
 </script>
