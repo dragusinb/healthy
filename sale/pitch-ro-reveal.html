@@ -126,18 +126,18 @@
   .col-quarter:last-child { margin-right: 0; }
 
   /* ============ FLOW STEPS ============ */
-  .fstep { margin-bottom: 8px; }
+  .fstep { margin-bottom: 4px; }
   .fstep .num {
-    display: inline-block; width: 28px; height: 28px; line-height: 28px;
+    display: inline-block; width: 24px; height: 24px; line-height: 24px;
     text-align: center; border-radius: 50%;
     background: linear-gradient(135deg, #06b6d4, #14b8a6);
-    color: #fff; font-weight: 700; font-size: 0.7em;
-    vertical-align: top; margin-right: 10px;
+    color: #fff; font-weight: 700; font-size: 0.6em;
+    vertical-align: top; margin-right: 8px;
     box-shadow: 0 0 16px rgba(6,182,212,0.3);
   }
-  .fstep .ftxt { display: inline-block; width: calc(100% - 44px); vertical-align: top; }
-  .fstep .ftitle { font-weight: 600; color: #e2e8f0; font-size: 0.7em; }
-  .fstep .fdesc { font-size: 0.6em; color: #94a3b8; }
+  .fstep .ftxt { display: inline-block; width: calc(100% - 38px); vertical-align: top; }
+  .fstep .ftitle { font-weight: 600; color: #e2e8f0; font-size: 0.65em; }
+  .fstep .fdesc { font-size: 0.55em; color: #94a3b8; }
 
   /* ============ INVENTORY ROWS ============ */
   .irow {
@@ -232,15 +232,11 @@
   }
 
   /* ============ TYPING ANIMATION ============ */
-  @keyframes typing { from { width: 0; } to { width: 100%; } }
   @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: #06b6d4; } }
   .typing-text {
-    display: inline-block;
-    overflow: hidden;
-    white-space: nowrap;
     border-right: 2px solid #06b6d4;
-    animation: typing 2.5s steps(50, end) forwards, blink-caret 0.75s step-end infinite;
-    max-width: 600px;
+    animation: blink-caret 0.75s step-end infinite;
+    padding-right: 4px;
   }
 
   /* ============ PULSING DOT ============ */
@@ -353,7 +349,7 @@
   <h2>Platforma &#238;n ac&#539;iune</h2>
   <div class="aline" style="margin: 0 auto 12px;"></div>
   <div style="text-align:center; margin-top:12px;">
-    <video src="/demo-video.webm" controls style="width:90%; max-width:800px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(6,182,212,0.1);" poster=""></video>
+    <video src="/demo-video.webm" controls preload="metadata" style="width:100%; max-width:860px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(6,182,212,0.1); background: #0a0f1e;" poster=""></video>
   </div>
 </section>
 
@@ -730,8 +726,8 @@
   <div class="cta-box">
     <p style="font-size: 0.65em; color: rgba(255,255,255,0.6);">Contact</p>
     <h3>Bogdan Dr&#259;gu&#537;in</h3>
-    <p class="email">contact@analize.online</p>
-    <p style="margin-top: 10px; font-size: 0.65em; color: rgba(255,255,255,0.7);">Demo live: <strong>analize.online</strong></p>
+    <p class="email"><a href="mailto:contact@analize.online" style="color: #fff; text-decoration: none; border-bottom: 2px solid rgba(255,255,255,0.3);">contact@analize.online</a></p>
+    <p style="margin-top: 10px; font-size: 0.65em; color: rgba(255,255,255,0.7);">Demo live: <a href="https://analize.online" target="_blank" style="color: #fff; font-weight: 700; text-decoration: none;">analize.online</a></p>
   </div>
 
   <div class="fomo">
