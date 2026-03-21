@@ -3,866 +3,493 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analize.Online — Pitch Deck</title>
-
-<!-- Reveal.js from local vendor -->
-<link rel="stylesheet" href="/vendor/reveal.min.css">
-<link rel="stylesheet" href="/vendor/reveal-black.min.css" id="theme">
-
-<!-- Google Fonts -->
+<title>Analize.Online &#8212; Investor Pitch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
 <style>
-  /* ============ BASE ============ */
-  html, body { background: #050a18 !important; margin: 0; padding: 0; overflow: hidden; }
-
-  #particles-canvas {
-    display: block; width: 100vw; height: 100vh;
-    position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none;
-  }
-
-  .reveal { font-family: 'Inter', -apple-system, sans-serif; position: relative; z-index: 1; }
-
-  .reveal .slides section {
-    text-align: left;
-    padding: 16px 32px;
-    box-sizing: border-box;
-    color: #94a3b8;
-  }
-
-  .reveal .slides section.center-slide { text-align: center; }
-
-  /* ============ TYPOGRAPHY ============ */
-  .reveal h1 {
-    font-size: 2.4em; font-weight: 900; letter-spacing: -2px;
-    line-height: 1.08; color: #e2e8f0; margin: 0 0 0.2em 0;
-  }
-  .reveal h2 {
-    font-size: 1.3em; font-weight: 700; letter-spacing: -0.5px;
-    line-height: 1.2; color: #e2e8f0; margin: 0 0 0.2em 0;
-  }
-  .reveal h3 {
-    font-size: 0.85em; font-weight: 600; color: #e2e8f0; margin: 0 0 0.15em 0;
-  }
-  .reveal p, .reveal li {
-    font-size: 0.65em; line-height: 1.5; color: #94a3b8; margin: 0;
-  }
-  .reveal ul { list-style: none; padding: 0; margin: 0; }
-  .reveal li { padding: 3px 0 3px 16px; }
-  .reveal li span.dot {
-    display: inline-block; width: 6px; height: 6px;
-    background: #06b6d4; border-radius: 1px; transform: rotate(45deg);
-    margin-right: 8px; margin-left: -16px; vertical-align: middle;
-  }
-  .reveal li span.check {
-    color: #22c55e; font-weight: 700; margin-right: 6px; margin-left: -16px;
-  }
-
-  /* ============ GRADIENT TEXT ============ */
-  .grad {
-    color: #06b6d4;
-    background: linear-gradient(135deg, #06b6d4, #14b8a6, #22c55e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ============ TAG PILLS ============ */
-  .tag {
-    display: inline-block; padding: 4px 14px; border-radius: 100px;
-    font-size: 0.5em; font-weight: 700; letter-spacing: 2px;
-    text-transform: uppercase; margin-bottom: 8px;
-    transition: box-shadow 0.3s ease;
-  }
-  .tag-cyan  { background: rgba(6,182,212,0.12); color: #06b6d4; box-shadow: 0 0 15px rgba(6,182,212,0.15); }
-  .tag-teal  { background: rgba(20,184,166,0.12); color: #14b8a6; box-shadow: 0 0 15px rgba(20,184,166,0.15); }
-  .tag-green { background: rgba(34,197,94,0.12); color: #22c55e; box-shadow: 0 0 15px rgba(34,197,94,0.15); }
-  .tag-amber { background: rgba(251,191,36,0.12); color: #fbbf24; box-shadow: 0 0 15px rgba(251,191,36,0.15); }
-  .tag-violet{ background: rgba(167,139,250,0.12); color: #a78bfa; box-shadow: 0 0 15px rgba(167,139,250,0.15); }
-
-  /* ============ ACCENT LINE ============ */
-  .aline {
-    width: 60px; height: 3px; border-radius: 2px; margin-bottom: 12px;
-    background: linear-gradient(90deg, #06b6d4, #14b8a6);
-    box-shadow: 0 0 12px rgba(6,182,212,0.4);
-  }
-  .aline-amber  { background: linear-gradient(90deg, #fbbf24, #f59e0b); box-shadow: 0 0 12px rgba(251,191,36,0.4); }
-  .aline-green  { background: linear-gradient(90deg, #22c55e, #10b981); box-shadow: 0 0 12px rgba(34,197,94,0.4); }
-  .aline-violet { background: linear-gradient(90deg, #a78bfa, #8b5cf6); box-shadow: 0 0 12px rgba(167,139,250,0.4); }
-
-  /* ============ GLASSMORPHISM CARD ============ */
-  .card {
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px; padding: 16px; margin-bottom: 8px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  }
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(6,182,212,0.1);
-    border-color: rgba(255,255,255,0.1);
-  }
-
-  /* ============ LAYOUT COLUMNS ============ */
-  .col-wrap { width: 100%; font-size: 0; }
-  .col-half {
-    display: inline-block; vertical-align: top;
-    width: 48%; font-size: 16px; margin-right: 2%;
-  }
-  .col-half:last-child { margin-right: 0; }
-  .col-third {
-    display: inline-block; vertical-align: top;
-    width: 31%; font-size: 16px; margin-right: 2.5%;
-  }
-  .col-third:last-child { margin-right: 0; }
-  .col-quarter {
-    display: inline-block; vertical-align: top;
-    width: 23%; font-size: 16px; margin-right: 2%;
-  }
-  .col-quarter:last-child { margin-right: 0; }
-
-  /* ============ FLOW STEPS ============ */
-  .fstep { margin-bottom: 4px; }
-  .fstep .num {
-    display: inline-block; width: 24px; height: 24px; line-height: 24px;
-    text-align: center; border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #14b8a6);
-    color: #fff; font-weight: 700; font-size: 0.6em;
-    vertical-align: top; margin-right: 8px;
-    box-shadow: 0 0 16px rgba(6,182,212,0.3);
-  }
-  .fstep .ftxt { display: inline-block; width: calc(100% - 38px); vertical-align: top; }
-  .fstep .ftitle { font-weight: 600; color: #e2e8f0; font-size: 0.65em; }
-  .fstep .fdesc { font-size: 0.55em; color: #94a3b8; }
-
-  /* ============ INVENTORY ROWS ============ */
-  .irow {
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.03);
-    border-radius: 8px; padding: 5px 10px; margin-bottom: 5px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .irow:hover {
-    transform: translateX(4px);
-    box-shadow: -2px 0 12px rgba(167,139,250,0.15);
-  }
-  .irow .ival { font-weight: 700; font-size: 0.65em; color: #a78bfa; display: inline-block; width: 55px; text-shadow: 0 0 8px rgba(167,139,250,0.3); }
-  .irow .ilab { font-weight: 600; font-size: 0.6em; color: #e2e8f0; display: inline-block; width: 120px; }
-  .irow .idet { font-size: 0.55em; color: #475569; display: inline-block; }
-
-  /* ============ AGENT ROWS ============ */
-  .arow {
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 8px; padding: 6px 12px; margin-bottom: 5px;
-    transition: transform 0.2s ease;
-  }
-  .arow:hover { transform: translateX(4px); }
-  .arow .alab { font-weight: 600; font-size: 0.6em; color: #14b8a6; display: inline-block; width: 100px; }
-  .arow .adesc { font-size: 0.58em; color: #94a3b8; display: inline-block; }
-
-  /* ============ STAT NUMBERS ============ */
-  .snum {
-    font-size: 2.2em; font-weight: 800; line-height: 1;
-    text-shadow: 0 0 30px rgba(6,182,212,0.3);
-  }
-  .slab { font-size: 0.6em; color: #475569; font-weight: 500; margin-top: 4px; }
-
-  /* ============ RISK ROWS ============ */
-  .rrow {
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 10px; padding: 8px 14px; margin-bottom: 6px;
-    transition: transform 0.2s ease;
-  }
-  .rrow:hover { transform: translateX(4px); }
-  .rdot {
-    display: inline-block; width: 8px; height: 8px;
-    border-radius: 50%; vertical-align: middle; margin-right: 10px;
-  }
-  .rdot-amber { background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.5); }
-  .rdot-green { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
-  .rlabel { display: inline-block; width: 200px; vertical-align: middle; }
-  .rlabel strong { color: #e2e8f0; font-size: 0.65em; }
-  .rlabel small { font-size: 0.5em; }
-  .rmit { display: inline-block; font-size: 0.6em; color: #94a3b8; vertical-align: middle; }
-
-  /* ============ CTA BOX ============ */
-  .cta-box {
-    background: linear-gradient(135deg, #06b6d4, #14b8a6);
-    border-radius: 16px; padding: 28px; text-align: center;
-    max-width: 500px; margin: 20px auto 0;
-    box-shadow: 0 20px 60px rgba(6,182,212,0.2);
-  }
-  .cta-box h3 { color: #fff; font-size: 1.1em; }
-  .cta-box p { color: rgba(255,255,255,0.8); font-size: 0.75em; }
-  .cta-box .email { font-size: 0.9em; font-weight: 700; color: #fff; margin-top: 8px; }
-
-  .fomo {
-    color: #fbbf24; font-weight: 700; font-size: 0.7em;
-    text-align: center; margin-top: 20px; letter-spacing: 0.5px;
-    text-shadow: 0 0 20px rgba(251,191,36,0.3);
-  }
-
-  /* ============ STAGE HL ============ */
-  .stage-hl { border-color: #14b8a6 !important; box-shadow: 0 0 25px rgba(20,184,166,0.2); }
-  .cmp-hl { border-color: #14b8a6 !important; box-shadow: 0 0 25px rgba(20,184,166,0.15); }
-
-  /* ============ GRADIENT BORDER CARDS ============ */
-  .glow-card {
-    background: rgba(17, 24, 39, 0.6);
-    backdrop-filter: blur(12px);
-    border-radius: 12px; padding: 16px; margin-bottom: 8px;
-    border: 1px solid transparent;
-    background-image: linear-gradient(rgba(17,24,39,0.6), rgba(17,24,39,0.6)), linear-gradient(135deg, #06b6d4, #14b8a6, #22c55e);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .glow-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(6,182,212,0.15);
-  }
-
-  /* ============ SUBTITLE STYLE ============ */
-  .subtitle-text {
-    color: #94a3b8;
-    line-height: 1.5;
-  }
-
-  /* ============ PULSING DOT ============ */
-  @keyframes pulse-dot {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(20,184,166,0.6); }
-    50% { box-shadow: 0 0 0 6px rgba(20,184,166,0); }
-  }
-  .pulse-dot {
-    display: inline-block; width: 8px; height: 8px;
-    background: #14b8a6; border-radius: 50%;
-    margin-right: 4px; vertical-align: middle;
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  /* ============ SHIMMER EFFECT ============ */
-  @keyframes shimmer {
-    0% { background-position: -200% center; }
-    100% { background-position: 200% center; }
-  }
-  .shimmer-text {
-    background: linear-gradient(90deg, #e2e8f0 0%, #06b6d4 25%, #14b8a6 50%, #06b6d4 75%, #e2e8f0 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 4s linear infinite;
-  }
-
-  /* ============ FLOAT ANIMATION ============ */
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-  .float { animation: float 3s ease-in-out infinite; }
-
-  /* ============ REVEAL OVERRIDES ============ */
-  .reveal .controls { color: #06b6d4 !important; }
-  .reveal .progress span { background: linear-gradient(90deg, #06b6d4, #14b8a6) !important; }
-  .reveal .slide-number { color: #475569 !important; font-family: 'Inter', sans-serif; font-size: 12px !important; }
-
-  /* ============ COUNTER ANIMATION ============ */
-  .counter { display: inline-block; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory;overflow-y:scroll;overflow-x:hidden}
+body{font-family:'Inter',system-ui,sans-serif;background:#030712;color:#f8fafc;-webkit-font-smoothing:antialiased}
+section{min-height:100vh;scroll-snap-align:start;position:relative;display:flex;align-items:center;justify-content:center;padding:60px 40px;overflow:hidden}
+.inner{max-width:1200px;width:100%;position:relative;z-index:2}
+.label{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#0ea5e9;margin-bottom:12px;display:inline-block}
+h2{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-1.5px;line-height:1.1;color:#f8fafc;margin-bottom:16px}
+h3{font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:8px}
+p,.desc{font-size:1rem;line-height:1.7;color:#94a3b8}
+.hero-bg{position:absolute;inset:0;z-index:0;background:
+  radial-gradient(ellipse 80% 60% at 50% 40%,rgba(14,165,233,.12),transparent 60%),
+  radial-gradient(ellipse 60% 50% at 80% 20%,rgba(20,184,166,.08),transparent 50%),
+  radial-gradient(ellipse 50% 40% at 20% 80%,rgba(245,158,11,.05),transparent 50%),
+  #030712;animation:heroPulse 8s ease-in-out infinite alternate}
+@keyframes heroPulse{0%{opacity:1;filter:brightness(1)}50%{opacity:.85;filter:brightness(1.15)}100%{opacity:1;filter:brightness(1)}}
+.rv{opacity:0;transform:translateY(40px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.rv.vis{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.05s}.d2{transition-delay:.1s}.d3{transition-delay:.15s}
+.d4{transition-delay:.2s}.d5{transition-delay:.25s}.d6{transition-delay:.3s}
+#hero{flex-direction:column;text-align:center}
+.hero-title{font-size:clamp(3rem,9vw,8rem);font-weight:900;letter-spacing:-4px;line-height:.95;
+  background:linear-gradient(135deg,#f8fafc 0%,#0ea5e9 50%,#14b8a6 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:24px}
+.hero-sub{font-size:clamp(1rem,2vw,1.35rem);color:#94a3b8;max-width:700px;margin:0 auto 48px;line-height:1.6;font-weight:400}
+.scroll-hint{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:#475569;font-size:.8rem;font-weight:500;animation:bounce 2s infinite}
+.scroll-hint span{font-size:1.4rem}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+.big-stat{font-size:clamp(4rem,10vw,8rem);font-weight:900;letter-spacing:-3px;color:#0ea5e9;
+  text-shadow:0 0 60px rgba(14,165,233,.4),0 0 120px rgba(14,165,233,.15);line-height:1;animation:gp 3s ease-in-out infinite alternate}
+@keyframes gp{0%{text-shadow:0 0 40px rgba(14,165,233,.3),0 0 80px rgba(14,165,233,.1)}100%{text-shadow:0 0 80px rgba(14,165,233,.5),0 0 160px rgba(14,165,233,.2)}}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+@media(max-width:768px){.split{grid-template-columns:1fr;gap:32px}}
+.bl{list-style:none;padding:0}
+.bl li{padding:8px 0;font-size:.95rem;color:#94a3b8;display:flex;align-items:flex-start;gap:10px}
+.bl li::before{content:'';display:inline-block;width:6px;height:6px;min-width:6px;background:#0ea5e9;border-radius:1px;transform:rotate(45deg);margin-top:8px}
+.card{background:rgba(10,22,40,.7);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:28px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .3s ease,box-shadow .3s ease}
+.card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 30px rgba(14,165,233,.08)}
+.cg{display:grid;gap:20px}
+.cg4{grid-template-columns:repeat(4,1fr)}
+.cg3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.cg3,.cg4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.cg3,.cg4{grid-template-columns:1fr}}
+.ca{border-top:3px solid #0ea5e9}
+.ctt{border-top:3px solid #14b8a6}
+.cam{border-top:3px solid #f59e0b}
+.cpu{border-top:3px solid #a78bfa}
+.pipeline{display:flex;gap:0;align-items:flex-start;position:relative;margin:40px 0}
+.pipeline::before{content:'';position:absolute;top:28px;left:28px;right:28px;height:2px;background:linear-gradient(90deg,#0ea5e9,#14b8a6);opacity:.3}
+.ps{flex:1;text-align:center;position:relative;z-index:1}
+.pn{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#14b8a6);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;color:#030712;margin:0 auto 12px;box-shadow:0 0 30px rgba(14,165,233,.25)}
+.pti{font-weight:700;font-size:.85rem;color:#f8fafc;margin-bottom:4px}
+.pd{font-size:.75rem;color:#475569;line-height:1.4;padding:0 8px}
+@media(max-width:768px){.pipeline{flex-direction:column;gap:20px}.pipeline::before{display:none}}
+.vw{position:relative;max-width:900px;margin:32px auto 0;border-radius:16px;overflow:hidden;
+  box-shadow:0 0 80px rgba(14,165,233,.12),0 40px 80px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.06)}
+.vw video{width:100%;display:block;background:#000}
+.callout{text-align:center;margin-top:40px;font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:700;color:#f59e0b;text-shadow:0 0 30px rgba(245,158,11,.2)}
+.glass{background:rgba(14,165,233,.05);border:1px solid rgba(14,165,233,.12);border-radius:16px;padding:32px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.cl{list-style:none;padding:0}
+.cl li{padding:6px 0;font-size:.9rem;color:#94a3b8;display:flex;gap:8px;align-items:flex-start}
+.cl li::before{content:'\2713';color:#14b8a6;font-weight:800;min-width:16px}
+.tlb{display:flex;align-items:center;margin:32px 0 40px;position:relative}
+.tlb::before{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:#1e293b;transform:translateY(-50%);border-radius:2px}
+.tld{width:20px;height:20px;border-radius:50%;background:#1e293b;border:3px solid #1e293b;position:relative;z-index:1;flex-shrink:0}
+.tld.ac{background:#0ea5e9;border-color:#0ea5e9;box-shadow:0 0 20px rgba(14,165,233,.5)}
+.tll{flex:1;height:3px;background:#1e293b}
+.tll.fl{background:linear-gradient(90deg,#0ea5e9,#14b8a6)}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:900px){.sg{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.sg{grid-template-columns:1fr}}
+.sc{padding:24px;border-radius:14px;background:rgba(10,22,40,.5);border:1px solid rgba(255,255,255,.05)}
+.sc.cur{border-color:rgba(14,165,233,.4);background:rgba(14,165,233,.08);box-shadow:0 0 40px rgba(14,165,233,.1)}
+.sp{font-size:1.5rem;font-weight:800;color:#0ea5e9;margin:8px 0}
+.sl{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#475569}
+.nb{display:inline-block;background:#0ea5e9;color:#030712;font-size:.65rem;font-weight:800;padding:3px 10px;border-radius:100px;letter-spacing:1px;margin-bottom:8px}
+.compg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+@media(max-width:768px){.compg{grid-template-columns:1fr}}
+.compc{padding:32px;border-radius:16px;background:rgba(10,22,40,.5);border:1px solid rgba(255,255,255,.05)}
+.compc.feat{transform:scale(1.04);border-color:rgba(20,184,166,.4);background:rgba(20,184,166,.06);box-shadow:0 0 50px rgba(20,184,166,.1)}
+.comppr{font-size:2rem;font-weight:900;margin:12px 0 4px}
+.pcr{color:#ef4444}.pcteal{color:#14b8a6}.pcpur{color:#a78bfa}
+.rr{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.rd{width:10px;height:10px;border-radius:50%;margin-top:6px;flex-shrink:0}
+.rdm{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.4)}
+.rdl{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.4)}
+.ctg{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:48px}
+@media(max-width:768px){.ctg{grid-template-columns:repeat(2,1fr)}}
+.cti{text-align:center}
+.cv{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:900;color:#0ea5e9;letter-spacing:-1px}
+.cvl{font-size:.8rem;color:#475569;font-weight:500;margin-top:4px}
+#cta{background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(14,165,233,.08),transparent 70%),#030712}
+.ctab{background:linear-gradient(135deg,rgba(14,165,233,.1),rgba(20,184,166,.08));border:1px solid rgba(14,165,233,.2);border-radius:24px;padding:60px;text-align:center;max-width:700px;margin:0 auto}
+.ctbtn{display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#0ea5e9,#14b8a6);color:#030712;font-weight:800;font-size:1.05rem;border-radius:100px;text-decoration:none;letter-spacing:.5px;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px rgba(14,165,233,.3)}
+.ctbtn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 40px rgba(14,165,233,.4)}
+.ctcon{margin-top:24px;font-size:.95rem;color:#94a3b8}
+.ctcon a{color:#0ea5e9;text-decoration:none}
+.ctcon a:hover{text-decoration:underline}
+.ctu{margin-top:20px;color:#f59e0b;font-weight:600;font-size:.95rem}
+.bgalt{background:#0a1628}
+.navd{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:10px}
+.nd{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:all .3s;border:none;padding:0}
+.nd.ac{background:#0ea5e9;box-shadow:0 0 10px rgba(14,165,233,.5);transform:scale(1.3)}
+@media(max-width:768px){.navd{display:none}}
+.fa{display:flex;align-items:center;justify-content:center;color:#0ea5e9;font-size:1.5rem;padding:8px 0}
+.tc{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media(max-width:768px){.tc{grid-template-columns:1fr}}
+.conf{text-align:center;padding:24px;font-size:.7rem;color:#475569;letter-spacing:1px}
 </style>
 </head>
 <body>
+<nav class="navd" id="navDots"></nav>
 
-<!-- Particle Canvas Background -->
-<canvas id="particles-canvas"></canvas>
-
-<div class="reveal">
-<div class="slides">
-
-<!-- SLIDE 1: TITLE -->
-<section class="center-slide" data-background-color="#050a18">
-  <div class="aline" style="width: 80px; margin: 0 auto 16px;"></div>
-  <h1><span class="shimmer-text">Analize.Online</span></h1>
-  <p class="subtitle-text" style="font-size: 0.85em; margin: 14px auto 0;">
-    Prima platform&#259; din Rom&#226;nia care unific&#259; toate analizele medicale cu inteligen&#539;&#259; artificial&#259;
-  </p>
-  <p style="font-size: 0.55em; color: #475569; margin-top: 28px;">Pitch de v&#226;nzare / licen&#539;iere &#8212; Martie 2026</p>
-  <p style="font-size: 0.45em; color: #334155; margin-top: 4px;">Confiden&#539;ial &nbsp;|&nbsp; contact@analize.online</p>
+<!-- 1. HERO -->
+<section id="hero">
+<div class="hero-bg"></div>
+<div class="inner" style="text-align:center;position:relative;z-index:2">
+<div class="hero-title rv" id="heroTitle">Analize.Online</div>
+<p class="hero-sub rv d1">Prima platform&#259; din Rom&#226;nia care unific&#259; toate analizele medicale cu inteligen&#539;&#259; artificial&#259;</p>
+<p class="rv d2" style="font-size:.8rem;color:#475569;letter-spacing:2px;text-transform:uppercase;font-weight:600">Pitch Confiden&#539;ial &#8212; Martie 2026</p>
+</div>
+<div class="scroll-hint">Descoper&#259; <span>&#8595;</span></div>
 </section>
 
-<!-- SLIDE 2: PROBLEMA -->
-<section data-background-color="#050a18">
-  <span class="tag tag-cyan">PROBLEMA</span>
-  <h2>Datele medicale din Rom&#226;nia sunt fragmentate</h2>
-  <div class="aline"></div>
-  <div class="col-wrap" style="margin-top: 8px;">
-    <div class="col-half">
-      <ul>
-        <li><span class="dot"></span>Rezultate blocate &#238;n portaluri separate (Regina Maria, Synevo, MedLife, Sanador)</li>
-        <li><span class="dot"></span>Nicio vedere unificat&#259; &#8212; pacien&#539;ii uit&#259; rezultatele</li>
-        <li><span class="dot"></span>PDF-uri cu sute de valori &#8212; imposibil de interpretat</li>
-        <li><span class="dot"></span>Zero urm&#259;rire tendin&#539;e &#8212; cre&#537;te sau scade?</li>
-        <li><span class="dot"></span>Vizite reactive, nu preventive</li>
-      </ul>
-    </div>
-    <div class="col-half">
-      <div class="glow-card float" style="text-align: center; padding: 24px 16px;">
-        <div class="snum" style="background: linear-gradient(135deg, #06b6d4, #14b8a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: none;">19M+</div>
-        <div style="font-size: 0.8em; color: #94a3b8; margin-top: 6px;">rom&#226;ni</div>
-        <div style="margin-top: 12px; font-size: 0.6em; color: #475569; line-height: 1.7;">
-          4 furnizori mari de analize<br>
-          0 platforme unificate<br>
-          Milioane de rezultate &#238;n silozuri
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 3: SOLUȚIA -->
-<section data-background-color="#050a18">
-  <span class="tag tag-teal">SOLU&#538;IA</span>
-  <h2>Un singur loc. Toate analizele. <span class="grad">AI care le explic&#259;.</span></h2>
-  <div class="aline"></div>
-  <div style="margin-top: 6px;">
-    <div class="fstep"><span class="num">1</span><span class="ftxt"><span class="ftitle">Conectezi conturile medicale</span><br><span class="fdesc">Regina Maria, Synevo, MedLife, Sanador &#8212; criptare AES-256</span></span></div>
-    <div class="fstep"><span class="num">2</span><span class="ftxt"><span class="ftitle">Sincronizare automat&#259;</span><br><span class="fdesc">Crawlere Playwright descarc&#259; PDF-urile, gestionare CAPTCHA inclus&#259;</span></span></div>
-    <div class="fstep"><span class="num">3</span><span class="ftxt"><span class="ftitle">Extrac&#539;ie AI</span><br><span class="fdesc">GPT-4o extrage 150+ tipuri de biomarkeri: nume, valoare, unitate, referin&#539;&#259;</span></span></div>
-    <div class="fstep"><span class="num">4</span><span class="ftxt"><span class="ftitle">Speciali&#537;ti AI dinamici</span><br><span class="fdesc">Generalistul analizeaz&#259;, apoi recomand&#259; speciali&#537;tii relevan&#539;i</span></span></div>
-    <div class="fstep"><span class="num">5</span><span class="ftxt"><span class="ftitle">Grafice &#537;i alerte</span><br><span class="fdesc">Evolu&#539;ie &#238;n timp, valori anormale eviden&#539;iate, screening-uri preventive</span></span></div>
-  </div>
-</section>
-
-<!-- SLIDE 4: DEMO VIDEO (NEW) -->
-<section class="center-slide" data-background-color="#050a18">
-  <span class="tag tag-teal">DEMO LIVE</span>
-  <h2>Platforma &#238;n ac&#539;iune</h2>
-  <div class="aline" style="margin: 0 auto 12px;"></div>
-  <div style="text-align:center; margin-top:12px;">
-    <video src="/demo-video.webm" controls preload="metadata" style="width:100%; max-width:860px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(6,182,212,0.1); background: #0a0f1e;" poster=""></video>
-  </div>
-</section>
-
-<!-- SLIDE 5: INVENTAR -->
-<section data-background-color="#050a18">
-  <span class="tag tag-violet">INVENTAR</span>
-  <h2>Ce include platforma</h2>
-  <div class="aline aline-violet"></div>
-  <div class="col-wrap" style="margin-top: 6px;">
-    <div class="col-half">
-      <div class="irow"><span class="ival">28</span><span class="ilab">Servicii backend</span><span class="idet">~11.000 linii Python</span></div>
-      <div class="irow"><span class="ival">50+</span><span class="ilab">Endpoint-uri API</span><span class="idet">16 routere</span></div>
-      <div class="irow"><span class="ival">30+</span><span class="ilab">Modele DB</span><span class="idet">PostgreSQL</span></div>
-      <div class="irow"><span class="ival">20+</span><span class="ilab">Pagini frontend</span><span class="idet">React + Tailwind</span></div>
-      <div class="irow"><span class="ival">4</span><span class="ilab">Crawlere</span><span class="idet">Playwright + CAPTCHA</span></div>
-      <div class="irow"><span class="ival">6</span><span class="ilab">Agen&#539;i AI</span><span class="idet">GPT-4o speciali&#537;ti</span></div>
-    </div>
-    <div class="col-half">
-      <div class="irow"><span class="ival">150+</span><span class="ilab">Tipuri biomarkeri</span><span class="idet">Normaliza&#539;i</span></div>
-      <div class="irow"><span class="ival">2</span><span class="ilab">Limbi</span><span class="idet">RO + EN (i18next)</span></div>
-      <div class="irow"><span class="ival">AES-256</span><span class="ilab">Criptare per user</span><span class="idet">Vault + recovery</span></div>
-      <div class="irow"><span class="ival">GDPR</span><span class="ilab">Conformitate</span><span class="idet">Export, &#537;tergere, consent</span></div>
-      <div class="irow"><span class="ival">Netopia</span><span class="ilab">Pl&#259;&#539;i integrate</span><span class="idet">29/49 RON/lun&#259;</span></div>
-      <div class="irow"><span class="ival">Prom.</span><span class="ilab">Monitorizare</span><span class="idet">Grafana + Sentry</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 6: CRAWLERE -->
-<section data-background-color="#050a18">
-  <span class="tag tag-cyan">MOAT TEHNIC</span>
-  <h2>4 crawlere. Cel mai greu de replicat.</h2>
-  <div class="aline"></div>
-  <div class="col-wrap" style="margin-top: 8px;">
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #06b6d4;">
-        <h3 style="color: #06b6d4;">Regina Maria</h3>
-        <p style="font-size: 0.55em;">CAPTCHA handling<br>Visible browser fallback</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #06b6d4;">
-        <h3 style="color: #06b6d4;">Synevo</h3>
-        <p style="font-size: 0.55em;">Full headless mode<br>Multi-page navigation</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #06b6d4;">
-        <h3 style="color: #06b6d4;">MedLife</h3>
-        <p style="font-size: 0.55em;">CAPTCHA detection<br>Auto-retry logic</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #06b6d4;">
-        <h3 style="color: #06b6d4;">Sanador</h3>
-        <p style="font-size: 0.55em;">Headless automation<br>Session management</p>
-      </div>
-    </div>
-  </div>
-  <div class="card" style="margin-top: 12px;">
-    <h3 style="color: #06b6d4; font-size: 0.75em;">De ce este o barier&#259; de intrare</h3>
-    <ul>
-      <li><span class="dot"></span>F&#259;r&#259; API-uri publice &#8212; automatizare browser obligatorie (Playwright)</li>
-      <li><span class="dot"></span>Fiecare furnizor = flux unic de login, CAPTCHA, sesiune, navigare</li>
-      <li><span class="dot"></span>Un concurent ar avea nevoie de <strong style="color:#e2e8f0;">6-12 luni</strong> doar pentru crawlere</li>
-    </ul>
-  </div>
-</section>
-
-<!-- SLIDE 7: AI -->
-<section data-background-color="#050a18">
-  <span class="tag tag-violet">INTELIGEN&#538;&#258; ARTIFICIAL&#258;</span>
-  <h2>Speciali&#537;ti AI dinamici. <span class="grad">Powered by GPT-4o.</span></h2>
-  <div class="aline aline-violet"></div>
-  <div class="col-wrap" style="margin-top: 6px;">
-    <div class="col-half">
-      <div class="arow"><span class="alab">1. Generalist</span><span class="adesc">Evalueaz&#259; rezultatele, identific&#259; probleme</span></div>
-      <div class="arow"><span class="alab">2. Recomand&#259;</span><span class="adesc">Pe baza rezultatelor &#8212; orice specialitate</span></div>
-      <div class="arow"><span class="alab">3. Analizeaz&#259;</span><span class="adesc">Specialist prime&#537;te biomarkerii relevan&#539;i</span></div>
-      <div class="arow"><span class="alab">Exemple:</span><span class="adesc">Cardiolog, Endocrinolog, Hematolog...</span></div>
-      <div class="arow"><span class="alab">Dinamic:</span><span class="adesc">Probleme dermatologice &#8594; Dermatolog AI</span></div>
-    </div>
-    <div class="col-half">
-      <div class="card">
-        <h3 style="color: #a78bfa; font-size: 0.75em;">Func&#539;ionalit&#259;&#539;i AI pipeline</h3>
-        <ul>
-          <li><span class="check">&#10003;</span>Extrage 150+ tipuri biomarkeri din PDF-uri</li>
-          <li><span class="check">&#10003;</span>Normalizeaz&#259; denumiri &#238;ntre furnizori</li>
-          <li><span class="check">&#10003;</span>Detecteaz&#259; tendin&#539;e pe date istorice</li>
-          <li><span class="check">&#10003;</span>Output bilingv (RO + EN)</li>
-          <li><span class="check">&#10003;</span>Recomand&#259;ri lifestyle bazate pe rezultate</li>
-          <li><span class="check">&#10003;</span>Screening-uri preventive recomandate</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 8: SECURITATE -->
-<section data-background-color="#050a18">
-  <span class="tag tag-green">SECURITATE</span>
-  <h2>Criptare per utilizator. Nici admin-ul nu vede datele.</h2>
-  <div class="aline aline-green"></div>
-  <div class="col-wrap" style="margin-top: 8px;">
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #22c55e;">
-        <h3 style="color: #22c55e; font-size: 0.7em;">Vault per utilizator</h3>
-        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">AES-256-GCM</p>
-        <p style="font-size: 0.5em;">Cheie derivat&#259; din parol&#259; (PBKDF2, 600K itera&#539;ii)</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #22c55e;">
-        <h3 style="color: #22c55e; font-size: 0.7em;">Recovery key</h3>
-        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">La &#238;nregistrare</p>
-        <p style="font-size: 0.5em;">Singura recuperare dac&#259; parola e pierdut&#259;</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #22c55e;">
-        <h3 style="color: #22c55e; font-size: 0.7em;">GDPR complet</h3>
-        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">Export + &#536;tergere</p>
-        <p style="font-size: 0.5em;">Export JSON. &#536;tergere cont. Consim&#539;&#259;m&#226;nt cookies.</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; border-top: 2px solid #22c55e;">
-        <h3 style="color: #22c55e; font-size: 0.7em;">Autentificare</h3>
-        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">JWT + Google OAuth</p>
-        <p style="font-size: 0.5em;">Rate limiting. Audit logging. HTTPS.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 9: AVANTAJ COMPETITIV -->
-<section data-background-color="#050a18">
-  <span class="tag tag-amber">AVANTAJ COMPETITIV</span>
-  <h2>Trei perspective de expert</h2>
-  <div class="aline aline-amber"></div>
-  <div class="col-wrap" style="margin-top: 10px;">
-    <div class="col-third">
-      <div class="card" style="border-top: 2px solid #06b6d4;">
-        <h3 style="color: #06b6d4; font-size: 0.75em;">Expert SaaS</h3>
-        <p style="font-size: 0.58em; line-height: 1.5; margin-top: 6px;">First-mover pe o pia&#539;&#259; f&#259;r&#259; concuren&#539;i. Crawlerele sunt bariera de intrare &#8212; 6-12 luni de replicat. Time-to-market savings: 12+ luni &#537;i &#8364;50-150K.</p>
-      </div>
-    </div>
-    <div class="col-third">
-      <div class="card" style="border-top: 2px solid #14b8a6;">
-        <h3 style="color: #14b8a6; font-size: 0.75em;">Expert S&#259;n&#259;tate Digital&#259;</h3>
-        <p style="font-size: 0.58em; line-height: 1.5; margin-top: 6px;">Directiva EU EHDS impune digitalizare date medicale. Corporate wellness &#238;n explozie. Asigur&#259;torii caut&#259; date longitudinale.</p>
-      </div>
-    </div>
-    <div class="col-third">
-      <div class="card" style="border-top: 2px solid #fbbf24;">
-        <h3 style="color: #fbbf24; font-size: 0.75em;">Expert Evaluare Startup</h3>
-        <p style="font-size: 0.58em; line-height: 1.5; margin-top: 6px;">Build vs Buy: 2-3 seniori x 12 luni = &#8364;72K-180K + risc. Cu achizi&#539;ia: produs func&#539;ional imediat, f&#259;r&#259; risc de e&#537;ec.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 10: PREȚ INCREMENTAL -->
-<section data-background-color="#050a18">
-  <span class="tag tag-amber">EVALUARE</span>
-  <h2>Model de pre&#539; incremental</h2>
-  <div class="aline aline-amber"></div>
-  <p style="font-size: 0.6em; margin-bottom: 10px;">Pre&#539;ul cre&#537;te cu fiecare etap&#259;. Platforma se afl&#259; &#238;n <strong style="color: #14b8a6;">Etapa 2</strong>.</p>
-  <div class="col-wrap">
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; padding: 14px 10px;">
-        <p style="font-size: 0.55em; font-weight: 700; color: #475569; letter-spacing: 1px;">ETAPA 1</p>
-        <p style="font-size: 0.5em; color: #475569;">Func&#539;ional, nelansat</p>
-        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">15-30K &#8364;</p>
-        <p style="font-size: 0.5em;">Cod surs&#259;, crawlere, AI. 50% risk discount.</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card stage-hl" style="text-align: center; padding: 14px 10px;">
-        <p style="font-size: 0.55em; font-weight: 700; color: #14b8a6; letter-spacing: 1px;"><span class="pulse-dot"></span>ETAPA 2 &#8592; ACUM</p>
-        <p style="font-size: 0.5em; color: #475569;">Lansat, primii useri</p>
-        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">35-60K &#8364;</p>
-        <p style="font-size: 0.5em;">Live, 8 users, infra complet&#259;. 3-6 luni suport.</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; padding: 14px 10px;">
-        <p style="font-size: 0.55em; font-weight: 700; color: #06b6d4; letter-spacing: 1px;">ETAPA 3</p>
-        <p style="font-size: 0.5em; color: #475569;">100+ pl&#259;titori</p>
-        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">60-120K &#8364;</p>
-        <p style="font-size: 0.5em;">Venituri recurente, 2-4x ARR.</p>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; padding: 14px 10px;">
-        <p style="font-size: 0.55em; font-weight: 700; color: #fbbf24; letter-spacing: 1px;">ETAPA 4</p>
-        <p style="font-size: 0.5em; color: #475569;">1000+ pl&#259;titori</p>
-        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">150-300K &#8364;</p>
-        <p style="font-size: 0.5em;">Achizi&#539;ie strategic&#259;, 5-8x ARR.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 11: BUILD VS BUY -->
-<section data-background-color="#050a18">
-  <span class="tag tag-cyan">BUILD VS BUY</span>
-  <h2>De ce s&#259; cumperi, nu s&#259; construie&#537;ti?</h2>
-  <div class="aline"></div>
-  <div class="col-wrap" style="margin-top: 10px;">
-    <div class="col-third">
-      <div class="card" style="text-align: center; border-top: 2px solid #ef4444;">
-        <p style="font-size: 0.55em; font-weight: 700; color: #ef4444; letter-spacing: 1px;">DAC&#258; CONSTRUIE&#536;TI</p>
-        <p style="font-size: 1.2em; font-weight: 800; color: #ef4444; margin: 8px 0; text-shadow: 0 0 20px rgba(239,68,68,0.3);">&#8364;72K &#8211; 180K</p>
-        <p style="font-size: 0.65em; color: #94a3b8;">+ 12 luni minim</p>
-        <p style="font-size: 0.55em; color: #475569; line-height: 1.7; margin-top: 8px;">
-          2-3 programatori seniori<br>Reverse-engineering crawlere<br>Pipeline AI de la zero<br>Securitate &amp; GDPR<br>Nicio garan&#539;ie de succes
-        </p>
-      </div>
-    </div>
-    <div class="col-third">
-      <div class="card cmp-hl" style="text-align: center; border-top: 2px solid #14b8a6;">
-        <p style="font-size: 0.55em; font-weight: 700; color: #14b8a6; letter-spacing: 1px;">DAC&#258; CUMPERI</p>
-        <p style="font-size: 1.2em; font-weight: 800; color: #14b8a6; margin: 8px 0; text-shadow: 0 0 20px rgba(20,184,166,0.3);">&#8364;35K &#8211; 60K</p>
-        <p style="font-size: 0.65em; color: #94a3b8;">Imediat</p>
-        <p style="font-size: 0.55em; color: #475569; line-height: 1.7; margin-top: 8px;">
-          Produs func&#539;ional azi<br>4 crawlere deja construite<br>Pipeline AI opera&#539;ional<br>GDPR conformant<br>Utilizatori reali
-        </p>
-      </div>
-    </div>
-    <div class="col-third">
-      <div class="card" style="text-align: center; border-top: 2px solid #a78bfa;">
-        <p style="font-size: 0.55em; font-weight: 700; color: #a78bfa; letter-spacing: 1px;">ALTERNATIV: LICEN&#538;&#258;</p>
-        <p style="font-size: 1.2em; font-weight: 800; color: #a78bfa; margin: 8px 0; text-shadow: 0 0 20px rgba(167,139,250,0.3);">&#8364;500 &#8211; 2K</p>
-        <p style="font-size: 0.65em; color: #94a3b8;">Per lun&#259;, per client</p>
-        <p style="font-size: 0.55em; color: #475569; line-height: 1.7; margin-top: 8px;">
-          White-label sub brand-ul t&#259;u<br>Domeniu propriu<br>Mentenan&#539;&#259; inclus&#259;<br>F&#259;r&#259; cost ini&#539;ial mare<br>Op&#539;iune revenue share
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 12: MODELE TRANZACȚIE -->
-<section data-background-color="#050a18">
-  <span class="tag tag-teal">OP&#538;IUNI</span>
-  <h2>Trei modele de tranzac&#539;ie</h2>
-  <div class="aline"></div>
-  <div class="col-wrap" style="margin-top: 10px;">
-    <div class="col-third">
-      <div class="card" style="text-align: center; border-top: 2px solid #06b6d4;">
-        <p style="font-size: 1.4em; font-weight: 800; color: #06b6d4; margin-bottom: 6px; text-shadow: 0 0 15px rgba(6,182,212,0.3);">A</p>
-        <h3 style="font-size: 0.75em;">V&#226;nzare de active</h3>
-        <p style="color: #06b6d4; font-weight: 700; font-size: 0.6em; margin: 6px 0;">35.000 &#8211; 60.000 EUR</p>
-        <p style="font-size: 0.52em; line-height: 1.5;">Pre&#539; unic. Cod surs&#259; complet, domeniu, infra, DB, documenta&#539;ie. 3-6 luni suport.</p>
-        <p style="font-size: 0.5em; color: #e2e8f0; margin-top: 6px;"><strong>Ideal:</strong> companii cu echip&#259; tehnic&#259;</p>
-      </div>
-    </div>
-    <div class="col-third">
-      <div class="card" style="text-align: center; border-top: 2px solid #a78bfa;">
-        <p style="font-size: 1.4em; font-weight: 800; color: #a78bfa; margin-bottom: 6px; text-shadow: 0 0 15px rgba(167,139,250,0.3);">B</p>
-        <h3 style="font-size: 0.75em;">Licen&#539;&#259; White-Label</h3>
-        <p style="color: #a78bfa; font-weight: 700; font-size: 0.6em; margin: 6px 0;">500 &#8211; 2.000 EUR / lun&#259;</p>
-        <p style="font-size: 0.52em; line-height: 1.5;">Sub brand-ul t&#259;u, domeniu propriu. Mentenan&#539;&#259;, hosting, suport incluse.</p>
-        <p style="font-size: 0.5em; color: #e2e8f0; margin-top: 6px;"><strong>Ideal:</strong> clinici, asigur&#259;tori, wellness</p>
-      </div>
-    </div>
-    <div class="col-third">
-      <div class="card" style="text-align: center; border-top: 2px solid #fbbf24;">
-        <p style="font-size: 1.4em; font-weight: 800; color: #fbbf24; margin-bottom: 6px; text-shadow: 0 0 15px rgba(251,191,36,0.3);">C</p>
-        <h3 style="font-size: 0.75em;">Parteneriat Revenue Share</h3>
-        <p style="color: #fbbf24; font-weight: 700; font-size: 0.6em; margin: 6px 0;">10K&#8211;20K EUR + 20-40%</p>
-        <p style="font-size: 0.52em; line-height: 1.5;">Investi&#539;ie redus&#259;. Acces complet. Dezvoltare continu&#259;.</p>
-        <p style="font-size: 0.5em; color: #e2e8f0; margin-top: 6px;"><strong>Ideal:</strong> investitori pe termen lung</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 13: TRACȚIUNE -->
-<section data-background-color="#050a18">
-  <span class="tag tag-green">TRAC&#538;IUNE</span>
-  <h2>Early, dar real</h2>
-  <div class="aline aline-green"></div>
-  <div class="col-wrap" style="margin-top: 8px;">
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; padding: 16px 8px;">
-        <div class="snum grad"><span class="counter" data-target="8">0</span></div>
-        <div class="slab">Utilizatori<br>&#238;nregistra&#539;i</div>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; padding: 16px 8px;">
-        <div class="snum grad"><span class="counter" data-target="59">0</span></div>
-        <div class="slab">Documente<br>procesate</div>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; padding: 16px 8px;">
-        <div class="snum grad"><span class="counter" data-target="731">0</span></div>
-        <div class="slab">Biomarkeri<br>extra&#537;i</div>
-      </div>
-    </div>
-    <div class="col-quarter">
-      <div class="card" style="text-align: center; padding: 16px 8px;">
-        <div class="snum grad"><span class="counter" data-target="100" data-suffix="%">0</span></div>
-        <div class="slab">Uptime<br>(3 luni)</div>
-      </div>
-    </div>
-  </div>
-  <div class="card" style="margin-top: 10px;">
-    <h3 style="font-size: 0.75em;">Ce prime&#537;te cump&#259;r&#259;torul</h3>
-    <div class="col-wrap" style="margin-top: 6px;">
-      <div class="col-half">
-        <ul>
-          <li><span class="check">&#10003;</span>Cod surs&#259; complet (frontend + backend)</li>
-          <li><span class="check">&#10003;</span>4 crawlere func&#539;ionale</li>
-          <li><span class="check">&#10003;</span>Agen&#539;i AI speciali&#537;ti dinamici</li>
-          <li><span class="check">&#10003;</span>Domeniu: analize.online</li>
-          <li><span class="check">&#10003;</span>SSL + VPS produc&#539;ie</li>
-        </ul>
-      </div>
-      <div class="col-half">
-        <ul>
-          <li><span class="check">&#10003;</span>Baz&#259; de date PostgreSQL</li>
-          <li><span class="check">&#10003;</span>Monitorizare Prometheus + Grafana</li>
-          <li><span class="check">&#10003;</span>Email AWS SES + Pl&#259;&#539;i Netopia</li>
-          <li><span class="check">&#10003;</span>Documenta&#539;ie complet&#259;</li>
-          <li><span class="check">&#10003;</span>3-6 luni suport tranzi&#539;ie</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 14: RISCURI -->
-<section data-background-color="#050a18">
-  <span class="tag tag-amber">TRANSPAREN&#538;&#258;</span>
-  <h2>Riscuri &#537;i cum le adres&#259;m</h2>
-  <div class="aline aline-amber"></div>
-  <div style="margin-top: 8px;">
-    <div class="rrow">
-      <span class="rdot rdot-amber"></span>
-      <span class="rlabel"><strong>Crawlerele se pot strica</strong><br><small style="color: #fbbf24;">Medie</small></span>
-      <span class="rmit">Cod modular, documentat. Update tipic: 1-3 zile per crawler</span>
-    </div>
-    <div class="rrow">
-      <span class="rdot rdot-amber"></span>
-      <span class="rlabel"><strong>Bus factor = 1</strong><br><small style="color: #fbbf24;">Medie</small></span>
-      <span class="rmit">Cod curat, documenta&#539;ie complet&#259;, tranzi&#539;ie asistat&#259; 3-6 luni</span>
-    </div>
-    <div class="rrow">
-      <span class="rdot rdot-green"></span>
-      <span class="rlabel"><strong>Dependen&#539;&#259; OpenAI</strong><br><small style="color: #22c55e;">Sc&#259;zut&#259;</small></span>
-      <span class="rmit">Pipeline modular &#8212; &#238;nlocuibil cu Claude, Gemini, sau model local</span>
-    </div>
-    <div class="rrow">
-      <span class="rdot rdot-green"></span>
-      <span class="rlabel"><strong>GDPR / date medicale</strong><br><small style="color: #22c55e;">Sc&#259;zut&#259;</small></span>
-      <span class="rmit">Criptare per user, export date, &#537;tergere cont func&#539;ionale</span>
-    </div>
-    <div class="rrow">
-      <span class="rdot rdot-green"></span>
-      <span class="rlabel"><strong>Scalare</strong><br><small style="color: #22c55e;">Sc&#259;zut&#259;</small></span>
-      <span class="rmit">PostgreSQL, async architecture, concurrency limits</span>
-    </div>
-  </div>
-</section>
-
-<!-- SLIDE 15: CTA -->
-<section class="center-slide" data-background-color="#050a18">
-  <h2 style="text-align: center;">Programeaz&#259; un demo live<br>de 15 minute.</h2>
-
-  <div class="cta-box">
-    <p style="font-size: 0.65em; color: rgba(255,255,255,0.6);">Contact</p>
-    <h3>Bogdan Dr&#259;gu&#537;in</h3>
-    <p class="email"><a href="mailto:contact@analize.online" style="color: #fff; text-decoration: none; border-bottom: 2px solid rgba(255,255,255,0.3);">contact@analize.online</a></p>
-    <p style="margin-top: 10px; font-size: 0.65em; color: rgba(255,255,255,0.7);">Demo live: <a href="https://analize.online" target="_blank" style="color: #fff; font-weight: 700; text-decoration: none;">analize.online</a></p>
-  </div>
-
-  <div class="fomo">
-    Pre&#539;ul nu va fi niciodat&#259; mai mic dec&#226;t ast&#259;zi.
-  </div>
-</section>
-
+<!-- 2. PROBLEMA -->
+<section id="problema" class="bgalt">
+<div class="inner">
+<div class="split">
+<div>
+<div class="big-stat rv" data-count="19">0</div>
+<p class="rv d1" style="font-size:1.4rem;font-weight:700;color:#f8fafc;margin-top:8px">milioane de pacien&#539;i</p>
+<p class="rv d2" style="margin-top:8px;color:#475569;font-size:.9rem">4 furnizori mari. Zero interoperabilitate.</p>
+</div>
+<div>
+<span class="label rv">Problema</span>
+<h2 class="rv d1">Datele medicale din Rom&#226;nia sunt fragmentate</h2>
+<ul class="bl">
+<li class="rv d2">Rezultatele r&#259;m&#226;n blocate &#238;n portaluri separate &#8212; nimeni nu vede imaginea complet&#259;</li>
+<li class="rv d3">PDF-urile con&#539;in sute de valori &#8212; imposibil de interpretat f&#259;r&#259; medic</li>
+<li class="rv d4">Nu exist&#259; urm&#259;rirea tendin&#539;elor &#8212; colesterolul cre&#537;te sau scade?</li>
+<li class="rv d5">Vizitele la medic sunt reactive, nu preventive</li>
+<li class="rv d6">Directiva EU EHDS va for&#539;a digitalizarea &#8212; cine e preg&#259;tit c&#226;&#537;tig&#259;</li>
+</ul>
 </div>
 </div>
+</div>
+</section>
 
-<!-- Reveal.js -->
-<script src="/vendor/reveal.min.js"></script>
+<!-- 3. SOLUTIA -->
+<section id="solutia">
+<div class="inner">
+<div style="text-align:center;margin-bottom:16px">
+<span class="label rv">Solu&#539;ia</span>
+<h2 class="rv d1">Un singur loc. Toate analizele. AI care le explic&#259;.</h2>
+</div>
+<div class="pipeline">
+<div class="ps rv d1"><div class="pn">1</div><div class="pti">Conectezi conturile</div><div class="pd">Regina Maria, Synevo, MedLife, Sanador</div></div>
+<div class="ps rv d2"><div class="pn">2</div><div class="pti">Sincronizare automat&#259;</div><div class="pd">Crawlere Playwright descarc&#259; toate PDF-urile</div></div>
+<div class="ps rv d3"><div class="pn">3</div><div class="pti">Extrac&#539;ie AI</div><div class="pd">GPT-4o extrage fiecare biomarker din fiecare PDF</div></div>
+<div class="ps rv d4"><div class="pn">4</div><div class="pti">Analiz&#259; specialist</div><div class="pd">6 agen&#539;i AI &#8212; cardiolog, endocrinolog, hepatolog...</div></div>
+<div class="ps rv d5"><div class="pn">5</div><div class="pti">Grafice &#537;i alerte</div><div class="pd">Evolu&#539;ie &#238;n timp, alerte pentru valori anormale</div></div>
+</div>
+</div>
+</section>
+
+<!-- 4. DEMO VIDEO -->
+<section id="demo" class="bgalt">
+<div class="inner" style="text-align:center">
+<span class="label rv">Demo</span>
+<h2 class="rv d1">Platforma &#238;n ac&#539;iune</h2>
+<div class="vw rv d2">
+<video controls preload="metadata">
+<source src="/demo-video.webm" type="video/webm">
+Browserul t&#259;u nu suport&#259; video HTML5.
+</video>
+</div>
+</div>
+</section>
+
+<!-- 5. MOAT TEHNIC -->
+<section id="moat">
+<div class="inner">
+<div style="text-align:center;margin-bottom:32px">
+<span class="label rv">Moat tehnic</span>
+<h2 class="rv d1">4 crawlere. Cel mai greu de replicat.</h2>
+</div>
+<div class="cg cg4">
+<div class="card ca rv d1"><h3>Regina Maria</h3><p class="desc" style="font-size:.85rem">Login complex, reCAPTCHA, navigare multi-pagin&#259;, desc&#259;rcare PDF-uri din portalul pacientului</p></div>
+<div class="card ctt rv d2"><h3>Synevo</h3><p class="desc" style="font-size:.85rem">Automatizare complet&#259; headless, extragere documente, gestionare sesiuni, retry automat</p></div>
+<div class="card cam rv d3"><h3>MedLife</h3><p class="desc" style="font-size:.85rem">Crawler Playwright cu gestionare flux de autentificare, desc&#259;rcare rezultate laborator</p></div>
+<div class="card cpu rv d4"><h3>Sanador</h3><p class="desc" style="font-size:.85rem">Integrare portal pacient, sesiuni persistente, extragere automat&#259; documente medicale</p></div>
+</div>
+<div class="callout rv" style="margin-top:48px">6&#8211;12 luni de replicat. Noi le avem gata.</div>
+</div>
+</section>
+
+<!-- 6. AI ENGINE -->
+<section id="ai" class="bgalt">
+<div class="inner">
+<span class="label rv">AI Engine</span>
+<h2 class="rv d1">Speciali&#537;ti AI dinamici</h2>
+<div class="split" style="margin-top:32px">
+<div class="glass rv d2">
+<div style="text-align:center">
+<div style="font-weight:800;font-size:1rem;color:#0ea5e9;margin-bottom:16px">FLUX INTELIGENT</div>
+<div style="background:rgba(14,165,233,.1);border-radius:12px;padding:16px;margin-bottom:8px">
+<span style="font-weight:700;color:#f8fafc">Generalist</span>
+<div style="font-size:.8rem;color:#475569">Evaluare complet&#259; a profilului</div>
+</div>
+<div class="fa">&#8595;</div>
+<div style="background:rgba(20,184,166,.1);border-radius:12px;padding:16px;margin-bottom:8px">
+<span style="font-weight:700;color:#f8fafc">Recomand&#259; speciali&#537;ti</span>
+<div style="font-size:.8rem;color:#475569">Bazat pe anomalii detectate</div>
+</div>
+<div class="fa">&#8595;</div>
+<div style="background:rgba(167,139,250,.1);border-radius:12px;padding:16px">
+<span style="font-weight:700;color:#f8fafc">Analiz&#259; de specialitate</span>
+<div style="font-size:.8rem;color:#475569">Raport detaliat per domeniu</div>
+</div>
+</div>
+</div>
+<div>
+<ul class="cl">
+<li class="rv d2">6 speciali&#537;ti: Cardiolog, Endocrinolog, Hematolog, Hepatolog, Nefrolog, Generalist</li>
+<li class="rv d3">150+ tipuri de biomarkeri normaliza&#539;i &#537;i categoriza&#539;i</li>
+<li class="rv d4">Grafice interactive cu evolu&#539;ia fiec&#259;rui marker &#238;n timp</li>
+<li class="rv d5">Alerte automate pentru valori HIGH/LOW</li>
+<li class="rv d6">Recomand&#259;ri de screening preventiv personalizate</li>
+<li class="rv d6">Pipeline modular &#8212; func&#539;ioneaz&#259; cu GPT-4o, Claude sau Gemini</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 7. SECURITATE -->
+<section id="securitate">
+<div class="inner">
+<div style="text-align:center;margin-bottom:32px">
+<span class="label rv">Securitate</span>
+<h2 class="rv d1">Nici admin-ul nu vede datele.</h2>
+<p class="rv d2" style="max-width:600px;margin:0 auto">Fiecare utilizator are propriul vault criptat. Cheia este derivat&#259; din parola personal&#259;. Zero acces privilegiat.</p>
+</div>
+<div class="cg cg4">
+<div class="card ca rv d1"><h3>Vault per utilizator</h3><p class="desc" style="font-size:.85rem">AES-256-GCM. Cheie derivat&#259; cu PBKDF2 (600K itera&#539;ii). Fiecare cont &#8212; propria criptare.</p></div>
+<div class="card ctt rv d2"><h3>Recovery Key</h3><p class="desc" style="font-size:.85rem">Cheie de recuperare generat&#259; la &#238;nregistrare. Afi&#537;at&#259; o singur&#259; dat&#259;. F&#259;r&#259; ea &#8212; datele sunt pierdute.</p></div>
+<div class="card cam rv d3"><h3>GDPR Complet</h3><p class="desc" style="font-size:.85rem">Export date personale, &#537;tergere cont, consim&#539;&#259;m&#226;nt cookies, termeni &#537;i condi&#539;ii &#8212; totul implementat.</p></div>
+<div class="card cpu rv d4"><h3>Auth robust</h3><p class="desc" style="font-size:.85rem">JWT + Google OAuth. Rate limiting. Audit logging. Verificare email via AWS SES.</p></div>
+</div>
+</div>
+</section>
+
+<!-- 8. EVALUARE -->
+<section id="evaluare" class="bgalt">
+<div class="inner">
+<div style="text-align:center;margin-bottom:16px">
+<span class="label rv">Evaluare</span>
+<h2 class="rv d1">Pre&#539;ul cre&#537;te cu fiecare etap&#259;</h2>
+</div>
+<div class="tlb rv d2">
+<div class="tld"></div><div class="tll fl"></div>
+<div class="tld ac"></div><div class="tll"></div>
+<div class="tld"></div><div class="tll"></div>
+<div class="tld"></div>
+</div>
+<div class="sg">
+<div class="sc rv d1"><div class="sl">Etapa 1 &#8212; Func&#539;ional</div><div class="sp">15&#8211;30K &#8364;</div><p class="desc" style="font-size:.8rem">Cod surs&#259;, crawlere, AI pipeline. Netestat pe pia&#539;&#259;.</p></div>
+<div class="sc cur rv d2"><div class="nb">ACUM</div><div class="sl">Etapa 2 &#8212; Lansat</div><div class="sp">35&#8211;60K &#8364;</div><p class="desc" style="font-size:.8rem">Live. Utilizatori reali. Infrastructur&#259; produc&#539;ie. Domeniu. SSL. Monitorizare.</p></div>
+<div class="sc rv d3"><div class="sl">Etapa 3 &#8212; Trac&#539;iune</div><div class="sp">60&#8211;120K &#8364;</div><p class="desc" style="font-size:.8rem">100+ clien&#539;i pl&#259;titori. Venituri recurente dovedite. 2-4x ARR.</p></div>
+<div class="sc rv d4"><div class="sl">Etapa 4 &#8212; Scale</div><div class="sp">150&#8211;300K &#8364;</div><p class="desc" style="font-size:.8rem">1.000+ clien&#539;i. Brand recunoscut. Achizi&#539;ie strategic&#259;. 5-8x ARR.</p></div>
+</div>
+</div>
+</section>
+
+<!-- 9. BUILD VS BUY -->
+<section id="buildvsbuy">
+<div class="inner">
+<div style="text-align:center;margin-bottom:32px">
+<span class="label rv">Decizia</span>
+<h2 class="rv d1">Build vs. Buy</h2>
+</div>
+<div class="compg">
+<div class="compc rv d1">
+<div class="sl">Dac&#259; construie&#537;ti</div>
+<div class="comppr pcr">72&#8211;180K &#8364;</div>
+<p class="desc" style="font-size:.85rem;margin-bottom:12px">2-3 seniori &#215; 12 luni</p>
+<ul class="bl" style="font-size:.8rem">
+<li>12+ luni p&#226;n&#259; la lansare</li>
+<li>Risc tehnic major &#8212; crawlerele pot e&#537;ua</li>
+<li>Costuri continue de management &#537;i QA</li>
+<li>Zero garan&#539;ie de rezultat</li>
+</ul>
+</div>
+<div class="compc feat rv d2">
+<div class="sl" style="color:#14b8a6">Dac&#259; cumperi</div>
+<div class="comppr pcteal">35&#8211;60K &#8364;</div>
+<p class="desc" style="font-size:.85rem;margin-bottom:12px">Produs func&#539;ional, acum</p>
+<ul class="cl" style="font-size:.8rem">
+<li>Func&#539;ional din prima zi</li>
+<li>4 crawlere testate cu date reale</li>
+<li>Criptare, GDPR, pl&#259;&#539;i &#8212; gata</li>
+<li>3-6 luni suport tranzi&#539;ie inclus</li>
+</ul>
+</div>
+<div class="compc rv d3">
+<div class="sl" style="color:#a78bfa">Licen&#539;&#259; White-Label</div>
+<div class="comppr pcpur">500&#8211;2K &#8364;/lun&#259;</div>
+<p class="desc" style="font-size:.85rem;margin-bottom:12px">Sub brand-ul t&#259;u, f&#259;r&#259; b&#259;t&#259;i de cap</p>
+<ul class="bl" style="font-size:.8rem">
+<li>Personalizare vizual&#259; complet&#259;</li>
+<li>Mentenan&#539;&#259; crawlere inclus&#259;</li>
+<li>Hosting &#537;i suport tehnic</li>
+<li>Ideal pentru clinici &#537;i asigur&#259;tori</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+
+<!-- 10. TRACTIUNE -->
+<section id="tractiune" class="bgalt">
+<div class="inner">
+<div style="text-align:center;margin-bottom:40px">
+<span class="label rv">Trac&#539;iune</span>
+<h2 class="rv d1">Numere reale, nu promisiuni</h2>
+</div>
+<div class="ctg rv d2">
+<div class="cti"><div class="cv" data-target="8">0</div><div class="cvl">Utilizatori activi</div></div>
+<div class="cti"><div class="cv" data-target="59">0</div><div class="cvl">Documente procesate</div></div>
+<div class="cti"><div class="cv" data-target="731">0</div><div class="cvl">Biomarkeri extra&#537;i</div></div>
+<div class="cti"><div class="cv" data-target="100" data-suffix="%">0</div><div class="cvl">Uptime produc&#539;ie</div></div>
+</div>
+<div style="text-align:center;margin-bottom:24px">
+<h3 class="rv" style="font-size:1.2rem;margin-bottom:24px">Ce prime&#537;te cump&#259;r&#259;torul</h3>
+</div>
+<div class="tc">
+<ul class="cl rv d1">
+<li>28 servicii backend (~11.000 linii Python)</li>
+<li>50+ endpoint-uri API, 16 routere</li>
+<li>30+ modele baz&#259; de date (PostgreSQL)</li>
+<li>20+ pagini frontend (React 18 + Vite + Tailwind)</li>
+<li>4 crawlere Playwright cu gestionare CAPTCHA</li>
+</ul>
+<ul class="cl rv d2">
+<li>6 agen&#539;i AI speciali&#537;ti (GPT-4o)</li>
+<li>Integrare pl&#259;&#539;i Netopia (29/49 RON/lun&#259;)</li>
+<li>Domeniu analize.online + SSL + VPS</li>
+<li>Prometheus + Grafana (monitorizare complet&#259;)</li>
+<li>Documenta&#539;ie: CLAUDE.md, MAINTENANCE.md, runbook-uri</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- 11. TRANSPARENTA -->
+<section id="transparenta">
+<div class="inner">
+<div style="text-align:center;margin-bottom:32px">
+<span class="label rv">Transparen&#539;&#259;</span>
+<h2 class="rv d1">Riscuri cunoscute &#537;i mitig&#259;ri</h2>
+</div>
+<div style="max-width:800px;margin:0 auto">
+<div class="rr rv d1"><div class="rd rdm"></div><div><h3 style="font-size:.95rem">Crawlerele se pot strica</h3><p class="desc" style="font-size:.85rem">Dac&#259; furnizorii &#238;&#537;i schimb&#259; site-urile. <strong style="color:#14b8a6">Mitigare:</strong> Cod modular, documentat. Actualizare tipic&#259;: 1-3 zile per crawler.</p></div></div>
+<div class="rr rv d2"><div class="rd rdm"></div><div><h3 style="font-size:.95rem">Bus factor = 1</h3><p class="desc" style="font-size:.85rem">Un singur dezvoltator. <strong style="color:#14b8a6">Mitigare:</strong> Cod curat, documenta&#539;ie complet&#259;, tranzi&#539;ie asistat&#259; 3-6 luni.</p></div></div>
+<div class="rr rv d3"><div class="rd rdl"></div><div><h3 style="font-size:.95rem">Dependen&#539;&#259; OpenAI</h3><p class="desc" style="font-size:.85rem">Pipeline-ul folose&#537;te GPT-4o. <strong style="color:#14b8a6">Mitigare:</strong> Arhitectur&#259; modular&#259; &#8212; se poate &#238;nlocui cu Claude, Gemini sau model local.</p></div></div>
+<div class="rr rv d4"><div class="rd rdl"></div><div><h3 style="font-size:.95rem">GDPR / date medicale</h3><p class="desc" style="font-size:.85rem">Date sensibile de s&#259;n&#259;tate. <strong style="color:#14b8a6">Mitigare:</strong> Criptare per utilizator. Export &#537;i &#537;tergere func&#539;ionale. Zero acces admin.</p></div></div>
+<div class="rr rv d5" style="border-bottom:none"><div class="rd rdl"></div><div><h3 style="font-size:.95rem">Scalare</h3><p class="desc" style="font-size:.85rem">Infrastructura actual&#259; e pe un VPS. <strong style="color:#14b8a6">Mitigare:</strong> PostgreSQL, async architecture, concurrency limits &#8212; scalabil orizontal.</p></div></div>
+</div>
+</div>
+</section>
+
+<!-- 12. CTA -->
+<section id="cta">
+<div class="inner">
+<div class="ctab rv">
+<h2 style="font-size:clamp(1.5rem,3.5vw,2.4rem);margin-bottom:8px">Programeaz&#259; un demo live de 15 minute</h2>
+<p style="color:#94a3b8;margin-bottom:32px;font-size:1rem">&#206;&#539;i ar&#259;t platforma func&#539;ional&#259; &#8212; de la autentificare, la sincronizare automat&#259;, la rapoarte AI de specialitate.</p>
+<a href="mailto:contact@analize.online?subject=Demo%20Analize.Online" class="ctbtn">Trimite email</a>
+<div class="ctcon">
+<p><strong style="color:#f8fafc">Bogdan Dr&#259;gu&#537;in</strong></p>
+<p><a href="mailto:contact@analize.online">contact@analize.online</a></p>
+<p><a href="https://analize.online" target="_blank">analize.online</a></p>
+</div>
+<div class="ctu">Pre&#539;ul nu va fi niciodat&#259; mai mic dec&#226;t ast&#259;zi.</div>
+</div>
+</div>
+</section>
+
+<div class="conf">Confiden&#539;ial &#8212; Martie 2026 | Analize.Online</div>
+
 <script>
-  // ============ PARTICLE SYSTEM ============
-  (function() {
-    var canvas = document.getElementById('particles-canvas');
-    var ctx = canvas.getContext('2d');
-    var particles = [];
-    var PARTICLE_COUNT = 60;
-    var CONNECTION_DIST = 120;
-    var w, h;
+(function(){
+var ids=['hero','problema','solutia','demo','moat','ai','securitate','evaluare','buildvsbuy','tractiune','transparenta','cta'];
+var secs=ids.map(function(id){return document.getElementById(id)});
+var dc=document.getElementById('navDots');
+ids.forEach(function(id,i){
+  var b=document.createElement('button');
+  b.className='nd';
+  b.onclick=function(){secs[i].scrollIntoView({behavior:'smooth'})};
+  dc.appendChild(b);
+});
+var dots=dc.querySelectorAll('.nd');
 
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
+function upDot(){
+  var s=window.scrollY||window.pageYOffset,h=window.innerHeight,a=0;
+  for(var i=0;i<secs.length;i++){if(secs[i].offsetTop<=s+h*.5)a=i}
+  dots.forEach(function(d,j){d.classList.toggle('ac',j===a)});
+}
 
-    function Particle() {
-      this.x = Math.random() * w;
-      this.y = Math.random() * h;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = (Math.random() - 0.5) * 0.4;
-      this.r = Math.random() * 1.5 + 0.5;
-    }
+var els=document.querySelectorAll('.rv');
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:.15,rootMargin:'0px 0px -40px 0px'});
+els.forEach(function(el){obs.observe(el)});
 
-    for (var i = 0; i < PARTICLE_COUNT; i++) {
-      particles.push(new Particle());
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-
-      // Draw connections
-      for (var i = 0; i < particles.length; i++) {
-        for (var j = i + 1; j < particles.length; j++) {
-          var dx = particles[i].x - particles[j].x;
-          var dy = particles[i].y - particles[j].y;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < CONNECTION_DIST) {
-            var alpha = (1 - dist / CONNECTION_DIST) * 0.12;
-            ctx.strokeStyle = 'rgba(6, 182, 212, ' + alpha + ')';
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // Draw particles
-      for (var i = 0; i < particles.length; i++) {
-        var p = particles[i];
-        ctx.fillStyle = 'rgba(6, 182, 212, 0.25)';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Move
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Bounce
-        if (p.x < 0 || p.x > w) p.vx *= -1;
-        if (p.y < 0 || p.y > h) p.vy *= -1;
-      }
-
-      requestAnimationFrame(draw);
-    }
-    draw();
-  })();
-
-  // ============ REVEAL INIT ============
-  Reveal.initialize({
-    hash: true,
-    slideNumber: true,
-    controls: true,
-    progress: true,
-    center: true,
-    transition: 'slide',
-    transitionSpeed: 'default',
-    backgroundTransition: 'fade',
-    width: 960,
-    height: 700,
-    margin: 0.1,
-    minScale: 0.2,
-    maxScale: 2.0,
-    pdfSeparateFragments: false,
-  });
-
-  // ============ COUNTER ANIMATION ============
-  function animateCounters(slide) {
-    var counters = slide.querySelectorAll('.counter');
-    counters.forEach(function(counter) {
-      var target = parseInt(counter.getAttribute('data-target'));
-      var suffix = counter.getAttribute('data-suffix') || '';
-      var duration = 1500;
-      var start = 0;
-      var startTime = null;
-
-      function step(timestamp) {
-        if (!startTime) startTime = timestamp;
-        var progress = Math.min((timestamp - startTime) / duration, 1);
-        // Ease out cubic
-        var eased = 1 - Math.pow(1 - progress, 3);
-        var current = Math.floor(eased * target);
-        counter.textContent = current + suffix;
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        } else {
-          counter.textContent = target + suffix;
-        }
-      }
-      requestAnimationFrame(step);
-    });
+var anim=new Set();
+function animC(el){
+  if(anim.has(el))return;anim.add(el);
+  var t=parseInt(el.dataset.target),sf=el.dataset.suffix||'',dur=1500,st=performance.now();
+  function step(now){
+    var p=Math.min((now-st)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(e*t).toLocaleString('ro-RO')+sf;
+    if(p<1)requestAnimationFrame(step);
   }
+  requestAnimationFrame(step);
+}
 
-  Reveal.on('slidechanged', function(event) {
-    animateCounters(event.currentSlide);
-  });
+var bs=document.querySelector('.big-stat'),bd=false;
+var bo=new IntersectionObserver(function(entries){
+  if(entries[0].isIntersecting&&!bd){
+    bd=true;var t=19,dur=1200,st=performance.now();
+    function step(now){
+      var p=Math.min((now-st)/dur,1),e=1-Math.pow(1-p,3);
+      bs.textContent=Math.round(e*t)+'M+';
+      if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+},{threshold:.3});
+if(bs)bo.observe(bs);
 
-  // Also animate if we land on a slide with counters on load
-  Reveal.on('ready', function(event) {
-    animateCounters(event.currentSlide);
-  });
+var cvs=document.querySelectorAll('.cv');
+var co=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){if(e.isIntersecting)animC(e.target)});
+},{threshold:.3});
+cvs.forEach(function(el){co.observe(el)});
+
+var ht=document.getElementById('heroTitle');
+function onScr(){
+  upDot();
+  if(ht){
+    var s=window.scrollY||window.pageYOffset;
+    ht.style.transform='translateY('+s*.3+'px)';
+    ht.style.opacity=Math.max(0,1-s/600);
+  }
+}
+
+document.addEventListener('keydown',function(e){
+  var c=curSec();
+  if(e.key==='ArrowDown'||e.key==='ArrowRight'){
+    e.preventDefault();if(c<secs.length-1)secs[c+1].scrollIntoView({behavior:'smooth'});
+  }else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){
+    e.preventDefault();if(c>0)secs[c-1].scrollIntoView({behavior:'smooth'});
+  }else if(e.key==='Escape'){
+    secs[0].scrollIntoView({behavior:'smooth'});
+  }
+});
+
+function curSec(){
+  var s=window.scrollY||window.pageYOffset,h=window.innerHeight,c=0;
+  for(var i=0;i<secs.length;i++){if(secs[i].offsetTop<=s+h*.5)c=i}
+  return c;
+}
+
+var tk=false;
+window.addEventListener('scroll',function(){
+  if(!tk){requestAnimationFrame(function(){onScr();tk=false});tk=true}
+},{passive:true});
+
+upDot();
+})();
 </script>
 </body>
 </html>
