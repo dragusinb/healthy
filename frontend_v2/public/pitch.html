@@ -15,643 +15,169 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
-  :root {
-    --bg-deep: #050a18;
-    --bg-dark: #0a1128;
-    --bg-card: rgba(20, 30, 55, 0.7);
-    --bg-card-solid: #141e37;
-    --cyan: #06b6d4;
-    --teal: #14b8a6;
-    --green: #22c55e;
-    --amber: #fbbf24;
-    --red: #ef4444;
-    --violet: #a78bfa;
-    --white: #f1f5f9;
-    --light: #94a3b8;
-    --mid: #64748b;
-    --dark: #334155;
-    --r-heading-font: 'Inter', sans-serif;
-    --r-main-font: 'Inter', sans-serif;
-    --r-main-font-size: 22px;
-    --r-heading-color: #f1f5f9;
-    --r-main-color: #94a3b8;
-    --r-background-color: #050a18;
-    --r-link-color: #06b6d4;
-  }
+  html, body { background: #050a18 !important; }
 
-  html, body {
-    background: #050a18 !important;
-  }
-
-  .reveal {
-    font-family: 'Inter', -apple-system, sans-serif;
-  }
+  .reveal { font-family: 'Inter', -apple-system, sans-serif; }
 
   .reveal .slides section {
     text-align: left;
-    padding: 20px 40px;
-    height: 100%;
+    padding: 16px 32px;
     box-sizing: border-box;
+    color: #94a3b8;
   }
 
-  /* ─── Force dark background on all slides ─── */
-  .reveal, .reveal .slide-background-content, .reveal .slide-background {
-    background: #050a18 !important;
-  }
+  .reveal .slides section.center-slide { text-align: center; }
 
-  /* Subtle ambient glow via box-shadow on slides */
-
-  /* ─── Typography ─── */
   .reveal h1 {
-    font-size: 2.6em;
-    font-weight: 800;
-    letter-spacing: -2px;
-    line-height: 1.1;
-    color: var(--white);
-    margin-bottom: 0.2em;
+    font-size: 2.2em; font-weight: 800; letter-spacing: -2px;
+    line-height: 1.1; color: #e2e8f0; margin: 0 0 0.2em 0;
   }
-
   .reveal h2 {
-    font-size: 1.6em;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
-    color: var(--white);
-    margin-bottom: 0.3em;
+    font-size: 1.3em; font-weight: 700; letter-spacing: -0.5px;
+    line-height: 1.2; color: #e2e8f0; margin: 0 0 0.2em 0;
   }
-
   .reveal h3 {
-    font-size: 1.1em;
-    font-weight: 600;
-    color: var(--white);
-    margin-bottom: 0.2em;
+    font-size: 0.85em; font-weight: 600; color: #e2e8f0; margin: 0 0 0.15em 0;
   }
-
   .reveal p, .reveal li {
-    font-size: 0.75em;
-    line-height: 1.6;
-    color: var(--light);
+    font-size: 0.65em; line-height: 1.5; color: #94a3b8; margin: 0;
+  }
+  .reveal ul { list-style: none; padding: 0; margin: 0; }
+  .reveal li { padding: 3px 0 3px 16px; }
+  .reveal li span.dot {
+    display: inline-block; width: 6px; height: 6px;
+    background: #06b6d4; border-radius: 1px; transform: rotate(45deg);
+    margin-right: 8px; margin-left: -16px; vertical-align: middle;
+  }
+  .reveal li span.check {
+    color: #22c55e; font-weight: 700; margin-right: 6px; margin-left: -16px;
   }
 
-  /* ─── Gradient text ─── */
-  .gradient-text {
-    background: linear-gradient(135deg, var(--cyan), var(--teal));
+  /* Gradient text with fallback */
+  .grad {
+    color: #06b6d4;
+    background: linear-gradient(135deg, #06b6d4, #14b8a6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* ─── Tag pills ─── */
+  /* Tag pill */
   .tag {
-    display: inline-block;
-    padding: 4px 16px;
-    border-radius: 100px;
-    font-size: 0.55em;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
+    display: inline-block; padding: 3px 12px; border-radius: 100px;
+    font-size: 0.5em; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 8px;
   }
-  .tag-cyan { background: rgba(6, 182, 212, 0.12); color: var(--cyan); }
-  .tag-teal { background: rgba(20, 184, 166, 0.12); color: var(--teal); }
-  .tag-green { background: rgba(34, 197, 94, 0.12); color: var(--green); }
-  .tag-amber { background: rgba(251, 191, 36, 0.12); color: var(--amber); }
-  .tag-violet { background: rgba(167, 139, 250, 0.12); color: var(--violet); }
+  .tag-cyan { background: rgba(6,182,212,0.12); color: #06b6d4; }
+  .tag-teal { background: rgba(20,184,166,0.12); color: #14b8a6; }
+  .tag-green { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .tag-amber { background: rgba(251,191,36,0.12); color: #fbbf24; }
+  .tag-violet { background: rgba(167,139,250,0.12); color: #a78bfa; }
 
-  /* ─── Cards with glassmorphism ─── */
+  /* Accent line */
+  .aline {
+    width: 60px; height: 3px; border-radius: 2px; margin-bottom: 12px;
+    background: linear-gradient(90deg, #06b6d4, #14b8a6);
+  }
+  .aline-amber { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+  .aline-green { background: linear-gradient(90deg, #22c55e, #10b981); }
+  .aline-violet { background: linear-gradient(90deg, #a78bfa, #8b5cf6); }
+
+  /* Card */
   .card {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.08);
-    border-radius: 16px;
-    padding: 28px;
-    transition: transform 0.3s, box-shadow 0.3s;
+    background: #111827; border: 1px solid #1e293b;
+    border-radius: 12px; padding: 16px; margin-bottom: 8px;
   }
 
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  /* Two-col layout using inline-block */
+  .col-wrap { width: 100%; font-size: 0; }
+  .col-half {
+    display: inline-block; vertical-align: top;
+    width: 48%; font-size: 16px; margin-right: 2%;
   }
+  .col-half:last-child { margin-right: 0; }
 
-  .card h3 {
-    font-size: 1em;
-    margin-bottom: 8px;
+  .col-third {
+    display: inline-block; vertical-align: top;
+    width: 31%; font-size: 16px; margin-right: 2.5%;
   }
+  .col-third:last-child { margin-right: 0; }
 
-  .card p {
-    font-size: 0.75em;
-    color: var(--mid);
-    line-height: 1.6;
+  .col-quarter {
+    display: inline-block; vertical-align: top;
+    width: 23%; font-size: 16px; margin-right: 2%;
   }
+  .col-quarter:last-child { margin-right: 0; }
 
-  /* ─── Grids ─── */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
-  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; }
-
-  /* ─── Stats ─── */
-  .stat-number {
-    font-size: 2.8em;
-    font-weight: 800;
-    line-height: 1;
-    margin-bottom: 4px;
+  /* Flow step */
+  .fstep { margin-bottom: 8px; }
+  .fstep .num {
+    display: inline-block; width: 28px; height: 28px; line-height: 28px;
+    text-align: center; border-radius: 50%;
+    background: linear-gradient(135deg, #06b6d4, #14b8a6);
+    color: #fff; font-weight: 700; font-size: 0.7em;
+    vertical-align: top; margin-right: 10px;
   }
+  .fstep .ftxt { display: inline-block; width: calc(100% - 44px); vertical-align: top; }
+  .fstep .ftitle { font-weight: 600; color: #e2e8f0; font-size: 0.7em; }
+  .fstep .fdesc { font-size: 0.6em; color: #94a3b8; }
 
-  .stat-label {
-    font-size: 0.7em;
-    color: var(--mid);
-    font-weight: 500;
+  /* Inventory row */
+  .irow {
+    background: #111827; border-radius: 8px; padding: 5px 10px; margin-bottom: 5px;
   }
+  .irow .ival { font-weight: 700; font-size: 0.65em; color: #a78bfa; display: inline-block; width: 55px; }
+  .irow .ilab { font-weight: 600; font-size: 0.6em; color: #e2e8f0; display: inline-block; width: 120px; }
+  .irow .idet { font-size: 0.55em; color: #475569; display: inline-block; }
 
-  .stat-card {
-    text-align: center;
-    padding: 32px 16px;
+  /* Agent row */
+  .arow {
+    background: #111827; border: 1px solid #1e293b;
+    border-radius: 8px; padding: 6px 12px; margin-bottom: 5px;
   }
+  .arow .alab { font-weight: 600; font-size: 0.6em; color: #14b8a6; display: inline-block; width: 100px; }
+  .arow .adesc { font-size: 0.58em; color: #94a3b8; display: inline-block; }
 
-  /* ─── Hero stat ─── */
-  .hero-stat {
-    font-size: 3.5em;
-    font-weight: 900;
-    letter-spacing: -3px;
-    line-height: 1;
+  /* Stat number */
+  .snum { font-size: 2.2em; font-weight: 800; line-height: 1; }
+  .slab { font-size: 0.6em; color: #475569; font-weight: 500; margin-top: 4px; }
+
+  /* Risk row */
+  .rrow {
+    background: #111827; border: 1px solid #1e293b;
+    border-radius: 10px; padding: 8px 14px; margin-bottom: 6px;
   }
-
-  /* ─── Flow steps ─── */
-  .flow-step {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;
-    margin-bottom: 16px;
+  .rdot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; vertical-align: middle; margin-right: 10px;
   }
+  .rdot-amber { background: #fbbf24; }
+  .rdot-green { background: #22c55e; }
+  .rlabel { display: inline-block; width: 200px; vertical-align: middle; }
+  .rlabel strong { color: #e2e8f0; font-size: 0.65em; }
+  .rlabel small { font-size: 0.5em; }
+  .rmit { display: inline-block; font-size: 0.6em; color: #94a3b8; vertical-align: middle; }
 
-  .step-circle {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    background: linear-gradient(135deg, var(--cyan), var(--teal));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.8em;
-    color: white;
-    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+  /* CTA card */
+  .cta-box {
+    background: linear-gradient(135deg, #06b6d4, #14b8a6);
+    border-radius: 16px; padding: 28px; text-align: center;
+    max-width: 500px; margin: 20px auto 0;
   }
+  .cta-box h3 { color: #fff; font-size: 1.1em; }
+  .cta-box p { color: rgba(255,255,255,0.8); font-size: 0.75em; }
+  .cta-box .email { font-size: 0.9em; font-weight: 700; color: #fff; margin-top: 8px; }
 
-  .step-title {
-    font-weight: 600;
-    color: var(--white);
-    font-size: 0.85em;
-    margin-bottom: 2px;
-  }
-
-  .step-desc {
-    font-size: 0.72em;
-    color: var(--light);
-  }
-
-  /* ─── Provider cards ─── */
-  .provider-card {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.08);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .provider-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 20%;
-    right: 20%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-  }
-
-  .provider-card h3 {
-    font-size: 0.9em;
-    margin-bottom: 6px;
-  }
-
-  .provider-card p {
-    font-size: 0.6em;
-  }
-
-  /* ─── Accent line ─── */
-  .accent-line {
-    width: 80px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--cyan), var(--teal));
-    border-radius: 2px;
-    margin-bottom: 20px;
-  }
-
-  .accent-line-amber {
-    background: linear-gradient(90deg, var(--amber), #f59e0b);
-  }
-
-  .accent-line-green {
-    background: linear-gradient(90deg, var(--green), #10b981);
-  }
-
-  .accent-line-violet {
-    background: linear-gradient(90deg, var(--violet), #8b5cf6);
-  }
-
-  /* ─── Pricing stage cards ─── */
-  .stage-card {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.08);
-    border-radius: 16px;
-    padding: 24px 16px;
-    text-align: center;
-    position: relative;
-  }
-
-  .stage-card.current {
-    border-color: var(--teal);
-    box-shadow: 0 0 40px rgba(20, 184, 166, 0.15);
-  }
-
-  .stage-card .stage-name {
-    font-size: 0.65em;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-  }
-
-  .stage-card .stage-subtitle {
-    font-size: 0.6em;
-    color: var(--mid);
-    margin-bottom: 12px;
-    line-height: 1.4;
-  }
-
-  .stage-card .stage-price {
-    font-size: 1.3em;
-    font-weight: 800;
-    color: var(--white);
-    margin-bottom: 12px;
-    line-height: 1.2;
-  }
-
-  .stage-card .stage-desc {
-    font-size: 0.58em;
-    color: var(--light);
-    line-height: 1.5;
-  }
-
-  /* ─── Comparison columns ─── */
-  .compare-col {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.08);
-    border-radius: 16px;
-    padding: 28px 20px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .compare-col.highlight {
-    border-color: var(--teal);
-    box-shadow: 0 0 40px rgba(20, 184, 166, 0.12);
-  }
-
-  .compare-col::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 15%;
-    right: 15%;
-    height: 2px;
-  }
-
-  .compare-col.col-red::before { background: linear-gradient(90deg, transparent, var(--red), transparent); }
-  .compare-col.col-teal::before { background: linear-gradient(90deg, transparent, var(--teal), transparent); }
-  .compare-col.col-violet::before { background: linear-gradient(90deg, transparent, var(--violet), transparent); }
-
-  /* ─── Risk rows ─── */
-  .risk-row {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.06);
-    border-radius: 12px;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 10px;
-  }
-
-  .risk-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    min-width: 10px;
-  }
-
-  .risk-dot.medium { background: var(--amber); box-shadow: 0 0 12px rgba(251, 191, 36, 0.4); }
-  .risk-dot.low { background: var(--green); box-shadow: 0 0 12px rgba(34, 197, 94, 0.4); }
-
-  /* ─── CTA section ─── */
-  .cta-card {
-    background: linear-gradient(135deg, var(--cyan), var(--teal));
-    border-radius: 24px;
-    padding: 48px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 25px 80px rgba(6, 182, 212, 0.2);
-  }
-
-  .cta-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -30%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .cta-card h3 {
-    font-size: 1.6em;
-    color: white;
-    margin-bottom: 8px;
-  }
-
-  .cta-card p {
-    color: rgba(255,255,255,0.85);
-    font-size: 0.9em;
-  }
-
-  .cta-card .email {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: white;
-    margin-top: 12px;
-  }
-
-  /* ─── Bullet list ─── */
-  .bullet-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .bullet-list li {
-    padding: 6px 0 6px 24px;
-    position: relative;
-    font-size: 0.78em;
-    color: var(--light);
-    line-height: 1.6;
-  }
-
-  .bullet-list li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 14px;
-    width: 8px;
-    height: 8px;
-    background: linear-gradient(135deg, var(--cyan), var(--teal));
-    border-radius: 2px;
-    transform: rotate(45deg);
-  }
-
-  .check-list li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    top: 6px;
-    width: auto;
-    height: auto;
-    background: none;
-    transform: none;
-    border-radius: 0;
-    color: var(--green);
-    font-weight: 700;
-    font-size: 0.9em;
-  }
-
-  /* ─── Transaction model cards ─── */
-  .model-card {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.08);
-    border-radius: 16px;
-    padding: 28px 20px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .model-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 15%;
-    right: 15%;
-    height: 2px;
-  }
-
-  .model-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 1.1em;
-    color: white;
-    margin: 0 auto 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  }
-
-  /* ─── Agent flow ─── */
-  .agent-row {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.06);
-    border-radius: 10px;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-
-  .agent-label {
-    font-weight: 600;
-    font-size: 0.72em;
-    color: var(--teal);
-    min-width: 120px;
-  }
-
-  .agent-desc {
-    font-size: 0.68em;
-    color: var(--light);
-  }
-
-  /* ─── Security cards ─── */
-  .sec-card {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.08);
-    border-radius: 16px;
-    padding: 24px 16px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .sec-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 20%;
-    right: 20%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--green), transparent);
-  }
-
-  /* ─── Expert cards ─── */
-  .expert-card {
-    background: var(--bg-card);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(148, 163, 184, 0.08);
-    border-radius: 16px;
-    padding: 28px 24px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .expert-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 15%;
-    right: 15%;
-    height: 2px;
-  }
-
-  .expert-card.expert-cyan::before { background: linear-gradient(90deg, transparent, var(--cyan), transparent); }
-  .expert-card.expert-teal::before { background: linear-gradient(90deg, transparent, var(--teal), transparent); }
-  .expert-card.expert-amber::before { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
-
-  /* ─── Timeline ─── */
-  .timeline {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    margin: 16px 0 8px;
-    padding: 0 40px;
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 40px;
-    right: 40px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--mid), var(--teal), var(--cyan), var(--amber));
-    transform: translateY(-50%);
-  }
-
-  .timeline-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 0 16px rgba(0,0,0,0.5);
-  }
-
-  .timeline-dot.active {
-    width: 18px;
-    height: 18px;
-    box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
-  }
-
-  /* ─── Inventory rows ─── */
-  .inv-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: var(--bg-card);
-    border-radius: 8px;
-    margin-bottom: 6px;
-  }
-
-  .inv-val {
-    font-weight: 700;
-    font-size: 0.8em;
-    color: var(--violet);
-    min-width: 70px;
-  }
-
-  .inv-label {
-    font-weight: 600;
-    font-size: 0.72em;
-    color: var(--white);
-    min-width: 130px;
-  }
-
-  .inv-detail {
-    font-size: 0.65em;
-    color: var(--mid);
-  }
-
-  /* ─── Footer — hidden, using Reveal slideNumber instead ─── */
-  .slide-footer {
-    display: none;
-  }
-
-  /* ─── Title slide special ─── */
-  .title-slide {
-    text-align: center !important;
-  }
-
-  /* ─── Fragments ─── */
-  .reveal .fragment.fade-up {
-    transform: translateY(20px);
-    opacity: 0;
-    transition: all 0.5s ease;
-  }
-
-  .reveal .fragment.fade-up.visible {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  /* ─── FOMO bar ─── */
   .fomo {
-    color: var(--amber);
-    font-weight: 700;
-    font-size: 0.8em;
-    text-align: center;
-    margin-top: 24px;
-    letter-spacing: 0.5px;
+    color: #fbbf24; font-weight: 700; font-size: 0.7em;
+    text-align: center; margin-top: 20px; letter-spacing: 0.5px;
   }
 
-  /* Print/PDF tweaks */
-  @media print {
-    .reveal .slides section {
-      page-break-after: always;
-    }
-  }
+  /* Stage card highlight */
+  .stage-hl { border-color: #14b8a6 !important; box-shadow: 0 0 20px rgba(20,184,166,0.15); }
+
+  /* Compare col highlight */
+  .cmp-hl { border-color: #14b8a6 !important; box-shadow: 0 0 20px rgba(20,184,166,0.12); }
 </style>
 </head>
 <body>
@@ -659,462 +185,440 @@
 <div class="reveal">
 <div class="slides">
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 1: TITLE -->
-<!-- ════════════════════════════════════════════════════════════ -->
-<section class="title-slide" data-background-color="#050a18">
-  <div class="accent-line" style="width: 120px; margin: 0 auto 20px;"></div>
-  <h1><span class="gradient-text">Analize.Online</span></h1>
-  <p style="font-size: 1.1em; color: var(--light); max-width: 700px; margin: 12px auto 0; line-height: 1.5;">
+<section class="center-slide" data-background-color="#050a18">
+  <div class="aline" style="width: 80px; margin: 0 auto 12px;"></div>
+  <h1><span class="grad">Analize.Online</span></h1>
+  <p style="font-size: 0.85em; color: #94a3b8; max-width: 600px; margin: 10px auto 0; line-height: 1.5;">
     Prima platformă din România care unifică<br>toate analizele medicale cu inteligență artificială
   </p>
-  <div style="margin-top: 30px;">
-    <p style="font-size: 0.65em; color: var(--mid);">Pitch de vânzare / licențiere — Martie 2026</p>
-    <p style="font-size: 0.55em; color: var(--dark); margin-top: 6px;">Confidențial &nbsp;•&nbsp; contact@analize.online</p>
-  </div>
-  <div class="slide-footer"><span>analize.online</span><span>1 / 14</span></div>
+  <p style="font-size: 0.55em; color: #475569; margin-top: 24px;">Pitch de vânzare / licențiere — Martie 2026</p>
+  <p style="font-size: 0.45em; color: #334155; margin-top: 4px;">Confidențial &nbsp;|&nbsp; contact@analize.online</p>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 2: PROBLEMA -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-cyan">PROBLEMA</span>
-  <h2>Datele medicale din România<br>sunt fragmentate și inaccesibile</h2>
-  <div class="accent-line"></div>
-
-  <div class="grid-2" style="margin-top: 16px;">
-    <div>
-      <ul class="bullet-list">
-        <li class="fragment fade-up">Rezultatele sunt blocate în portaluri separate (Regina Maria, Synevo, MedLife, Sanador)</li>
-        <li class="fragment fade-up">Nicio vedere unificată — pacienții uită rezultatele anterioare</li>
-        <li class="fragment fade-up">PDF-uri cu sute de valori — imposibil de interpretat fără medic</li>
-        <li class="fragment fade-up">Zero urmărire tendințe — colesterolul a crescut sau scăzut?</li>
-        <li class="fragment fade-up">Vizite reactive, nu preventive — pacienții merg doar când sunt bolnavi</li>
+  <h2>Datele medicale din România sunt fragmentate</h2>
+  <div class="aline"></div>
+  <div class="col-wrap" style="margin-top: 8px;">
+    <div class="col-half">
+      <ul>
+        <li><span class="dot"></span>Rezultate blocate în portaluri separate (Regina Maria, Synevo, MedLife, Sanador)</li>
+        <li><span class="dot"></span>Nicio vedere unificată — pacienții uită rezultatele</li>
+        <li><span class="dot"></span>PDF-uri cu sute de valori — imposibil de interpretat</li>
+        <li><span class="dot"></span>Zero urmărire tendințe — crește sau scade?</li>
+        <li><span class="dot"></span>Vizite reactive, nu preventive</li>
       </ul>
     </div>
-    <div class="card stat-card fragment fade-up" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <div class="hero-stat gradient-text">19M+</div>
-      <div style="font-size: 1em; color: var(--light); margin-top: 8px;">români</div>
-      <div style="margin-top: 20px; font-size: 0.7em; color: var(--mid); line-height: 1.8;">
-        4 furnizori mari de analize<br>
-        0 platforme unificate<br>
-        Milioane de rezultate în silozuri
+    <div class="col-half">
+      <div class="card" style="text-align: center; padding: 24px 16px;">
+        <div class="snum grad">19M+</div>
+        <div style="font-size: 0.8em; color: #94a3b8; margin-top: 6px;">români</div>
+        <div style="margin-top: 12px; font-size: 0.6em; color: #475569; line-height: 1.7;">
+          4 furnizori mari de analize<br>
+          0 platforme unificate<br>
+          Milioane de rezultate în silozuri
+        </div>
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>2 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 3: SOLUȚIA -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-teal">SOLUȚIA</span>
-  <h2>Un singur loc. Toate analizele.<br><span class="gradient-text">AI care le explică.</span></h2>
-  <div class="accent-line"></div>
-
-  <div style="margin-top: 16px;">
-    <div class="flow-step fragment fade-up">
-      <div class="step-circle">1</div>
-      <div><div class="step-title">Conectezi conturile medicale</div><div class="step-desc">Regina Maria, Synevo, MedLife, Sanador — credențiale criptate AES-256</div></div>
-    </div>
-    <div class="flow-step fragment fade-up">
-      <div class="step-circle">2</div>
-      <div><div class="step-title">Sincronizare automată</div><div class="step-desc">Crawlere Playwright descarcă toate PDF-urile, gestionare CAPTCHA inclusă</div></div>
-    </div>
-    <div class="flow-step fragment fade-up">
-      <div class="step-circle">3</div>
-      <div><div class="step-title">Extracție AI</div><div class="step-desc">GPT-4o extrage 150+ tipuri de biomarkeri: nume, valoare, unitate, referință</div></div>
-    </div>
-    <div class="flow-step fragment fade-up">
-      <div class="step-circle">4</div>
-      <div><div class="step-title">Specialiști AI dinamici</div><div class="step-desc">Generalistul analizează, apoi recomandă specialiștii relevanți — orice specialitate, automat</div></div>
-    </div>
-    <div class="flow-step fragment fade-up">
-      <div class="step-circle">5</div>
-      <div><div class="step-title">Grafice și alerte</div><div class="step-desc">Evoluție în timp, valori anormale evidențiate, screening-uri preventive</div></div>
-    </div>
+  <h2>Un singur loc. Toate analizele. <span class="grad">AI care le explică.</span></h2>
+  <div class="aline"></div>
+  <div style="margin-top: 6px;">
+    <div class="fstep"><span class="num">1</span><span class="ftxt"><span class="ftitle">Conectezi conturile medicale</span><br><span class="fdesc">Regina Maria, Synevo, MedLife, Sanador — criptare AES-256</span></span></div>
+    <div class="fstep"><span class="num">2</span><span class="ftxt"><span class="ftitle">Sincronizare automată</span><br><span class="fdesc">Crawlere Playwright descarcă PDF-urile, gestionare CAPTCHA inclusă</span></span></div>
+    <div class="fstep"><span class="num">3</span><span class="ftxt"><span class="ftitle">Extracție AI</span><br><span class="fdesc">GPT-4o extrage 150+ tipuri de biomarkeri: nume, valoare, unitate, referință</span></span></div>
+    <div class="fstep"><span class="num">4</span><span class="ftxt"><span class="ftitle">Specialiști AI dinamici</span><br><span class="fdesc">Generalistul analizează, apoi recomandă specialiștii relevanți</span></span></div>
+    <div class="fstep"><span class="num">5</span><span class="ftxt"><span class="ftitle">Grafice și alerte</span><br><span class="fdesc">Evoluție în timp, valori anormale evidențiate, screening-uri preventive</span></span></div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>3 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 4: INVENTAR -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-violet">INVENTAR</span>
   <h2>Ce include platforma</h2>
-  <div class="accent-line accent-line-violet"></div>
-
-  <div class="grid-2" style="margin-top: 12px; gap: 16px;">
-    <div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">28</span><span class="inv-label">Servicii backend</span><span class="inv-detail">~11.000 linii Python</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">50+</span><span class="inv-label">Endpoint-uri API</span><span class="inv-detail">16 routere</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">30+</span><span class="inv-label">Modele bază de date</span><span class="inv-detail">PostgreSQL</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">20+</span><span class="inv-label">Pagini frontend</span><span class="inv-detail">React + Tailwind</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">4</span><span class="inv-label">Crawlere furnizori</span><span class="inv-detail">Playwright + CAPTCHA</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">6</span><span class="inv-label">Agenți AI</span><span class="inv-detail">GPT-4o specialiști</span></div>
+  <div class="aline aline-violet"></div>
+  <div class="col-wrap" style="margin-top: 6px;">
+    <div class="col-half">
+      <div class="irow"><span class="ival">28</span><span class="ilab">Servicii backend</span><span class="idet">~11.000 linii Python</span></div>
+      <div class="irow"><span class="ival">50+</span><span class="ilab">Endpoint-uri API</span><span class="idet">16 routere</span></div>
+      <div class="irow"><span class="ival">30+</span><span class="ilab">Modele DB</span><span class="idet">PostgreSQL</span></div>
+      <div class="irow"><span class="ival">20+</span><span class="ilab">Pagini frontend</span><span class="idet">React + Tailwind</span></div>
+      <div class="irow"><span class="ival">4</span><span class="ilab">Crawlere</span><span class="idet">Playwright + CAPTCHA</span></div>
+      <div class="irow"><span class="ival">6</span><span class="ilab">Agenți AI</span><span class="idet">GPT-4o specialiști</span></div>
     </div>
-    <div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">150+</span><span class="inv-label">Tipuri biomarkeri</span><span class="inv-detail">Normalizați</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">2</span><span class="inv-label">Limbi</span><span class="inv-detail">RO + EN (i18next)</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">AES-256</span><span class="inv-label">Criptare per user</span><span class="inv-detail">Vault + recovery key</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">GDPR</span><span class="inv-label">Conformitate</span><span class="inv-detail">Export, ștergere, consent</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">Netopia</span><span class="inv-label">Plăți integrate</span><span class="inv-detail">29/49 RON/lună</span></div>
-      <div class="inv-row fragment fade-up"><span class="inv-val">Prometheus</span><span class="inv-label">Monitorizare</span><span class="inv-detail">Grafana + Sentry</span></div>
+    <div class="col-half">
+      <div class="irow"><span class="ival">150+</span><span class="ilab">Tipuri biomarkeri</span><span class="idet">Normalizați</span></div>
+      <div class="irow"><span class="ival">2</span><span class="ilab">Limbi</span><span class="idet">RO + EN (i18next)</span></div>
+      <div class="irow"><span class="ival">AES-256</span><span class="ilab">Criptare per user</span><span class="idet">Vault + recovery</span></div>
+      <div class="irow"><span class="ival">GDPR</span><span class="ilab">Conformitate</span><span class="idet">Export, ștergere, consent</span></div>
+      <div class="irow"><span class="ival">Netopia</span><span class="ilab">Plăți integrate</span><span class="idet">29/49 RON/lună</span></div>
+      <div class="irow"><span class="ival">Prom.</span><span class="ilab">Monitorizare</span><span class="idet">Grafana + Sentry</span></div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>4 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
-<!-- SLIDE 5: CRAWLERE — MOAT TEHNIC -->
-<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 5: CRAWLERE -->
 <section data-background-color="#050a18">
   <span class="tag tag-cyan">MOAT TEHNIC</span>
   <h2>4 crawlere. Cel mai greu de replicat.</h2>
-  <div class="accent-line"></div>
-
-  <div class="grid-4" style="margin-top: 16px;">
-    <div class="provider-card fragment fade-up">
-      <h3>Regina Maria</h3>
-      <p>CAPTCHA handling<br>Visible browser fallback</p>
+  <div class="aline"></div>
+  <div class="col-wrap" style="margin-top: 8px;">
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #06b6d4;">Regina Maria</h3>
+        <p style="font-size: 0.55em;">CAPTCHA handling<br>Visible browser fallback</p>
+      </div>
     </div>
-    <div class="provider-card fragment fade-up">
-      <h3>Synevo</h3>
-      <p>Full headless mode<br>Multi-page navigation</p>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #06b6d4;">Synevo</h3>
+        <p style="font-size: 0.55em;">Full headless mode<br>Multi-page navigation</p>
+      </div>
     </div>
-    <div class="provider-card fragment fade-up">
-      <h3>MedLife</h3>
-      <p>CAPTCHA detection<br>Auto-retry logic</p>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #06b6d4;">MedLife</h3>
+        <p style="font-size: 0.55em;">CAPTCHA detection<br>Auto-retry logic</p>
+      </div>
     </div>
-    <div class="provider-card fragment fade-up">
-      <h3>Sanador</h3>
-      <p>Headless automation<br>Session management</p>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #06b6d4;">Sanador</h3>
+        <p style="font-size: 0.55em;">Headless automation<br>Session management</p>
+      </div>
     </div>
   </div>
-
-  <div class="card fragment fade-up" style="margin-top: 20px;">
-    <h3 style="color: var(--cyan);">De ce este o barieră de intrare</h3>
-    <ul class="bullet-list">
-      <li>Fără API-uri publice — automatizare browser obligatorie (Playwright)</li>
-      <li>Fiecare furnizor = flux unic de login, CAPTCHA, sesiune, navigare</li>
-      <li>Gestionare concurență: max 2 sincronizări simultane, retry, cleanup</li>
-      <li>Un concurent ar avea nevoie de <strong style="color: var(--white);">6-12 luni</strong> doar pentru crawlere</li>
+  <div class="card" style="margin-top: 12px;">
+    <h3 style="color: #06b6d4; font-size: 0.75em;">De ce este o barieră de intrare</h3>
+    <ul>
+      <li><span class="dot"></span>Fără API-uri publice — automatizare browser obligatorie (Playwright)</li>
+      <li><span class="dot"></span>Fiecare furnizor = flux unic de login, CAPTCHA, sesiune, navigare</li>
+      <li><span class="dot"></span>Un concurent ar avea nevoie de <strong style="color:#e2e8f0;">6-12 luni</strong> doar pentru crawlere</li>
     </ul>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>5 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
-<!-- SLIDE 6: AI PIPELINE -->
-<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 6: AI -->
 <section data-background-color="#050a18">
   <span class="tag tag-violet">INTELIGENȚĂ ARTIFICIALĂ</span>
-  <h2>Specialiști AI dinamici. <span class="gradient-text">Powered by GPT-4o.</span></h2>
-  <div class="accent-line accent-line-violet"></div>
-
-  <div class="grid-2" style="margin-top: 12px;">
-    <div>
-      <div class="agent-row fragment fade-up"><span class="agent-label">1. Generalist</span><span class="agent-desc">Evaluează toate rezultatele, identifică probleme</span></div>
-      <div class="agent-row fragment fade-up"><span class="agent-label">2. Recomandă</span><span class="agent-desc">Pe baza rezultatelor, nu o listă fixă — orice specialitate</span></div>
-      <div class="agent-row fragment fade-up"><span class="agent-label">3. Analizează</span><span class="agent-desc">Fiecare specialist primește biomarkerii relevanți</span></div>
-      <div class="agent-row fragment fade-up"><span class="agent-label">Exemple:</span><span class="agent-desc">Cardiolog, Endocrinolog, Hematolog, Nefrolog...</span></div>
-      <div class="agent-row fragment fade-up"><span class="agent-label">Dinamic:</span><span class="agent-desc">Probleme dermatologice → Dermatolog AI</span></div>
+  <h2>Specialiști AI dinamici. <span class="grad">Powered by GPT-4o.</span></h2>
+  <div class="aline aline-violet"></div>
+  <div class="col-wrap" style="margin-top: 6px;">
+    <div class="col-half">
+      <div class="arow"><span class="alab">1. Generalist</span><span class="adesc">Evaluează rezultatele, identifică probleme</span></div>
+      <div class="arow"><span class="alab">2. Recomandă</span><span class="adesc">Pe baza rezultatelor — orice specialitate</span></div>
+      <div class="arow"><span class="alab">3. Analizează</span><span class="adesc">Specialist primește biomarkerii relevanți</span></div>
+      <div class="arow"><span class="alab">Exemple:</span><span class="adesc">Cardiolog, Endocrinolog, Hematolog...</span></div>
+      <div class="arow"><span class="alab">Dinamic:</span><span class="adesc">Probleme dermatologice → Dermatolog AI</span></div>
     </div>
-    <div class="card fragment fade-up">
-      <h3 style="color: var(--violet);">Funcționalități AI pipeline</h3>
-      <ul class="bullet-list check-list">
-        <li>Extrage 150+ tipuri biomarkeri din PDF-uri românești</li>
-        <li>Normalizează denumiri între furnizori</li>
-        <li>Detectează tendințe pe date istorice</li>
-        <li>Output bilingv (Română + Engleză)</li>
-        <li>Recomandări lifestyle bazate pe rezultate</li>
-        <li>Screening-uri preventive recomandate</li>
-      </ul>
+    <div class="col-half">
+      <div class="card">
+        <h3 style="color: #a78bfa; font-size: 0.75em;">Funcționalități AI pipeline</h3>
+        <ul>
+          <li><span class="check">✓</span>Extrage 150+ tipuri biomarkeri din PDF-uri</li>
+          <li><span class="check">✓</span>Normalizează denumiri între furnizori</li>
+          <li><span class="check">✓</span>Detectează tendințe pe date istorice</li>
+          <li><span class="check">✓</span>Output bilingv (RO + EN)</li>
+          <li><span class="check">✓</span>Recomandări lifestyle bazate pe rezultate</li>
+          <li><span class="check">✓</span>Screening-uri preventive recomandate</li>
+        </ul>
+      </div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>6 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 7: SECURITATE -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-green">SECURITATE</span>
   <h2>Criptare per utilizator. Nici admin-ul nu vede datele.</h2>
-  <div class="accent-line accent-line-green"></div>
-
-  <div class="grid-4" style="margin-top: 16px;">
-    <div class="sec-card fragment fade-up">
-      <h3 style="color: var(--green); font-size: 0.85em;">Vault per utilizator</h3>
-      <p style="color: var(--white); font-size: 0.7em; font-weight: 600; margin: 6px 0;">AES-256-GCM</p>
-      <p style="font-size: 0.6em;">Fiecare user are propria cheie derivată din parolă (PBKDF2, 600K iterații)</p>
+  <div class="aline aline-green"></div>
+  <div class="col-wrap" style="margin-top: 8px;">
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #22c55e; font-size: 0.7em;">Vault per utilizator</h3>
+        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">AES-256-GCM</p>
+        <p style="font-size: 0.5em;">Cheie derivată din parolă (PBKDF2, 600K iterații)</p>
+      </div>
     </div>
-    <div class="sec-card fragment fade-up">
-      <h3 style="color: var(--green); font-size: 0.85em;">Recovery key</h3>
-      <p style="color: var(--white); font-size: 0.7em; font-weight: 600; margin: 6px 0;">Generat la înregistrare</p>
-      <p style="font-size: 0.6em;">Singura metodă de recuperare dacă parola e pierdută. Admin-ul NU poate ajuta.</p>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #22c55e; font-size: 0.7em;">Recovery key</h3>
+        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">La înregistrare</p>
+        <p style="font-size: 0.5em;">Singura recuperare dacă parola e pierdută</p>
+      </div>
     </div>
-    <div class="sec-card fragment fade-up">
-      <h3 style="color: var(--green); font-size: 0.85em;">GDPR complet</h3>
-      <p style="color: var(--white); font-size: 0.7em; font-weight: 600; margin: 6px 0;">Export + Ștergere</p>
-      <p style="font-size: 0.6em;">Export toate datele (JSON). Ștergere cont permanentă. Consimțământ cookies.</p>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #22c55e; font-size: 0.7em;">GDPR complet</h3>
+        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">Export + Ștergere</p>
+        <p style="font-size: 0.5em;">Export JSON. Ștergere cont. Consimțământ cookies.</p>
+      </div>
     </div>
-    <div class="sec-card fragment fade-up">
-      <h3 style="color: var(--green); font-size: 0.85em;">Autentificare</h3>
-      <p style="color: var(--white); font-size: 0.7em; font-weight: 600; margin: 6px 0;">JWT + Google OAuth</p>
-      <p style="font-size: 0.6em;">Rate limiting pe auth. Audit logging. HTTPS + security headers.</p>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center;">
+        <h3 style="color: #22c55e; font-size: 0.7em;">Autentificare</h3>
+        <p style="color: #e2e8f0; font-size: 0.65em; font-weight: 600; margin: 4px 0;">JWT + Google OAuth</p>
+        <p style="font-size: 0.5em;">Rate limiting. Audit logging. HTTPS.</p>
+      </div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>7 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 8: AVANTAJ COMPETITIV -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-amber">AVANTAJ COMPETITIV</span>
   <h2>Trei perspective de expert</h2>
-  <div class="accent-line accent-line-amber"></div>
-
-  <div class="grid-3" style="margin-top: 16px;">
-    <div class="expert-card expert-cyan fragment fade-up">
-      <h3 style="color: var(--cyan); font-size: 0.95em;">Expert SaaS</h3>
-      <p>First-mover pe o piață fără concurenți. Crawlerele sunt bariera de intrare — 6-12 luni de replicat. Time-to-market savings: 12+ luni și €50-150K.</p>
+  <div class="aline aline-amber"></div>
+  <div class="col-wrap" style="margin-top: 10px;">
+    <div class="col-third">
+      <div class="card" style="border-top: 2px solid #06b6d4;">
+        <h3 style="color: #06b6d4; font-size: 0.75em;">Expert SaaS</h3>
+        <p style="font-size: 0.58em; line-height: 1.5; margin-top: 6px;">First-mover pe o piață fără concurenți. Crawlerele sunt bariera de intrare — 6-12 luni de replicat. Time-to-market savings: 12+ luni și €50-150K.</p>
+      </div>
     </div>
-    <div class="expert-card expert-teal fragment fade-up">
-      <h3 style="color: var(--teal); font-size: 0.95em;">Expert Sănătate Digitală</h3>
-      <p>Directiva EU EHDS impune digitalizare date medicale. Corporate wellness în explozie. Asigurătorii caută date longitudinale pentru pricing.</p>
+    <div class="col-third">
+      <div class="card" style="border-top: 2px solid #14b8a6;">
+        <h3 style="color: #14b8a6; font-size: 0.75em;">Expert Sănătate Digitală</h3>
+        <p style="font-size: 0.58em; line-height: 1.5; margin-top: 6px;">Directiva EU EHDS impune digitalizare date medicale. Corporate wellness în explozie. Asigurătorii caută date longitudinale.</p>
+      </div>
     </div>
-    <div class="expert-card expert-amber fragment fade-up">
-      <h3 style="color: var(--amber); font-size: 0.95em;">Expert Evaluare Startup</h3>
-      <p>Build vs Buy: 2-3 seniori × 12 luni = €72K-180K + risc. Cu achiziția: produs funcțional imediat, fără risc de eșec. Valoarea e în execuție.</p>
+    <div class="col-third">
+      <div class="card" style="border-top: 2px solid #fbbf24;">
+        <h3 style="color: #fbbf24; font-size: 0.75em;">Expert Evaluare Startup</h3>
+        <p style="font-size: 0.58em; line-height: 1.5; margin-top: 6px;">Build vs Buy: 2-3 seniori x 12 luni = €72K-180K + risc. Cu achiziția: produs funcțional imediat, fără risc de eșec.</p>
+      </div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>8 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 9: PREȚ INCREMENTAL -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-amber">EVALUARE</span>
   <h2>Model de preț incremental</h2>
-  <div class="accent-line accent-line-amber"></div>
-  <p style="font-size: 0.75em; margin-bottom: 8px;">Prețul crește cu fiecare etapă de maturitate. Platforma se află în <strong style="color: var(--teal);">Etapa 2</strong>.</p>
-
-  <!-- Timeline -->
-  <div class="timeline">
-    <div class="timeline-dot" style="background: var(--mid);"></div>
-    <div class="timeline-dot active" style="background: var(--teal);"></div>
-    <div class="timeline-dot" style="background: var(--cyan);"></div>
-    <div class="timeline-dot" style="background: var(--amber);"></div>
+  <div class="aline aline-amber"></div>
+  <p style="font-size: 0.6em; margin-bottom: 10px;">Prețul crește cu fiecare etapă. Platforma se află în <strong style="color: #14b8a6;">Etapa 2</strong>.</p>
+  <div class="col-wrap">
+    <div class="col-quarter">
+      <div class="card" style="text-align: center; padding: 14px 10px;">
+        <p style="font-size: 0.55em; font-weight: 700; color: #475569; letter-spacing: 1px;">ETAPA 1</p>
+        <p style="font-size: 0.5em; color: #475569;">Funcțional, nelansat</p>
+        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">15-30K €</p>
+        <p style="font-size: 0.5em;">Cod sursă, crawlere, AI. 50% risk discount.</p>
+      </div>
+    </div>
+    <div class="col-quarter">
+      <div class="card stage-hl" style="text-align: center; padding: 14px 10px;">
+        <p style="font-size: 0.55em; font-weight: 700; color: #14b8a6; letter-spacing: 1px;">ETAPA 2 ← ACUM</p>
+        <p style="font-size: 0.5em; color: #475569;">Lansat, primii useri</p>
+        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">35-60K €</p>
+        <p style="font-size: 0.5em;">Live, 8 users, infra completă. 3-6 luni suport.</p>
+      </div>
+    </div>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center; padding: 14px 10px;">
+        <p style="font-size: 0.55em; font-weight: 700; color: #06b6d4; letter-spacing: 1px;">ETAPA 3</p>
+        <p style="font-size: 0.5em; color: #475569;">100+ plătitori</p>
+        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">60-120K €</p>
+        <p style="font-size: 0.5em;">Venituri recurente, 2-4x ARR.</p>
+      </div>
+    </div>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center; padding: 14px 10px;">
+        <p style="font-size: 0.55em; font-weight: 700; color: #fbbf24; letter-spacing: 1px;">ETAPA 4</p>
+        <p style="font-size: 0.5em; color: #475569;">1000+ plătitori</p>
+        <p style="font-size: 1em; font-weight: 800; color: #e2e8f0; margin: 8px 0;">150-300K €</p>
+        <p style="font-size: 0.5em;">Achiziție strategică, 5-8x ARR.</p>
+      </div>
+    </div>
   </div>
-
-  <div class="grid-4" style="margin-top: 12px;">
-    <div class="stage-card fragment fade-up">
-      <div class="stage-name" style="color: var(--mid);">Etapa 1</div>
-      <div class="stage-subtitle">Funcțional,<br>nelansat</div>
-      <div class="stage-price">15.000 –<br>30.000 €</div>
-      <div class="stage-desc">Cod sursă, crawlere, AI pipeline. 50% risk discount.</div>
-    </div>
-    <div class="stage-card current fragment fade-up">
-      <div class="stage-name" style="color: var(--teal);">Etapa 2 ← ACUM</div>
-      <div class="stage-subtitle">Lansat, primii<br>utilizatori</div>
-      <div class="stage-price">35.000 –<br>60.000 €</div>
-      <div class="stage-desc">Live, 8 users, infra completă. 3-6 luni suport tranziție.</div>
-    </div>
-    <div class="stage-card fragment fade-up">
-      <div class="stage-name" style="color: var(--cyan);">Etapa 3</div>
-      <div class="stage-subtitle">Tracțiune<br>100+ plătitori</div>
-      <div class="stage-price">60.000 –<br>120.000 €</div>
-      <div class="stage-desc">Venituri recurente, 2-4x ARR + valoare active.</div>
-    </div>
-    <div class="stage-card fragment fade-up">
-      <div class="stage-name" style="color: var(--amber);">Etapa 4</div>
-      <div class="stage-subtitle">Scale<br>1000+ plătitori</div>
-      <div class="stage-price">150.000 –<br>300.000 €</div>
-      <div class="stage-desc">Achiziție strategică, 5-8x ARR, brand recunoscut.</div>
-    </div>
-  </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>9 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 10: BUILD VS BUY -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-cyan">BUILD VS BUY</span>
   <h2>De ce să cumperi, nu să construiești?</h2>
-  <div class="accent-line"></div>
-
-  <div class="grid-3" style="margin-top: 20px;">
-    <div class="compare-col col-red fragment fade-up">
-      <p style="font-size: 0.65em; font-weight: 700; color: var(--red); letter-spacing: 1px;">DACĂ CONSTRUIEȘTI</p>
-      <div style="font-size: 1.6em; font-weight: 800; color: var(--red); margin: 12px 0;">€72K – 180K</div>
-      <p style="font-size: 0.8em; color: var(--light);">+ 12 luni minim</p>
-      <div style="margin-top: 16px; font-size: 0.65em; color: var(--mid); line-height: 1.8;">
-        2-3 programatori seniori<br>Reverse-engineering crawlere<br>Pipeline AI de la zero<br>Securitate & GDPR<br>Nicio garanție de succes
+  <div class="aline"></div>
+  <div class="col-wrap" style="margin-top: 10px;">
+    <div class="col-third">
+      <div class="card" style="text-align: center; border-top: 2px solid #ef4444;">
+        <p style="font-size: 0.55em; font-weight: 700; color: #ef4444; letter-spacing: 1px;">DACĂ CONSTRUIEȘTI</p>
+        <p style="font-size: 1.2em; font-weight: 800; color: #ef4444; margin: 8px 0;">€72K – 180K</p>
+        <p style="font-size: 0.65em; color: #94a3b8;">+ 12 luni minim</p>
+        <p style="font-size: 0.55em; color: #475569; line-height: 1.7; margin-top: 8px;">
+          2-3 programatori seniori<br>Reverse-engineering crawlere<br>Pipeline AI de la zero<br>Securitate &amp; GDPR<br>Nicio garanție de succes
+        </p>
       </div>
     </div>
-    <div class="compare-col col-teal highlight fragment fade-up">
-      <p style="font-size: 0.65em; font-weight: 700; color: var(--teal); letter-spacing: 1px;">DACĂ CUMPERI</p>
-      <div style="font-size: 1.6em; font-weight: 800; color: var(--teal); margin: 12px 0;">€35K – 60K</div>
-      <p style="font-size: 0.8em; color: var(--light);">Imediat</p>
-      <div style="margin-top: 16px; font-size: 0.65em; color: var(--mid); line-height: 1.8;">
-        Produs funcțional azi<br>4 crawlere deja construite<br>Pipeline AI operațional<br>GDPR conformant<br>Utilizatori reali
+    <div class="col-third">
+      <div class="card cmp-hl" style="text-align: center; border-top: 2px solid #14b8a6;">
+        <p style="font-size: 0.55em; font-weight: 700; color: #14b8a6; letter-spacing: 1px;">DACĂ CUMPERI</p>
+        <p style="font-size: 1.2em; font-weight: 800; color: #14b8a6; margin: 8px 0;">€35K – 60K</p>
+        <p style="font-size: 0.65em; color: #94a3b8;">Imediat</p>
+        <p style="font-size: 0.55em; color: #475569; line-height: 1.7; margin-top: 8px;">
+          Produs funcțional azi<br>4 crawlere deja construite<br>Pipeline AI operațional<br>GDPR conformant<br>Utilizatori reali
+        </p>
       </div>
     </div>
-    <div class="compare-col col-violet fragment fade-up">
-      <p style="font-size: 0.65em; font-weight: 700; color: var(--violet); letter-spacing: 1px;">ALTERNATIV: LICENȚĂ</p>
-      <div style="font-size: 1.6em; font-weight: 800; color: var(--violet); margin: 12px 0;">€500 – 2K</div>
-      <p style="font-size: 0.8em; color: var(--light);">Per lună, per client</p>
-      <div style="margin-top: 16px; font-size: 0.65em; color: var(--mid); line-height: 1.8;">
-        White-label sub brand-ul tău<br>Domeniu propriu<br>Mentenanță inclusă<br>Fără cost inițial mare<br>Opțiune revenue share
+    <div class="col-third">
+      <div class="card" style="text-align: center; border-top: 2px solid #a78bfa;">
+        <p style="font-size: 0.55em; font-weight: 700; color: #a78bfa; letter-spacing: 1px;">ALTERNATIV: LICENȚĂ</p>
+        <p style="font-size: 1.2em; font-weight: 800; color: #a78bfa; margin: 8px 0;">€500 – 2K</p>
+        <p style="font-size: 0.65em; color: #94a3b8;">Per lună, per client</p>
+        <p style="font-size: 0.55em; color: #475569; line-height: 1.7; margin-top: 8px;">
+          White-label sub brand-ul tău<br>Domeniu propriu<br>Mentenanță inclusă<br>Fără cost inițial mare<br>Opțiune revenue share
+        </p>
       </div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>10 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
-<!-- SLIDE 11: MODELE DE TRANZACȚIE -->
-<!-- ════════════════════════════════════════════════════════════ -->
+<!-- SLIDE 11: MODELE TRANZACȚIE -->
 <section data-background-color="#050a18">
   <span class="tag tag-teal">OPȚIUNI</span>
   <h2>Trei modele de tranzacție</h2>
-  <div class="accent-line"></div>
-
-  <div class="grid-3" style="margin-top: 20px;">
-    <div class="model-card fragment fade-up" style="border-top: 2px solid var(--cyan);">
-      <div class="model-circle" style="background: linear-gradient(135deg, var(--cyan), #0891b2);">A</div>
-      <h3 style="font-size: 0.9em;">Vânzare de active</h3>
-      <p style="color: var(--cyan); font-weight: 700; font-size: 0.75em; margin: 8px 0;">35.000 – 60.000 EUR</p>
-      <p style="font-size: 0.62em; line-height: 1.6;">Preț unic. Cod sursă complet, domeniu, infrastructură, bază de date, documentație. 3-6 luni suport tranziție.<br><br><strong style="color: var(--white);">Ideal:</strong> companii cu echipă tehnică proprie.</p>
+  <div class="aline"></div>
+  <div class="col-wrap" style="margin-top: 10px;">
+    <div class="col-third">
+      <div class="card" style="text-align: center; border-top: 2px solid #06b6d4;">
+        <p style="font-size: 1.4em; font-weight: 800; color: #06b6d4; margin-bottom: 6px;">A</p>
+        <h3 style="font-size: 0.75em;">Vânzare de active</h3>
+        <p style="color: #06b6d4; font-weight: 700; font-size: 0.6em; margin: 6px 0;">35.000 – 60.000 EUR</p>
+        <p style="font-size: 0.52em; line-height: 1.5;">Preț unic. Cod sursă complet, domeniu, infra, DB, documentație. 3-6 luni suport.</p>
+        <p style="font-size: 0.5em; color: #e2e8f0; margin-top: 6px;"><strong>Ideal:</strong> companii cu echipă tehnică</p>
+      </div>
     </div>
-    <div class="model-card fragment fade-up" style="border-top: 2px solid var(--violet);">
-      <div class="model-circle" style="background: linear-gradient(135deg, var(--violet), #7c3aed);">B</div>
-      <h3 style="font-size: 0.9em;">Licență White-Label</h3>
-      <p style="color: var(--violet); font-weight: 700; font-size: 0.75em; margin: 8px 0;">500 – 2.000 EUR / lună</p>
-      <p style="font-size: 0.62em; line-height: 1.6;">Platformă sub brand-ul tău, domeniu propriu. Mentenanță crawlere, actualizări, hosting, suport tehnic incluse.<br><br><strong style="color: var(--white);">Ideal:</strong> clinici, asigurători, wellness.</p>
+    <div class="col-third">
+      <div class="card" style="text-align: center; border-top: 2px solid #a78bfa;">
+        <p style="font-size: 1.4em; font-weight: 800; color: #a78bfa; margin-bottom: 6px;">B</p>
+        <h3 style="font-size: 0.75em;">Licență White-Label</h3>
+        <p style="color: #a78bfa; font-weight: 700; font-size: 0.6em; margin: 6px 0;">500 – 2.000 EUR / lună</p>
+        <p style="font-size: 0.52em; line-height: 1.5;">Sub brand-ul tău, domeniu propriu. Mentenanță, hosting, suport incluse.</p>
+        <p style="font-size: 0.5em; color: #e2e8f0; margin-top: 6px;"><strong>Ideal:</strong> clinici, asigurători, wellness</p>
+      </div>
     </div>
-    <div class="model-card fragment fade-up" style="border-top: 2px solid var(--amber);">
-      <div class="model-circle" style="background: linear-gradient(135deg, var(--amber), #f59e0b);">C</div>
-      <h3 style="font-size: 0.9em;">Parteneriat Revenue Share</h3>
-      <p style="color: var(--amber); font-weight: 700; font-size: 0.75em; margin: 8px 0;">10K–20K EUR + 20-40%</p>
-      <p style="font-size: 0.62em; line-height: 1.6;">Investiție inițială redusă. Acces complet la platformă. Dezvoltare continuă.<br><br><strong style="color: var(--white);">Ideal:</strong> investitori care vor upside pe termen lung.</p>
+    <div class="col-third">
+      <div class="card" style="text-align: center; border-top: 2px solid #fbbf24;">
+        <p style="font-size: 1.4em; font-weight: 800; color: #fbbf24; margin-bottom: 6px;">C</p>
+        <h3 style="font-size: 0.75em;">Parteneriat Revenue Share</h3>
+        <p style="color: #fbbf24; font-weight: 700; font-size: 0.6em; margin: 6px 0;">10K–20K EUR + 20-40%</p>
+        <p style="font-size: 0.52em; line-height: 1.5;">Investiție redusă. Acces complet. Dezvoltare continuă.</p>
+        <p style="font-size: 0.5em; color: #e2e8f0; margin-top: 6px;"><strong>Ideal:</strong> investitori pe termen lung</p>
+      </div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>11 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 12: TRACȚIUNE -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-green">TRACȚIUNE</span>
   <h2>Early, dar real</h2>
-  <div class="accent-line accent-line-green"></div>
-
-  <div class="grid-4" style="margin-top: 20px;">
-    <div class="card stat-card fragment fade-up">
-      <div class="stat-number gradient-text">8</div>
-      <div class="stat-label">Utilizatori<br>înregistrați</div>
+  <div class="aline aline-green"></div>
+  <div class="col-wrap" style="margin-top: 8px;">
+    <div class="col-quarter">
+      <div class="card" style="text-align: center; padding: 16px 8px;">
+        <div class="snum grad">8</div>
+        <div class="slab">Utilizatori<br>înregistrați</div>
+      </div>
     </div>
-    <div class="card stat-card fragment fade-up">
-      <div class="stat-number gradient-text">59</div>
-      <div class="stat-label">Documente<br>procesate</div>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center; padding: 16px 8px;">
+        <div class="snum grad">59</div>
+        <div class="slab">Documente<br>procesate</div>
+      </div>
     </div>
-    <div class="card stat-card fragment fade-up">
-      <div class="stat-number gradient-text">731</div>
-      <div class="stat-label">Biomarkeri<br>extrași</div>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center; padding: 16px 8px;">
+        <div class="snum grad">731</div>
+        <div class="slab">Biomarkeri<br>extrași</div>
+      </div>
     </div>
-    <div class="card stat-card fragment fade-up">
-      <div class="stat-number gradient-text">100%</div>
-      <div class="stat-label">Uptime<br>(3 luni)</div>
-    </div>
-  </div>
-
-  <div class="card fragment fade-up" style="margin-top: 20px;">
-    <h3 style="font-size: 0.9em;">Ce primește cumpărătorul</h3>
-    <div class="grid-2" style="margin-top: 8px; gap: 8px;">
-      <ul class="bullet-list check-list">
-        <li>Cod sursă complet (frontend + backend)</li>
-        <li>4 crawlere funcționale</li>
-        <li>Agenți AI specialiști dinamici</li>
-        <li>Domeniu: analize.online</li>
-        <li>SSL (valid Apr 2026) + VPS producție</li>
-      </ul>
-      <ul class="bullet-list check-list">
-        <li>Bază de date PostgreSQL</li>
-        <li>Monitorizare Prometheus + Grafana</li>
-        <li>Email AWS SES + Plăți Netopia</li>
-        <li>Documentație completă</li>
-        <li>3-6 luni suport tranziție</li>
-      </ul>
+    <div class="col-quarter">
+      <div class="card" style="text-align: center; padding: 16px 8px;">
+        <div class="snum grad">100%</div>
+        <div class="slab">Uptime<br>(3 luni)</div>
+      </div>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>12 / 14</span></div>
+  <div class="card" style="margin-top: 10px;">
+    <h3 style="font-size: 0.75em;">Ce primește cumpărătorul</h3>
+    <div class="col-wrap" style="margin-top: 6px;">
+      <div class="col-half">
+        <ul>
+          <li><span class="check">✓</span>Cod sursă complet (frontend + backend)</li>
+          <li><span class="check">✓</span>4 crawlere funcționale</li>
+          <li><span class="check">✓</span>Agenți AI specialiști dinamici</li>
+          <li><span class="check">✓</span>Domeniu: analize.online</li>
+          <li><span class="check">✓</span>SSL + VPS producție</li>
+        </ul>
+      </div>
+      <div class="col-half">
+        <ul>
+          <li><span class="check">✓</span>Bază de date PostgreSQL</li>
+          <li><span class="check">✓</span>Monitorizare Prometheus + Grafana</li>
+          <li><span class="check">✓</span>Email AWS SES + Plăți Netopia</li>
+          <li><span class="check">✓</span>Documentație completă</li>
+          <li><span class="check">✓</span>3-6 luni suport tranziție</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 13: RISCURI -->
-<!-- ════════════════════════════════════════════════════════════ -->
 <section data-background-color="#050a18">
   <span class="tag tag-amber">TRANSPARENȚĂ</span>
   <h2>Riscuri și cum le adresăm</h2>
-  <div class="accent-line accent-line-amber"></div>
-
-  <div style="margin-top: 16px;">
-    <div class="risk-row fragment fade-up">
-      <div class="risk-dot medium"></div>
-      <div style="min-width: 200px;"><strong style="color: var(--white); font-size: 0.78em;">Crawlerele se pot strica</strong><br><span style="font-size: 0.6em; color: var(--amber);">Medie</span></div>
-      <div style="font-size: 0.72em; color: var(--light);">Cod modular, documentat. Update tipic: 1-3 zile per crawler</div>
+  <div class="aline aline-amber"></div>
+  <div style="margin-top: 8px;">
+    <div class="rrow">
+      <span class="rdot rdot-amber"></span>
+      <span class="rlabel"><strong>Crawlerele se pot strica</strong><br><small style="color: #fbbf24;">Medie</small></span>
+      <span class="rmit">Cod modular, documentat. Update tipic: 1-3 zile per crawler</span>
     </div>
-    <div class="risk-row fragment fade-up">
-      <div class="risk-dot medium"></div>
-      <div style="min-width: 200px;"><strong style="color: var(--white); font-size: 0.78em;">Bus factor = 1</strong><br><span style="font-size: 0.6em; color: var(--amber);">Medie</span></div>
-      <div style="font-size: 0.72em; color: var(--light);">Cod curat, documentație completă, tranziție asistată 3-6 luni</div>
+    <div class="rrow">
+      <span class="rdot rdot-amber"></span>
+      <span class="rlabel"><strong>Bus factor = 1</strong><br><small style="color: #fbbf24;">Medie</small></span>
+      <span class="rmit">Cod curat, documentație completă, tranziție asistată 3-6 luni</span>
     </div>
-    <div class="risk-row fragment fade-up">
-      <div class="risk-dot low"></div>
-      <div style="min-width: 200px;"><strong style="color: var(--white); font-size: 0.78em;">Dependență OpenAI</strong><br><span style="font-size: 0.6em; color: var(--green);">Scăzută</span></div>
-      <div style="font-size: 0.72em; color: var(--light);">Pipeline modular — înlocuibil cu Claude, Gemini, sau model local</div>
+    <div class="rrow">
+      <span class="rdot rdot-green"></span>
+      <span class="rlabel"><strong>Dependență OpenAI</strong><br><small style="color: #22c55e;">Scăzută</small></span>
+      <span class="rmit">Pipeline modular — înlocuibil cu Claude, Gemini, sau model local</span>
     </div>
-    <div class="risk-row fragment fade-up">
-      <div class="risk-dot low"></div>
-      <div style="min-width: 200px;"><strong style="color: var(--white); font-size: 0.78em;">GDPR / date medicale</strong><br><span style="font-size: 0.6em; color: var(--green);">Scăzută</span></div>
-      <div style="font-size: 0.72em; color: var(--light);">Criptare per user, export date, ștergere cont funcționale</div>
+    <div class="rrow">
+      <span class="rdot rdot-green"></span>
+      <span class="rlabel"><strong>GDPR / date medicale</strong><br><small style="color: #22c55e;">Scăzută</small></span>
+      <span class="rmit">Criptare per user, export date, ștergere cont funcționale</span>
     </div>
-    <div class="risk-row fragment fade-up">
-      <div class="risk-dot low"></div>
-      <div style="min-width: 200px;"><strong style="color: var(--white); font-size: 0.78em;">Scalare</strong><br><span style="font-size: 0.6em; color: var(--green);">Scăzută</span></div>
-      <div style="font-size: 0.72em; color: var(--light);">PostgreSQL, async architecture, concurrency limits</div>
+    <div class="rrow">
+      <span class="rdot rdot-green"></span>
+      <span class="rlabel"><strong>Scalare</strong><br><small style="color: #22c55e;">Scăzută</small></span>
+      <span class="rmit">PostgreSQL, async architecture, concurrency limits</span>
     </div>
   </div>
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>13 / 14</span></div>
 </section>
 
-<!-- ════════════════════════════════════════════════════════════ -->
 <!-- SLIDE 14: CTA -->
-<!-- ════════════════════════════════════════════════════════════ -->
-<section class="title-slide" data-background-color="#050a18">
+<section class="center-slide" data-background-color="#050a18">
   <h2 style="text-align: center;">Programează un demo live<br>de 15 minute.</h2>
 
-  <div class="cta-card" style="max-width: 600px; margin: 32px auto 0; padding: 40px;">
-    <p style="font-size: 0.8em; color: rgba(255,255,255,0.7);">Contact</p>
-    <h3 style="font-size: 1.5em; margin: 8px 0;">Bogdan Drăgușin</h3>
-    <p class="email" style="font-size: 1em; margin-top: 12px;">contact@analize.online</p>
-    <p style="margin-top: 16px; font-size: 0.8em; color: rgba(255,255,255,0.7);">Demo live: <strong>analize.online</strong></p>
+  <div class="cta-box">
+    <p style="font-size: 0.65em; color: rgba(255,255,255,0.6);">Contact</p>
+    <h3>Bogdan Drăgușin</h3>
+    <p class="email">contact@analize.online</p>
+    <p style="margin-top: 10px; font-size: 0.65em; color: rgba(255,255,255,0.7);">Demo live: <strong>analize.online</strong></p>
   </div>
 
-  <div class="fomo" style="margin-top: 32px;">
+  <div class="fomo">
     Prețul nu va fi niciodată mai mic decât astăzi.
   </div>
-
-  <div class="slide-footer"><span>analize.online &nbsp;|&nbsp; Confidențial &nbsp;|&nbsp; Martie 2026</span><span>14 / 14</span></div>
 </section>
 
 </div>
@@ -1127,15 +631,14 @@
     hash: true,
     slideNumber: true,
     controls: true,
-    controlsLayout: 'edges',
     progress: true,
     center: true,
     transition: 'slide',
     transitionSpeed: 'default',
     backgroundTransition: 'fade',
-    width: 1100,
+    width: 960,
     height: 700,
-    margin: 0.04,
+    margin: 0.1,
     minScale: 0.2,
     maxScale: 2.0,
     pdfSeparateFragments: false,
