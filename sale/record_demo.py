@@ -169,6 +169,39 @@ def run_demo(email, password, headed):
 
         page = context.new_page()
 
+        # CRITICAL: Add init script that runs on EVERY page load/navigation
+        # This hides vault modals before they ever render
+        context.add_init_script("""
+            (function() {
+                // Inject CSS immediately
+                const style = document.createElement('style');
+                style.id = 'hide-vault-init';
+                style.textContent = 'div.fixed.inset-0.z-50, div.fixed.inset-0.z-\\\\[50\\\\] { display:none !important; opacity:0 !important; pointer-events:none !important; }';
+                (document.head || document.documentElement).appendChild(style);
+
+                // MutationObserver to catch and remove vault modals
+                function killVaultModals() {
+                    document.querySelectorAll('div.fixed.inset-0, div[class*="fixed"][class*="inset-0"]').forEach(function(el) {
+                        var text = el.textContent || '';
+                        if (text.indexOf('Sesiune') !== -1 || text.indexOf('Deblocare') !== -1 ||
+                            text.indexOf('blocat') !== -1 || text.indexOf('Seif') !== -1 ||
+                            text.indexOf('Vault') !== -1 || text.indexOf('Expir') !== -1) {
+                            el.style.display = 'none';
+                            el.remove();
+                        }
+                    });
+                }
+
+                if (document.body) {
+                    new MutationObserver(killVaultModals).observe(document.body, { childList: true, subtree: true });
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        new MutationObserver(killVaultModals).observe(document.body, { childList: true, subtree: true });
+                    });
+                }
+            })();
+        """)
+
         try:
             # ── 1. Landing page ─────────────────────────────
             print("[1/10] Landing page...")
