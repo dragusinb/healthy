@@ -66,6 +66,37 @@ def slow_scroll(page, steps=5, delay_ms=600):
         page.wait_for_timeout(delay_ms)
 
 
+def _inject_vault_hider(page):
+    """Inject CSS + MutationObserver to hide all vault/session modals."""
+    page.evaluate("""() => {
+        if (document.getElementById('hide-vault')) return;
+        const style = document.createElement('style');
+        style.id = 'hide-vault';
+        style.textContent = `
+            div.fixed.inset-0.z-50,
+            div[class*="fixed"][class*="inset-0"][class*="z-50"] {
+                display: none !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+        const obs = new MutationObserver(() => {
+            document.querySelectorAll('div.fixed.inset-0').forEach(el => {
+                if (el.querySelector('input[type=password]') ||
+                    el.textContent.includes('Sesiune') ||
+                    el.textContent.includes('Deblocare') ||
+                    el.textContent.includes('blocat') ||
+                    el.textContent.includes('Vault') ||
+                    el.textContent.includes('Seif')) {
+                    el.remove();
+                }
+            });
+        });
+        obs.observe(document.body, { childList: true, subtree: true });
+    }""")
+
+
 def dismiss_vault(page, password):
     """Dismiss vault unlock modal if it appears."""
     try:
@@ -113,7 +144,7 @@ def nav_sidebar(page, link_text, password, pause=4):
                     page.wait_for_timeout(1000)
                     break
     page.wait_for_timeout(2000)
-    dismiss_vault(page, password)
+    _inject_vault_hider(page)
     page.wait_for_timeout(int(pause * 1000))
 
 
@@ -142,12 +173,14 @@ def run_demo(email, password, headed):
             # ── 1. Landing page ─────────────────────────────
             print("[1/10] Landing page...")
             page.goto(BASE_URL, wait_until="networkidle", timeout=30000)
-            # Dismiss cookies
+            # Dismiss cookies AND pre-inject vault modal hider
             page.evaluate("""() => {
                 localStorage.setItem('cookie_consent', 'true');
                 localStorage.setItem('cookie_preferences', JSON.stringify({essential:true}));
             }""")
+            _inject_vault_hider(page)
             page.reload(wait_until="networkidle")
+            _inject_vault_hider(page)
             inject_overlay(page, OVERLAYS["home"])
             page.wait_for_timeout(3000)
             slow_scroll(page, steps=2, delay_ms=700)
@@ -156,6 +189,8 @@ def run_demo(email, password, headed):
             # ── 2. Login ────────────────────────────────────
             print("[2/10] Login...")
             page.goto(f"{BASE_URL}/login", wait_until="networkidle", timeout=20000)
+            # Re-inject vault hider (page.goto reloads DOM)
+            _inject_vault_hider(page)
             inject_overlay(page, OVERLAYS["login"])
             page.wait_for_timeout(1000)
             page.locator("input[type=email], input[name=email], input[placeholder*=email]").first.fill(email)
@@ -165,38 +200,34 @@ def run_demo(email, password, headed):
             page.locator("button[type=submit]").first.click()
             page.wait_for_timeout(4000)
 
-            # Handle vault unlock after login
-            dismiss_vault(page, password)
-            page.wait_for_timeout(2000)
-
-            # PERMANENTLY hide the vault modal so it never appears in the video
-            page.evaluate("""() => {
-                const style = document.createElement('style');
-                style.textContent = `
-                    div.fixed.inset-0.z-50,
-                    div[class*="fixed"][class*="inset-0"][class*="z-50"],
-                    div:has(> div:has(> button:has-text("Deblocare"))) {
-                        display: none !important;
-                        visibility: hidden !important;
-                        opacity: 0 !important;
-                        pointer-events: none !important;
+            # Handle vault unlock after login — do it silently
+            # First hide the modal visually, then interact with it
+            _inject_vault_hider(page)
+            page.wait_for_timeout(500)
+            # Now unlock vault via JS (fill password and click without showing modal)
+            page.evaluate("""(pw) => {
+                const inputs = document.querySelectorAll('input[type=password]');
+                const lastInput = inputs[inputs.length - 1];
+                if (lastInput) {
+                    // Temporarily show the modal to interact
+                    const modal = lastInput.closest('div.fixed.inset-0') || lastInput.closest('div[class*="fixed"]');
+                    if (modal) {
+                        modal.style.display = 'block';
+                        modal.style.opacity = '0'; // invisible but interactable
                     }
-                `;
-                style.id = 'hide-vault-modal';
-                document.head.appendChild(style);
-            }""")
-            # Also set up a MutationObserver to auto-dismiss any vault modals
-            page.evaluate("""() => {
-                const observer = new MutationObserver((mutations) => {
-                    document.querySelectorAll('div.fixed.inset-0').forEach(el => {
-                        if (el.textContent.includes('Sesiune') || el.textContent.includes('Deblocare') || el.textContent.includes('Vault')) {
-                            el.style.display = 'none';
-                            el.remove();
-                        }
-                    });
-                });
-                observer.observe(document.body, { childList: true, subtree: true });
-            }""")
+                }
+            }""", password)
+            page.wait_for_timeout(300)
+            try:
+                pw_field = page.locator('input[type=password]').first
+                if pw_field.is_visible(timeout=1000):
+                    pw_field.fill(password)
+                    page.locator('button:has-text("Deblocare"), button:has-text("Unlock")').first.click()
+                    page.wait_for_timeout(2000)
+            except Exception:
+                pass
+            _inject_vault_hider(page)
+            page.wait_for_timeout(1000)
 
             # ── 3. Dashboard (already here after login) ─────
             print("[3/10] Dashboard...")
