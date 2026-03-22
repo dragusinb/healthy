@@ -66,35 +66,25 @@ def slow_scroll(page, steps=5, delay_ms=600):
         page.wait_for_timeout(delay_ms)
 
 
+VAULT_HIDE_CSS = """
+.fixed.inset-0.z-50,
+.fixed.inset-0.z-50 *,
+div[class*="fixed"][class*="inset-0"][class*="z-50"],
+div[class*="fixed"][class*="inset-0"][class*="bg-black"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+"""
+
+
 def _inject_vault_hider(page):
-    """Inject CSS + MutationObserver to hide all vault/session modals."""
-    page.evaluate("""() => {
-        if (document.getElementById('hide-vault')) return;
-        const style = document.createElement('style');
-        style.id = 'hide-vault';
-        style.textContent = `
-            div.fixed.inset-0.z-50,
-            div[class*="fixed"][class*="inset-0"][class*="z-50"] {
-                display: none !important;
-                opacity: 0 !important;
-                pointer-events: none !important;
-            }
-        `;
-        document.head.appendChild(style);
-        const obs = new MutationObserver(() => {
-            document.querySelectorAll('div.fixed.inset-0').forEach(el => {
-                if (el.querySelector('input[type=password]') ||
-                    el.textContent.includes('Sesiune') ||
-                    el.textContent.includes('Deblocare') ||
-                    el.textContent.includes('blocat') ||
-                    el.textContent.includes('Vault') ||
-                    el.textContent.includes('Seif')) {
-                    el.remove();
-                }
-            });
-        });
-        obs.observe(document.body, { childList: true, subtree: true });
-    }""")
+    """Hide all vault/session modals via CSS style tag."""
+    page.add_style_tag(content=VAULT_HIDE_CSS)
 
 
 def dismiss_vault(page, password):
@@ -143,7 +133,7 @@ def nav_sidebar(page, link_text, password, pause=4):
                     page.evaluate(f"window.history.pushState({{}}, '', '{href}'); window.dispatchEvent(new PopStateEvent('popstate'))")
                     page.wait_for_timeout(1000)
                     break
-    page.wait_for_timeout(2000)
+    page.wait_for_timeout(1000)
     _inject_vault_hider(page)
     page.wait_for_timeout(int(pause * 1000))
 
@@ -169,44 +159,7 @@ def run_demo(email, password, headed):
 
         page = context.new_page()
 
-        # CRITICAL: Route handler to intercept and block vault-related responses
-        # Plus CSS injection via add_init_script
-        def handle_route(route):
-            """Block API calls that trigger vault unlock modal."""
-            url = route.request.url
-            if "/auth/unlock" in url or "/vault" in url:
-                route.fulfill(status=200, content_type="application/json", body='{"status":"ok"}')
-            else:
-                route.continue_()
-
-        context.route("**/auth/unlock**", handle_route)
-        context.route("**/vault**", handle_route)
-
-        context.add_init_script("""
-            (function() {
-                // Nuclear option: override the CSS for ANY fixed overlay with backdrop
-                var css = document.createElement('style');
-                css.textContent = [
-                    '.fixed.inset-0.z-50 { display:none !important; }',
-                    '.fixed.inset-0[class*="backdrop"] { display:none !important; }',
-                    '.fixed.inset-0[class*="bg-black"] { display:none !important; }',
-                    'div[class*="fixed"][class*="inset-0"][class*="z-50"] { display:none !important; }'
-                ].join('\\n');
-                (document.head || document.documentElement).appendChild(css);
-
-                // Poll every 100ms to remove vault modals (faster than MutationObserver)
-                setInterval(function() {
-                    document.querySelectorAll('.fixed.inset-0').forEach(function(el) {
-                        var t = (el.textContent || '').toLowerCase();
-                        if (t.indexOf('sesiune') !== -1 || t.indexOf('deblocare') !== -1 ||
-                            t.indexOf('blocat') !== -1 || t.indexOf('expir') !== -1 ||
-                            t.indexOf('seif') !== -1 || t.indexOf('vault') !== -1) {
-                            el.parentNode.removeChild(el);
-                        }
-                    });
-                }, 100);
-            })();
-        """)
+        # No init_script — use page.add_style_tag after each navigation instead
 
         try:
             # ── 1. Landing page ─────────────────────────────
@@ -239,29 +192,21 @@ def run_demo(email, password, headed):
             page.locator("button[type=submit]").first.click()
             page.wait_for_timeout(4000)
 
-            # Handle vault unlock after login — do it silently
-            # First hide the modal visually, then interact with it
+            # Hide vault modal via CSS — it will be invisible but we still unlock it
             _inject_vault_hider(page)
-            page.wait_for_timeout(500)
-            # Now unlock vault via JS (fill password and click without showing modal)
-            page.evaluate("""(pw) => {
-                const inputs = document.querySelectorAll('input[type=password]');
-                const lastInput = inputs[inputs.length - 1];
-                if (lastInput) {
-                    // Temporarily show the modal to interact
-                    const modal = lastInput.closest('div.fixed.inset-0') || lastInput.closest('div[class*="fixed"]');
-                    if (modal) {
-                        modal.style.display = 'block';
-                        modal.style.opacity = '0'; // invisible but interactable
-                    }
-                }
-            }""", password)
-            page.wait_for_timeout(300)
+            page.wait_for_timeout(1000)
+            # Unlock vault silently (modal is hidden but still in DOM)
             try:
+                # Make modal temporarily interactable
+                page.evaluate("""() => {
+                    var m = document.querySelector('.fixed.inset-0.z-50');
+                    if (m) { m.style.display='flex'; m.style.visibility='visible'; m.style.opacity='0.01'; m.style.width='100%'; m.style.height='100%'; }
+                }""")
+                page.wait_for_timeout(200)
                 pw_field = page.locator('input[type=password]').first
-                if pw_field.is_visible(timeout=1000):
-                    pw_field.fill(password)
-                    page.locator('button:has-text("Deblocare"), button:has-text("Unlock")').first.click()
+                if pw_field.count() > 0:
+                    pw_field.fill(password, timeout=2000)
+                    page.locator('button:has-text("Deblocare"), button:has-text("Unlock")').first.click(timeout=2000)
                     page.wait_for_timeout(2000)
             except Exception:
                 pass
