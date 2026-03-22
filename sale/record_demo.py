@@ -169,36 +169,42 @@ def run_demo(email, password, headed):
 
         page = context.new_page()
 
-        # CRITICAL: Add init script that runs on EVERY page load/navigation
-        # This hides vault modals before they ever render
+        # CRITICAL: Route handler to intercept and block vault-related responses
+        # Plus CSS injection via add_init_script
+        def handle_route(route):
+            """Block API calls that trigger vault unlock modal."""
+            url = route.request.url
+            if "/auth/unlock" in url or "/vault" in url:
+                route.fulfill(status=200, content_type="application/json", body='{"status":"ok"}')
+            else:
+                route.continue_()
+
+        context.route("**/auth/unlock**", handle_route)
+        context.route("**/vault**", handle_route)
+
         context.add_init_script("""
             (function() {
-                // Inject CSS immediately
-                const style = document.createElement('style');
-                style.id = 'hide-vault-init';
-                style.textContent = 'div.fixed.inset-0.z-50, div.fixed.inset-0.z-\\\\[50\\\\] { display:none !important; opacity:0 !important; pointer-events:none !important; }';
-                (document.head || document.documentElement).appendChild(style);
+                // Nuclear option: override the CSS for ANY fixed overlay with backdrop
+                var css = document.createElement('style');
+                css.textContent = [
+                    '.fixed.inset-0.z-50 { display:none !important; }',
+                    '.fixed.inset-0[class*="backdrop"] { display:none !important; }',
+                    '.fixed.inset-0[class*="bg-black"] { display:none !important; }',
+                    'div[class*="fixed"][class*="inset-0"][class*="z-50"] { display:none !important; }'
+                ].join('\\n');
+                (document.head || document.documentElement).appendChild(css);
 
-                // MutationObserver to catch and remove vault modals
-                function killVaultModals() {
-                    document.querySelectorAll('div.fixed.inset-0, div[class*="fixed"][class*="inset-0"]').forEach(function(el) {
-                        var text = el.textContent || '';
-                        if (text.indexOf('Sesiune') !== -1 || text.indexOf('Deblocare') !== -1 ||
-                            text.indexOf('blocat') !== -1 || text.indexOf('Seif') !== -1 ||
-                            text.indexOf('Vault') !== -1 || text.indexOf('Expir') !== -1) {
-                            el.style.display = 'none';
-                            el.remove();
+                // Poll every 100ms to remove vault modals (faster than MutationObserver)
+                setInterval(function() {
+                    document.querySelectorAll('.fixed.inset-0').forEach(function(el) {
+                        var t = (el.textContent || '').toLowerCase();
+                        if (t.indexOf('sesiune') !== -1 || t.indexOf('deblocare') !== -1 ||
+                            t.indexOf('blocat') !== -1 || t.indexOf('expir') !== -1 ||
+                            t.indexOf('seif') !== -1 || t.indexOf('vault') !== -1) {
+                            el.parentNode.removeChild(el);
                         }
                     });
-                }
-
-                if (document.body) {
-                    new MutationObserver(killVaultModals).observe(document.body, { childList: true, subtree: true });
-                } else {
-                    document.addEventListener('DOMContentLoaded', function() {
-                        new MutationObserver(killVaultModals).observe(document.body, { childList: true, subtree: true });
-                    });
-                }
+                }, 100);
             })();
         """)
 
