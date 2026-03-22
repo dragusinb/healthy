@@ -84,13 +84,34 @@ def nav_sidebar(page, link_text, password, pause=4):
     """Navigate via sidebar click (SPA routing, preserves vault session)."""
     page.evaluate("window.scrollTo(0, 0)")
     page.wait_for_timeout(300)
+    # ALWAYS dismiss vault first — it blocks clicks
+    dismiss_vault(page, password)
+    page.wait_for_timeout(300)
+    dismiss_vault(page, password)  # Double-check
+    page.wait_for_timeout(300)
     try:
         link = page.locator(f'nav a:has-text("{link_text}"), aside a:has-text("{link_text}"), a[href]:has-text("{link_text}")').first
-        link.click()
+        link.click(timeout=5000)
     except Exception:
-        # Fallback: try clicking by aria-label or title
-        link = page.locator(f'a[title*="{link_text}"], a[aria-label*="{link_text}"]').first
-        link.click()
+        # Vault might have reappeared — dismiss again and retry
+        dismiss_vault(page, password)
+        page.wait_for_timeout(500)
+        try:
+            link = page.locator(f'a[title*="{link_text}"], a[aria-label*="{link_text}"]').first
+            link.click(timeout=5000)
+        except Exception:
+            # Last resort: JS navigation
+            href_map = {
+                "Documente": "/documents", "Biomarkeri": "/biomarkers",
+                "Doctor AI": "/health", "Stil de Via": "/lifestyle",
+                "Abonament": "/billing", "Set\u0103ri": "/settings",
+                "Panou": "/",
+            }
+            for key, href in href_map.items():
+                if key in link_text:
+                    page.evaluate(f"window.history.pushState({{}}, '', '{href}'); window.dispatchEvent(new PopStateEvent('popstate'))")
+                    page.wait_for_timeout(1000)
+                    break
     page.wait_for_timeout(2000)
     dismiss_vault(page, password)
     page.wait_for_timeout(int(pause * 1000))
