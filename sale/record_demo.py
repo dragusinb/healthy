@@ -169,6 +169,35 @@ def run_demo(email, password, headed):
             dismiss_vault(page, password)
             page.wait_for_timeout(2000)
 
+            # PERMANENTLY hide the vault modal so it never appears in the video
+            page.evaluate("""() => {
+                const style = document.createElement('style');
+                style.textContent = `
+                    div.fixed.inset-0.z-50,
+                    div[class*="fixed"][class*="inset-0"][class*="z-50"],
+                    div:has(> div:has(> button:has-text("Deblocare"))) {
+                        display: none !important;
+                        visibility: hidden !important;
+                        opacity: 0 !important;
+                        pointer-events: none !important;
+                    }
+                `;
+                style.id = 'hide-vault-modal';
+                document.head.appendChild(style);
+            }""")
+            # Also set up a MutationObserver to auto-dismiss any vault modals
+            page.evaluate("""() => {
+                const observer = new MutationObserver((mutations) => {
+                    document.querySelectorAll('div.fixed.inset-0').forEach(el => {
+                        if (el.textContent.includes('Sesiune') || el.textContent.includes('Deblocare') || el.textContent.includes('Vault')) {
+                            el.style.display = 'none';
+                            el.remove();
+                        }
+                    });
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
+            }""")
+
             # ── 3. Dashboard (already here after login) ─────
             print("[3/10] Dashboard...")
             inject_overlay(page, OVERLAYS["dashboard"])
