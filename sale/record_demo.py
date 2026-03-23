@@ -87,6 +87,10 @@ div[class*="bg-red-50"][class*="border-red"] {
 div[class*="bg-amber-50"][class*="border-amber"] {
     display: none !important;
 }
+/* Hide cookie consent banner */
+div[class*="fixed"][class*="bottom-0"][class*="z-"][class*="bg-white"] {
+    display: none !important;
+}
 """
 
 
