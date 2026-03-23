@@ -67,6 +67,7 @@ def slow_scroll(page, steps=5, delay_ms=600):
 
 
 VAULT_HIDE_CSS = """
+/* Hide vault unlock modal overlay */
 .fixed.inset-0.z-50,
 .fixed.inset-0.z-50 *,
 div[class*="fixed"][class*="inset-0"][class*="z-50"],
@@ -78,6 +79,13 @@ div[class*="fixed"][class*="inset-0"][class*="bg-black"] {
     height: 0 !important;
     overflow: hidden !important;
     pointer-events: none !important;
+}
+/* Hide inline "Seiful este blocat" warning banners */
+div[class*="bg-red-50"][class*="border-red"] {
+    display: none !important;
+}
+div[class*="bg-amber-50"][class*="border-amber"] {
+    display: none !important;
 }
 """
 
