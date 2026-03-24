@@ -1,375 +1,249 @@
 # Prospect Report — Analize.Online
 
-**Generated:** 2026-03-24 14:16
-**Total prospects:** 30
-
----
-
-## Summary
-
-| Category | Count | Avg Fit Score |
-|----------|-------|---------------|
-| Healthcare Providers | 6 | 4.5/5 |
-| Insurance Companies | 5 | 3.0/5 |
-| Corporate Wellness | 7 | 3.4/5 |
-| MedTech / Digital Health | 4 | 3.5/5 |
-| VC / Investors | 8 | 2.2/5 |
+**Generated:** 2026-03-24 18:23
+**Companies:** 20 | **Decision-makers found:** 53
 
 ---
 
 ## Healthcare Providers
 
-### MedLife
-- **Website:** https://www.medlife.ro
-- **Fit Score:** ⭐⭐⭐⭐⭐ (5/5)
-- **Description:** Sistemul Medical MedLife - Facem Romania bine. In beneficiul dumneavoastra aducem experienta celor 27 ani de activitate pe piata serviciilor medicale private din Romania.
-- **Approach:** Licensing — crawler already works, integrate into their patient portal
-- **Contact page:** https://www.medlife.ro/contact
-- **LinkedIn:** https://www.linkedin.com/company/sc-medlife-sa/
-- **Team page:** https://www.medlife.ro/articole-medicale/fomo-teama-de-a-rata-ceva-ce-trebuie-sa-stii-despre-sindromul-fomo
-- **Partnership signals:** api
-- **Notes:** Cel mai mare grup privat de sănătate din RO. Crawler MedLife funcțional.
-- **Source:** seed
+### MedLife [+++++] — LICENSING
+_Crawler MedLife already functional. Largest private health group in RO._
 
-### Medicover
-- **Website:** https://www.medicover.ro
-- **Fit Score:** ⭐⭐⭐⭐⭐ (5/5)
-- **Approach:** Licensing — Nordic investor capital, digital expansion
-- **Contact page:** https://www.medicover.ro/contact/
-- **LinkedIn:** https://www.linkedin.com/company/medicoverromania
-- **Team page:** https://www.medicover.ro/medici/bucuresti/spitalul-medicover-pipera,lm,s
-- **Partnership signals:** parteneri
-- **Notes:** Investitor nordic, capital pentru achiziții tech.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Mihai Marcu** | CEO & President | [Profile](https://www.linkedin.com/in/mihaimarcu/) | MedLife patients already use our crawlers — we aggregate their lab results autom |
+| **Dorin Preda** | CTO | - | I built working crawlers for your patient portal — interested in a technical dee |
 
-### Regina Maria
-- **Website:** https://www.reginamaria.ro
-- **Fit Score:** ⭐⭐⭐⭐⭐ (5/5)
-- **Description:** Reteaua privata de sanatate Regina Maria va pune la dispozitie zeci de Clinici si Spitale in toata tara ✅ Servicii medicale la cele mai inalte standarde!
-- **Approach:** Licensing — crawler functional, patient portal upgrade
-- **Contact page:** tel:+40219268
-- **LinkedIn:** https://www.linkedin.com/company/unirea-medical-center
-- **Team page:** https://www.reginamaria.ro/management
-- **Key people (public):** Janne-Olli Järvenpää (CEO Mehiläinen Group), CEO Mehiläinen Group, Fady Chreih (CEO Regina Maria), CEO Regina Maria, Olimpia Enache (COO)
-- **Partnership signals:** api
-- **Notes:** Al doilea cel mai mare. Crawler RM funcțional.
-- **Source:** seed
+Company LinkedIn: https://www.linkedin.com/company/sc-medlife-sa/
+Website: https://www.medlife.ro
 
-### Sanador
-- **Website:** https://www.sanador.ro
-- **Fit Score:** ⭐⭐⭐⭐⭐ (5/5)
-- **Description:** SANADOR - centrul medical privat cu cel mai performant spital privat din Romania, clinici private în Piața Victoriei, Decebal și Băneasa.
-- **Approach:** Licensing — premium positioning, luxury differentiator
-- **Contact page:** https://www.sanador.ro/contact-sanador
-- **LinkedIn:** https://www.linkedin.com/company/sanador-romania/
-- **Team page:** https://www.sanador.ro/echipa-inimii
-- **Partnership signals:** api
-- **Notes:** Crawler Sanador funcțional. Premium positioning.
-- **Source:** seed
+### Medicover [+++++] — LICENSING
+_Nordic investor capital, aggressive digital expansion. Crawler potential._
 
-### MedPark / Rețeaua Enayati
-- **Website:** https://www.medpark.ro
-- **Fit Score:** ⭐⭐⭐⭐☆ (4/5)
-- **Approach:** Licensing — aggressive expansion, tech differentiation
-- **Notes:** Expandare agresivă. Caută diferențiere prin tech.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Calin Ghinea** | CEO Medicover Romania | - | Medicover patients want to see all their results in one place, not just Medicove |
 
-### Care sunt cele mai importante startup
-- **Website:** https://rohealth.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Rohealth.ro
-- **Approach:** Licensing — white-label lab aggregation for their patient portal
-- **Contact page:** https://rohealth.ro/contact
-- **LinkedIn:** https://www.linkedin.com/company/rohealth---the-health-cluster
-- **Team page:** https://rohealth.ro/ro-despre-noi/ro-despre-noi-echipa-rohealth
-- **Partnership signals:** parteneriate, parteneri
-- **Source:** search
+Company LinkedIn: https://www.linkedin.com/company/medicoverromania/
+Website: https://www.medicover.ro
+
+### Regina Maria [+++++] — LICENSING
+_Crawler RM functional. Second largest. Owned by Mehilainen (Finnish, tech-forward)._
+
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Fady Chreih** | CEO | [Profile](https://www.linkedin.com/in/fady-chreih-71bb2122/) | Your patient portal is good — imagine if it also showed Synevo and MedLife resul |
+| **Olimpia Enache** | COO | - | Per-user encryption means even we can't see patient data — built for your compli |
+| **Janne-Olli Järvenpää** | CEO Mehiläinen Group | - |  |
+| **Madalina Caraiani** | Executive Director for the Southern Region | - |  |
+| **Andreea Minuta** | Executive Director, Subscription Division | - |  |
+| **Alina Ambrozie** | Executive Director, Ponderas Academic Hospital | - |  |
+| **Lacramioara Micuda** | Hospital Director, Euroclinic Hospital | - |  |
+| **Tudor Panu** | Hospital Director, Baneasa Hospital | - |  |
+| **Nirvana Georgescu** | Quality and Patient Safety Director | - |  |
+| **Dragos Comanescu** | Imaging Division Director | - |  |
+| **Corina Olareanu** | Laboratory Division Director | - |  |
+| **Cosmin Panaete** | Business Processes Director | - |  |
+| **Greta Redeleanu** | Marketing Director | - |  |
+| **Serban Semeniuc** | Director of Legal and Corporate Affairs | - |  |
+| **Luiza Stroe** | Business Development Director | - |  |
+| **Irina Somanescu** | HR Director | - |  |
+| **Dr. Nirvana Georgescu** | Director Calitate și Siguranta Pacientului | - |  |
+| **Prof. Dr. Cătălin Copăescu** | Director Medical, Ponderas Academic Hospital | - |  |
+| **Dr. Hadi Rahimian** | Director Medical, Spitalul REGINA MARIA Băneasa | - |  |
+| **Prof. Dr. Petre Brătilă** | Director Medical, Spitalul Euroclinic | - |  |
+| **Prof. Univ. Dr. Constantin Ciuce** | Director Medical, Spitalul REGINA MARIA Cluj | - |  |
+| **Dr. Luminița Cîmpeanu** | Director Medical, Spitalul REGINA MARIA Brașov | - |  |
+| **Dr. Andreea Alexandru** | Director Medical, Divizia Laboratoare REGINA MARIA | - |  |
+| **Prof. Univ. Dr. Florin Bîrsășteanu** | Director Medical, Radiologie și Imagistică Medicală | - |  |
+| **Dr. Dan Dimitriu** | Director Medical, Policlinici Bucuresti | - |  |
+| **Magda Dulugiac** | Manager Laborator, Banca Centrala de Celule STEM REGINA MARIA | - |  |
+
+Company LinkedIn: https://www.linkedin.com/company/unirea-medical-center/
+Website: https://www.reginamaria.ro
+
+### Sanador [+++++] — LICENSING
+_Crawler Sanador functional. Premium positioning — tech differentiator._
+
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Ovidiu Palea** | CEO & Founder | - | A luxury health experience includes seeing all your lab history in one place, wi |
+
+Company LinkedIn: https://www.linkedin.com/company/sanador-romania/
+Website: https://www.sanador.ro
+
+### MedPark / Enayati [++++.] — LICENSING
+_Aggressive expansion, looking for tech differentiation._
+
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Wargha Enayati** | Founder & President | [Profile](https://www.linkedin.com/in/wargha-enayati-7a83611a/) | Your network is growing fast — give patients a reason to stay: unified health da |
+
+Website: https://www.medpark.ro
 
 ---
 
 ## Insurance Companies
 
-### Allianz-Țiriac
-- **Website:** https://www.allianztiriac.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Asigurări persoane fizice > Alege asigurarea potrivită pentru mașină, pentru casă și bunuri, viață și sănătate sau călătorie!
-- **Approach:** Data licensing — personalized health insurance offers
-- **Contact page:** https://www.allianztiriac.ro/ro_RO/persoane-fizice/despre-noi/contact.html
-- **LinkedIn:** https://www.linkedin.com/company/allianz-tiriac-asigurari/
-- **Team page:** https://www.allianztiriac.ro#
-- **Partnership signals:** api, parteneri
-- **Notes:** Asigurări de sănătate. Date agregate = oferte personalizate.
-- **Source:** seed
+### NN Asigurari [++++.] — LICENSING
+_Largest life insurer in RO. Health data = predictive pricing + prevention programs._
 
-### Generali România
-- **Website:** https://www.generali.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Ești relaxat cu asigurările Generali: descoperă detalii despre asigurările auto (Casco și RCA), de călătorie, de viață, de locuință și de sănătate.
-- **Approach:** Integration — prevention focus, corporate packages
-- **Contact page:** https://www.generali.ro/pensii/despre-noi/generali-pensii/contact/
-- **Team page:** https://www.generali.ro/despre-noi/generali-in-romania/generali-pensii/
-- **Notes:** Focus pe prevenție, pachete corporate.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Omer Tetik** | CEO NN Romania | [Profile](https://www.linkedin.com/in/omer-tetik-21199a28/) | Your policyholders' lab results predict risk better than questionnaires — we agg |
 
-### Groupama
-- **Website:** https://www.groupama.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Approach:** Integration — corporate health insurance segment
-- **Contact page:** https://www.groupama.ro/contact
-- **LinkedIn:** https://www.linkedin.com/company/groupama-asigurari-romania
-- **Team page:** https://www.groupama.ro/despre-noi/groupama-asigurari
-- **Partnership signals:** parteneri
-- **Notes:** Asigurări sănătate, segment corporate.
-- **Source:** seed
+Company LinkedIn: https://www.linkedin.com/company/nn-romania/
+Website: https://www.nn.ro
 
-### NN Asigurări
-- **Website:** https://www.nn.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** NN este o companie de servicii financiare ce ofera produse de asigurari si pensii. Te ajutam sa protejezi ce conteaza mai mult pentru tine.
-- **Approach:** Data licensing — predictive pricing, prevention programs
-- **Contact page:** https://www.nn.ro/contact
-- **Team page:** https://www.nn.ro/despre
-- **Notes:** Cel mai mare asigurător de viață din RO.
-- **Source:** seed
+### Allianz-Tiriac [+++..] — LICENSING
+_Health insurance products. Aggregated health data = personalized offers._
 
-### Signal Iduna
-- **Website:** https://www.signaliduna.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Approach:** Integration — private health insurance addon
-- **Notes:** Asigurări sănătate private.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Virgil Soncutean** | CEO Allianz-Tiriac | [Profile](https://www.linkedin.com/in/virgil-soncutean-51b21a12/) | Health insurers in the Nordics already use lab data for pricing — Romania has ze |
+
+Company LinkedIn: https://www.linkedin.com/company/allianz-tiriac/
+Website: https://www.allianztiriac.ro
+
+### Generali Romania [+++..] — PARTNERSHIP
+_Prevention focus, corporate packages. Lab data enhances wellness programs._
+
+_No decision-makers found yet — search LinkedIn manually._
+
+Company LinkedIn: https://www.linkedin.com/company/generali-romania/
+Website: https://www.generali.ro
+
+### Signal Iduna [+++..] — PARTNERSHIP
+_Private health insurance — add value with lab aggregation for policyholders._
+
+_No decision-makers found yet — search LinkedIn manually._
+
+Website: https://www.signaliduna.ro
 
 ---
 
 ## Corporate Wellness
 
-### Top 11 Corporate Wellness Companies in Romania (2026)
-- **Website:** https://ensun.io
-- **Fit Score:** ⭐⭐⭐⭐☆ (4/5)
-- **Description:** Discover all relevant Corporate Wellness Companies in Romania, including Hilio - hilio.com and Wellnessentially
-- **Approach:** White-label — add lab result aggregation to employee wellness platform
-- **Contact page:** https://ensun.io/en/do-not-sell-my-contact-info
-- **LinkedIn:** https://www.linkedin.com/company/ensun-gmbh
-- **Team page:** https://ensun.io/en/about-us
-- **Partnership signals:** b2b, solutions
-- **Source:** search
+### SanoPass [+++++] — LICENSING
+_Employee wellness platform. Lab aggregation is the #1 missing feature. PERFECT white-label fit._
 
-### Wellington
-- **Website:** https://wellington.ro
-- **Fit Score:** ⭐⭐⭐⭐☆ (4/5)
-- **Approach:** White-label — add lab result aggregation to employee wellness platform
-- **Contact page:** https://wellington.ro/contact/
-- **Team page:** https://wellington.ro/cine-suntem/
-- **Partnership signals:** parteneri
-- **Source:** search
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Oana Craioveanu** | CEO & Co-Founder | [Profile](https://www.linkedin.com/in/oana-craioveanu/) | Your users already get lab tests through SanoPass — now show them results + AI a |
+| **Teodor Blidarus** | Co-Founder | [Profile](https://www.linkedin.com/in/teodorblidarus/) | We have working crawlers for Regina Maria, Synevo, MedLife, Sanador — plug them  |
 
-### Wellzone
-- **Website:** https://wellzone.ro
-- **Fit Score:** ⭐⭐⭐⭐☆ (4/5)
-- **Approach:** White-label — add lab result aggregation to employee wellness platform
-- **LinkedIn:** https://www.linkedin.com/company/WellzoneRomania
-- **Team page:** https://corporate.wellzone.ro/services/managementul-greutatii-corporale/
-- **Source:** search
+Company LinkedIn: https://www.linkedin.com/company/sanopass/
+Website: https://www.sanopass.ro
 
-### 7card
-- **Website:** https://www.7card.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Approach:** Integration — employee benefits extension
-- **Notes:** Beneficii angajați (fitness, medical).
-- **Source:** seed
+### 7card [+++..] — PARTNERSHIP
+_Employee benefits (fitness + medical). Lab aggregation = natural extension._
 
-### Benefit Systems
-- **Website:** https://www.benefitsystems.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Platforma cu cele mai multe beneficii extrasalariale pentru angajații din România. La alegere. Totul online.
-- **Approach:** Module integration — health module for benefits platform
-- **Contact page:** https://www.edenred.ro/ro/contact#cards
-- **LinkedIn:** https://ro.linkedin.com/company/benefitonline-ro
-- **Partnership signals:** parteneri
-- **Notes:** Platformă flexibilă de beneficii. Module medicale în expansiune.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Florin Filote** | CEO | - | 7card does fitness and medical — adding lab result tracking closes the loop on e |
 
-### SanoPass
-- **Website:** https://www.sanopass.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Approach:** White-label — perfect fit, lab aggregation missing from their offer
-- **Notes:** Platformă wellness angajați. Fit perfect pentru white-label.
-- **Source:** seed
+Company LinkedIn: https://www.linkedin.com/company/7card/
+Website: https://www.7card.ro
 
-### Smartree
-- **Website:** https://www.smartree.com
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Descopera solutii software HR inovatoare si personalizate care simplifica gestionarea resurselor umane. Viziteaza site-ul Smartree chiar acum!
-- **Approach:** White-label — health module for HR outsourcing clients
-- **Contact page:** https://smartree.com/contact/
-- **LinkedIn:** https://www.linkedin.com/company/smartree-romania
-- **Team page:** https://smartree.com/despre-noi/
-- **Notes:** HR outsourcing + beneficii.
-- **Source:** seed
+### Benefit Systems [+++..] — PARTNERSHIP
+_Flexible benefits platform expanding into health modules._
+
+_No decision-makers found yet — search LinkedIn manually._
+
+Website: https://www.benefitsystems.ro
 
 ---
 
 ## MedTech / Digital Health
 
-### Doclandia
-- **Website:** https://www.doclandia.ro
-- **Fit Score:** ⭐⭐⭐⭐⭐ (5/5)
-- **Description:** Doclandia este platforma online unde gasesti doctori. Doclandia are grija de tine. www.doclandia.ro Scurtam timpul de asteptare conectand pacientii cu doctorii de care au nevoie. Vizite la cabinet, vizite la domiciliu, vizite video sau abonamente de mesaje nelimitate.
-- **Approach:** Partnership — lab results + telemedicine synergy
-- **Partnership signals:** api
-- **Notes:** MedTech startup RO (telemedicină). Sinergie directă.
-- **Source:** seed
+### Doclandia [+++++] — PARTNERSHIP
+_Telemedicine startup. Lab results + consultations = complete health experience._
 
-### Cegeka Romania
-- **Website:** https://www.cegeka.com/ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Cegeka is a European family-owned IT company. Our IT experts provide end-to-end IT solutions, services & consultancy In Close Cooperation with our customers.
-- **Approach:** Partnership — Health IT solutions provider
-- **LinkedIn:** https://www.linkedin.com/company/cegeka
-- **Team page:** https://www.cegeka.com/ro/solutions/digital-workplace
-- **Partnership signals:** api, solutions
-- **Notes:** Health IT solutions, potential tech partner.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Tudor Ciuleanu** | CEO & Co-Founder | - | Your doctors consult patients who have lab results elsewhere — what if they saw  |
 
-### DIGI / RCS&RDS
-- **Website:** https://www.digi.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** DIGI Romania, compania lider pe piata serviciilor de televiziune si de internet din Romania. 
-    Furnizeaza si telefonie fixa si mobila. Calitate la preturi accesibile. Cele mai mici preturi pentru TV, internet, telefonie fixa si 
-    mobila. Cele mai ieftine pachete de servicii.
-- **Approach:** Licensing — Digi Health vertical
-- **Contact page:** https://www.digi.ro/asistenta/contact
-- **LinkedIn:** https://www.linkedin.com/company/rcs&rds/
-- **Notes:** Exploring health vertical (Digi Health).
-- **Source:** seed
+Website: https://www.doclandia.ro
 
-### FintechOS
-- **Website:** https://www.fintechos.com
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Approach:** Partnership — insurtech expansion into health
-- **Notes:** Insure-tech expansion, could integrate health data.
-- **Source:** seed
+### Cegeka Romania [+++..] — PARTNERSHIP
+_Health IT solutions provider. Could resell or integrate lab aggregation._
+
+_No decision-makers found yet — search LinkedIn manually._
+
+Company LinkedIn: https://www.linkedin.com/company/cegeka/
+Website: https://www.cegeka.com/ro
+
+### FintechOS [+++..] — PARTNERSHIP
+_Insurtech expanding into health. Lab data enriches insurance products._
+
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Teodor Blidarus** | CEO & Co-Founder | [Profile](https://www.linkedin.com/in/teodorblidarus/) | You digitize insurance — we digitize health data. Together: automated health und |
+| **Sergiu Negut** | Co-Founder | [Profile](https://www.linkedin.com/in/sergiunegut/) | Health data is the missing piece in insurtech — we already aggregate it from 4 m |
+
+Company LinkedIn: https://www.linkedin.com/company/fintechos/
+Website: https://www.fintechos.com
 
 ---
 
 ## VC / Investors
 
-### 41 startup
-- **Website:** https://tekin.ro
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Rubik Hub a selectat 41 startup-uri HealthTech pentru Rubik Garage 2025–2026. Află ce proiecte europene și românești participă, ce tehnologii aduc și cum pot influența piața românească de sănătate digitală.
-- **Approach:** Investment — pitch for seed/pre-seed funding to scale
-- **Contact page:** https://tekin.ro/contact-us
-- **Team page:** https://tekin.ro/5387/foldable-iphone-launch-schedule
-- **Partnership signals:** api
-- **Source:** search
+### GapMinder VC [+++..] — INVESTMENT
+_Invested in FintechOS, TypingDNA. Digital health is in their thesis._
 
-### Top startups in HealthTech in Romania (Oct, 2025)
-- **Website:** https://tracxn.com
-- **Fit Score:** ⭐⭐⭐☆☆ (3/5)
-- **Description:** Discover the top emerging companies in the HealthTech Startups in Romania, their funding activity, key investors, company highlights, and growth stages
-- **Approach:** Investment — pitch for seed/pre-seed funding to scale
-- **Contact page:** https://tracxn.com/contactus
-- **LinkedIn:** https://www.linkedin.com/company/tracxn
-- **Team page:** https://tracxn.com/a/reports/69bd580ce28b1252ed62e38e
-- **Partnership signals:** api, enterprise, partners, solutions
-- **Source:** search
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Dan Mihaescu** | Founding Partner | [Profile](https://www.linkedin.com/in/danmihaescu/) | You backed FintechOS for digitizing insurance — we digitize the health data that |
+| **Sergiu Rosca** | Founding Partner | [Profile](https://www.linkedin.com/in/sergiurosca/) | Romania's health data is locked in 4 portals. We're the only ones who cracked al |
 
-### Catalyst România
-- **Website:** https://www.catalystromania.com
-- **Fit Score:** ⭐⭐☆☆☆ (2/5)
-- **Description:** 01 01 Growth Capital for Global Challengers and Local Leaders Learn More Growth About us. About us About Sectors Philosophy About Catalyst Romania, a leading technology-focused venture capital firm, launched its first EUR 15 million fund in 2012, as the first vehicle of its type designed for Romania and CEE, followed by a second growth capital […]
-- **Approach:** Investment — local early-stage VC
-- **Contact page:** https://catalystromania.com/#contactus
-- **LinkedIn:** https://www.linkedin.com/company/catalyst-romania/
-- **Team page:** https://catalystromania.com/#echipa
-- **Key people (public):** Seasoned entrepreneur, investor and fund manager with 30+ years of experience in founding, scaling and exiting technology and consumer businesses across CEE., Marius Ghenea (Managing Partner), Senior business leader, entrepreneur and investor with 20+ years of experience in e-commerce, digital business growth and venture capital across Romania and CEE., Alin Stanciu (Partner), Alina Georgescu (Investment Director)
-- **Partnership signals:** api, enterprise, partners
-- **Notes:** VC local, early stage.
-- **Source:** seed
+Company LinkedIn: https://www.linkedin.com/company/gapminder-vc/
+Website: https://www.gapminder.vc
 
-### Corporate Wellbeing in Romania I Wellbeing Crafters
-- **Website:** https://www.wellbeingcrafters.com
-- **Fit Score:** ⭐⭐☆☆☆ (2/5)
-- **Description:** Wellbeing Crafters este o companie specializata in programe de corporate wellbeing. Dezvoltam webinarii, workshopuri, experiente, evenimente si team-buildinuri care creaza o calatorie de invatare, aducand echilibru si incredere. Alege sa implementezi programe de wellbeing in compania ta.
-- **Approach:** Investment — pitch for seed/pre-seed funding to scale
-- **LinkedIn:** http://linkedin.com/company/mindfulnester
-- **Team page:** https://www.wellbeingcrafters.com/team-buildings
-- **Source:** search
+### Catalyst Romania [++...] — INVESTMENT
+_First tech VC fund in Romania. Growth capital._
 
-### GapMinder VC
-- **Website:** https://www.gapminder.vc
-- **Fit Score:** ⭐⭐☆☆☆ (2/5)
-- **Approach:** Investment — regional VC, digital health focus
-- **Contact page:** https://gapminder.vc/#contact
-- **LinkedIn:** https://www.linkedin.com/company/gapminder-vc/
-- **Team page:** https://gapminder.vc/#team
-- **Key people (public):** Dan Mihaescu (Founding Partner), Dan (Dan leads investments in B2B platforms enabled by Machine Learning, AI, into cybersecurity, enterprise software / SaaS, automation, and fintech businesses.), Dan led GapMinder Fund I investments into FintechOS, TypingDNA, Cartloop, DruidAI, Cyscale and Outthink. He also serves as a sounding board for other partners into various investments of GapMinder., Dan leads investments in B2B platforms enabled by Machine Learning, AI, into cybersecurity, enterprise software / SaaS, automation, and fintech businesses., Sergiu Rosca (Founding Partner)
-- **Partnership signals:** b2b, enterprise, partners
-- **Notes:** VC regional, focus pe CEE.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Marius Ghenea** | Managing Partner | [Profile](https://www.linkedin.com/in/mariusghenea/) | You've seen Romanian tech grow for decades — health data aggregation is the next |
 
-### SeedBlink
-- **Website:** https://www.seedblink.com
-- **Fit Score:** ⭐⭐☆☆☆ (2/5)
-- **Description:** Integrated platform connecting European founders, investors, and syndicates. Execute fundraising, manage equity, and enable liquidity - all in one place.
-- **Approach:** Investment — equity crowdfunding campaign
-- **Contact page:** https://seedblink.com/about-us#contact
-- **LinkedIn:** https://www.linkedin.com/company/seedblink/
-- **Team page:** https://www.seedblink.com/equity-management
-- **Partnership signals:** api
-- **Notes:** Equity crowdfunding, focus tech/health.
-- **Source:** seed
+Company LinkedIn: https://www.linkedin.com/company/catalyst-romania/
+Website: https://www.catalystromania.com
 
-### Sparking Capital
-- **Website:** https://www.sparkingcapital.com
-- **Fit Score:** ⭐⭐☆☆☆ (2/5)
-- **Description:** Sparking Capital is an early stage fund backing entrepreneurs with unique industry insights, powerful vision and excellence in execution.
-- **Approach:** Investment — early-stage VC
-- **Contact page:** https://www.sparkingcapital.com#Contact-us
-- **LinkedIn:** https://www.linkedin.com/company/sparking-capital/
-- **Team page:** http://www.sparkingcapital.com/#About
-- **Key people (public):** Vlad Panait (Managing Partner, Founder), Cristian Negrutiu (Founding Partner), Vlad Sarca (Partner), Managing Partner, Founder, Founding Partner
-- **Partnership signals:** api
-- **Notes:** VC early-stage, investiții în RO.
-- **Source:** seed
+### SeedBlink [++...] — INVESTMENT
+_Equity crowdfunding — could run public campaign for visibility + funding._
 
-### TechAngels România
-- **Website:** https://www.techangels.ro
-- **Fit Score:** ⭐⭐☆☆☆ (2/5)
-- **Description:** The Tech Business Angel Investors Group in Romania
-- **Approach:** Investment — angel network
-- **LinkedIn:** https://www.linkedin.com/company/catalyst-romania/
-- **Team page:** https://www.techangels.ro#about
-- **Partnership signals:** api
-- **Notes:** Rețea de business angels, focus tech.
-- **Source:** seed
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Andrei Dudoiu** | CEO & Co-Founder | [Profile](https://www.linkedin.com/in/andreidudoiu/) | Health tech + Romania + working product = strong campaign. Interested in listing |
+| **Chairman of the Board** | Founders | - |  |
+| **Carmen Sebe** | President Board of Directors | - |  |
+| **Ionuț Pătrăhău** | Co-Founder | - |  |
+| **George Simion** | Chief Technology Officer | CTO | - |  |
+| **Dorina Tudor** | Chief Financial Officer | CFO | - |  |
+| **Bogdan Stoian** | Head of Investment Syndication | - |  |
+| **Board Advisor** | Board of Directors & Advisors | - |  |
+| **Marius Ghenea** | Board of Directors | - |  |
+
+Company LinkedIn: https://www.linkedin.com/company/seedblink/
+Website: https://www.seedblink.com
+
+### Sparking Capital [++...] — INVESTMENT
+_Early-stage VC, tech focus. Could fund growth._
+
+| Who | Title | LinkedIn | Angle |
+|-----|-------|----------|-------|
+| **Vlad Panait** | Managing Partner & Founder | [Profile](https://www.linkedin.com/in/vladpanait/) | 19M Romanians, 4 major lab providers, zero aggregation. We built it. Looking for |
+| **Cristian Negrutiu** | Founding Partner | [Profile](https://www.linkedin.com/in/cristiannegrutiu/) | Health tech is underserved in CEE. We have product-market fit and working crawle |
+
+Company LinkedIn: https://www.linkedin.com/company/sparking-capital/
+Website: https://www.sparkingcapital.com
+
+### TechAngels Romania [++...] — INVESTMENT
+_Angel network. Could connect with strategic investors._
+
+_No decision-makers found yet — search LinkedIn manually._
+
+Website: https://www.techangels.ro
 
 ---
-
-## Recommended Next Steps
-
-### Week 1-2: Warm Up
-1. Polish LinkedIn profile — add analize.online to experience
-2. Post 2-3 LinkedIn posts about the product (see `sale/linkedin-posts-ro.md`)
-3. Review this report and mark top 5 priority prospects
-
-### Week 3-4: Outreach Wave 1 — Warm Channels
-1. Send personalized LinkedIn DMs to CTOs/CPOs at Tier 1 companies
-2. Use templates from `sale/email-templates-ro.md`
-3. Ask personal connections for intros
-4. **Goal:** Book 3-5 demo calls
-
-### Week 5-6: Outreach Wave 2 — Cold Channels
-1. Email pitches via contact forms found above
-2. Attend Romanian health-tech meetups and startup events
-3. **Goal:** Book 3-5 more demo calls
-
-### Week 7-8: Demo & Negotiate
-1. Demo flow: pitch.html → live demo on analize.online → tech summary PDF
-2. Present 3 options: acquisition / licensing / revenue share
-3. Follow-up cadence: Day 1 → Day 3 → Day 7 → Day 14
-
----
-
-*Report generated by `sale/find_prospects.py`*

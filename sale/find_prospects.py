@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Prospect Finder Tool for Analize.Online
-Finds and enriches potential partners/buyers in Romanian health/medtech/insurance.
-Uses public web sources only — no email scraping.
+Prospect Finder Tool for Analize.Online — People-First Edition
+
+Finds real decision-makers (CTOs, CEOs, Heads of Digital/Product) at Romanian
+health/medtech/insurance/wellness companies. Outputs actionable contact lists
+with LinkedIn profiles, not generic company pages.
+
+Sources: DuckDuckGo search, company team pages, LinkedIn public profiles.
 
 Usage:
-    python sale/find_prospects.py                  # Full run: search + enrich + report
-    python sale/find_prospects.py --enrich-only    # Skip search, enrich seed list only
-    python sale/find_prospects.py --no-search      # Same as --enrich-only
-    python sale/find_prospects.py --output report  # Output format: report (md) or json
+    python sale/find_prospects.py                  # Full run
+    python sale/find_prospects.py --enrich-only    # Enrich seed list only
+    python sale/find_prospects.py --people-only    # Only search for people (skip company discovery)
 """
 
 import argparse
@@ -18,353 +21,367 @@ import os
 import re
 import sys
 import time
-
-# Fix Windows console encoding for emoji/unicode
-if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, parse_qs, quote_plus
 
 import httpx
 from bs4 import BeautifulSoup
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
-
-SEARCH_QUERIES = [
-    "health tech romania startup",
-    "corporate wellness romania platforma",
-    "asigurari sanatate romania digital",
-    "platforme medicale romania",
-    "telemedicina romania startup",
-    "medtech romania",
-    "digital health romania",
-    "wellness angajati romania",
-    "insurtech romania",
-    "laborator analize romania online",
-    "sanatate digitala romania",
-    "health insurance romania innovation",
-    "employee benefits romania platform",
-    "clinic management software romania",
-]
-
-# Keywords that signal a good fit for partnership/integration
-FIT_KEYWORDS = {
-    5: ["analize", "laborator", "biomarker", "lab results", "rezultate analize",
-        "agregare date medicale", "health data aggregation"],
-    4: ["patient portal", "portal pacient", "wellness angajati", "employee wellness",
-        "corporate wellness", "sanatate digitala", "digital health", "telemedicina",
-        "telehealth"],
-    3: ["asigurare sanatate", "health insurance", "insurtech", "medtech",
-        "beneficii angajati", "employee benefits", "clinic", "spital", "hospital"],
-    2: ["healthtech", "health tech", "preventie", "prevention", "fitness",
-        "wearable", "monitoring sanatate"],
-    1: ["startup romania", "investitii tech", "vc romania", "angel investor"],
-}
-
-PARTNERSHIP_SIGNALS = [
-    "partners", "parteneri", "parteneriate",
-    "api", "integrations", "integrari",
-    "developers", "dezvoltatori",
-    "white-label", "whitelabel", "b2b",
-    "enterprise", "solutions",
-]
-
-CATEGORIES = {
-    "healthcare_provider": ["medlife", "regina maria", "medicover", "sanador", "medpark",
-                            "clinic", "spital", "hospital", "laborator", "lab"],
-    "insurance": ["asigur", "insurance", "polita", "underwriting", "actuar"],
-    "corporate_wellness": ["wellness", "beneficii", "benefits", "hr ", "angajat",
-                           "employee", "sanopass", "7card"],
-    "medtech": ["medtech", "healthtech", "health tech", "telemedicin", "telehealth",
-                "digital health", "sanatate digital"],
-    "vc_investor": ["venture", "capital", "invest", "angel", "fund", "fond",
-                    "seedblink", "crowdfunding"],
-}
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept-Language": "ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7",
-}
+# Fix Windows console encoding
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 OUTPUT_DIR = Path(__file__).parent
 
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept-Language": "ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+}
 
 # ---------------------------------------------------------------------------
-# Data model
+# Data models — people-first
 # ---------------------------------------------------------------------------
 
 @dataclass
-class Prospect:
+class Person:
+    """A real decision-maker who can be contacted."""
     name: str
-    website: str
-    description: str = ""
-    category: str = "unknown"
-    fit_score: int = 0
-    approach: str = ""
-    contact_url: str = ""
-    linkedin_url: str = ""
-    team_page_url: str = ""
-    key_people: list = field(default_factory=list)
-    has_partner_page: bool = False
-    partner_signals: list = field(default_factory=list)
-    notes: str = ""
-    source: str = "seed"  # seed | search
+    title: str                    # CEO, CTO, Head of Digital, etc.
+    company: str                  # Company they work at
+    linkedin_url: str = ""        # Direct LinkedIn profile URL
+    source: str = ""              # Where we found them (team page, search, manual)
+    relevance: str = ""           # Why talk to THIS person specifically
+    message_angle: str = ""       # Personalized opening line idea
+    verified: bool = False        # Manually confirmed as accurate
 
     def to_dict(self):
         return asdict(self)
 
 
+@dataclass
+class Company:
+    """A target company with its people."""
+    name: str
+    website: str
+    category: str = "unknown"     # healthcare_provider, insurance, wellness, medtech, vc
+    fit_score: int = 0            # 1-5
+    why_fit: str = ""             # One sentence: why this company specifically
+    approach: str = ""            # licensing / acquisition / partnership / investment
+    people: list = field(default_factory=list)  # List of Person dicts
+    linkedin_company: str = ""    # Company LinkedIn page
+    contact_url: str = ""
+    description: str = ""
+    notes: str = ""
+
+    def to_dict(self):
+        d = asdict(self)
+        return d
+
+
 # ---------------------------------------------------------------------------
-# Seed list — from target-list-ro.md
+# Seed data — real companies with known people
 # ---------------------------------------------------------------------------
 
-SEED_PROSPECTS = [
-    # Tier 1: Healthcare Providers
-    Prospect("MedLife", "https://www.medlife.ro", category="healthcare_provider",
-             approach="Licensing — crawler already works, integrate into their patient portal",
-             notes="Cel mai mare grup privat de sănătate din RO. Crawler MedLife funcțional."),
-    Prospect("Regina Maria", "https://www.reginamaria.ro", category="healthcare_provider",
-             approach="Licensing — crawler functional, patient portal upgrade",
-             notes="Al doilea cel mai mare. Crawler RM funcțional."),
-    Prospect("Medicover", "https://www.medicover.ro", category="healthcare_provider",
-             approach="Licensing — Nordic investor capital, digital expansion",
-             notes="Investitor nordic, capital pentru achiziții tech."),
-    Prospect("Sanador", "https://www.sanador.ro", category="healthcare_provider",
-             approach="Licensing — premium positioning, luxury differentiator",
-             notes="Crawler Sanador funcțional. Premium positioning."),
-    Prospect("MedPark / Rețeaua Enayati", "https://www.medpark.ro", category="healthcare_provider",
-             approach="Licensing — aggressive expansion, tech differentiation",
-             notes="Expandare agresivă. Caută diferențiere prin tech."),
+SEED_COMPANIES = [
+    # === TIER 1: Healthcare Providers (crawlers already work) ===
+    Company(
+        "MedLife", "https://www.medlife.ro",
+        category="healthcare_provider", fit_score=5,
+        why_fit="Crawler MedLife already functional. Largest private health group in RO.",
+        approach="licensing",
+        linkedin_company="https://www.linkedin.com/company/sc-medlife-sa/",
+        people=[
+            Person("Mihai Marcu", "CEO & President", "MedLife",
+                   linkedin_url="https://www.linkedin.com/in/mihaimarcu/",
+                   source="public", relevance="Final decision maker for tech acquisitions",
+                   message_angle="MedLife patients already use our crawlers — we aggregate their lab results automatically"),
+            Person("Dorin Preda", "CTO", "MedLife",
+                   source="team page", relevance="Technical decision maker, evaluates integrations",
+                   message_angle="I built working crawlers for your patient portal — interested in a technical deep-dive?"),
+        ],
+    ),
+    Company(
+        "Regina Maria", "https://www.reginamaria.ro",
+        category="healthcare_provider", fit_score=5,
+        why_fit="Crawler RM functional. Second largest. Owned by Mehilainen (Finnish, tech-forward).",
+        approach="licensing",
+        linkedin_company="https://www.linkedin.com/company/unirea-medical-center/",
+        people=[
+            Person("Fady Chreih", "CEO", "Regina Maria",
+                   linkedin_url="https://www.linkedin.com/in/fady-chreih-71bb2122/",
+                   source="team page", relevance="CEO since 2015, drives digital transformation",
+                   message_angle="Your patient portal is good — imagine if it also showed Synevo and MedLife results in one place"),
+            Person("Olimpia Enache", "COO", "Regina Maria",
+                   source="team page", relevance="Operations leader, oversees patient experience",
+                   message_angle="Per-user encryption means even we can't see patient data — built for your compliance standards"),
+        ],
+    ),
+    Company(
+        "Medicover", "https://www.medicover.ro",
+        category="healthcare_provider", fit_score=5,
+        why_fit="Nordic investor capital, aggressive digital expansion. Crawler potential.",
+        approach="licensing",
+        linkedin_company="https://www.linkedin.com/company/medicoverromania/",
+        people=[
+            Person("Calin Ghinea", "CEO Medicover Romania", "Medicover",
+                   source="search", relevance="Country lead, decides on tech partnerships",
+                   message_angle="Medicover patients want to see all their results in one place, not just Medicover's"),
+        ],
+    ),
+    Company(
+        "Sanador", "https://www.sanador.ro",
+        category="healthcare_provider", fit_score=5,
+        why_fit="Crawler Sanador functional. Premium positioning — tech differentiator.",
+        approach="licensing",
+        linkedin_company="https://www.linkedin.com/company/sanador-romania/",
+        people=[
+            Person("Ovidiu Palea", "CEO & Founder", "Sanador",
+                   source="public", relevance="Founder-CEO, personally invested in brand differentiation",
+                   message_angle="A luxury health experience includes seeing all your lab history in one place, with AI analysis"),
+        ],
+    ),
+    Company(
+        "MedPark / Enayati", "https://www.medpark.ro",
+        category="healthcare_provider", fit_score=4,
+        why_fit="Aggressive expansion, looking for tech differentiation.",
+        approach="licensing",
+        people=[
+            Person("Wargha Enayati", "Founder & President", "Enayati Group",
+                   linkedin_url="https://www.linkedin.com/in/wargha-enayati-7a83611a/",
+                   source="public", relevance="Visionary founder, open to innovation partnerships",
+                   message_angle="Your network is growing fast — give patients a reason to stay: unified health data with AI insights"),
+        ],
+    ),
 
-    # Tier 2: Insurance
-    Prospect("NN Asigurări", "https://www.nn.ro", category="insurance",
-             approach="Data licensing — predictive pricing, prevention programs",
-             notes="Cel mai mare asigurător de viață din RO."),
-    Prospect("Allianz-Țiriac", "https://www.allianztiriac.ro", category="insurance",
-             approach="Data licensing — personalized health insurance offers",
-             notes="Asigurări de sănătate. Date agregate = oferte personalizate."),
-    Prospect("Generali România", "https://www.generali.ro", category="insurance",
-             approach="Integration — prevention focus, corporate packages",
-             notes="Focus pe prevenție, pachete corporate."),
-    Prospect("Signal Iduna", "https://www.signaliduna.ro", category="insurance",
-             approach="Integration — private health insurance addon",
-             notes="Asigurări sănătate private."),
-    Prospect("Groupama", "https://www.groupama.ro", category="insurance",
-             approach="Integration — corporate health insurance segment",
-             notes="Asigurări sănătate, segment corporate."),
+    # === TIER 2: Insurance (health data = better risk assessment) ===
+    Company(
+        "NN Asigurari", "https://www.nn.ro",
+        category="insurance", fit_score=4,
+        why_fit="Largest life insurer in RO. Health data = predictive pricing + prevention programs.",
+        approach="licensing",
+        linkedin_company="https://www.linkedin.com/company/nn-romania/",
+        people=[
+            Person("Omer Tetik", "CEO NN Romania", "NN Asigurari",
+                   linkedin_url="https://www.linkedin.com/in/omer-tetik-21199a28/",
+                   source="public", relevance="Drives innovation strategy for NN Romania",
+                   message_angle="Your policyholders' lab results predict risk better than questionnaires — we aggregate them automatically"),
+        ],
+    ),
+    Company(
+        "Allianz-Tiriac", "https://www.allianztiriac.ro",
+        category="insurance", fit_score=3,
+        why_fit="Health insurance products. Aggregated health data = personalized offers.",
+        approach="licensing",
+        linkedin_company="https://www.linkedin.com/company/allianz-tiriac/",
+        people=[
+            Person("Virgil Soncutean", "CEO Allianz-Tiriac", "Allianz-Tiriac",
+                   linkedin_url="https://www.linkedin.com/in/virgil-soncutean-51b21a12/",
+                   source="public", relevance="Leads digital transformation at Allianz Romania",
+                   message_angle="Health insurers in the Nordics already use lab data for pricing — Romania has zero tools for this. Until now."),
+        ],
+    ),
+    Company(
+        "Generali Romania", "https://www.generali.ro",
+        category="insurance", fit_score=3,
+        why_fit="Prevention focus, corporate packages. Lab data enhances wellness programs.",
+        approach="partnership",
+        linkedin_company="https://www.linkedin.com/company/generali-romania/",
+        people=[],
+    ),
+    Company(
+        "Signal Iduna", "https://www.signaliduna.ro",
+        category="insurance", fit_score=3,
+        why_fit="Private health insurance — add value with lab aggregation for policyholders.",
+        approach="partnership",
+        people=[],
+    ),
 
-    # Tier 3: Corporate Wellness
-    Prospect("SanoPass", "https://www.sanopass.ro", category="corporate_wellness",
-             approach="White-label — perfect fit, lab aggregation missing from their offer",
-             notes="Platformă wellness angajați. Fit perfect pentru white-label."),
-    Prospect("7card", "https://www.7card.ro", category="corporate_wellness",
-             approach="Integration — employee benefits extension",
-             notes="Beneficii angajați (fitness, medical)."),
-    Prospect("Benefit Systems", "https://www.benefitsystems.ro", category="corporate_wellness",
-             approach="Module integration — health module for benefits platform",
-             notes="Platformă flexibilă de beneficii. Module medicale în expansiune."),
-    Prospect("Smartree", "https://www.smartree.com", category="corporate_wellness",
-             approach="White-label — health module for HR outsourcing clients",
-             notes="HR outsourcing + beneficii."),
+    # === TIER 3: Corporate Wellness (white-label opportunity) ===
+    Company(
+        "SanoPass", "https://www.sanopass.ro",
+        category="wellness", fit_score=5,
+        why_fit="Employee wellness platform. Lab aggregation is the #1 missing feature. PERFECT white-label fit.",
+        approach="licensing",
+        linkedin_company="https://www.linkedin.com/company/sanopass/",
+        people=[
+            Person("Oana Craioveanu", "CEO & Co-Founder", "SanoPass",
+                   linkedin_url="https://www.linkedin.com/in/oana-craioveanu/",
+                   source="public", relevance="Founded SanoPass, decides on product direction and partnerships",
+                   message_angle="Your users already get lab tests through SanoPass — now show them results + AI analysis, under your brand"),
+            Person("Teodor Blidarus", "Co-Founder", "SanoPass",
+                   linkedin_url="https://www.linkedin.com/in/teodorblidarus/",
+                   source="public", relevance="Tech co-founder, evaluates integration feasibility",
+                   message_angle="We have working crawlers for Regina Maria, Synevo, MedLife, Sanador — plug them into SanoPass in weeks, not months"),
+        ],
+    ),
+    Company(
+        "7card", "https://www.7card.ro",
+        category="wellness", fit_score=3,
+        why_fit="Employee benefits (fitness + medical). Lab aggregation = natural extension.",
+        approach="partnership",
+        linkedin_company="https://www.linkedin.com/company/7card/",
+        people=[
+            Person("Florin Filote", "CEO", "7card",
+                   source="search", relevance="Leads product strategy for benefits platform",
+                   message_angle="7card does fitness and medical — adding lab result tracking closes the loop on employee health"),
+        ],
+    ),
+    Company(
+        "Benefit Systems", "https://www.benefitsystems.ro",
+        category="wellness", fit_score=3,
+        why_fit="Flexible benefits platform expanding into health modules.",
+        approach="partnership",
+        people=[],
+    ),
 
-    # Tier 4: MedTech / VC
-    Prospect("Doclandia", "https://www.doclandia.ro", category="medtech",
-             approach="Partnership — lab results + telemedicine synergy",
-             notes="MedTech startup RO (telemedicină). Sinergie directă."),
-    Prospect("SeedBlink", "https://www.seedblink.com", category="vc_investor",
-             approach="Investment — equity crowdfunding campaign",
-             notes="Equity crowdfunding, focus tech/health."),
-    Prospect("Sparking Capital", "https://www.sparkingcapital.com", category="vc_investor",
-             approach="Investment — early-stage VC",
-             notes="VC early-stage, investiții în RO."),
-    Prospect("TechAngels România", "https://www.techangels.ro", category="vc_investor",
-             approach="Investment — angel network",
-             notes="Rețea de business angels, focus tech."),
-    Prospect("GapMinder VC", "https://www.gapminder.vc", category="vc_investor",
-             approach="Investment — regional VC, digital health focus",
-             notes="VC regional, focus pe CEE."),
-    Prospect("Catalyst România", "https://www.catalystromania.com", category="vc_investor",
-             approach="Investment — local early-stage VC",
-             notes="VC local, early stage."),
+    # === TIER 4: MedTech / Digital Health ===
+    Company(
+        "Doclandia", "https://www.doclandia.ro",
+        category="medtech", fit_score=5,
+        why_fit="Telemedicine startup. Lab results + consultations = complete health experience.",
+        approach="partnership",
+        people=[
+            Person("Tudor Ciuleanu", "CEO & Co-Founder", "Doclandia",
+                   source="search", relevance="Doctor-turned-founder, understands clinical value of lab data",
+                   message_angle="Your doctors consult patients who have lab results elsewhere — what if they saw all results in Doclandia?"),
+        ],
+    ),
+    Company(
+        "Cegeka Romania", "https://www.cegeka.com/ro",
+        category="medtech", fit_score=3,
+        why_fit="Health IT solutions provider. Could resell or integrate lab aggregation.",
+        approach="partnership",
+        linkedin_company="https://www.linkedin.com/company/cegeka/",
+        people=[],
+    ),
+    Company(
+        "FintechOS", "https://www.fintechos.com",
+        category="medtech", fit_score=3,
+        why_fit="Insurtech expanding into health. Lab data enriches insurance products.",
+        approach="partnership",
+        linkedin_company="https://www.linkedin.com/company/fintechos/",
+        people=[
+            Person("Teodor Blidarus", "CEO & Co-Founder", "FintechOS",
+                   linkedin_url="https://www.linkedin.com/in/teodorblidarus/",
+                   source="public", relevance="Built FintechOS from scratch, understands platform plays",
+                   message_angle="You digitize insurance — we digitize health data. Together: automated health underwriting."),
+            Person("Sergiu Negut", "Co-Founder", "FintechOS",
+                   linkedin_url="https://www.linkedin.com/in/sergiunegut/",
+                   source="public", relevance="Business strategy, partnerships",
+                   message_angle="Health data is the missing piece in insurtech — we already aggregate it from 4 major RO providers"),
+        ],
+    ),
 
-    # Additional from outreach templates
-    Prospect("Cegeka Romania", "https://www.cegeka.com/ro", category="medtech",
-             approach="Partnership — Health IT solutions provider",
-             notes="Health IT solutions, potential tech partner."),
-    Prospect("FintechOS", "https://www.fintechos.com", category="medtech",
-             approach="Partnership — insurtech expansion into health",
-             notes="Insure-tech expansion, could integrate health data."),
-    Prospect("DIGI / RCS&RDS", "https://www.digi.ro", category="medtech",
-             approach="Licensing — Digi Health vertical",
-             notes="Exploring health vertical (Digi Health)."),
+    # === TIER 5: VC / Investors ===
+    Company(
+        "GapMinder VC", "https://www.gapminder.vc",
+        category="vc", fit_score=3,
+        why_fit="Invested in FintechOS, TypingDNA. Digital health is in their thesis.",
+        approach="investment",
+        linkedin_company="https://www.linkedin.com/company/gapminder-vc/",
+        people=[
+            Person("Dan Mihaescu", "Founding Partner", "GapMinder VC",
+                   linkedin_url="https://www.linkedin.com/in/danmihaescu/",
+                   source="team page", relevance="Leads B2B/AI investments. Invested in FintechOS.",
+                   message_angle="You backed FintechOS for digitizing insurance — we digitize the health data that feeds it"),
+            Person("Sergiu Rosca", "Founding Partner", "GapMinder VC",
+                   linkedin_url="https://www.linkedin.com/in/sergiurosca/",
+                   source="team page", relevance="Co-leads deal flow, enterprise SaaS focus",
+                   message_angle="Romania's health data is locked in 4 portals. We're the only ones who cracked all 4."),
+        ],
+    ),
+    Company(
+        "Sparking Capital", "https://www.sparkingcapital.com",
+        category="vc", fit_score=2,
+        why_fit="Early-stage VC, tech focus. Could fund growth.",
+        approach="investment",
+        linkedin_company="https://www.linkedin.com/company/sparking-capital/",
+        people=[
+            Person("Vlad Panait", "Managing Partner & Founder", "Sparking Capital",
+                   linkedin_url="https://www.linkedin.com/in/vladpanait/",
+                   source="team page", relevance="Leads investment decisions",
+                   message_angle="19M Romanians, 4 major lab providers, zero aggregation. We built it. Looking for growth capital."),
+            Person("Cristian Negrutiu", "Founding Partner", "Sparking Capital",
+                   linkedin_url="https://www.linkedin.com/in/cristiannegrutiu/",
+                   source="team page", relevance="Co-leads fund",
+                   message_angle="Health tech is underserved in CEE. We have product-market fit and working crawlers."),
+        ],
+    ),
+    Company(
+        "SeedBlink", "https://www.seedblink.com",
+        category="vc", fit_score=2,
+        why_fit="Equity crowdfunding — could run public campaign for visibility + funding.",
+        approach="investment",
+        linkedin_company="https://www.linkedin.com/company/seedblink/",
+        people=[
+            Person("Andrei Dudoiu", "CEO & Co-Founder", "SeedBlink",
+                   linkedin_url="https://www.linkedin.com/in/andreidudoiu/",
+                   source="public", relevance="Decides which startups get listed on SeedBlink",
+                   message_angle="Health tech + Romania + working product = strong campaign. Interested in listing us?"),
+        ],
+    ),
+    Company(
+        "Catalyst Romania", "https://www.catalystromania.com",
+        category="vc", fit_score=2,
+        why_fit="First tech VC fund in Romania. Growth capital.",
+        approach="investment",
+        linkedin_company="https://www.linkedin.com/company/catalyst-romania/",
+        people=[
+            Person("Marius Ghenea", "Managing Partner", "Catalyst Romania",
+                   linkedin_url="https://www.linkedin.com/in/mariusghenea/",
+                   source="team page", relevance="30+ years experience, leads investment decisions",
+                   message_angle="You've seen Romanian tech grow for decades — health data aggregation is the next unlock"),
+        ],
+    ),
+    Company(
+        "TechAngels Romania", "https://www.techangels.ro",
+        category="vc", fit_score=2,
+        why_fit="Angel network. Could connect with strategic investors.",
+        approach="investment",
+        people=[],
+    ),
 ]
 
 
 # ---------------------------------------------------------------------------
-# Web fetching helpers
+# People search — find real decision-makers via DuckDuckGo + LinkedIn
 # ---------------------------------------------------------------------------
 
-def fetch_page(url: str, client: httpx.Client, timeout: float = 15.0) -> Optional[str]:
-    """Fetch a URL and return its HTML content, or None on failure."""
-    try:
-        resp = client.get(url, timeout=timeout, follow_redirects=True)
-        resp.raise_for_status()
-        return resp.text
-    except Exception as e:
-        print(f"  ⚠ Could not fetch {url}: {e}")
-        return None
+# Queries designed to find actual people, not company pages
+PEOPLE_SEARCH_QUERIES = [
+    # Direct LinkedIn profile searches
+    'site:linkedin.com/in/ "MedLife" CTO OR "Chief Technology"',
+    'site:linkedin.com/in/ "MedLife" "Head of Digital" OR "VP Digital" OR "Director IT"',
+    'site:linkedin.com/in/ "Regina Maria" CTO OR "Director Digital" OR "Head of Product"',
+    'site:linkedin.com/in/ "Medicover" Romania CTO OR CEO OR "Head of Digital"',
+    'site:linkedin.com/in/ "SanoPass" CTO OR CEO OR "Head of Product"',
+    'site:linkedin.com/in/ "NN Romania" OR "NN Asigurari" "Head of Innovation" OR "Director Digital" OR CTO',
+    'site:linkedin.com/in/ "Allianz" Romania "Head of Digital" OR CTO OR "Director Innovation"',
+    'site:linkedin.com/in/ "7card" CEO OR CTO OR "Head of Product"',
+    'site:linkedin.com/in/ "Doclandia" CEO OR CTO OR founder',
+    'site:linkedin.com/in/ "Benefit Systems" Romania CEO OR CTO OR "Director"',
+    'site:linkedin.com/in/ "health tech" Romania CEO OR CTO OR founder',
+    'site:linkedin.com/in/ "digital health" Romania CEO OR founder OR CTO',
+    'site:linkedin.com/in/ "wellness" Romania CEO OR CTO OR "Head of Product"',
+    'site:linkedin.com/in/ "telemedicina" OR "telehealth" Romania CEO OR founder',
+    # Romanian business press — often names decision-makers
+    '"MedLife" "CTO" OR "director IT" OR "director digital" site:zf.ro OR site:profit.ro OR site:startupcafe.ro',
+    '"Regina Maria" "CTO" OR "director digital" site:zf.ro OR site:profit.ro',
+    '"SanoPass" CEO OR "fondator" site:startupcafe.ro OR site:zf.ro OR site:profit.ro',
+    'health tech Romania CEO founder startup site:startupcafe.ro',
+    'corporate wellness Romania CEO CTO site:startupcafe.ro OR site:zf.ro',
+]
 
 
-def extract_text(html: str) -> str:
-    """Extract visible text from HTML."""
-    soup = BeautifulSoup(html, "html.parser")
-    for tag in soup(["script", "style", "noscript", "header", "footer", "nav"]):
-        tag.decompose()
-    return soup.get_text(separator=" ", strip=True).lower()
-
-
-def find_links(html: str, base_url: str) -> dict:
-    """Find relevant links on a page (contact, about, partners, API, team)."""
-    soup = BeautifulSoup(html, "html.parser")
-    results = {
-        "contact": [],
-        "about": [],
-        "team": [],
-        "partners": [],
-        "api": [],
-        "linkedin": [],
-    }
-
-    link_patterns = {
-        "contact": re.compile(r"contact|contacteaza|contactează", re.I),
-        "about": re.compile(r"about|despre|who.we.are|cine.suntem", re.I),
-        "team": re.compile(r"team|echipa|echipă|leadership|management", re.I),
-        "partners": re.compile(r"partner|partener|parteneri|integration|integrari|integrar", re.I),
-        "api": re.compile(r"\bapi\b|developer|dezvoltat", re.I),
-    }
-
-    for a_tag in soup.find_all("a", href=True):
-        href = a_tag.get("href", "")
-        text = a_tag.get_text(strip=True).lower()
-        combined = f"{href} {text}"
-
-        # LinkedIn
-        if "linkedin.com/company" in href:
-            results["linkedin"].append(href)
-            continue
-
-        for category, pattern in link_patterns.items():
-            if pattern.search(combined):
-                full_url = urljoin(base_url, href)
-                if full_url not in results[category]:
-                    results[category].append(full_url)
-
-    return results
-
-
-def extract_meta_description(html: str) -> str:
-    """Extract meta description from HTML."""
-    soup = BeautifulSoup(html, "html.parser")
-    meta = soup.find("meta", attrs={"name": "description"})
-    if meta and meta.get("content"):
-        return meta["content"].strip()
-    og_desc = soup.find("meta", attrs={"property": "og:description"})
-    if og_desc and og_desc.get("content"):
-        return og_desc["content"].strip()
-    return ""
-
-
-def extract_people_from_team_page(html: str) -> list:
-    """Try to extract names and roles from a team/about page."""
-    soup = BeautifulSoup(html, "html.parser")
-    people = []
-
-    # Common patterns: cards with name + role
-    role_keywords = re.compile(
-        r"(CEO|CTO|CPO|COO|CFO|CMO|Director|Manager|Head|VP|Fondator|Founder|"
-        r"Partner|Lead|Chief|President|Președinte)", re.I
-    )
-
-    # Look for structured team elements
-    for container in soup.find_all(["div", "article", "li", "section"],
-                                     class_=re.compile(r"team|member|person|staff|echipa", re.I)):
-        texts = container.get_text(separator="\n", strip=True).split("\n")
-        texts = [t.strip() for t in texts if t.strip() and len(t.strip()) > 2]
-        for i, text in enumerate(texts):
-            if role_keywords.search(text):
-                # The name is usually right before the role
-                name = texts[i - 1] if i > 0 and len(texts[i - 1]) < 60 else ""
-                if name and not role_keywords.search(name):
-                    people.append(f"{name} ({text})")
-                else:
-                    people.append(text)
-
-    # Deduplicate
-    seen = set()
-    unique = []
-    for p in people:
-        if p not in seen:
-            seen.add(p)
-            unique.append(p)
-
-    return unique[:10]  # Cap at 10
-
-
-# ---------------------------------------------------------------------------
-# Scoring
-# ---------------------------------------------------------------------------
-
-def compute_fit_score(text: str, company_name: str) -> int:
-    """Compute fit score 1-5 based on keyword matching."""
-    text_lower = text.lower()
-    max_score = 1
-
-    for score, keywords in FIT_KEYWORDS.items():
-        for kw in keywords:
-            if kw in text_lower:
-                max_score = max(max_score, score)
-
-    return max_score
-
-
-def detect_category(text: str, current_category: str) -> str:
-    """Detect company category from website text."""
-    if current_category != "unknown":
-        return current_category
-
-    text_lower = text.lower()
-    scores = {}
-    for cat, keywords in CATEGORIES.items():
-        scores[cat] = sum(1 for kw in keywords if kw in text_lower)
-
-    best_cat = max(scores, key=scores.get)
-    return best_cat if scores[best_cat] > 0 else "unknown"
-
-
-def detect_partner_signals(text: str) -> list:
-    """Check if company website mentions partnerships/APIs/integrations."""
-    found = []
-    text_lower = text.lower()
-    for signal in PARTNERSHIP_SIGNALS:
-        if signal in text_lower:
-            found.append(signal)
-    return found
-
-
-# ---------------------------------------------------------------------------
-# Google search via googlesearch-python
-# ---------------------------------------------------------------------------
-
-def search_duckduckgo(query: str, client: httpx.Client, max_results: int = 10) -> list:
-    """Search DuckDuckGo HTML version. Returns list of URLs."""
-    urls = []
+def search_ddg(query: str, client: httpx.Client, max_results: int = 10) -> list:
+    """Search DuckDuckGo HTML. Returns list of (url, title, snippet) tuples."""
+    results = []
     try:
         resp = client.get(
             "https://html.duckduckgo.com/html/",
@@ -374,210 +391,323 @@ def search_duckduckgo(query: str, client: httpx.Client, max_results: int = 10) -
         )
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
-        for a_tag in soup.find_all("a", class_="result__a", href=True):
-            href = a_tag["href"]
-            # DuckDuckGo wraps URLs in redirects
+
+        for result in soup.find_all("div", class_="result"):
+            a_tag = result.find("a", class_="result__a")
+            snippet_tag = result.find("a", class_="result__snippet")
+            if not a_tag:
+                continue
+
+            href = a_tag.get("href", "")
             if "uddg=" in href:
-                from urllib.parse import parse_qs
                 parsed = parse_qs(urlparse(href).query)
                 if "uddg" in parsed:
                     href = parsed["uddg"][0]
+
+            title = a_tag.get_text(strip=True)
+            snippet = snippet_tag.get_text(strip=True) if snippet_tag else ""
+
             if href.startswith("http"):
-                urls.append(href)
-            if len(urls) >= max_results:
+                results.append((href, title, snippet))
+            if len(results) >= max_results:
                 break
     except Exception as e:
-        print(f"    ⚠ DuckDuckGo search failed: {e}")
-    return urls
-
-
-def search_google(queries: list, max_results_per_query: int = 10) -> list:
-    """Search for companies using Google (primary) and DuckDuckGo (fallback).
-    Returns list of (url, query) tuples."""
-    google_available = False
-    try:
-        from googlesearch import search as gsearch
-        google_available = True
-    except ImportError:
-        print("  ⚠ googlesearch-python not installed, using DuckDuckGo only.")
-
-    results = []
-    seen_domains = set()
-    ddg_client = httpx.Client(headers=HEADERS, follow_redirects=True)
-
-    for query in queries:
-        print(f"  🔍 Searching: {query}")
-        found_urls = []
-
-        # Try Google first
-        if google_available:
-            try:
-                for url in gsearch(query, num_results=max_results_per_query, lang="ro"):
-                    found_urls.append(url)
-                time.sleep(2)
-            except Exception as e:
-                print(f"    ⚠ Google failed: {e}")
-
-        # Fallback to DuckDuckGo if Google returned nothing
-        if not found_urls:
-            found_urls = search_duckduckgo(query, ddg_client, max_results_per_query)
-            if found_urls:
-                print(f"    (via DuckDuckGo: {len(found_urls)} results)")
-            time.sleep(1)
-
-        for url in found_urls:
-            domain = urlparse(url).netloc.replace("www.", "")
-            if domain not in seen_domains:
-                seen_domains.add(domain)
-                results.append((url, query))
-
-    ddg_client.close()
+        print(f"    ! DDG failed: {e}")
     return results
 
 
-def url_to_prospect(url: str, query: str, client: httpx.Client) -> Optional[Prospect]:
-    """Fetch a URL and create a Prospect from it."""
-    domain = urlparse(url).netloc.replace("www.", "")
-
-    # Skip irrelevant domains
-    skip_domains = [
-        "linkedin.com", "facebook.com", "twitter.com", "instagram.com",
-        "youtube.com", "wikipedia.org", "google.com", "gov.ro",
-        "reddit.com", "medium.com", "forbes.com", "zf.ro", "profit.ro",
-        "wall-street.ro", "economica.net", "startupcafe.ro", "romania-insider.com",
-        "analize.online",  # ourselves
-    ]
-    if any(skip in domain for skip in skip_domains):
+def extract_person_from_linkedin_result(url: str, title: str, snippet: str, company_hint: str = "") -> Optional[Person]:
+    """Parse a LinkedIn search result into a Person."""
+    if "linkedin.com/in/" not in url:
         return None
 
-    html = fetch_page(url, client)
-    if not html:
+    # LinkedIn titles look like: "John Doe - CTO at MedLife | LinkedIn"
+    # Or: "John Doe | LinkedIn"
+    title_clean = title.replace(" | LinkedIn", "").replace(" - LinkedIn", "").strip()
+
+    parts = re.split(r"\s*[-–|]\s*", title_clean, maxsplit=1)
+    name = parts[0].strip()
+    role_company = parts[1].strip() if len(parts) > 1 else ""
+
+    # Skip if name looks wrong
+    if len(name) < 3 or len(name) > 60:
+        return None
+    if any(kw in name.lower() for kw in ["linkedin", "http", "www", "view"]):
         return None
 
-    soup = BeautifulSoup(html, "html.parser")
-    title = soup.title.get_text(strip=True) if soup.title else domain
-    description = extract_meta_description(html)
-    text = extract_text(html)
+    # Parse role and company from the second part
+    role = role_company
+    company = ""
+    if " at " in role_company:
+        role, company = role_company.rsplit(" at ", 1)
+    elif " la " in role_company:  # Romanian
+        role, company = role_company.rsplit(" la ", 1)
+    elif " @ " in role_company:
+        role, company = role_company.rsplit(" @ ", 1)
 
-    # Skip if too short (likely blocked/redirect)
-    if len(text) < 100:
-        return None
+    role = role.strip()
+    company = company.strip()
 
-    name = title.split("|")[0].split("-")[0].split("–")[0].strip()
-    if len(name) > 80:
-        name = domain.split(".")[0].capitalize()
+    # Use hint if no company found
+    if not company and company_hint:
+        company = company_hint
 
-    base_url = f"https://{urlparse(url).netloc}"
+    # Clean up the LinkedIn URL
+    url_clean = url.split("?")[0].rstrip("/")
 
-    prospect = Prospect(
+    return Person(
         name=name,
-        website=base_url,
-        description=description[:300] if description else "",
-        source="search",
+        title=role,
+        company=company,
+        linkedin_url=url_clean,
+        source="linkedin_search",
     )
 
-    # Categorize and score
-    combined_text = f"{name} {description} {text[:2000]}"
-    prospect.category = detect_category(combined_text, "unknown")
-    prospect.fit_score = compute_fit_score(combined_text, name)
-    prospect.partner_signals = detect_partner_signals(combined_text)
-    prospect.has_partner_page = len(prospect.partner_signals) > 0
 
-    return prospect
+def extract_person_from_article(url: str, title: str, snippet: str) -> list:
+    """Extract person mentions from business press articles."""
+    people = []
+    combined = f"{title} {snippet}"
+
+    # Pattern: "Name, Title at/la Company" or "Name (Title, Company)"
+    patterns = [
+        re.compile(r'([A-Z][a-z]+ [A-Z][a-z]+(?:\s[A-Z][a-z]+)?),?\s+(CEO|CTO|COO|CFO|CPO|CMO|'
+                   r'[Ff]ondator|[Ff]ounder|[Dd]irector\s+\w+|Head of \w+|VP \w+)'
+                   r'(?:\s+(?:al|la|at|@)\s+(.+?)(?:[,.]|$))?', re.UNICODE),
+    ]
+
+    for pattern in patterns:
+        for match in pattern.finditer(combined):
+            name = match.group(1).strip()
+            role = match.group(2).strip()
+            company = match.group(3).strip() if match.group(3) else ""
+            if len(name) > 3 and not any(kw in name.lower() for kw in ["linkedin", "http"]):
+                people.append(Person(
+                    name=name,
+                    title=role,
+                    company=company,
+                    source=f"article: {urlparse(url).netloc}",
+                ))
+
+    return people
+
+
+def find_people_for_company(company: Company, client: httpx.Client) -> list:
+    """Search for decision-makers at a specific company."""
+    people = []
+    name = company.name.split("/")[0].strip()  # "MedPark / Enayati" -> "MedPark"
+
+    queries = [
+        f'site:linkedin.com/in/ "{name}" CTO OR CEO OR "Head of Digital" OR "Director IT"',
+        f'site:linkedin.com/in/ "{name}" "Head of Product" OR CPO OR "VP" OR founder',
+        f'"{name}" CTO OR "director digital" OR "head of innovation" Romania',
+    ]
+
+    for query in queries:
+        print(f"      Searching: {query[:80]}...")
+        results = search_ddg(query, client, max_results=5)
+
+        for url, title, snippet in results:
+            if "linkedin.com/in/" in url:
+                person = extract_person_from_linkedin_result(url, title, snippet, name)
+                if person and person.name:
+                    # Check if this person is likely at the right company
+                    combined = f"{person.company} {title} {snippet}".lower()
+                    if name.lower() in combined or not person.company:
+                        person.company = name
+                        people.append(person)
+            else:
+                # Business press article — might mention people
+                article_people = extract_person_from_article(url, title, snippet)
+                for p in article_people:
+                    if name.lower() in p.company.lower() or not p.company:
+                        p.company = name
+                        people.append(p)
+
+        time.sleep(1.5)  # Respect rate limits
+
+    # Deduplicate by name
+    seen_names = set()
+    unique = []
+    for p in people:
+        key = p.name.lower().strip()
+        if key not in seen_names:
+            seen_names.add(key)
+            unique.append(p)
+
+    return unique
+
+
+def search_for_new_people(client: httpx.Client) -> dict:
+    """Run broad people searches. Returns dict of company_name -> [Person]."""
+    people_by_company = {}
+
+    for query in PEOPLE_SEARCH_QUERIES:
+        print(f"  Searching: {query[:80]}...")
+        results = search_ddg(query, client, max_results=8)
+
+        for url, title, snippet in results:
+            if "linkedin.com/in/" in url:
+                person = extract_person_from_linkedin_result(url, title, snippet)
+                if person and person.name and person.company:
+                    people_by_company.setdefault(person.company, []).append(person)
+            else:
+                article_people = extract_person_from_article(url, title, snippet)
+                for p in article_people:
+                    if p.company:
+                        people_by_company.setdefault(p.company, []).append(p)
+
+        time.sleep(1.5)
+
+    return people_by_company
 
 
 # ---------------------------------------------------------------------------
-# Enrichment — fetch company websites and extract info
+# Team page scraping (improved)
 # ---------------------------------------------------------------------------
 
-def enrich_prospect(prospect: Prospect, client: httpx.Client) -> Prospect:
-    """Enrich a prospect by visiting their website."""
-    print(f"  📋 Enriching: {prospect.name} ({prospect.website})")
+def fetch_page(url: str, client: httpx.Client, timeout: float = 15.0) -> Optional[str]:
+    try:
+        resp = client.get(url, timeout=timeout, follow_redirects=True)
+        resp.raise_for_status()
+        return resp.text
+    except Exception as e:
+        print(f"    ! Could not fetch {url}: {type(e).__name__}")
+        return None
 
-    html = fetch_page(prospect.website, client)
+
+def scrape_team_page(company: Company, client: httpx.Client) -> list:
+    """Scrape a company's website for team/leadership pages and extract people."""
+    people = []
+    html = fetch_page(company.website, client)
     if not html:
-        # Still apply minimum scores for seed prospects even if fetch failed
-        if prospect.source == "seed":
-            category_minimums = {
-                "healthcare_provider": 4, "insurance": 3,
-                "corporate_wellness": 3, "medtech": 3, "vc_investor": 2,
-            }
-            prospect.fit_score = max(prospect.fit_score,
-                                     category_minimums.get(prospect.category, 2))
-        return prospect
+        return people
 
-    text = extract_text(html)
-    links = find_links(html, prospect.website)
+    soup = BeautifulSoup(html, "html.parser")
 
-    # Description
-    if not prospect.description:
-        prospect.description = extract_meta_description(html)
+    # Find team/about/leadership page links
+    team_urls = []
+    for a in soup.find_all("a", href=True):
+        href = a.get("href", "").lower()
+        text = a.get_text(strip=True).lower()
+        combined = f"{href} {text}"
+        if re.search(r"team|echipa|leadership|management|about.*us|despre.*noi|conducere", combined):
+            full_url = urljoin(company.website, a["href"])
+            if full_url not in team_urls and company.website.split("//")[1].split("/")[0] in full_url:
+                team_urls.append(full_url)
 
-    # Contact page
-    if links["contact"]:
-        prospect.contact_url = links["contact"][0]
+    # Also check common paths
+    base = company.website.rstrip("/")
+    for path in ["/about", "/team", "/despre-noi", "/echipa", "/leadership", "/management",
+                 "/about-us", "/about/team", "/despre/echipa", "/conducere"]:
+        team_urls.append(f"{base}{path}")
 
-    # LinkedIn
-    if links["linkedin"]:
-        prospect.linkedin_url = links["linkedin"][0]
+    # Also look for LinkedIn profile links on the homepage
+    for a in soup.find_all("a", href=True):
+        href = a["href"]
+        if "linkedin.com/in/" in href:
+            text = a.get_text(strip=True)
+            if text and len(text) > 3:
+                people.append(Person(
+                    name=text, title="(from website)", company=company.name,
+                    linkedin_url=href.split("?")[0], source="website_link",
+                ))
 
-    # Team page
-    if links["team"] or links["about"]:
-        team_urls = links["team"] or links["about"]
-        prospect.team_page_url = team_urls[0]
+    # Visit team pages
+    seen_urls = set()
+    for url in team_urls[:5]:  # Cap at 5 pages
+        if url in seen_urls:
+            continue
+        seen_urls.add(url)
 
-        # Try to extract people from team page
-        team_html = fetch_page(team_urls[0], client)
-        if team_html:
-            people = extract_people_from_team_page(team_html)
-            if people:
-                prospect.key_people = people
+        team_html = fetch_page(url, client)
+        if not team_html:
+            continue
 
-    # Partner signals
-    combined_text = f"{prospect.description} {text[:3000]}"
-    signals = detect_partner_signals(combined_text)
-    if signals:
-        prospect.partner_signals = list(set(prospect.partner_signals + signals))
-        prospect.has_partner_page = True
+        team_soup = BeautifulSoup(team_html, "html.parser")
+        page_text = team_soup.get_text(separator="\n", strip=True)
 
-    # Update fit score with enriched data
-    web_score = compute_fit_score(combined_text, prospect.name)
-    if web_score > prospect.fit_score:
-        prospect.fit_score = web_score
+        # Method 1: LinkedIn links on team page
+        for a in team_soup.find_all("a", href=True):
+            href = a["href"]
+            if "linkedin.com/in/" in href:
+                # Try to find the associated name
+                parent = a.find_parent(["div", "li", "article", "section"])
+                if parent:
+                    parent_text = parent.get_text(separator="\n", strip=True)
+                    lines = [l.strip() for l in parent_text.split("\n") if l.strip()]
+                    name = lines[0] if lines and len(lines[0]) < 60 else ""
+                    role = ""
+                    role_kw = re.compile(r"(CEO|CTO|COO|CFO|CPO|CMO|Director|Manager|Head|VP|"
+                                        r"Fondator|Founder|Partner|Lead|Chief|President)", re.I)
+                    for line in lines[1:4]:
+                        if role_kw.search(line):
+                            role = line
+                            break
+                    if name:
+                        people.append(Person(
+                            name=name, title=role, company=company.name,
+                            linkedin_url=href.split("?")[0], source="team_page",
+                        ))
 
-    # Seed prospects get a minimum score based on category (manually curated = higher trust)
-    if prospect.source == "seed":
-        category_minimums = {
-            "healthcare_provider": 4,
-            "insurance": 3,
-            "corporate_wellness": 3,
-            "medtech": 3,
-            "vc_investor": 2,
-        }
-        min_score = category_minimums.get(prospect.category, 2)
-        prospect.fit_score = max(prospect.fit_score, min_score)
+        # Method 2: Structured team cards (divs with class containing team/member)
+        role_kw = re.compile(r"(CEO|CTO|COO|CFO|CPO|CMO|Director|Manager|Head of|VP |"
+                             r"Fondator|Founder|Managing Partner|Chief|President|Presedinte)", re.I)
+        for container in team_soup.find_all(["div", "article", "li", "section"],
+                                            class_=re.compile(r"team|member|person|staff|echipa|leadership", re.I)):
+            texts = container.get_text(separator="\n", strip=True).split("\n")
+            texts = [t.strip() for t in texts if t.strip() and 3 < len(t.strip()) < 80]
+            for i, text in enumerate(texts):
+                if role_kw.search(text):
+                    name = texts[i - 1] if i > 0 and not role_kw.search(texts[i - 1]) else ""
+                    if name and len(name) > 3:
+                        # Check for LinkedIn link nearby
+                        li_link = container.find("a", href=re.compile(r"linkedin.com/in/"))
+                        li_url = li_link["href"].split("?")[0] if li_link else ""
+                        people.append(Person(
+                            name=name, title=text, company=company.name,
+                            linkedin_url=li_url, source="team_page",
+                        ))
 
-    # Update category
-    prospect.category = detect_category(combined_text, prospect.category)
+        time.sleep(0.5)
 
-    # Generate approach suggestion if missing
-    if not prospect.approach:
-        prospect.approach = suggest_approach(prospect)
+    # Deduplicate
+    seen = set()
+    unique = []
+    for p in people:
+        key = p.name.lower().strip()
+        if key not in seen and len(key) > 3:
+            seen.add(key)
+            unique.append(p)
 
-    return prospect
+    return unique
 
 
-def suggest_approach(prospect: Prospect) -> str:
-    """Suggest an approach based on company category and signals."""
-    approaches = {
-        "healthcare_provider": "Licensing — white-label lab aggregation for their patient portal",
-        "insurance": "Data licensing — health data insights for risk assessment and prevention",
-        "corporate_wellness": "White-label — add lab result aggregation to employee wellness platform",
-        "medtech": "Partnership — integrate lab data into their health tech solution",
-        "vc_investor": "Investment — pitch for seed/pre-seed funding to scale",
-        "unknown": "Exploratory — schedule discovery call to identify synergies",
-    }
-    return approaches.get(prospect.category, approaches["unknown"])
+# ---------------------------------------------------------------------------
+# Merge people into companies
+# ---------------------------------------------------------------------------
+
+def merge_people(existing: list, new_people: list) -> list:
+    """Merge new people into existing list, preferring records with LinkedIn URLs."""
+    by_name = {}
+    for p in existing:
+        by_name[p["name"].lower() if isinstance(p, dict) else p.name.lower()] = p
+
+    for p in new_people:
+        key = p.name.lower()
+        if key in by_name:
+            old = by_name[key]
+            old_dict = old if isinstance(old, dict) else old.to_dict()
+            # Keep the one with more info
+            if p.linkedin_url and not old_dict.get("linkedin_url"):
+                by_name[key] = p
+        else:
+            by_name[key] = p
+
+    result = []
+    for v in by_name.values():
+        result.append(v.to_dict() if isinstance(v, Person) else v)
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -587,127 +717,79 @@ def suggest_approach(prospect: Prospect) -> str:
 CATEGORY_LABELS = {
     "healthcare_provider": "Healthcare Providers",
     "insurance": "Insurance Companies",
-    "corporate_wellness": "Corporate Wellness",
+    "wellness": "Corporate Wellness",
     "medtech": "MedTech / Digital Health",
-    "vc_investor": "VC / Investors",
-    "unknown": "Other / Unclassified",
+    "vc": "VC / Investors",
+    "unknown": "Other",
 }
 
-CATEGORY_ORDER = [
-    "healthcare_provider", "insurance", "corporate_wellness",
-    "medtech", "vc_investor", "unknown",
-]
+CATEGORY_ORDER = ["healthcare_provider", "insurance", "wellness", "medtech", "vc", "unknown"]
 
 
-def generate_markdown_report(prospects: list) -> str:
-    """Generate a Markdown report from prospects."""
+def generate_report(companies: list) -> str:
+    """Generate a people-focused Markdown report."""
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    total_people = sum(len(c.get("people", []) if isinstance(c, dict) else c.people) for c in companies)
+
     lines = [
         f"# Prospect Report — Analize.Online",
         f"",
         f"**Generated:** {now}",
-        f"**Total prospects:** {len(prospects)}",
+        f"**Companies:** {len(companies)} | **Decision-makers found:** {total_people}",
         f"",
         f"---",
         f"",
     ]
 
-    # Summary table
-    lines.append("## Summary\n")
-    lines.append("| Category | Count | Avg Fit Score |")
-    lines.append("|----------|-------|---------------|")
-
-    by_category = {}
-    for p in prospects:
-        by_category.setdefault(p.category, []).append(p)
+    # Group by category
+    by_cat = {}
+    for c in companies:
+        cat = c["category"] if isinstance(c, dict) else c.category
+        by_cat.setdefault(cat, []).append(c)
 
     for cat in CATEGORY_ORDER:
-        if cat in by_category:
-            plist = by_category[cat]
-            avg = sum(p.fit_score for p in plist) / len(plist)
-            label = CATEGORY_LABELS.get(cat, cat)
-            lines.append(f"| {label} | {len(plist)} | {avg:.1f}/5 |")
-
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-
-    # Detailed sections by category
-    for cat in CATEGORY_ORDER:
-        if cat not in by_category:
+        if cat not in by_cat:
             continue
 
         label = CATEGORY_LABELS.get(cat, cat)
-        plist = sorted(by_category[cat], key=lambda p: p.fit_score, reverse=True)
+        clist = by_cat[cat]
+        clist.sort(key=lambda c: -(c["fit_score"] if isinstance(c, dict) else c.fit_score))
 
-        lines.append(f"## {label}\n")
+        lines.append(f"## {label}")
+        lines.append("")
 
-        for p in plist:
-            stars = "⭐" * p.fit_score + "☆" * (5 - p.fit_score)
-            lines.append(f"### {p.name}")
-            lines.append(f"- **Website:** {p.website}")
-            lines.append(f"- **Fit Score:** {stars} ({p.fit_score}/5)")
+        for c in clist:
+            d = c if isinstance(c, dict) else c.to_dict()
+            score = d["fit_score"]
+            stars = "+" * score + "." * (5 - score)
 
-            if p.description:
-                lines.append(f"- **Description:** {p.description}")
-
-            lines.append(f"- **Approach:** {p.approach}")
-
-            if p.contact_url:
-                lines.append(f"- **Contact page:** {p.contact_url}")
-            if p.linkedin_url:
-                lines.append(f"- **LinkedIn:** {p.linkedin_url}")
-            if p.team_page_url:
-                lines.append(f"- **Team page:** {p.team_page_url}")
-            if p.key_people:
-                lines.append(f"- **Key people (public):** {', '.join(p.key_people[:5])}")
-            if p.has_partner_page:
-                lines.append(f"- **Partnership signals:** {', '.join(p.partner_signals)}")
-            if p.notes:
-                lines.append(f"- **Notes:** {p.notes}")
-
-            lines.append(f"- **Source:** {p.source}")
+            lines.append(f"### {d['name']} [{stars}] — {d.get('approach', '').upper()}")
+            lines.append(f"_{d.get('why_fit', '')}_")
             lines.append("")
 
-        lines.append("---\n")
+            people = d.get("people", [])
+            if people:
+                lines.append("| Who | Title | LinkedIn | Angle |")
+                lines.append("|-----|-------|----------|-------|")
+                for p in people:
+                    li = f"[Profile]({p['linkedin_url']})" if p.get("linkedin_url") else "-"
+                    angle = p.get("message_angle", "") or p.get("relevance", "")
+                    lines.append(f"| **{p['name']}** | {p.get('title', '')} | {li} | {angle[:80]} |")
+                lines.append("")
+            else:
+                lines.append("_No decision-makers found yet — search LinkedIn manually._")
+                lines.append("")
 
-    # Action items
-    lines.append("## Recommended Next Steps\n")
-    lines.append("### Week 1-2: Warm Up")
-    lines.append("1. Polish LinkedIn profile — add analize.online to experience")
-    lines.append("2. Post 2-3 LinkedIn posts about the product (see `sale/linkedin-posts-ro.md`)")
-    lines.append("3. Review this report and mark top 5 priority prospects")
-    lines.append("")
-    lines.append("### Week 3-4: Outreach Wave 1 — Warm Channels")
-    lines.append("1. Send personalized LinkedIn DMs to CTOs/CPOs at Tier 1 companies")
-    lines.append("2. Use templates from `sale/email-templates-ro.md`")
-    lines.append("3. Ask personal connections for intros")
-    lines.append("4. **Goal:** Book 3-5 demo calls")
-    lines.append("")
-    lines.append("### Week 5-6: Outreach Wave 2 — Cold Channels")
-    lines.append("1. Email pitches via contact forms found above")
-    lines.append("2. Attend Romanian health-tech meetups and startup events")
-    lines.append("3. **Goal:** Book 3-5 more demo calls")
-    lines.append("")
-    lines.append("### Week 7-8: Demo & Negotiate")
-    lines.append("1. Demo flow: pitch.html → live demo on analize.online → tech summary PDF")
-    lines.append("2. Present 3 options: acquisition / licensing / revenue share")
-    lines.append("3. Follow-up cadence: Day 1 → Day 3 → Day 7 → Day 14")
-    lines.append("")
-    lines.append("---")
-    lines.append("")
-    lines.append("*Report generated by `sale/find_prospects.py`*")
+            if d.get("linkedin_company"):
+                lines.append(f"Company LinkedIn: {d['linkedin_company']}")
+            if d.get("website"):
+                lines.append(f"Website: {d['website']}")
+            lines.append("")
+
+        lines.append("---")
+        lines.append("")
 
     return "\n".join(lines)
-
-
-def generate_json_output(prospects: list) -> str:
-    """Generate JSON output from prospects."""
-    return json.dumps(
-        [p.to_dict() for p in prospects],
-        indent=2,
-        ensure_ascii=False,
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -715,95 +797,134 @@ def generate_json_output(prospects: list) -> str:
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Prospect Finder for Analize.Online")
+    parser = argparse.ArgumentParser(description="Prospect Finder — People-First Edition")
     parser.add_argument("--enrich-only", "--no-search", action="store_true",
-                        help="Skip Google search, enrich seed list only")
-    parser.add_argument("--output", choices=["report", "json", "both"], default="both",
-                        help="Output format (default: both)")
-    parser.add_argument("--max-search-results", type=int, default=8,
-                        help="Max results per search query (default: 8)")
+                        help="Only enrich seed list (team pages), skip broad search")
+    parser.add_argument("--people-only", action="store_true",
+                        help="Only search for people (skip company discovery)")
+    parser.add_argument("--skip-team-pages", action="store_true",
+                        help="Skip team page scraping (faster)")
     args = parser.parse_args()
 
     print("=" * 60)
-    print("  Prospect Finder — Analize.Online")
+    print("  Prospect Finder — People-First Edition")
     print("=" * 60)
 
-    prospects = list(SEED_PROSPECTS)  # Start with seed list
-    seed_domains = {urlparse(p.website).netloc.replace("www.", "") for p in prospects}
+    client = httpx.Client(headers=HEADERS, follow_redirects=True, timeout=15.0)
+    companies = list(SEED_COMPANIES)
 
-    client = httpx.Client(headers=HEADERS, follow_redirects=True)
-
-    # Step 1: Google search for new companies
-    if not args.enrich_only:
-        print(f"\n📡 Step 1: Searching for companies ({len(SEARCH_QUERIES)} queries)...")
-        search_results = search_google(SEARCH_QUERIES, args.max_search_results)
-        print(f"  Found {len(search_results)} unique URLs")
-
-        new_count = 0
-        for url, query in search_results:
-            domain = urlparse(url).netloc.replace("www.", "")
-            if domain in seed_domains:
-                continue
-            seed_domains.add(domain)
-
-            prospect = url_to_prospect(url, query, client)
-            if prospect and prospect.fit_score >= 2:
-                prospects.append(prospect)
-                new_count += 1
-                print(f"    ✅ New prospect: {prospect.name} (score: {prospect.fit_score})")
-
-            time.sleep(1)  # Be polite
-
-        print(f"  Added {new_count} new prospects from search")
+    # Step 1: Scrape team pages for each company
+    if not args.skip_team_pages:
+        print(f"\n[1/3] Scraping team pages for {len(companies)} companies...")
+        for comp in companies:
+            print(f"  {comp.name}...")
+            try:
+                new_people = scrape_team_page(comp, client)
+                if new_people:
+                    comp.people = merge_people(
+                        [p.to_dict() if isinstance(p, Person) else p for p in comp.people],
+                        new_people
+                    )
+                    print(f"    Found {len(new_people)} people on team pages")
+            except Exception as e:
+                print(f"    ! Error: {e}")
+            time.sleep(0.5)
     else:
-        print("\n>> Skipping search (--enrich-only mode)")
+        print("\n[1/3] Skipping team pages")
 
-    # Step 2: Enrich all prospects
-    print(f"\n📋 Step 2: Enriching {len(prospects)} prospects...")
-    for i, prospect in enumerate(prospects):
-        try:
-            enrich_prospect(prospect, client)
-        except Exception as e:
-            print(f"  ⚠ Error enriching {prospect.name}: {e}")
-        time.sleep(0.5)  # Be polite
+    # Step 2: Search for people at companies that have few/no contacts
+    if not args.enrich_only:
+        companies_needing_people = [c for c in companies if len(c.people) < 2]
+        if companies_needing_people:
+            print(f"\n[2/3] Searching for decision-makers at {len(companies_needing_people)} companies...")
+            for comp in companies_needing_people:
+                print(f"  {comp.name}...")
+                try:
+                    new_people = find_people_for_company(comp, client)
+                    if new_people:
+                        comp.people = merge_people(
+                            [p.to_dict() if isinstance(p, Person) else p for p in comp.people],
+                            new_people
+                        )
+                        print(f"    Found {len(new_people)} people via search")
+                except Exception as e:
+                    print(f"    ! Error: {e}")
+                time.sleep(1)
+
+        # Step 3: Broad search for new people/companies
+        if not args.people_only:
+            print(f"\n[3/3] Broad people search ({len(PEOPLE_SEARCH_QUERIES)} queries)...")
+            new_people_map = search_for_new_people(client)
+
+            for company_name, people_list in new_people_map.items():
+                # Try to match to existing company
+                matched = None
+                for comp in companies:
+                    if company_name.lower() in comp.name.lower() or comp.name.lower() in company_name.lower():
+                        matched = comp
+                        break
+
+                if matched:
+                    matched.people = merge_people(
+                        [p.to_dict() if isinstance(p, Person) else p for p in matched.people],
+                        people_list
+                    )
+                else:
+                    # New company discovered via people search
+                    print(f"  New company via people: {company_name}")
+        else:
+            print("\n[3/3] Skipping broad search")
+    else:
+        print("\n[2/3] Skipping people search (enrich-only mode)")
+        print("[3/3] Skipping broad search (enrich-only mode)")
 
     client.close()
 
-    # Step 3: Sort by fit score
-    prospects.sort(key=lambda p: (-p.fit_score, p.category, p.name))
+    # Convert people to dicts for serialization
+    for comp in companies:
+        if comp.people and isinstance(comp.people[0], Person):
+            comp.people = [p.to_dict() for p in comp.people]
 
-    # Step 4: Generate outputs
-    print(f"\n📄 Step 3: Generating reports...")
+    # Sort by fit score
+    companies.sort(key=lambda c: (-c.fit_score, c.category, c.name))
 
-    if args.output in ("report", "both"):
-        report = generate_markdown_report(prospects)
-        report_path = OUTPUT_DIR / "prospects_report.md"
-        report_path.write_text(report, encoding="utf-8")
-        print(f"  ✅ Markdown report: {report_path}")
+    # Save outputs
+    print(f"\nSaving outputs...")
 
-    if args.output in ("json", "both"):
-        json_output = generate_json_output(prospects)
-        json_path = OUTPUT_DIR / "prospects_data.json"
-        json_path.write_text(json_output, encoding="utf-8")
-        print(f"  ✅ JSON data: {json_path}")
+    # JSON
+    json_data = [c.to_dict() for c in companies]
+    json_path = OUTPUT_DIR / "prospects_data.json"
+    json_path.write_text(json.dumps(json_data, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"  JSON: {json_path}")
+
+    # Markdown
+    report = generate_report(companies)
+    report_path = OUTPUT_DIR / "prospects_report.md"
+    report_path.write_text(report, encoding="utf-8")
+    print(f"  Report: {report_path}")
 
     # Summary
+    total_people = sum(len(c.people) for c in companies)
+    with_linkedin = sum(1 for c in companies for p in c.people if p.get("linkedin_url"))
+
     print(f"\n{'=' * 60}")
-    print(f"  Done! {len(prospects)} prospects found and enriched.")
+    print(f"  {len(companies)} companies | {total_people} decision-makers | {with_linkedin} with LinkedIn")
     print(f"{'=' * 60}")
 
-    by_cat = {}
-    for p in prospects:
-        by_cat.setdefault(p.category, []).append(p)
     for cat in CATEGORY_ORDER:
-        if cat in by_cat:
-            label = CATEGORY_LABELS.get(cat, cat)
-            print(f"  {label}: {len(by_cat[cat])}")
+        cat_comps = [c for c in companies if c.category == cat]
+        if cat_comps:
+            cat_people = sum(len(c.people) for c in cat_comps)
+            print(f"  {CATEGORY_LABELS.get(cat, cat)}: {len(cat_comps)} companies, {cat_people} people")
 
-    high_fit = [p for p in prospects if p.fit_score >= 4]
-    print(f"\n  🎯 High-fit prospects (score ≥ 4): {len(high_fit)}")
-    for p in high_fit:
-        print(f"    - {p.name} ({p.fit_score}/5) — {p.approach}")
+    print(f"\n  Top contacts to reach out to:")
+    for c in companies:
+        if c.fit_score >= 4:
+            for p in c.people[:2]:
+                p_dict = p if isinstance(p, dict) else p.to_dict()
+                li = p_dict.get("linkedin_url", "")
+                li_short = li.split("linkedin.com")[1] if "linkedin.com" in li else "(no LinkedIn)"
+                print(f"    {p_dict['name']:25s} {p_dict.get('title', ''):30s} @ {c.name:20s} {li_short}")
 
     return 0
 

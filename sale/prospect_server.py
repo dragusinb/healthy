@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Web interface for the Prospect Finder tool.
+Web interface for the Prospect Finder tool — People-First Edition.
 Run: python sale/prospect_server.py
 Open: http://localhost:8500  (local) or https://analize.online/prospects/ (prod)
 """
 
-import hashlib
+import base64
 import json
 import os
 import secrets
@@ -15,148 +15,173 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Depends, Request
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, Response
 import uvicorn
 
 DATA_DIR = Path(__file__).parent
 PROSPECTS_JSON = DATA_DIR / "prospects_data.json"
 FINDER_SCRIPT = DATA_DIR / "find_prospects.py"
 
-# Auth: set PROSPECT_USER and PROSPECT_PASS env vars, or use defaults
 AUTH_USER = os.environ.get("PROSPECT_USER", "admin")
 AUTH_PASS = os.environ.get("PROSPECT_PASS", "analize2026!")
-
-# Root path for reverse proxy (nginx strips /prospects, FastAPI sees /)
 ROOT_PATH = os.environ.get("ROOT_PATH", "")
 
 app = FastAPI(title="Prospect Finder", root_path=ROOT_PATH)
-
-# In-memory state
 enrichment_status = {"running": False, "log": "", "last_run": None}
 
 
 # ---------------------------------------------------------------------------
-# Basic auth middleware
+# Auth
 # ---------------------------------------------------------------------------
 
-import base64
-
-def check_auth(request: Request):
-    """HTTP Basic Auth check."""
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
     auth = request.headers.get("authorization", "")
     if auth.startswith("Basic "):
         try:
             decoded = base64.b64decode(auth[6:]).decode("utf-8")
             user, passwd = decoded.split(":", 1)
             if secrets.compare_digest(user, AUTH_USER) and secrets.compare_digest(passwd, AUTH_PASS):
-                return True
+                return await call_next(request)
         except Exception:
             pass
-    return False
+    return Response(status_code=401, content="Unauthorized",
+                    headers={"WWW-Authenticate": 'Basic realm="Prospect Finder"'})
 
 
-@app.middleware("http")
-async def auth_middleware(request: Request, call_next):
-    if check_auth(request):
-        return await call_next(request)
-    return Response(
-        status_code=401,
-        content="Unauthorized",
-        headers={"WWW-Authenticate": 'Basic realm="Prospect Finder"'},
-    )
+# ---------------------------------------------------------------------------
+# Data
+# ---------------------------------------------------------------------------
 
-
-def load_prospects() -> list:
+def load_data() -> list:
     if PROSPECTS_JSON.exists():
         return json.loads(PROSPECTS_JSON.read_text(encoding="utf-8"))
     return []
 
-
-def save_prospects(prospects: list):
-    PROSPECTS_JSON.write_text(
-        json.dumps(prospects, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+def save_data(data: list):
+    PROSPECTS_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
-# API endpoints
+# API
 # ---------------------------------------------------------------------------
 
-@app.get("/api/prospects")
-def get_prospects():
-    return load_prospects()
+@app.get("/api/companies")
+def get_companies():
+    return load_data()
 
+@app.get("/api/stats")
+def get_stats():
+    companies = load_data()
+    total_people = sum(len(c.get("people", [])) for c in companies)
+    with_linkedin = sum(1 for c in companies for p in c.get("people", []) if p.get("linkedin_url"))
+    cats = {}
+    for c in companies:
+        cat = c.get("category", "unknown")
+        cats.setdefault(cat, {"companies": 0, "people": 0})
+        cats[cat]["companies"] += 1
+        cats[cat]["people"] += len(c.get("people", []))
+    return {
+        "total_companies": len(companies),
+        "total_people": total_people,
+        "with_linkedin": with_linkedin,
+        "categories": cats,
+    }
 
-@app.post("/api/prospects")
-def add_prospect(data: dict):
-    prospects = load_prospects()
+@app.put("/api/companies/{index}")
+def update_company(index: int, data: dict):
+    companies = load_data()
+    if index < 0 or index >= len(companies):
+        raise HTTPException(404)
+    for key in ["name", "website", "category", "fit_score", "approach", "why_fit",
+                "linkedin_company", "contact_url", "description", "notes"]:
+        if key in data:
+            companies[index][key] = data[key]
+    save_data(companies)
+    return companies[index]
+
+@app.post("/api/companies")
+def add_company(data: dict):
+    companies = load_data()
     new = {
         "name": data.get("name", ""),
         "website": data.get("website", ""),
-        "description": data.get("description", ""),
         "category": data.get("category", "unknown"),
         "fit_score": int(data.get("fit_score", 3)),
         "approach": data.get("approach", ""),
+        "why_fit": data.get("why_fit", ""),
+        "linkedin_company": data.get("linkedin_company", ""),
         "contact_url": data.get("contact_url", ""),
-        "linkedin_url": data.get("linkedin_url", ""),
-        "team_page_url": "",
-        "key_people": [],
-        "has_partner_page": False,
-        "partner_signals": [],
+        "description": data.get("description", ""),
         "notes": data.get("notes", ""),
-        "source": "manual",
+        "people": [],
     }
     if not new["name"]:
-        raise HTTPException(400, "Name is required")
-    prospects.append(new)
-    save_prospects(prospects)
+        raise HTTPException(400, "Name required")
+    companies.append(new)
+    save_data(companies)
     return new
 
-
-@app.put("/api/prospects/{index}")
-def update_prospect(index: int, data: dict):
-    prospects = load_prospects()
-    if index < 0 or index >= len(prospects):
-        raise HTTPException(404, "Prospect not found")
-    for key in ["name", "website", "description", "category", "fit_score",
-                "approach", "contact_url", "linkedin_url", "notes"]:
-        if key in data:
-            prospects[index][key] = data[key]
-    if "fit_score" in data:
-        prospects[index]["fit_score"] = int(data["fit_score"])
-    save_prospects(prospects)
-    return prospects[index]
-
-
-@app.delete("/api/prospects/{index}")
-def delete_prospect(index: int):
-    prospects = load_prospects()
-    if index < 0 or index >= len(prospects):
-        raise HTTPException(404, "Prospect not found")
-    removed = prospects.pop(index)
-    save_prospects(prospects)
+@app.delete("/api/companies/{index}")
+def delete_company(index: int):
+    companies = load_data()
+    if index < 0 or index >= len(companies):
+        raise HTTPException(404)
+    removed = companies.pop(index)
+    save_data(companies)
     return {"deleted": removed["name"]}
 
+@app.post("/api/companies/{index}/people")
+def add_person(index: int, data: dict):
+    companies = load_data()
+    if index < 0 or index >= len(companies):
+        raise HTTPException(404)
+    person = {
+        "name": data.get("name", ""),
+        "title": data.get("title", ""),
+        "company": companies[index]["name"],
+        "linkedin_url": data.get("linkedin_url", ""),
+        "relevance": data.get("relevance", ""),
+        "message_angle": data.get("message_angle", ""),
+        "source": "manual",
+        "verified": False,
+    }
+    if not person["name"]:
+        raise HTTPException(400, "Name required")
+    companies[index].setdefault("people", []).append(person)
+    save_data(companies)
+    return person
+
+@app.delete("/api/companies/{ci}/people/{pi}")
+def delete_person(ci: int, pi: int):
+    companies = load_data()
+    if ci < 0 or ci >= len(companies):
+        raise HTTPException(404)
+    people = companies[ci].get("people", [])
+    if pi < 0 or pi >= len(people):
+        raise HTTPException(404)
+    removed = people.pop(pi)
+    save_data(companies)
+    return {"deleted": removed["name"]}
 
 @app.post("/api/enrich")
 def run_enrichment(data: dict = None):
     if enrichment_status["running"]:
-        raise HTTPException(409, "Enrichment already running")
-
+        raise HTTPException(409, "Already running")
     mode = (data or {}).get("mode", "enrich-only")
     cmd = [sys.executable, str(FINDER_SCRIPT)]
     if mode == "enrich-only":
         cmd.append("--enrich-only")
+    elif mode == "people-only":
+        cmd.append("--people-only")
 
     def _run():
         enrichment_status["running"] = True
         enrichment_status["log"] = ""
         try:
-            proc = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                text=True, encoding="utf-8", errors="replace",
-            )
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                    text=True, encoding="utf-8", errors="replace")
             for line in proc.stdout:
                 enrichment_status["log"] += line
             proc.wait()
@@ -169,724 +194,419 @@ def run_enrichment(data: dict = None):
     threading.Thread(target=_run, daemon=True).start()
     return {"status": "started", "mode": mode}
 
-
 @app.get("/api/enrich/status")
 def get_enrichment_status():
     return enrichment_status
 
 
-@app.get("/api/stats")
-def get_stats():
-    prospects = load_prospects()
-    cats = {}
-    for p in prospects:
-        cat = p.get("category", "unknown")
-        cats.setdefault(cat, {"count": 0, "total_score": 0})
-        cats[cat]["count"] += 1
-        cats[cat]["total_score"] += p.get("fit_score", 0)
-    return {
-        "total": len(prospects),
-        "high_fit": sum(1 for p in prospects if p.get("fit_score", 0) >= 4),
-        "categories": cats,
-        "sources": {
-            "seed": sum(1 for p in prospects if p.get("source") == "seed"),
-            "search": sum(1 for p in prospects if p.get("source") == "search"),
-            "manual": sum(1 for p in prospects if p.get("source") == "manual"),
-        },
-    }
-
-
 # ---------------------------------------------------------------------------
-# HTML frontend
+# Frontend
 # ---------------------------------------------------------------------------
 
 @app.get("/", response_class=HTMLResponse)
 def index():
     return HTML_PAGE
 
-
 HTML_PAGE = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prospect Finder — Analize.Online</title>
+<title>Prospect Finder — People</title>
 <style>
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #242836;
-    --border: #2e3345;
-    --text: #e4e6ed;
-    --text2: #8b90a0;
-    --accent: #6c63ff;
-    --accent2: #8b83ff;
-    --green: #34d399;
-    --yellow: #fbbf24;
-    --red: #f87171;
-    --orange: #fb923c;
-    --blue: #60a5fa;
-    --radius: 10px;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg); color: var(--text);
-    line-height: 1.5;
-  }
-  a { color: var(--accent2); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+:root {
+  --bg: #0f1117; --s1: #1a1d27; --s2: #242836; --border: #2e3345;
+  --text: #e4e6ed; --text2: #8b90a0; --accent: #6c63ff; --accent2: #8b83ff;
+  --green: #34d399; --yellow: #fbbf24; --red: #f87171; --orange: #fb923c; --blue: #60a5fa;
+  --radius: 10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+a { color:var(--accent2); text-decoration:none; }
+a:hover { text-decoration:underline; }
 
-  /* Layout */
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .header h1 { font-size: 20px; font-weight: 600; }
-  .header h1 span { color: var(--accent); }
-  .header-actions { display: flex; gap: 8px; }
+.header { background:var(--s1); border-bottom:1px solid var(--border); padding:14px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.header h1 { font-size:18px; } .header h1 span { color:var(--accent); }
+.header-actions { display:flex; gap:8px; }
+.container { max-width:1400px; margin:0 auto; padding:20px; }
 
-  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+/* Stats */
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
+.stat { background:var(--s1); border:1px solid var(--border); border-radius:var(--radius); padding:14px; }
+.stat .label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; }
+.stat .val { font-size:26px; font-weight:700; margin-top:2px; }
+.stat .val.g { color:var(--green); } .stat .val.a { color:var(--accent); } .stat .val.y { color:var(--yellow); }
 
-  /* Stats cards */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px; margin-bottom: 24px;
-  }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 16px;
-  }
-  .stat-card .label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
-  .stat-card .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
-  .stat-card .value.green { color: var(--green); }
-  .stat-card .value.accent { color: var(--accent); }
-  .stat-card .value.yellow { color: var(--yellow); }
+/* Toolbar */
+.toolbar { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.search { flex:1; min-width:200px; background:var(--s1); border:1px solid var(--border); border-radius:var(--radius); padding:9px 14px; color:var(--text); font-size:14px; outline:none; }
+.search:focus { border-color:var(--accent); }
+.chips { display:flex; gap:5px; flex-wrap:wrap; }
+.chip { background:var(--s2); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:12px; cursor:pointer; color:var(--text2); }
+.chip:hover { border-color:var(--accent); color:var(--text); }
+.chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-  /* Toolbar */
-  .toolbar {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 16px; flex-wrap: wrap;
-  }
-  .search-box {
-    flex: 1; min-width: 200px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 10px 14px;
-    color: var(--text); font-size: 14px; outline: none;
-  }
-  .search-box:focus { border-color: var(--accent); }
-  .search-box::placeholder { color: var(--text2); }
+/* Buttons */
+.btn { display:inline-flex; align-items:center; gap:5px; padding:7px 14px; border-radius:var(--radius); font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--border); background:var(--s2); color:var(--text); }
+.btn:hover { border-color:var(--accent); }
+.btn-p { background:var(--accent); border-color:var(--accent); color:#fff; }
+.btn-p:hover { background:var(--accent2); }
+.btn-d { color:var(--red); } .btn-d:hover { border-color:var(--red); }
+.btn-sm { padding:3px 8px; font-size:11px; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
 
-  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .chip {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 20px; padding: 6px 14px; font-size: 13px;
-    cursor: pointer; color: var(--text2); transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .chip:hover { border-color: var(--accent); color: var(--text); }
-  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .chip .count { opacity: 0.7; margin-left: 4px; }
+/* Company cards */
+.company-card { background:var(--s1); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:12px; overflow:hidden; }
+.company-header { padding:14px 18px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+.company-header:hover { background:rgba(108,99,255,.03); }
+.company-name { font-size:16px; font-weight:600; flex:1; }
+.company-meta { display:flex; gap:10px; align-items:center; }
+.badge { padding:3px 10px; border-radius:12px; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.3px; }
+.badge-healthcare_provider { background:rgba(52,211,153,.12); color:var(--green); }
+.badge-insurance { background:rgba(96,165,250,.12); color:var(--blue); }
+.badge-wellness { background:rgba(251,191,36,.12); color:var(--yellow); }
+.badge-medtech { background:rgba(108,99,255,.12); color:var(--accent2); }
+.badge-vc { background:rgba(251,146,60,.12); color:var(--orange); }
+.badge-unknown { background:rgba(139,144,160,.12); color:var(--text2); }
+.fit { font-size:14px; white-space:nowrap; }
+.fit .on { color:var(--yellow); } .fit .off { color:var(--border); }
+.approach-tag { font-size:11px; padding:2px 8px; border-radius:8px; background:var(--s2); color:var(--text2); text-transform:uppercase; }
+.people-count { font-size:12px; color:var(--text2); min-width:70px; text-align:right; }
 
-  /* Table */
-  .table-wrap {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden;
-  }
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left; padding: 12px 16px; font-size: 12px;
-    text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2);
-    background: var(--surface2); border-bottom: 1px solid var(--border);
-    cursor: pointer; user-select: none; white-space: nowrap;
-  }
-  th:hover { color: var(--text); }
-  th .sort-icon { margin-left: 4px; opacity: 0.5; }
-  th.sorted .sort-icon { opacity: 1; color: var(--accent); }
-  td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(108, 99, 255, 0.04); }
-  tr.selected td { background: rgba(108, 99, 255, 0.1); }
+/* Expanded content */
+.company-body { display:none; padding:0 18px 16px; border-top:1px solid var(--border); }
+.company-card.open .company-body { display:block; }
+.why-fit { color:var(--text2); font-size:13px; margin:10px 0; font-style:italic; }
+.company-links { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+.company-links a { padding:4px 10px; border-radius:8px; font-size:12px; background:var(--s2); border:1px solid var(--border); }
+.company-links a:hover { border-color:var(--accent); text-decoration:none; }
 
-  /* Score stars */
-  .stars { white-space: nowrap; letter-spacing: 1px; }
-  .star-filled { color: var(--yellow); }
-  .star-empty { color: var(--border); }
+/* People table */
+.people-table { width:100%; border-collapse:collapse; margin:12px 0; }
+.people-table th { text-align:left; padding:8px 10px; font-size:11px; text-transform:uppercase; color:var(--text2); background:var(--s2); border-bottom:1px solid var(--border); }
+.people-table td { padding:10px; border-bottom:1px solid var(--border); font-size:13px; }
+.people-table tr:last-child td { border-bottom:none; }
+.person-name { font-weight:600; font-size:14px; }
+.person-title { color:var(--text2); font-size:12px; }
+.person-angle { color:var(--text2); font-size:12px; max-width:300px; }
+.li-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:8px; font-size:12px; font-weight:600; background:rgba(0,119,181,.15); color:#0077b5; border:1px solid rgba(0,119,181,.3); }
+.li-btn:hover { background:rgba(0,119,181,.25); text-decoration:none; }
+.no-people { color:var(--text2); font-size:13px; padding:12px 0; }
 
-  /* Category badges */
-  .badge {
-    display: inline-block; padding: 3px 10px; border-radius: 12px;
-    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
-  }
-  .badge-healthcare_provider { background: rgba(52, 211, 153, 0.15); color: var(--green); }
-  .badge-insurance { background: rgba(96, 165, 250, 0.15); color: var(--blue); }
-  .badge-corporate_wellness { background: rgba(251, 191, 36, 0.15); color: var(--yellow); }
-  .badge-medtech { background: rgba(108, 99, 255, 0.15); color: var(--accent2); }
-  .badge-vc_investor { background: rgba(251, 146, 60, 0.15); color: var(--orange); }
-  .badge-unknown { background: rgba(139, 144, 160, 0.15); color: var(--text2); }
+/* Modal */
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:300; display:none; align-items:center; justify-content:center; }
+.modal-bg.open { display:flex; }
+.modal { background:var(--s1); border:1px solid var(--border); border-radius:var(--radius); padding:20px; width:500px; max-width:90vw; max-height:90vh; overflow-y:auto; }
+.modal h2 { margin-bottom:14px; font-size:17px; }
+.fg { margin-bottom:12px; }
+.fg label { display:block; font-size:11px; color:var(--text2); margin-bottom:3px; text-transform:uppercase; }
+.fg input,.fg select,.fg textarea { width:100%; background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:7px 10px; color:var(--text); font-size:13px; font-family:inherit; outline:none; }
+.fg input:focus,.fg select:focus,.fg textarea:focus { border-color:var(--accent); }
+.fg textarea { min-height:50px; resize:vertical; }
+.form-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
 
-  .source-badge {
-    display: inline-block; padding: 2px 8px; border-radius: 8px;
-    font-size: 10px; text-transform: uppercase;
-  }
-  .source-seed { background: rgba(52, 211, 153, 0.1); color: var(--green); }
-  .source-search { background: rgba(96, 165, 250, 0.1); color: var(--blue); }
-  .source-manual { background: rgba(251, 191, 36, 0.1); color: var(--yellow); }
-
-  /* Buttons */
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: var(--radius);
-    font-size: 13px; font-weight: 500; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface2);
-    color: var(--text); transition: all 0.15s;
-  }
-  .btn:hover { border-color: var(--accent); background: var(--surface); }
-  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent2); }
-  .btn-danger { color: var(--red); }
-  .btn-danger:hover { background: rgba(248, 113, 113, 0.1); border-color: var(--red); }
-  .btn-sm { padding: 4px 10px; font-size: 12px; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* Detail panel */
-  .detail-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    z-index: 200; display: none; justify-content: flex-end;
-  }
-  .detail-overlay.open { display: flex; }
-  .detail-panel {
-    width: 520px; max-width: 90vw; background: var(--surface);
-    border-left: 1px solid var(--border);
-    height: 100%; overflow-y: auto; padding: 24px;
-    animation: slideIn 0.2s ease-out;
-  }
-  @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-  .detail-panel h2 { font-size: 22px; margin-bottom: 4px; }
-  .detail-panel .website { color: var(--text2); margin-bottom: 16px; }
-  .detail-section { margin-bottom: 20px; }
-  .detail-section h3 { font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-  .detail-field { margin-bottom: 8px; font-size: 14px; }
-  .detail-field .field-label { color: var(--text2); font-size: 12px; }
-  .detail-links a {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 6px 12px; border-radius: 8px; font-size: 13px;
-    background: var(--surface2); border: 1px solid var(--border);
-    margin-right: 8px; margin-bottom: 8px;
-  }
-  .detail-links a:hover { border-color: var(--accent); text-decoration: none; }
-  .people-list { list-style: none; }
-  .people-list li { padding: 4px 0; font-size: 14px; }
-  .signals-list { display: flex; gap: 6px; flex-wrap: wrap; }
-  .signal {
-    background: rgba(108, 99, 255, 0.1); color: var(--accent2);
-    padding: 3px 10px; border-radius: 10px; font-size: 12px;
-  }
-
-  /* Modal */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    z-index: 300; display: none; align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 24px; width: 480px; max-width: 90vw;
-    animation: fadeIn 0.15s;
-  }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-  .modal h2 { margin-bottom: 16px; font-size: 18px; }
-  .form-group { margin-bottom: 14px; }
-  .form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 14px;
-    font-family: inherit; outline: none;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
-  .form-group textarea { min-height: 60px; resize: vertical; }
-  .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-
-  /* Enrichment log */
-  .log-panel {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); margin-bottom: 24px; display: none;
-  }
-  .log-panel.open { display: block; }
-  .log-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px; border-bottom: 1px solid var(--border);
-  }
-  .log-header h3 { font-size: 14px; }
-  .log-body {
-    padding: 12px 16px; max-height: 300px; overflow-y: auto;
-    font-family: 'Consolas', 'Monaco', monospace; font-size: 12px;
-    white-space: pre-wrap; color: var(--text2); line-height: 1.6;
-  }
-  .spinner {
-    display: inline-block; width: 14px; height: 14px;
-    border: 2px solid var(--border); border-top-color: var(--accent);
-    border-radius: 50%; animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Empty state */
-  .empty-state {
-    text-align: center; padding: 60px 20px; color: var(--text2);
-  }
-  .empty-state h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .container { padding: 12px; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    td:nth-child(4), th:nth-child(4),
-    td:nth-child(6), th:nth-child(6) { display: none; }
-  }
+/* Log */
+.log-panel { background:var(--s1); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:16px; display:none; }
+.log-panel.open { display:block; }
+.log-head { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-bottom:1px solid var(--border); }
+.log-body { padding:10px 14px; max-height:250px; overflow-y:auto; font-family:Consolas,Monaco,monospace; font-size:11px; white-space:pre-wrap; color:var(--text2); line-height:1.5; }
+.spinner { display:inline-block; width:12px; height:12px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin-right:6px; }
+@keyframes spin { to { transform:rotate(360deg); } }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1><span>&#9670;</span> Prospect Finder</h1>
+  <h1><span>&#9670;</span> Prospect Finder &mdash; People</h1>
   <div class="header-actions">
-    <button class="btn" onclick="exportCSV()">&#8615; Export CSV</button>
-    <button class="btn btn-primary" onclick="openAddModal()">+ Add Prospect</button>
+    <button class="btn" onclick="exportCSV()">Export CSV</button>
+    <button class="btn btn-p" onclick="openAddCompany()">+ Company</button>
   </div>
 </div>
 
 <div class="container">
-  <!-- Stats -->
   <div class="stats" id="stats"></div>
 
-  <!-- Enrichment log -->
   <div class="log-panel" id="logPanel">
-    <div class="log-header">
-      <h3><span class="spinner" id="logSpinner"></span> Enrichment Running</h3>
-      <button class="btn btn-sm" onclick="closeLog()">Close</button>
+    <div class="log-head">
+      <span><span class="spinner" id="logSpin"></span> Running...</span>
+      <button class="btn btn-sm" onclick="el('logPanel').classList.remove('open')">Close</button>
     </div>
     <div class="log-body" id="logBody"></div>
   </div>
 
-  <!-- Toolbar -->
   <div class="toolbar">
-    <input type="text" class="search-box" id="searchBox" placeholder="Search prospects..." oninput="renderTable()">
-    <div class="filter-chips" id="filterChips"></div>
-    <button class="btn" id="enrichBtn" onclick="runEnrich('enrich-only')">Enrich Seed List</button>
-    <button class="btn" id="searchBtn" onclick="runEnrich('full')">Search + Enrich</button>
+    <input type="text" class="search" id="searchBox" placeholder="Search people or companies..." oninput="render()">
+    <div class="chips" id="chips"></div>
+    <button class="btn" id="btnEnrich" onclick="runEnrich('enrich-only')">Scrape Team Pages</button>
+    <button class="btn" id="btnSearch" onclick="runEnrich('full')">Search People</button>
   </div>
 
-  <!-- Table -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th data-col="name" onclick="sortBy('name')">Name <span class="sort-icon">&#9650;</span></th>
-          <th data-col="fit_score" onclick="sortBy('fit_score')">Fit <span class="sort-icon">&#9650;</span></th>
-          <th data-col="category" onclick="sortBy('category')">Category <span class="sort-icon">&#9650;</span></th>
-          <th data-col="approach">Approach</th>
-          <th data-col="source" onclick="sortBy('source')">Source <span class="sort-icon">&#9650;</span></th>
-          <th data-col="contact">Links</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-    <div class="empty-state" id="emptyState" style="display:none;">
-      <h3>No prospects found</h3>
-      <p>Run the enrichment or add prospects manually.</p>
-    </div>
-  </div>
+  <div id="list"></div>
 </div>
 
-<!-- Detail panel -->
-<div class="detail-overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
-  <div class="detail-panel" id="detailPanel"></div>
-</div>
-
-<!-- Add/Edit modal -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+<!-- Add Company Modal -->
+<div class="modal-bg" id="companyModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal">
-    <h2 id="modalTitle">Add Prospect</h2>
-    <input type="hidden" id="editIndex" value="-1">
-    <div class="form-group">
-      <label>Company Name *</label>
-      <input type="text" id="fName" placeholder="e.g. MedLife">
-    </div>
-    <div class="form-group">
-      <label>Website</label>
-      <input type="text" id="fWebsite" placeholder="https://...">
-    </div>
-    <div class="form-group">
-      <label>Category</label>
-      <select id="fCategory">
+    <h2 id="companyModalTitle">Add Company</h2>
+    <input type="hidden" id="editCompanyIdx" value="-1">
+    <div class="fg"><label>Company Name *</label><input id="cName"></div>
+    <div class="fg"><label>Website</label><input id="cWebsite"></div>
+    <div class="fg"><label>Category</label>
+      <select id="cCategory">
         <option value="healthcare_provider">Healthcare Provider</option>
         <option value="insurance">Insurance</option>
-        <option value="corporate_wellness">Corporate Wellness</option>
+        <option value="wellness">Corporate Wellness</option>
         <option value="medtech">MedTech / Digital Health</option>
-        <option value="vc_investor">VC / Investor</option>
+        <option value="vc">VC / Investor</option>
         <option value="unknown">Other</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>Fit Score (1-5)</label>
-      <select id="fScore">
-        <option value="5">5 - Perfect fit</option>
-        <option value="4">4 - Strong fit</option>
-        <option value="3" selected>3 - Good fit</option>
-        <option value="2">2 - Possible fit</option>
-        <option value="1">1 - Weak fit</option>
-      </select>
+    <div class="fg"><label>Fit Score (1-5)</label>
+      <select id="cScore"><option value="5">5</option><option value="4">4</option><option value="3" selected>3</option><option value="2">2</option><option value="1">1</option></select>
     </div>
-    <div class="form-group">
-      <label>Approach</label>
-      <input type="text" id="fApproach" placeholder="e.g. Licensing — white-label for patient portal">
-    </div>
-    <div class="form-group">
-      <label>Contact URL</label>
-      <input type="text" id="fContact" placeholder="https://...">
-    </div>
-    <div class="form-group">
-      <label>LinkedIn URL</label>
-      <input type="text" id="fLinkedin" placeholder="https://linkedin.com/company/...">
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="fDescription" placeholder="Brief description..."></textarea>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <textarea id="fNotes" placeholder="Internal notes..."></textarea>
-    </div>
+    <div class="fg"><label>Approach</label><input id="cApproach" placeholder="licensing / acquisition / partnership / investment"></div>
+    <div class="fg"><label>Why This Company?</label><textarea id="cWhy" placeholder="One sentence..."></textarea></div>
+    <div class="fg"><label>Company LinkedIn</label><input id="cLinkedin"></div>
+    <div class="fg"><label>Notes</label><textarea id="cNotes"></textarea></div>
     <div class="form-actions">
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveProspect()">Save</button>
+      <button class="btn" onclick="el('companyModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-p" onclick="saveCompany()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Person Modal -->
+<div class="modal-bg" id="personModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <h2>Add Decision-Maker</h2>
+    <input type="hidden" id="personCompanyIdx" value="-1">
+    <div class="fg"><label>Full Name *</label><input id="pName"></div>
+    <div class="fg"><label>Title / Role *</label><input id="pTitle" placeholder="CEO, CTO, Head of Digital..."></div>
+    <div class="fg"><label>LinkedIn Profile URL</label><input id="pLinkedin" placeholder="https://linkedin.com/in/..."></div>
+    <div class="fg"><label>Why This Person?</label><textarea id="pRelevance" placeholder="What makes them the right contact"></textarea></div>
+    <div class="fg"><label>Message Angle</label><textarea id="pAngle" placeholder="Personalized opening line idea for outreach"></textarea></div>
+    <div class="form-actions">
+      <button class="btn" onclick="el('personModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-p" onclick="savePerson()">Save</button>
     </div>
   </div>
 </div>
 
 <script>
-const CATEGORY_LABELS = {
-  healthcare_provider: 'Healthcare',
-  insurance: 'Insurance',
-  corporate_wellness: 'Wellness',
-  medtech: 'MedTech',
-  vc_investor: 'VC / Investor',
-  unknown: 'Other',
-};
+const CAT_LABELS = {healthcare_provider:'Healthcare',insurance:'Insurance',wellness:'Wellness',medtech:'MedTech',vc:'VC / Investor',unknown:'Other'};
+let companies = [], filter = 'all', enrichPoll = null;
 
-let prospects = [];
-let currentSort = { col: 'fit_score', dir: -1 };
-let currentFilter = 'all';
-let enrichPoll = null;
+function el(id) { return document.getElementById(id); }
+function esc(s) { if(!s)return''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
-// ---- Data loading ----
-
-async function loadData() {
-  const [pRes, sRes] = await Promise.all([
-    fetch('api/prospects'), fetch('api/stats')
-  ]);
-  prospects = await pRes.json();
+async function load() {
+  const [cRes, sRes] = await Promise.all([fetch('api/companies'), fetch('api/stats')]);
+  companies = await cRes.json();
   const stats = await sRes.json();
   renderStats(stats);
-  renderFilterChips(stats);
-  renderTable();
+  renderChips(stats);
+  render();
 }
 
 function renderStats(s) {
-  document.getElementById('stats').innerHTML = `
-    <div class="stat-card"><div class="label">Total Prospects</div><div class="value accent">${s.total}</div></div>
-    <div class="stat-card"><div class="label">High Fit (4-5)</div><div class="value green">${s.high_fit}</div></div>
-    <div class="stat-card"><div class="label">From Search</div><div class="value">${s.sources.search || 0}</div></div>
-    <div class="stat-card"><div class="label">Manual</div><div class="value">${s.sources.manual || 0}</div></div>
+  el('stats').innerHTML = `
+    <div class="stat"><div class="label">Companies</div><div class="val a">${s.total_companies}</div></div>
+    <div class="stat"><div class="label">Decision-Makers</div><div class="val g">${s.total_people}</div></div>
+    <div class="stat"><div class="label">With LinkedIn</div><div class="val y">${s.with_linkedin}</div></div>
+    <div class="stat"><div class="label">Ready to Contact</div><div class="val">${s.with_linkedin}</div></div>
   `;
 }
 
-function renderFilterChips(s) {
-  let html = `<span class="chip ${currentFilter==='all'?'active':''}" onclick="setFilter('all')">All<span class="count">${s.total}</span></span>`;
-  for (const [cat, label] of Object.entries(CATEGORY_LABELS)) {
-    const cnt = s.categories[cat] ? s.categories[cat].count : 0;
-    if (cnt === 0) continue;
-    html += `<span class="chip ${currentFilter===cat?'active':''}" onclick="setFilter('${cat}')">${label}<span class="count">${cnt}</span></span>`;
+function renderChips(s) {
+  let h = `<span class="chip ${filter==='all'?'on':''}" onclick="setFilter('all')">All</span>`;
+  for (const [k,v] of Object.entries(CAT_LABELS)) {
+    const n = s.categories[k]?.companies || 0;
+    if(!n) continue;
+    const p = s.categories[k]?.people || 0;
+    h += `<span class="chip ${filter===k?'on':''}" onclick="setFilter('${k}')">${v} (${p})</span>`;
   }
-  document.getElementById('filterChips').innerHTML = html;
+  el('chips').innerHTML = h;
 }
 
-function setFilter(f) { currentFilter = f; renderTable(); renderFilterChips({total: prospects.length, categories: getCats(), sources: getSources()}); }
+function setFilter(f) { filter=f; render(); }
 
-function getCats() {
-  const c = {};
-  prospects.forEach(p => { c[p.category] = c[p.category] || {count:0,total_score:0}; c[p.category].count++; c[p.category].total_score += p.fit_score; });
-  return c;
-}
-function getSources() {
-  const s = {seed:0,search:0,manual:0};
-  prospects.forEach(p => s[p.source] = (s[p.source]||0)+1);
-  return s;
-}
-
-// ---- Table rendering ----
-
-function renderTable() {
-  const q = document.getElementById('searchBox').value.toLowerCase();
-  let filtered = prospects.filter(p => {
-    if (currentFilter !== 'all' && p.category !== currentFilter) return false;
-    if (q && !`${p.name} ${p.description} ${p.approach} ${p.notes}`.toLowerCase().includes(q)) return false;
-    return true;
+function render() {
+  const q = el('searchBox').value.toLowerCase();
+  const filtered = companies.filter((c,i) => {
+    c._idx = i;
+    if (filter !== 'all' && c.category !== filter) return false;
+    if (!q) return true;
+    const haystack = `${c.name} ${c.why_fit} ${c.approach} ${c.notes} ${(c.people||[]).map(p=>`${p.name} ${p.title} ${p.relevance} ${p.message_angle}`).join(' ')}`.toLowerCase();
+    return haystack.includes(q);
   });
 
-  filtered.sort((a, b) => {
-    let va = a[currentSort.col], vb = b[currentSort.col];
-    if (typeof va === 'string') va = va.toLowerCase();
-    if (typeof vb === 'string') vb = vb.toLowerCase();
-    if (va < vb) return -1 * currentSort.dir;
-    if (va > vb) return 1 * currentSort.dir;
-    return 0;
-  });
-
-  // Update sort indicators
-  document.querySelectorAll('th').forEach(th => {
-    th.classList.toggle('sorted', th.dataset.col === currentSort.col);
-    const icon = th.querySelector('.sort-icon');
-    if (icon) icon.innerHTML = (th.dataset.col === currentSort.col && currentSort.dir === 1) ? '&#9650;' : '&#9660;';
-  });
-
-  const tbody = document.getElementById('tableBody');
-  if (filtered.length === 0) {
-    tbody.innerHTML = '';
-    document.getElementById('emptyState').style.display = '';
+  if (!filtered.length) {
+    el('list').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2)">No companies match.</div>';
     return;
   }
-  document.getElementById('emptyState').style.display = 'none';
 
-  tbody.innerHTML = filtered.map(p => {
-    const idx = prospects.indexOf(p);
-    const stars = Array.from({length:5}, (_, i) =>
-      `<span class="${i < p.fit_score ? 'star-filled' : 'star-empty'}">${i < p.fit_score ? '\u2605' : '\u2606'}</span>`
-    ).join('');
+  el('list').innerHTML = filtered.map(c => {
+    const idx = c._idx;
+    const people = c.people || [];
+    const stars = Array.from({length:5},(_,i) => `<span class="${i<c.fit_score?'on':'off'}">${i<c.fit_score?'\u2605':'\u2606'}</span>`).join('');
+    const peopleCount = people.length ? `${people.length} people` : '<span style="color:var(--red)">0 people</span>';
+
+    let peopleHTML = '';
+    if (people.length) {
+      peopleHTML = `<table class="people-table"><thead><tr><th>Name</th><th>Title</th><th>LinkedIn</th><th>Message Angle</th><th></th></tr></thead><tbody>`;
+      peopleHTML += people.map((p,pi) => {
+        const li = p.linkedin_url
+          ? `<a class="li-btn" href="${esc(p.linkedin_url)}" target="_blank" onclick="event.stopPropagation()">in Profile</a>`
+          : '<span style="color:var(--text2);font-size:11px">not found</span>';
+        return `<tr>
+          <td><div class="person-name">${esc(p.name)}</div><div class="person-title">${esc(p.source||'')}</div></td>
+          <td>${esc(p.title)}</td>
+          <td>${li}</td>
+          <td><div class="person-angle">${esc(p.message_angle || p.relevance || '')}</div></td>
+          <td><button class="btn btn-sm btn-d" onclick="event.stopPropagation();deletePerson(${idx},${pi})">x</button></td>
+        </tr>`;
+      }).join('');
+      peopleHTML += '</tbody></table>';
+    } else {
+      peopleHTML = '<div class="no-people">No decision-makers found yet. Click "Add Person" or run search.</div>';
+    }
 
     const links = [];
-    if (p.website) links.push(`<a href="${esc(p.website)}" target="_blank" title="Website">&#127760;</a>`);
-    if (p.contact_url) links.push(`<a href="${esc(p.contact_url)}" target="_blank" title="Contact">&#9993;</a>`);
-    if (p.linkedin_url) links.push(`<a href="${esc(p.linkedin_url)}" target="_blank" title="LinkedIn">in</a>`);
+    if (c.website) links.push(`<a href="${esc(c.website)}" target="_blank">Website</a>`);
+    if (c.linkedin_company) links.push(`<a href="${esc(c.linkedin_company)}" target="_blank">Company LinkedIn</a>`);
+    if (c.contact_url) links.push(`<a href="${esc(c.contact_url)}" target="_blank">Contact</a>`);
 
-    return `<tr onclick="openDetail(${idx})" style="cursor:pointer">
-      <td><strong>${esc(p.name)}</strong></td>
-      <td><span class="stars">${stars}</span></td>
-      <td><span class="badge badge-${p.category}">${CATEGORY_LABELS[p.category] || p.category}</span></td>
-      <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.approach)}</td>
-      <td><span class="source-badge source-${p.source}">${p.source}</span></td>
-      <td onclick="event.stopPropagation()">${links.join(' ')}</td>
-      <td onclick="event.stopPropagation()">
-        <button class="btn btn-sm" onclick="openEditModal(${idx})">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteProspect(${idx})">&#10005;</button>
-      </td>
-    </tr>`;
+    return `<div class="company-card" id="card-${idx}">
+      <div class="company-header" onclick="toggle(${idx})">
+        <span class="company-name">${esc(c.name)}</span>
+        <div class="company-meta">
+          <span class="approach-tag">${esc(c.approach||'')}</span>
+          <span class="badge badge-${c.category}">${CAT_LABELS[c.category]||c.category}</span>
+          <span class="fit">${stars}</span>
+          <span class="people-count">${peopleCount}</span>
+        </div>
+      </div>
+      <div class="company-body">
+        ${c.why_fit ? `<div class="why-fit">"${esc(c.why_fit)}"</div>` : ''}
+        <div class="company-links">${links.join('')}</div>
+        ${peopleHTML}
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-sm btn-p" onclick="event.stopPropagation();openAddPerson(${idx})">+ Add Person</button>
+          <button class="btn btn-sm" onclick="event.stopPropagation();openEditCompany(${idx})">Edit Company</button>
+          <button class="btn btn-sm btn-d" onclick="event.stopPropagation();deleteCompany(${idx})">Delete</button>
+        </div>
+        ${c.notes ? `<div style="margin-top:8px;font-size:12px;color:var(--text2)">${esc(c.notes)}</div>` : ''}
+      </div>
+    </div>`;
   }).join('');
 }
 
-function sortBy(col) {
-  if (currentSort.col === col) currentSort.dir *= -1;
-  else { currentSort.col = col; currentSort.dir = col === 'fit_score' ? -1 : 1; }
-  renderTable();
+function toggle(idx) { document.getElementById('card-'+idx)?.classList.toggle('open'); }
+
+// --- Company CRUD ---
+function openAddCompany() {
+  el('companyModalTitle').textContent = 'Add Company';
+  el('editCompanyIdx').value = -1;
+  el('cName').value=''; el('cWebsite').value=''; el('cCategory').value='healthcare_provider';
+  el('cScore').value='3'; el('cApproach').value=''; el('cWhy').value=''; el('cLinkedin').value=''; el('cNotes').value='';
+  el('companyModal').classList.add('open');
 }
-
-function esc(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
+function openEditCompany(idx) {
+  const c = companies[idx];
+  el('companyModalTitle').textContent = 'Edit Company';
+  el('editCompanyIdx').value = idx;
+  el('cName').value = c.name||''; el('cWebsite').value = c.website||''; el('cCategory').value = c.category||'unknown';
+  el('cScore').value = c.fit_score||3; el('cApproach').value = c.approach||''; el('cWhy').value = c.why_fit||'';
+  el('cLinkedin').value = c.linkedin_company||''; el('cNotes').value = c.notes||'';
+  el('companyModal').classList.add('open');
 }
-
-// ---- Detail panel ----
-
-function openDetail(idx) {
-  const p = prospects[idx];
-  const stars = Array.from({length:5}, (_, i) =>
-    `<span class="${i < p.fit_score ? 'star-filled' : 'star-empty'}" style="font-size:20px">${i < p.fit_score ? '\u2605' : '\u2606'}</span>`
-  ).join('');
-
-  let html = `
-    <div style="display:flex;justify-content:space-between;align-items:start">
-      <div>
-        <h2>${esc(p.name)}</h2>
-        <div class="website"><a href="${esc(p.website)}" target="_blank">${esc(p.website)}</a></div>
-      </div>
-      <button class="btn btn-sm" onclick="closeDetail()">&#10005;</button>
-    </div>
-    <div style="margin-bottom:16px">
-      <span class="badge badge-${p.category}" style="font-size:12px">${CATEGORY_LABELS[p.category] || p.category}</span>
-      <span class="source-badge source-${p.source}" style="margin-left:8px">${p.source}</span>
-    </div>
-    <div style="margin-bottom:20px">${stars} <span style="color:var(--text2);margin-left:8px">${p.fit_score}/5</span></div>
-  `;
-
-  if (p.description) {
-    html += `<div class="detail-section"><h3>Description</h3><p style="color:var(--text2);font-size:14px">${esc(p.description)}</p></div>`;
-  }
-  if (p.approach) {
-    html += `<div class="detail-section"><h3>Suggested Approach</h3><p style="font-size:14px">${esc(p.approach)}</p></div>`;
-  }
-
-  // Links
-  const links = [];
-  if (p.website) links.push(`<a href="${esc(p.website)}" target="_blank">&#127760; Website</a>`);
-  if (p.contact_url) links.push(`<a href="${esc(p.contact_url)}" target="_blank">&#9993; Contact Page</a>`);
-  if (p.linkedin_url) links.push(`<a href="${esc(p.linkedin_url)}" target="_blank">&#128279; LinkedIn</a>`);
-  if (p.team_page_url) links.push(`<a href="${esc(p.team_page_url)}" target="_blank">&#128101; Team Page</a>`);
-  if (links.length) {
-    html += `<div class="detail-section"><h3>Links</h3><div class="detail-links">${links.join('')}</div></div>`;
-  }
-
-  // Key people
-  if (p.key_people && p.key_people.length) {
-    html += `<div class="detail-section"><h3>Key People (Public)</h3><ul class="people-list">${p.key_people.map(pp => `<li>${esc(pp)}</li>`).join('')}</ul></div>`;
-  }
-
-  // Partner signals
-  if (p.partner_signals && p.partner_signals.length) {
-    html += `<div class="detail-section"><h3>Partnership Signals</h3><div class="signals-list">${p.partner_signals.map(s => `<span class="signal">${esc(s)}</span>`).join('')}</div></div>`;
-  }
-
-  if (p.notes) {
-    html += `<div class="detail-section"><h3>Notes</h3><p style="color:var(--text2);font-size:14px">${esc(p.notes)}</p></div>`;
-  }
-
-  html += `<div style="margin-top:24px;display:flex;gap:8px">
-    <button class="btn" onclick="openEditModal(${idx});closeDetail()">Edit</button>
-    <button class="btn btn-danger" onclick="deleteProspect(${idx});closeDetail()">Delete</button>
-  </div>`;
-
-  document.getElementById('detailPanel').innerHTML = html;
-  document.getElementById('detailOverlay').classList.add('open');
-}
-
-function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
-
-// ---- Add/Edit modal ----
-
-function openAddModal() {
-  document.getElementById('modalTitle').textContent = 'Add Prospect';
-  document.getElementById('editIndex').value = -1;
-  document.getElementById('fName').value = '';
-  document.getElementById('fWebsite').value = '';
-  document.getElementById('fCategory').value = 'healthcare_provider';
-  document.getElementById('fScore').value = '3';
-  document.getElementById('fApproach').value = '';
-  document.getElementById('fContact').value = '';
-  document.getElementById('fLinkedin').value = '';
-  document.getElementById('fDescription').value = '';
-  document.getElementById('fNotes').value = '';
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function openEditModal(idx) {
-  const p = prospects[idx];
-  document.getElementById('modalTitle').textContent = 'Edit Prospect';
-  document.getElementById('editIndex').value = idx;
-  document.getElementById('fName').value = p.name || '';
-  document.getElementById('fWebsite').value = p.website || '';
-  document.getElementById('fCategory').value = p.category || 'unknown';
-  document.getElementById('fScore').value = p.fit_score || 3;
-  document.getElementById('fApproach').value = p.approach || '';
-  document.getElementById('fContact').value = p.contact_url || '';
-  document.getElementById('fLinkedin').value = p.linkedin_url || '';
-  document.getElementById('fDescription').value = p.description || '';
-  document.getElementById('fNotes').value = p.notes || '';
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-
-async function saveProspect() {
-  const idx = parseInt(document.getElementById('editIndex').value);
+async function saveCompany() {
+  const idx = parseInt(el('editCompanyIdx').value);
   const data = {
-    name: document.getElementById('fName').value.trim(),
-    website: document.getElementById('fWebsite').value.trim(),
-    category: document.getElementById('fCategory').value,
-    fit_score: parseInt(document.getElementById('fScore').value),
-    approach: document.getElementById('fApproach').value.trim(),
-    contact_url: document.getElementById('fContact').value.trim(),
-    linkedin_url: document.getElementById('fLinkedin').value.trim(),
-    description: document.getElementById('fDescription').value.trim(),
-    notes: document.getElementById('fNotes').value.trim(),
+    name: el('cName').value.trim(), website: el('cWebsite').value.trim(),
+    category: el('cCategory').value, fit_score: parseInt(el('cScore').value),
+    approach: el('cApproach').value.trim(), why_fit: el('cWhy').value.trim(),
+    linkedin_company: el('cLinkedin').value.trim(), notes: el('cNotes').value.trim(),
   };
-  if (!data.name) { alert('Name is required'); return; }
-
-  if (idx >= 0) {
-    await fetch(`api/prospects/${idx}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
-  } else {
-    await fetch('api/prospects', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
-  }
-  closeModal();
-  await loadData();
+  if (!data.name) return alert('Name required');
+  if (idx >= 0) await fetch(`api/companies/${idx}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  else await fetch('api/companies', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  el('companyModal').classList.remove('open');
+  await load();
+}
+async function deleteCompany(idx) {
+  if (!confirm(`Delete "${companies[idx].name}"?`)) return;
+  await fetch(`api/companies/${idx}`, {method:'DELETE'});
+  await load();
 }
 
-async function deleteProspect(idx) {
-  if (!confirm(`Delete "${prospects[idx].name}"?`)) return;
-  await fetch(`api/prospects/${idx}`, { method: 'DELETE' });
-  await loadData();
+// --- Person CRUD ---
+function openAddPerson(companyIdx) {
+  el('personCompanyIdx').value = companyIdx;
+  el('pName').value=''; el('pTitle').value=''; el('pLinkedin').value=''; el('pRelevance').value=''; el('pAngle').value='';
+  el('personModal').classList.add('open');
+}
+async function savePerson() {
+  const ci = parseInt(el('personCompanyIdx').value);
+  const data = {
+    name: el('pName').value.trim(), title: el('pTitle').value.trim(),
+    linkedin_url: el('pLinkedin').value.trim(), relevance: el('pRelevance').value.trim(),
+    message_angle: el('pAngle').value.trim(),
+  };
+  if (!data.name) return alert('Name required');
+  await fetch(`api/companies/${ci}/people`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  el('personModal').classList.remove('open');
+  await load();
+}
+async function deletePerson(ci,pi) {
+  if (!confirm('Remove this person?')) return;
+  await fetch(`api/companies/${ci}/people/${pi}`, {method:'DELETE'});
+  await load();
 }
 
-// ---- Enrichment ----
-
+// --- Enrichment ---
 async function runEnrich(mode) {
-  document.getElementById('enrichBtn').disabled = true;
-  document.getElementById('searchBtn').disabled = true;
-  document.getElementById('logPanel').classList.add('open');
-  document.getElementById('logBody').textContent = 'Starting...\n';
-  document.getElementById('logSpinner').style.display = '';
-
-  await fetch('api/enrich', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({mode}) });
-
-  enrichPoll = setInterval(async () => {
-    const res = await fetch('api/enrich/status');
-    const st = await res.json();
-    document.getElementById('logBody').textContent = st.log || 'Running...';
-    document.getElementById('logBody').scrollTop = document.getElementById('logBody').scrollHeight;
-    if (!st.running) {
+  el('btnEnrich').disabled=true; el('btnSearch').disabled=true;
+  el('logPanel').classList.add('open');
+  el('logBody').textContent='Starting...\n';
+  el('logSpin').style.display='';
+  await fetch('api/enrich',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode})});
+  enrichPoll = setInterval(async()=>{
+    const r = await(await fetch('api/enrich/status')).json();
+    el('logBody').textContent = r.log||'Running...';
+    el('logBody').scrollTop = el('logBody').scrollHeight;
+    if(!r.running) {
       clearInterval(enrichPoll);
-      document.getElementById('enrichBtn').disabled = false;
-      document.getElementById('searchBtn').disabled = false;
-      document.getElementById('logSpinner').style.display = 'none';
-      await loadData();
+      el('btnEnrich').disabled=false; el('btnSearch').disabled=false;
+      el('logSpin').style.display='none';
+      await load();
     }
-  }, 1500);
+  },1500);
 }
 
-function closeLog() { document.getElementById('logPanel').classList.remove('open'); }
-
-// ---- Export ----
-
+// --- Export ---
 function exportCSV() {
-  const header = 'Name,Website,Category,Fit Score,Approach,Contact URL,LinkedIn,Notes,Source\n';
-  const rows = prospects.map(p =>
-    [p.name, p.website, p.category, p.fit_score, p.approach, p.contact_url, p.linkedin_url, p.notes, p.source]
-      .map(v => `"${String(v||'').replace(/"/g,'""')}"`)
-      .join(',')
-  ).join('\n');
-  const blob = new Blob([header + rows], {type: 'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `prospects_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+  let rows = ['Company,Category,Fit,Person,Title,LinkedIn,Message Angle'];
+  for (const c of companies) {
+    for (const p of (c.people||[])) {
+      rows.push([c.name,c.category,c.fit_score,p.name,p.title,p.linkedin_url,p.message_angle||p.relevance||'']
+        .map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
+    }
+    if (!(c.people||[]).length) {
+      rows.push([c.name,c.category,c.fit_score,'','','',''].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','));
+    }
+  }
+  const blob = new Blob([rows.join('\n')],{type:'text/csv'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`prospects_people_${new Date().toISOString().slice(0,10)}.csv`; a.click();
 }
 
-// ---- Keyboard ----
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeDetail(); closeModal(); closeLog(); }
-});
-
-// ---- Init ----
-loadData();
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){el('companyModal').classList.remove('open');el('personModal').classList.remove('open');} });
+load();
 </script>
 </body>
 </html>"""
-
 
 if __name__ == "__main__":
     host = os.environ.get("HOST", "127.0.0.1")
