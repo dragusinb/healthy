@@ -63,30 +63,26 @@ def unlock_vault(page, password):
     return False
 
 
-def click_sidebar(page, text, password):
-    """Click a sidebar link. Handles vault modal if it blocks."""
+def navigate(page, path, password):
+    """Navigate to a page and handle vault unlock."""
     page.evaluate("window.scrollTo(0,0)")
-    page.wait_for_timeout(300)
+    page.wait_for_timeout(200)
 
-    # Dismiss vault if blocking
+    # Use JS click on the sidebar link (bypasses modal overlay)
+    clicked = page.evaluate(f"""() => {{
+        const link = document.querySelector('a[href="{path}"]');
+        if (link) {{ link.click(); return true; }}
+        return false;
+    }}""")
+
+    if not clicked:
+        # Fallback: direct navigation
+        page.goto(f"{BASE_URL}{path}", wait_until="networkidle", timeout=20000)
+
+    page.wait_for_timeout(2500)
     unlock_vault(page, password)
-    page.wait_for_timeout(300)
-
-    try:
-        page.locator(f'a:has-text("{text}")').first.click(timeout=5000)
-        page.wait_for_timeout(2500)
-    except Exception:
-        # Vault might have reappeared
-        unlock_vault(page, password)
-        page.wait_for_timeout(500)
-        try:
-            page.locator(f'a:has-text("{text}")').first.click(timeout=5000)
-            page.wait_for_timeout(2500)
-        except Exception:
-            print(f"   WARNING: Could not click '{text}'")
-
-    # Dismiss vault again if it appeared after navigation
-    unlock_vault(page, password)
+    page.wait_for_timeout(500)
+    dismiss_cookies(page)
 
 
 def dismiss_cookies(page):
@@ -168,7 +164,7 @@ def run(email, password, headed):
 
             # 4. Documents (sidebar click)
             print("[4/10] Documents...")
-            click_sidebar(page, "Documente", password)
+            navigate(page, "/documents", password)
             dismiss_cookies(page)
             overlay(page, LABELS["documents"])
             page.wait_for_timeout(2000)
@@ -177,7 +173,7 @@ def run(email, password, headed):
 
             # 5. Biomarkers
             print("[5/10] Biomarkers...")
-            click_sidebar(page, "Biomarkeri", password)
+            navigate(page, "/biomarkers", password)
             dismiss_cookies(page)
             overlay(page, LABELS["biomarkers"])
             page.wait_for_timeout(2000)
@@ -202,7 +198,7 @@ def run(email, password, headed):
 
             # 7. Health Reports (sidebar)
             print("[7/10] Health Reports...")
-            click_sidebar(page, "Doctor AI", password)
+            navigate(page, "/health", password)
             dismiss_cookies(page)
             overlay(page, LABELS["health"])
             page.wait_for_timeout(2000)
@@ -211,7 +207,7 @@ def run(email, password, headed):
 
             # 8. Lifestyle
             print("[8/10] Lifestyle...")
-            click_sidebar(page, "Stil de Via", password)
+            navigate(page, "/lifestyle", password)
             dismiss_cookies(page)
             overlay(page, LABELS["lifestyle"])
             page.wait_for_timeout(2000)
@@ -220,14 +216,14 @@ def run(email, password, headed):
 
             # 9. Billing
             print("[9/10] Billing...")
-            click_sidebar(page, "Abonament", password)
+            navigate(page, "/billing", password)
             dismiss_cookies(page)
             overlay(page, LABELS["billing"])
             page.wait_for_timeout(2000)
 
             # 10. Settings
             print("[10/10] Settings...")
-            click_sidebar(page, "Set\u0103ri", password)
+            navigate(page, "/settings", password)
             dismiss_cookies(page)
             overlay(page, LABELS["settings"])
             page.wait_for_timeout(2000)
