@@ -1,9 +1,11 @@
 """
 Clean demo video recorder. No CSS hacks — proper vault handling.
 
+Credentials are hardcoded to avoid shell escaping issues (! in password).
+
 Usage:
-    python record_demo.py --email user@example.com --password pass
-    python record_demo.py --email user@example.com --password pass --headed
+    python record_demo.py
+    python record_demo.py --headed
 """
 
 import argparse
@@ -12,6 +14,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 BASE_URL = "https://analize.online"
+DEMO_EMAIL = "elena.popescu@demo.analize.online"
+DEMO_PASSWORD = "DemoPass123!"
 
 LABELS = {
     "home": "Pagina principală",
@@ -252,6 +256,17 @@ def run(email, password, headed):
     if recordings:
         shutil.move(str(recordings[-1]), str(final))
         print(f"\n{'='*60}\nDemo video saved: {final}\n{'='*60}")
+
+        # Auto-copy to frontend public/ and dist/ so deployed site uses the new video
+        project_root = Path(__file__).parent.parent
+        public_dest = project_root / "frontend_v2" / "public" / "demo-video.webm"
+        dist_dest = project_root / "frontend_v2" / "dist" / "demo-video.webm"
+        for dest in [public_dest, dist_dest]:
+            if dest.parent.exists():
+                shutil.copy2(str(final), str(dest))
+                print(f"Copied to: {dest}")
+            else:
+                print(f"Skipped (dir missing): {dest}")
     else:
         print("\n[WARNING] No video file found.")
     shutil.rmtree(out_dir, ignore_errors=True)
@@ -259,8 +274,8 @@ def run(email, password, headed):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--email", required=True)
-    parser.add_argument("--password", required=True)
+    parser.add_argument("--email", default=DEMO_EMAIL, help="Demo account email")
+    parser.add_argument("--password", default=DEMO_PASSWORD, help="Demo account password")
     parser.add_argument("--headed", action="store_true")
     args = parser.parse_args()
     run(args.email, args.password, args.headed)
