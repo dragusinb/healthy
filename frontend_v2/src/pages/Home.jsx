@@ -296,10 +296,10 @@ export default function Home() {
             {[
               {
                 icon: Brain,
-                title: isRomanian ? '6 Specialiști AI' : '6 AI Specialists',
+                title: isRomanian ? 'Echipă de specialiști AI' : 'AI specialist team',
                 description: isRomanian
-                  ? 'Nu doar un raport generic. Cardiolog, Endocrinolog, Hematolog, Hepatolog, Nefrolog — fiecare analizează ce contează în domeniul lui'
-                  : 'Not just a generic report. Cardiologist, Endocrinologist, Hematologist, Hepatologist, Nephrologist — each analyzes what matters in their field',
+                  ? 'Nu doar un raport generic. Cardiolog, Endocrinolog, Hematolog, Hepatolog, Nefrolog și alți specialiști — fiecare analizează ce contează în domeniul lui'
+                  : 'Not just a generic report. Cardiologist, Endocrinologist, Hematologist, Hepatologist, Nephrologist and more — each analyzes what matters in their field',
                 color: 'text-violet-600',
                 bg: 'bg-violet-50',
               },
