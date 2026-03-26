@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import {
   HeartPulse, Shield, Brain, Zap, FileText, TrendingUp,
   CheckCircle, ArrowRight, Lock, Users, Clock, Smartphone,
-  Globe, Star, ChevronRight, Activity, Stethoscope
+  Globe, Star, ChevronRight, Activity, Stethoscope,
+  UtensilsCrossed, Dumbbell, ShoppingCart, ChefHat, Leaf, Apple
 } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 
@@ -83,8 +84,8 @@ export default function Home() {
               </h1>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">
                 {isRomanian
-                  ? 'Conectează Regina Maria, Synevo, Medlife și alți provideri. Primești analize AI de la specialiști virtuali și vezi cum evoluează sănătatea ta în timp.'
-                  : 'Connect Regina Maria, Synevo, Medlife and other providers. Get AI analyses from virtual specialists and see how your health evolves over time.'}
+                  ? 'Conectează conturile de la Regina Maria, Synevo, MedLife și Sanador. Primești interpretare de la 6 specialiști AI, plan nutrițional cu rețete românești și program de exerciții — totul bazat pe analizele tale reale.'
+                  : 'Connect your Regina Maria, Synevo, MedLife and Sanador accounts. Get analysis from 6 AI specialists, a nutrition plan with Romanian recipes and an exercise program — all based on your real lab results.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -175,7 +176,7 @@ export default function Home() {
             <span className="text-2xl font-bold text-slate-600">Regina Maria</span>
             <span className="text-2xl font-bold text-slate-600">Synevo</span>
             <span className="text-2xl font-bold text-slate-600">MedLife</span>
-            <span className="text-2xl font-bold text-slate-600">+alții</span>
+            <span className="text-2xl font-bold text-slate-600">Sanador</span>
           </div>
         </div>
       </section>
@@ -240,6 +241,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Stats / Social Proof */}
+      <section className="py-16 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              {
+                value: '4',
+                label: isRomanian ? 'Provideri Integrați' : 'Integrated Providers',
+                sub: 'Regina Maria, Synevo, MedLife, Sanador',
+              },
+              {
+                value: '6',
+                label: isRomanian ? 'Specialiști AI' : 'AI Specialists',
+                sub: isRomanian ? 'Cardiolog, Endocrinolog, Hematolog...' : 'Cardiologist, Endocrinologist, Hematologist...',
+              },
+              {
+                value: '150+',
+                label: isRomanian ? 'Tipuri de Biomarkeri' : 'Biomarker Types',
+                sub: isRomanian ? 'Extrași automat din PDF-uri' : 'Auto-extracted from PDFs',
+              },
+              {
+                value: '256-bit',
+                label: isRomanian ? 'Criptare' : 'Encryption',
+                sub: isRomanian ? 'AES-256-GCM per utilizator' : 'AES-256-GCM per user',
+              },
+            ].map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-teal-500 mb-2">
+                  {stat.value}
+                </div>
+                <div className="font-semibold text-slate-800 mb-1">{stat.label}</div>
+                <div className="text-sm text-slate-500">{stat.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="py-20 px-6 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-7xl mx-auto">
@@ -253,59 +292,77 @@ export default function Home() {
                 : 'Powerful features to understand and monitor your health'}
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 icon: Brain,
-                title: isRomanian ? 'Specialiști AI' : 'AI Specialists',
+                title: isRomanian ? '6 Specialiști AI' : '6 AI Specialists',
                 description: isRomanian
-                  ? 'Cardiolog, Endocrinolog, Hematolog și alți specialiști AI analizează rezultatele tale'
-                  : 'Cardiologist, Endocrinologist, Hematologist and other AI specialists analyze your results',
+                  ? 'Nu doar un raport generic. Cardiolog, Endocrinolog, Hematolog, Hepatolog, Nefrolog — fiecare analizează ce contează în domeniul lui'
+                  : 'Not just a generic report. Cardiologist, Endocrinologist, Hematologist, Hepatologist, Nephrologist — each analyzes what matters in their field',
                 color: 'text-violet-600',
                 bg: 'bg-violet-50',
               },
               {
-                icon: TrendingUp,
-                title: isRomanian ? 'Evoluție în timp' : 'Evolution over time',
+                icon: UtensilsCrossed,
+                title: isRomanian ? 'Nutriție personalizată' : 'Personalized nutrition',
                 description: isRomanian
-                  ? 'Vezi grafice cu evoluția fiecărui biomarker de-a lungul anilor'
-                  : 'See charts with the evolution of each biomarker over the years',
+                  ? 'Plan alimentar de 7 zile bazat pe analizele TALE, nu sfaturi generice. Cu rețete românești: ciorbă, sarmale, tocăniță — nu „eat more kale"'
+                  : 'A 7-day meal plan based on YOUR lab results, not generic advice. With Romanian recipes: ciorbă, sarmale — not "eat more kale"',
+                color: 'text-orange-600',
+                bg: 'bg-orange-50',
+              },
+              {
+                icon: Dumbbell,
+                title: isRomanian ? 'Program de exerciții' : 'Exercise program',
+                description: isRomanian
+                  ? 'Plan de 7 zile cu exerciții adaptate profilului tău medical. Cu încălzire, antrenament, relaxare și progresie pe 8 săptămâni'
+                  : '7-day workout plan adapted to your medical profile. With warm-up, workout, cool-down and 8-week progression',
                 color: 'text-blue-600',
                 bg: 'bg-blue-50',
+              },
+              {
+                icon: ShoppingCart,
+                title: isRomanian ? 'Listă de cumpărături' : 'Grocery list',
+                description: isRomanian
+                  ? 'Primești lista de cumpărături completă, organizată pe categorii, gata de dus la Mega Image sau piață'
+                  : 'Get the complete shopping list, organized by category, ready for the store or market',
+                color: 'text-green-600',
+                bg: 'bg-green-50',
+              },
+              {
+                icon: TrendingUp,
+                title: isRomanian ? 'Evoluție în timp' : 'Biomarker trends',
+                description: isRomanian
+                  ? 'Grafice interactive cu evoluția fiecărui biomarker. Vezi cum se schimbă colesterolul, hemoglobina sau glicemia ta'
+                  : 'Interactive charts tracking each biomarker over time. See how your cholesterol, hemoglobin or glucose changes',
+                color: 'text-cyan-600',
+                bg: 'bg-cyan-50',
               },
               {
                 icon: Stethoscope,
                 title: isRomanian ? 'Analiza lacunelor' : 'Gap analysis',
                 description: isRomanian
-                  ? 'Află ce analize ar trebui să faci bazat pe vârstă, sex și istoric'
-                  : 'Find out what tests you should do based on age, gender and history',
+                  ? 'Află ce analize îți lipsesc bazat pe vârstă, sex și istoricul tău medical'
+                  : 'Find out what tests you\'re missing based on age, gender and medical history',
                 color: 'text-teal-600',
                 bg: 'bg-teal-50',
               },
               {
                 icon: Shield,
-                title: isRomanian ? 'Criptare totală' : 'Full encryption',
+                title: isRomanian ? 'Criptare per utilizator' : 'Per-user encryption',
                 description: isRomanian
-                  ? 'Toate datele sunt criptate AES-256. Nici măcar noi nu le putem vedea'
-                  : 'All data is AES-256 encrypted. Not even we can see it',
+                  ? 'AES-256-GCM per cont. Nici echipa noastră nu poate vedea datele tale medicale. GDPR complet'
+                  : 'AES-256-GCM per account. Not even our team can see your medical data. Fully GDPR compliant',
                 color: 'text-emerald-600',
                 bg: 'bg-emerald-50',
               },
               {
-                icon: FileText,
-                title: isRomanian ? 'Export PDF' : 'PDF Export',
-                description: isRomanian
-                  ? 'Descarcă rapoartele AI în format PDF pentru a le arăta medicului'
-                  : 'Download AI reports in PDF format to show your doctor',
-                color: 'text-rose-600',
-                bg: 'bg-rose-50',
-              },
-              {
                 icon: Clock,
-                title: isRomanian ? 'Istoric complet' : 'Complete history',
+                title: isRomanian ? 'Toate laboratoarele, un loc' : 'All labs, one place',
                 description: isRomanian
-                  ? 'Toate analizele tale din toate sursele, organizate cronologic'
-                  : 'All your tests from all sources, organized chronologically',
+                  ? 'Regina Maria, Synevo, MedLife, Sanador — conectezi conturile și analizele se descarcă automat'
+                  : 'Regina Maria, Synevo, MedLife, Sanador — connect your accounts and lab results download automatically',
                 color: 'text-amber-600',
                 bg: 'bg-amber-50',
               },
@@ -398,15 +455,15 @@ export default function Home() {
               <ul className="space-y-3 text-left mb-8">
                 <li className="flex items-center gap-2 text-slate-600">
                   <CheckCircle size={16} className="text-slate-500" />
-                  <span>50 {isRomanian ? 'documente' : 'documents'}</span>
+                  <span>20 {isRomanian ? 'documente' : 'documents'}</span>
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <CheckCircle size={16} className="text-slate-500" />
-                  <span>3 {isRomanian ? 'analize AI/lună' : 'AI analyses/month'}</span>
+                  <span>2 {isRomanian ? 'analize AI/lună' : 'AI analyses/month'}</span>
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
                   <CheckCircle size={16} className="text-slate-500" />
-                  <span>2 {isRomanian ? 'conturi medicale' : 'medical accounts'}</span>
+                  <span>1 {isRomanian ? 'cont medical' : 'medical account'}</span>
                 </li>
               </ul>
               <Link
@@ -422,7 +479,7 @@ export default function Home() {
                 {isRomanian ? 'Popular' : 'Popular'}
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-2">Premium</h3>
-              <div className="text-4xl font-bold text-slate-800 mb-6">5 <span className="text-lg font-normal text-slate-500">RON/{isRomanian ? 'lună' : 'mo'}</span></div>
+              <div className="text-4xl font-bold text-slate-800 mb-6">29 <span className="text-lg font-normal text-slate-500">RON/{isRomanian ? 'lună' : 'mo'}</span></div>
               <ul className="space-y-3 text-left mb-8">
                 <li className="flex items-center gap-2 text-slate-700">
                   <CheckCircle size={16} className="text-amber-500" />
@@ -451,7 +508,7 @@ export default function Home() {
             {/* Family */}
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
               <h3 className="text-xl font-bold text-slate-800 mb-2">Family</h3>
-              <div className="text-4xl font-bold text-slate-800 mb-6">10 <span className="text-lg font-normal text-slate-500">RON/{isRomanian ? 'lună' : 'mo'}</span></div>
+              <div className="text-4xl font-bold text-slate-800 mb-6">49 <span className="text-lg font-normal text-slate-500">RON/{isRomanian ? 'lună' : 'mo'}</span></div>
               <ul className="space-y-3 text-left mb-8">
                 <li className="flex items-center gap-2 text-slate-600">
                   <CheckCircle size={16} className="text-purple-500" />
@@ -479,6 +536,56 @@ export default function Home() {
               {isRomanian ? 'Vezi comparația completă →' : 'See full comparison →'}
             </Link>
           </p>
+        </div>
+      </section>
+
+      {/* Testimonials / Use Cases */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
+              {isRomanian ? 'De ce utilizatorii aleg Analize.Online' : 'Why users choose Analize.Online'}
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                quote: isRomanian
+                  ? 'Am analize de la Regina Maria și Synevo din ultimii 5 ani. Acum le văd pe toate într-un singur loc, cu grafice de evoluție.'
+                  : 'I have tests from Regina Maria and Synevo over the last 5 years. Now I see them all in one place, with evolution charts.',
+                name: isRomanian ? 'Monitorizare completă' : 'Complete Monitoring',
+                role: isRomanian ? 'Toate analizele, un singur loc' : 'All tests, one place',
+                icon: Activity,
+              },
+              {
+                quote: isRomanian
+                  ? 'Specialistul AI cardiolog mi-a semnalat un trend îngrijorător la colesterol pe care nu l-aș fi observat singur.'
+                  : 'The AI cardiologist specialist flagged a concerning cholesterol trend I wouldn\'t have noticed on my own.',
+                name: isRomanian ? 'Prevenție inteligentă' : 'Smart Prevention',
+                role: isRomanian ? 'Detectarea timpurie a problemelor' : 'Early problem detection',
+                icon: Brain,
+              },
+              {
+                quote: isRomanian
+                  ? 'Datele mele sunt criptate cu cheia mea personală. Nici măcar administratorul platformei nu le poate vedea.'
+                  : 'My data is encrypted with my personal key. Not even the platform administrator can see it.',
+                name: isRomanian ? 'Confidențialitate totală' : 'Total Privacy',
+                role: isRomanian ? 'Zero acces pentru terți' : 'Zero third-party access',
+                icon: Shield,
+              },
+            ].map((testimonial, index) => (
+              <div key={index} className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-xl flex items-center justify-center mb-6">
+                  <testimonial.icon className="w-6 h-6 text-white" />
+                </div>
+                <p className="text-slate-600 mb-6 leading-relaxed italic">"{testimonial.quote}"</p>
+                <div>
+                  <p className="font-semibold text-slate-800">{testimonial.name}</p>
+                  <p className="text-sm text-slate-500">{testimonial.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
