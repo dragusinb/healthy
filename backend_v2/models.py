@@ -677,3 +677,37 @@ User.medications = relationship("Medication", back_populates="user")
 User.shared_reports = relationship("SharedReport", back_populates="user")
 User.food_preferences = relationship("FoodPreference", back_populates="user", cascade="all, delete-orphan")
 User.payments = relationship("PaymentHistory", back_populates="user")
+
+
+class BlogArticle(Base):
+    """Blog articles for SEO and content marketing."""
+    __tablename__ = "blog_articles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String, unique=True, index=True, nullable=False)
+
+    # Romanian (primary)
+    title = Column(String, nullable=False)
+    excerpt = Column(String(500))
+    content_html = Column(Text, nullable=False)
+    meta_description = Column(String(200))
+
+    # English
+    title_en = Column(String)
+    excerpt_en = Column(String(500))
+    content_html_en = Column(Text)
+    meta_description_en = Column(String(200))
+
+    # Categorization
+    tags = Column(String)  # comma-separated
+    topic_category = Column(String)  # aggregation, ai_specialists, fitness_nutrition, romanian_recipes, grocery_lists, biomarker_deep_dive, seasonal_health
+
+    # Publishing
+    status = Column(String, default="draft")  # draft, published
+    published_at = Column(DateTime)
+
+    # Generation tracking
+    generated_by = Column(String, default="ai")  # ai, manual
+
+    created_at = Column(DateTime, default=utc_now)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)

@@ -157,7 +157,15 @@ def init_scheduler():
                 replace_existing=True
             )
 
-            logger.info("Scheduler initialized with sync checker, cleanup, duplicate cleanup, and document processor")
+            # Add weekly blog article generation (Monday 8:00 AM UTC)
+            scheduler.add_job(
+                generate_weekly_blog_article,
+                CronTrigger(day_of_week="mon", hour=8, minute=0),
+                id="blog_generator",
+                replace_existing=True
+            )
+
+            logger.info("Scheduler initialized with sync checker, cleanup, duplicate cleanup, document processor, and blog generator")
 
     return scheduler
 
@@ -810,3 +818,14 @@ def process_single_document(db, doc):
         logger.error(f"AI parsing failed for document {doc.id}: {e}")
         # Don't mark as processed so it can be retried
         return False
+
+
+def generate_weekly_blog_article():
+    """Generate a weekly blog article using AI."""
+    try:
+        from backend_v2.services.blog_generator import scheduled_generate_article
+    except ImportError:
+        from services.blog_generator import scheduled_generate_article
+
+    logger.info("Running scheduled blog article generation...")
+    scheduled_generate_article()
