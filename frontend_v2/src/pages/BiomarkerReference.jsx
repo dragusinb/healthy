@@ -2,8 +2,10 @@ import React from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, Info, ArrowUpRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 import useJsonLd from '../hooks/useJsonLd';
+import PublicNav from '../components/PublicNav';
 import biomarkers from '../data/biomarkers-reference.json';
 
 export default function BiomarkerReference() {
@@ -11,6 +13,7 @@ export default function BiomarkerReference() {
   const { i18n } = useTranslation();
   const isRo = i18n.language === 'ro';
 
+  const { user } = useAuth();
   const biomarker = biomarkers.find(b => b.slug === slug);
 
   if (!biomarker) {
@@ -56,8 +59,9 @@ export default function BiomarkerReference() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {!user && <PublicNav />}
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-slate-100">
+      <div className={`bg-white border-b border-slate-100 ${!user ? 'pt-20' : ''}`}>
         <div className="max-w-4xl mx-auto px-6 py-3">
           <nav className="flex items-center gap-2 text-sm text-slate-500">
             <Link to="/" className="hover:text-teal-600">Analize.Online</Link>

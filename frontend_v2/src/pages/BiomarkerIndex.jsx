@@ -2,8 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Search, ArrowRight, Activity, FlaskConical, Heart, Droplets, Pill, Flame, TestTube } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 import useJsonLd from '../hooks/useJsonLd';
+import PublicNav from '../components/PublicNav';
 import biomarkers from '../data/biomarkers-reference.json';
 
 const CATEGORY_ICONS = {
@@ -20,6 +22,7 @@ const CATEGORY_ICONS = {
 
 export default function BiomarkerIndex() {
   const { i18n } = useTranslation();
+  const { user } = useAuth();
   const isRo = i18n.language === 'ro';
   const [search, setSearch] = useState('');
 
@@ -70,8 +73,9 @@ export default function BiomarkerIndex() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {!user && <PublicNav />}
       {/* Hero */}
-      <section className="bg-gradient-to-br from-teal-600 to-cyan-700 text-white py-16 px-6">
+      <section className={`bg-gradient-to-br from-teal-600 to-cyan-700 text-white ${!user ? 'pt-28' : 'pt-8'} pb-16 px-6`}>
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl md:text-5xl font-bold mb-4">
             {isRo ? 'Ghid Biomarkeri' : 'Biomarker Guide'}
