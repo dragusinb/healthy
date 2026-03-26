@@ -188,6 +188,17 @@ def register(
             verification_token,
             new_user.language
         )
+        # Notify admin about new registration
+        background_tasks.add_task(
+            email_service.send_email,
+            "dragusinb@gmail.com",
+            f"Cont nou pe Analize.Online: {new_user.email}",
+            f"<p>Un utilizator nou s-a înregistrat pe <strong>Analize.Online</strong>:</p>"
+            f"<p><strong>Email:</strong> {new_user.email}<br/>"
+            f"<strong>ID:</strong> {new_user.id}<br/>"
+            f"<strong>Data:</strong> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}<br/>"
+            f"<strong>IP:</strong> {ip_address or 'unknown'}</p>",
+        )
 
     access_token = create_access_token(data={"sub": new_user.email})
     return {
@@ -408,6 +419,23 @@ async def google_login(token_data: GoogleToken, request: Request, db: Session = 
         user_agent=user_agent,
         status="success"
     )
+
+    # Notify admin about new Google registration
+    if is_new_user:
+        try:
+            email_svc = get_email_service()
+            if email_svc.is_configured():
+                email_svc.send_email(
+                    "dragusinb@gmail.com",
+                    f"Cont nou (Google) pe Analize.Online: {email}",
+                    f"<p>Un utilizator nou s-a înregistrat via <strong>Google OAuth</strong>:</p>"
+                    f"<p><strong>Email:</strong> {email}<br/>"
+                    f"<strong>ID:</strong> {user.id}<br/>"
+                    f"<strong>Data:</strong> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}<br/>"
+                    f"<strong>IP:</strong> {ip_address or 'unknown'}</p>",
+                )
+        except Exception:
+            pass  # Don't fail registration if admin email fails
 
     # Determine next step for user
     # - New user without vault: needs to set password (required for encryption)
