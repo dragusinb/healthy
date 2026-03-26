@@ -1,10 +1,15 @@
+# Analize.Online — robots.txt
+# https://analize.online
+
 User-agent: *
 Allow: /
-Allow: /login
 Allow: /pricing
+Allow: /login
+Allow: /register
 Allow: /terms
 Allow: /privacy
 
+# Private user pages
 Disallow: /dashboard
 Disallow: /documents
 Disallow: /biomarkers
@@ -22,6 +27,23 @@ Disallow: /family
 Disallow: /support
 Disallow: /vault-unlock
 Disallow: /verify-email
-Disallow: /api/
+Disallow: /reset-password
+Disallow: /join-family
 
+# API
+Disallow: /api/
+Disallow: /auth/
+Disallow: /payment/
+Disallow: /grafana/
+Disallow: /prospects/
+
+# Crawl delay for politeness
+Crawl-delay: 1
+
+# Sitemaps
 Sitemap: https://analize.online/sitemap.xml
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0

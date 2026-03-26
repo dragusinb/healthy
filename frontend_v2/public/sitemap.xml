@@ -1,27 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://analize.online/</loc>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://analize.online/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://analize.online/" />
+    <lastmod>2026-03-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://analize.online/login</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://analize.online/og-image.png</image:loc>
+      <image:title>Analize.Online — Toate analizele tale medicale intr-un singur loc</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://analize.online/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="ro" href="https://analize.online/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://analize.online/pricing" />
+    <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://analize.online/login</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://analize.online/register</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://analize.online/terms</loc>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://analize.online/privacy</loc>
+    <lastmod>2026-01-15</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
