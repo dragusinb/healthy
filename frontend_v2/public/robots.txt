@@ -8,6 +8,10 @@ Allow: /login
 Allow: /register
 Allow: /terms
 Allow: /privacy
+Allow: /biomarker
+Allow: /biomarker/*
+Allow: /blog
+Allow: /blog/*
 
 # Private user pages
 Disallow: /dashboard

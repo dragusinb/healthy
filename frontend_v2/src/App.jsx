@@ -37,6 +37,10 @@ const Family = lazy(() => import('./pages/Family'));
 const SupportTickets = lazy(() => import('./pages/SupportTickets'));
 const Medications = lazy(() => import('./pages/Medications'));
 const SharedReport = lazy(() => import('./pages/SharedReport'));
+const BiomarkerIndex = lazy(() => import('./pages/BiomarkerIndex'));
+const BiomarkerReference = lazy(() => import('./pages/BiomarkerReference'));
+const BlogList = lazy(() => import('./pages/BlogList'));
+const BlogArticle = lazy(() => import('./pages/BlogArticle'));
 const Layout = lazy(() => import('./components/Layout'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -184,6 +188,22 @@ const App = () => {
 
                                 {/* Public shared report (no auth) */}
                                 <Route path="/shared/:token" element={<SharedReport />} />
+
+                                {/* Public SEO pages - biomarker reference */}
+                                <Route path="/biomarker" element={
+                                    <OptionalLayoutRoute><BiomarkerIndex /></OptionalLayoutRoute>
+                                } />
+                                <Route path="/biomarker/:slug" element={
+                                    <OptionalLayoutRoute><BiomarkerReference /></OptionalLayoutRoute>
+                                } />
+
+                                {/* Public SEO pages - blog */}
+                                <Route path="/blog" element={
+                                    <OptionalLayoutRoute><BlogList /></OptionalLayoutRoute>
+                                } />
+                                <Route path="/blog/:slug" element={
+                                    <OptionalLayoutRoute><BlogArticle /></OptionalLayoutRoute>
+                                } />
 
                                 {/* Optional layout routes (show layout for logged-in users) */}
                                 <Route path="/terms" element={

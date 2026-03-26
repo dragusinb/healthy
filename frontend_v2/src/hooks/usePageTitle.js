@@ -93,7 +93,13 @@ const setNameMetaTag = (name, content) => {
  * SEO-optimized page title and meta tags hook.
  * Uses page-specific metadata when available, falls back to translation keys.
  */
-const usePageTitle = (titleKey, fallback = '') => {
+/**
+ * SEO-optimized page title and meta tags hook.
+ * @param {string|null} titleKey - i18n key for page title
+ * @param {string} fallback - Fallback title string
+ * @param {object} override - Optional {title, description} to use directly (for dynamic pages like blog/biomarker)
+ */
+const usePageTitle = (titleKey, fallback = '', override = null) => {
     const { t, i18n } = useTranslation();
     const location = useLocation();
 
@@ -102,19 +108,25 @@ const usePageTitle = (titleKey, fallback = '') => {
         const path = location.pathname;
         const canonicalUrl = `${SITE_ORIGIN}${path === '/' ? '' : path}`;
 
-        // Use page-specific meta if available
-        const pageMeta = PAGE_META[path]?.[lang];
         const defaults = DEFAULT_META[lang];
-
         let title, description;
-        if (pageMeta) {
-            title = pageMeta.title;
-            description = pageMeta.description;
+
+        if (override?.title) {
+            // Dynamic override (blog articles, biomarker pages)
+            title = override.title;
+            description = override.description || defaults.description;
         } else {
-            // Fallback to translation key
-            const translated = titleKey ? t(titleKey) || fallback : fallback;
-            title = translated ? `${translated} — ${SITE_NAME}` : defaults.title;
-            description = defaults.description;
+            // Use page-specific meta if available
+            const pageMeta = PAGE_META[path]?.[lang];
+            if (pageMeta) {
+                title = pageMeta.title;
+                description = pageMeta.description;
+            } else {
+                // Fallback to translation key
+                const translated = titleKey ? t(titleKey) || fallback : fallback;
+                title = translated ? `${translated} — ${SITE_NAME}` : defaults.title;
+                description = defaults.description;
+            }
         }
 
         // Set document title
@@ -156,7 +168,7 @@ const usePageTitle = (titleKey, fallback = '') => {
             setMetaTag('og:url', SITE_ORIGIN);
             setNameMetaTag('description', d.description);
         };
-    }, [titleKey, fallback, i18n.language, location.pathname]);
+    }, [titleKey, fallback, i18n.language, location.pathname, override?.title, override?.description]);
 };
 
 export default usePageTitle;

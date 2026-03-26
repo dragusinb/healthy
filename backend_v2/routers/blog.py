@@ -58,7 +58,7 @@ def list_articles(
         "total": total,
         "page": page,
         "limit": limit,
-        "pages": (total + limit - 1) // limit if total > 0 else 0,
+        "has_more": page * limit < total,
     }
 
 
@@ -108,7 +108,7 @@ def list_tags(db: Session = Depends(get_db)):
                 if tag:
                     tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
-    return {"tags": [{"name": k, "count": v} for k, v in sorted(tag_counts.items(), key=lambda x: -x[1])]}
+    return {"tags": [{"tag": k, "count": v} for k, v in sorted(tag_counts.items(), key=lambda x: -x[1])]}
 
 
 def _require_admin(current_user: User = Depends(get_current_user)):
