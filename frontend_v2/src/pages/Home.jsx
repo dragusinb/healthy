@@ -84,8 +84,8 @@ export default function Home() {
               </h1>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">
                 {isRomanian
-                  ? 'Conectează conturile de la Regina Maria, Synevo, MedLife și Sanador. Primești interpretare de la 6 specialiști AI, plan nutrițional cu rețete românești și program de exerciții — totul bazat pe analizele tale reale.'
-                  : 'Connect your Regina Maria, Synevo, MedLife and Sanador accounts. Get analysis from 6 AI specialists, a nutrition plan with Romanian recipes and an exercise program — all based on your real lab results.'}
+                  ? 'Conectează conturile de la Regina Maria, Synevo, MedLife și Sanador. Primești interpretare de la o echipă de specialiști AI, plan nutrițional cu rețete românești și program de exerciții — totul bazat pe analizele tale reale.'
+                  : 'Connect your Regina Maria, Synevo, MedLife and Sanador accounts. Get analysis from a team of AI specialists, a nutrition plan with Romanian recipes and an exercise program — all based on your real lab results.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -252,9 +252,9 @@ export default function Home() {
                 sub: 'Regina Maria, Synevo, MedLife, Sanador',
               },
               {
-                value: '6',
+                value: '8+',
                 label: isRomanian ? 'Specialiști AI' : 'AI Specialists',
-                sub: isRomanian ? 'Cardiolog, Endocrinolog, Hematolog...' : 'Cardiologist, Endocrinologist, Hematologist...',
+                sub: isRomanian ? 'Cardiolog, Endocrinolog, Nutriționist...' : 'Cardiologist, Endocrinologist, Nutritionist...',
               },
               {
                 value: '150+',
