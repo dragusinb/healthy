@@ -120,7 +120,7 @@ Use REAL Unsplash photo IDs for the images. Pick from these based on topic:
 - Title: include primary keyword near the beginning, 50-65 chars
 - H2 headings: include secondary keywords, descriptive (not vague like "Details")
 - First paragraph: must contain the primary keyword naturally
-- Internal link: include at least one `<a href="https://analize.online">Analize.Online</a>` or `<a href="https://analize.online/biomarker/SLUG">biomarker name</a>` link
+- Internal links: when mentioning "Analize.Online" as a CTA or recommendation, ALWAYS link to the register page: `<a href="https://analize.online/login?mode=register">Analize.Online</a>`. For biomarker names, link to their reference page: `<a href="https://analize.online/biomarker/hemoglobina">hemoglobina</a>`
 - Meta description: 130-155 chars, includes primary keyword and a call to action
 - Alt text on all images: descriptive, includes topic keywords
 
