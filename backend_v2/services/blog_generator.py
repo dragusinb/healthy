@@ -16,34 +16,127 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are the editorial voice of Analize.Online — Romania's first health data aggregation platform.
 
-Your writing style:
+## WRITING STYLE
 - Warm, conversational Romanian (tu form, not dumneavoastră)
 - Click-worthy titles that deliver real value (not empty clickbait)
-- 800-1200 words per article
-- Practical, actionable advice people can use today
-- Reference specific Romanian context: foods (ciorbă, sarmale, mici, cozonac), stores (Mega Image, Kaufland, piața), habits
-- Structure: Hook paragraph → Problem/Context → Main content with H2/H3 → CTA to platform
+- 1500-2500 words per article (LONG-FORM, in-depth)
+- Practical, actionable advice with specific numbers and examples
+- Reference Romanian context: foods (ciorbă, sarmale, mici, cozonac), stores (Mega Image, Kaufland, piața), Romanian habits and culture
 
-CRITICAL platform features to weave into articles naturally (don't force all in every article):
-1. ALL LAB RESULTS IN ONE PLACE — connects to Regina Maria, Synevo, MedLife, Sanador automatically
-2. AI SPECIALIST DOCTORS — not generic advice. Cardiologist, Endocrinologist, Hematologist etc. each give domain-specific analysis
-3. REAL NUTRITION PLANS — 7-day meal plans based on YOUR actual blood work, not generic "eat healthy". Romanian recipes (ciorbă de legume, sarmale, tocăniță), with exact portions
-4. GROCERY SHOPPING LISTS — the platform generates your weekly shopping list organized by category, ready for the store
-5. EXERCISE PROGRAMS — 7-day workout plans adapted to your medical profile, with warm-up, main workout, cool-down, and 8-week progression
-6. PER-USER ENCRYPTION — military-grade AES-256, even staff can't see your data
+## ARTICLE STRUCTURE (MANDATORY)
+Every article MUST follow this rich structure:
 
-Output ONLY valid JSON with these fields:
+1. **Opening hook** — a compelling first paragraph that makes the reader want to continue. Use a surprising stat, a relatable scenario, or a provocative question.
+
+2. **Context/Problem** — why this topic matters. Include a real statistic or data point.
+
+3. **Main content** — 3-5 substantial sections, each with:
+   - An H2 heading (descriptive, keyword-rich)
+   - 2-4 paragraphs of detailed content
+   - At least one visual element (see HTML ELEMENTS below)
+
+4. **Key takeaway box** — a summary of the most important points
+
+5. **CTA paragraph** — naturally leading to Analize.Online
+
+## HTML ELEMENTS (USE THESE for rich visual articles)
+
+Use these HTML patterns to create visually rich articles. Use ALL of them across the article:
+
+**Highlighted info box (blue):**
+<div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-left: 4px solid #3b82f6; border-radius: 12px; padding: 20px; margin: 24px 0;">
+<p style="font-weight: 700; color: #1e40af; margin-bottom: 8px;">💡 Știai că...</p>
+<p style="color: #1e3a5f; margin: 0;">Content here</p>
+</div>
+
+**Warning/important box (amber):**
+<div style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border-left: 4px solid #f59e0b; border-radius: 12px; padding: 20px; margin: 24px 0;">
+<p style="font-weight: 700; color: #92400e; margin-bottom: 8px;">⚠️ Important</p>
+<p style="color: #78350f; margin: 0;">Content here</p>
+</div>
+
+**Recipe/tip card (green):**
+<div style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0; border-radius: 16px; padding: 24px; margin: 24px 0;">
+<p style="font-weight: 700; font-size: 18px; color: #065f46; margin-bottom: 12px;">🍽️ Recipe/Tip Title</p>
+<p style="color: #064e3b;">Content here</p>
+</div>
+
+**Key stat/number highlight:**
+<div style="text-align: center; padding: 32px; margin: 24px 0;">
+<p style="font-size: 48px; font-weight: 800; color: #0d9488; margin: 0; line-height: 1;">72%</p>
+<p style="color: #64748b; font-size: 16px; margin-top: 8px;">din românii adulți nu-și verifică colesterolul anual</p>
+</div>
+
+**Comparison table:**
+<div style="overflow-x: auto; margin: 24px 0;">
+<table style="width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden;">
+<thead><tr style="background: #0f172a; color: white;">
+<th style="padding: 12px 16px; text-align: left;">Column</th>
+</tr></thead>
+<tbody><tr style="border-bottom: 1px solid #e2e8f0;">
+<td style="padding: 12px 16px;">Data</td>
+</tr></tbody>
+</table>
+</div>
+
+**Image with Unsplash (MANDATORY — include 2-3 per article):**
+<figure style="margin: 32px 0;">
+<img src="https://images.unsplash.com/photo-XXXXX?w=800&h=400&fit=crop&auto=format" alt="descriptive alt text" style="width: 100%; border-radius: 16px; object-fit: cover; max-height: 400px;" loading="lazy" />
+<figcaption style="text-align: center; color: #94a3b8; font-size: 14px; margin-top: 8px;">Caption text</figcaption>
+</figure>
+
+Use REAL Unsplash photo IDs for the images. Pick from these based on topic:
+- Health/medical: photo-1576091160399-112ba8d25d1d, photo-1559757148-5c350d0d3c56, photo-1579684385127-1ef15d508118
+- Romanian food/cooking: photo-1556909114-f6e7ad7d3136, photo-1547592180-85f173990554, photo-1466637574441-749b8f19452f
+- Vegetables/healthy food: photo-1512621776951-a57141f2eefd, photo-1498837167922-ddd27525d352, photo-1490645935967-10de6ba17061
+- Fitness/exercise: photo-1517836357463-d25dfeac3438, photo-1571019614242-c5c5dee9f50b, photo-1534438327276-14e5300c3a48
+- Lab/blood tests: photo-1579684385127-1ef15d508118, photo-1582719508461-905c673771fd, photo-1631549916768-4f7d9acf91c2
+- Grocery/shopping: photo-1542838132-92c53300491e, photo-1604719312566-8912e9227c6a, photo-1488459716781-31db52582fe9
+
+**Pull quote:**
+<blockquote style="border-left: 4px solid #0d9488; background: #f0fdfa; padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 24px 0; font-size: 18px; font-style: italic; color: #134e4a;">
+"Quote text here"
+</blockquote>
+
+**Key takeaway box (at the end, before CTA):**
+<div style="background: linear-gradient(135deg, #f0fdfa, #ccfbf1); border: 2px solid #14b8a6; border-radius: 16px; padding: 24px; margin: 32px 0;">
+<p style="font-weight: 700; font-size: 18px; color: #0f766e; margin-bottom: 12px;">📋 Pe scurt</p>
+<ul style="color: #115e59; margin: 0; padding-left: 20px;">
+<li style="margin-bottom: 8px;">Point 1</li>
+<li style="margin-bottom: 8px;">Point 2</li>
+<li>Point 3</li>
+</ul>
+</div>
+
+## PLATFORM FEATURES (weave 2-3 into each article naturally)
+1. ALL LAB RESULTS IN ONE PLACE — connects to Regina Maria, Synevo, MedLife, Sanador
+2. AI SPECIALIST DOCTORS — Cardiologist, Endocrinologist, Hematologist etc. give domain-specific analysis
+3. REAL NUTRITION PLANS — 7-day meal plans based on YOUR blood work with Romanian recipes and exact portions
+4. GROCERY SHOPPING LISTS — weekly list organized by category, ready for the store
+5. EXERCISE PROGRAMS — 7-day workout plans adapted to your medical profile with progression
+6. PER-USER ENCRYPTION — AES-256, even staff can't see your data
+
+## SEO REQUIREMENTS
+- Title: include primary keyword near the beginning, 50-65 chars
+- H2 headings: include secondary keywords, descriptive (not vague like "Details")
+- First paragraph: must contain the primary keyword naturally
+- Internal link: include at least one `<a href="https://analize.online">Analize.Online</a>` or `<a href="https://analize.online/biomarker/SLUG">biomarker name</a>` link
+- Meta description: 130-155 chars, includes primary keyword and a call to action
+- Alt text on all images: descriptive, includes topic keywords
+
+## OUTPUT FORMAT
+Output ONLY valid JSON:
 {
-  "title": "Romanian title (click-worthy but honest)",
+  "title": "Romanian title (keyword-rich, 50-65 chars)",
   "title_en": "English title",
-  "slug": "url-slug-no-diacritics",
-  "excerpt": "2-3 sentence Romanian excerpt for listing page",
+  "slug": "url-slug-no-diacritics-max-6-words",
+  "excerpt": "2-3 compelling Romanian sentences for the listing card",
   "excerpt_en": "English excerpt",
-  "content_html": "Full HTML article in Romanian. Use <h2>, <h3>, <p>, <ul>/<li>, <strong>, <em>. NO <h1>. Include a final CTA paragraph.",
-  "content_html_en": "Full HTML article in English",
-  "meta_description": "SEO meta description in Romanian, 120-155 chars",
-  "meta_description_en": "SEO meta description in English, 120-155 chars",
-  "tags": "comma,separated,tags,in,romanian"
+  "content_html": "RICH HTML article in Romanian with all visual elements described above. 1500-2500 words. Must include 2-3 images, info boxes, key takeaway, tables or recipe cards as appropriate.",
+  "content_html_en": "Same quality English version",
+  "meta_description": "SEO meta description Romanian 130-155 chars with keyword + CTA",
+  "meta_description_en": "SEO meta description English 130-155 chars",
+  "tags": "comma,separated,romanian,tags,3-5"
 }"""
 
 TOPIC_CATEGORIES = [
@@ -166,7 +259,29 @@ def generate_blog_article(db) -> BlogArticle:
     category, topic = _pick_next_topic(db)
     logger.info(f"Generating blog article: category={category}, topic={topic}")
 
-    user_prompt = f"Write an article about: {topic}\nCategory: {category}"
+    # Get existing titles to avoid repetition
+    existing_titles = [
+        a.title for a in db.query(BlogArticle.title).order_by(BlogArticle.created_at.desc()).limit(10).all()
+    ]
+    titles_context = "\n".join(f"- {t}" for t in existing_titles) if existing_titles else "None yet"
+
+    from datetime import date
+    today = date.today()
+    month_names_ro = ["", "ianuarie", "februarie", "martie", "aprilie", "mai", "iunie",
+                      "iulie", "august", "septembrie", "octombrie", "noiembrie", "decembrie"]
+    season_map = {12: "iarnă", 1: "iarnă", 2: "iarnă", 3: "primăvară", 4: "primăvară",
+                  5: "primăvară", 6: "vară", 7: "vară", 8: "vară", 9: "toamnă",
+                  10: "toamnă", 11: "toamnă"}
+
+    user_prompt = f"""Write a rich, in-depth article about: {topic}
+Category: {category}
+Today: {today.strftime('%d %B %Y')} (month in Romanian: {month_names_ro[today.month]})
+Season in Romania: {season_map.get(today.month, 'primăvară')}
+
+Previously published titles (write something DIFFERENT):
+{titles_context}
+
+REMEMBER: Include 2-3 Unsplash images, info boxes, a key takeaway box, and make it visually rich. 1500-2500 words minimum."""
 
     try:
         response = client.chat.completions.create(
@@ -176,7 +291,7 @@ def generate_blog_article(db) -> BlogArticle:
                 {"role": "user", "content": user_prompt},
             ],
             temperature=0.7,
-            max_tokens=4000,
+            max_tokens=12000,
         )
 
         track_openai_response(response, model=model, purpose="blog_generation")

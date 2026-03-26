@@ -144,6 +144,7 @@ export default function BlogArticle() {
       <div className="max-w-3xl mx-auto px-6 -mt-6">
         <article className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12 mb-8">
           {/* Article content */}
+          {/* Article content — supports rich inline-styled HTML from AI generator */}
           <div
             className="prose prose-slate prose-lg max-w-none
               prose-headings:text-slate-800 prose-headings:font-bold
@@ -154,7 +155,13 @@ export default function BlogArticle() {
               prose-strong:text-slate-800
               prose-a:text-teal-600 prose-a:no-underline hover:prose-a:underline
               prose-ul:my-4 prose-ol:my-4
-              prose-blockquote:border-teal-500 prose-blockquote:bg-teal-50 prose-blockquote:rounded-r-xl prose-blockquote:py-1"
+              prose-img:rounded-2xl prose-img:shadow-md prose-img:my-8
+              prose-figure:my-8
+              prose-blockquote:border-teal-500 prose-blockquote:bg-teal-50 prose-blockquote:rounded-r-xl prose-blockquote:py-1
+              prose-table:rounded-xl prose-table:overflow-hidden
+              prose-th:bg-slate-800 prose-th:text-white prose-th:py-3 prose-th:px-4
+              prose-td:py-3 prose-td:px-4 prose-td:border-b prose-td:border-slate-100
+              [&>div]:my-6"
             dangerouslySetInnerHTML={{ __html: content }}
           />
 
