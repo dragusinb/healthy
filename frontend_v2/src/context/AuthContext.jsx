@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import LogRocket from 'logrocket';
 import api, { VAULT_LOCKED_EVENT } from '../api/client';
 
 const AuthContext = createContext();
@@ -57,11 +58,27 @@ export const AuthProvider = ({ children }) => {
         if (token) {
             try {
                 const res = await api.get('/users/me');
-                // Ensure is_admin is included
-                setUser({
+                const userData = {
                     ...res.data,
                     is_admin: res.data.is_admin || false
-                });
+                };
+                setUser(userData);
+
+                // Identify user in LogRocket for session replay
+                try {
+                    LogRocket.identify(String(userData.id), {
+                        email: userData.email,
+                        name: userData.profile?.full_name || userData.email,
+                        language: userData.language || 'ro',
+                        isAdmin: userData.is_admin,
+                        emailVerified: userData.email_verified,
+                        linkedProviders: (userData.linked_accounts || []).map(a => a.provider_name).join(', '),
+                        providerCount: (userData.linked_accounts || []).length,
+                        vaultUnlocked: userData.vault_unlocked,
+                    });
+                } catch (e) {
+                    // LogRocket not initialized (dev mode or missing app ID)
+                }
             } catch (e) {
                 sessionStorage.removeItem('token');
                 setUser(null);
