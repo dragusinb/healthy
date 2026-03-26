@@ -45,6 +45,18 @@ export default function Home() {
               {i18n.language.toUpperCase()}
             </button>
             <Link
+              to="/biomarker"
+              className="text-slate-600 hover:text-slate-800 font-medium hidden md:block"
+            >
+              {isRomanian ? 'Biomarkeri' : 'Biomarkers'}
+            </Link>
+            <Link
+              to="/blog"
+              className="text-slate-600 hover:text-slate-800 font-medium hidden md:block"
+            >
+              Blog
+            </Link>
+            <Link
               to="/pricing"
               className="text-slate-600 hover:text-slate-800 font-medium hidden sm:block"
             >
@@ -622,7 +634,16 @@ export default function Home() {
               </div>
               <span className="font-bold text-slate-800">Analize.Online</span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-slate-600">
+            <div className="flex items-center gap-6 text-sm text-slate-600 flex-wrap justify-center">
+              <Link to="/biomarker" className="hover:text-cyan-600">
+                {isRomanian ? 'Ghid Biomarkeri' : 'Biomarker Guide'}
+              </Link>
+              <Link to="/blog" className="hover:text-cyan-600">
+                Blog
+              </Link>
+              <Link to="/pricing" className="hover:text-cyan-600">
+                {isRomanian ? 'Prețuri' : 'Pricing'}
+              </Link>
               <Link to="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-600">
                 {isRomanian ? 'Termeni' : 'Terms'}
               </Link>
