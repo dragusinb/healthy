@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import LogRocket from 'logrocket';
 import api from '../api/client';
 import { useAuth } from './AuthContext';
 
@@ -41,7 +40,7 @@ export const SubscriptionProvider = ({ children }) => {
         const sub = response.data.subscription;
         const usg = response.data.usage;
         if (sub && user?.id) {
-          LogRocket.identify(String(user.id), {
+          window.LogRocket && window.LogRocket.identify(String(user.id), {
             subscriptionTier: sub.tier || 'free',
             subscriptionStatus: sub.status || 'active',
             aiAnalysesUsed: usg?.ai_analyses_this_month || 0,

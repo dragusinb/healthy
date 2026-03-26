@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import LogRocket from 'logrocket';
 import api, { VAULT_LOCKED_EVENT } from '../api/client';
 
 const AuthContext = createContext();
@@ -66,7 +65,7 @@ export const AuthProvider = ({ children }) => {
 
                 // Identify user in LogRocket for session replay
                 try {
-                    LogRocket.identify(String(userData.id), {
+                    window.LogRocket && window.LogRocket.identify(String(userData.id), {
                         email: userData.email,
                         name: userData.profile?.full_name || userData.email,
                         language: userData.language || 'ro',
