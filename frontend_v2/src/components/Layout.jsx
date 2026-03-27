@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Settings2, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon, FlaskConical, Stethoscope, Bell } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Settings2, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon, FlaskConical, Stethoscope, Bell, BarChart3 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
@@ -242,7 +242,10 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} />
                         <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} />
                         {user?.is_admin && (
+                            <>
                             <SidebarItem to="/admin" icon={Shield} label={t('nav.admin')} />
+                            <SidebarItem to="/analytics" icon={BarChart3} label="Analytics" />
+                            </>
                         )}
                     </nav>
                 </div>
@@ -369,7 +372,10 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} onClick={closeMobileMenu} />
                                     {user?.is_admin && (
+                                        <>
                                         <SidebarItem to="/admin" icon={Shield} label={t('nav.admin')} onClick={closeMobileMenu} />
+                                        <SidebarItem to="/analytics" icon={BarChart3} label="Analytics" onClick={closeMobileMenu} />
+                                        </>
                                     )}
                                 </nav>
                             </div>

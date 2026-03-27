@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageLoader from './components/PageLoader';
 import CookieConsent from './components/CookieConsent';
+import useAnalytics from './hooks/useAnalytics';
 
 // Critical path - loaded immediately (needed for initial render)
 import Login from './pages/Login';
@@ -28,6 +29,7 @@ const Lifestyle = lazy(() => import('./pages/Lifestyle'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Admin = lazy(() => import('./pages/Admin'));
+const Analytics = lazy(() => import('./pages/Analytics'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Billing = lazy(() => import('./pages/Billing'));
 const Terms = lazy(() => import('./pages/Terms'));
@@ -116,6 +118,9 @@ const HomeOrDashboard = () => {
     return <Home />;
 };
 
+// Analytics tracker — must be inside Router to use useLocation
+const AnalyticsTracker = () => { useAnalytics(); return null; };
+
 const App = () => {
     return (
         <ErrorBoundary>
@@ -124,6 +129,7 @@ const App = () => {
                 <SubscriptionProvider>
                     <AnalysisProvider>
                     <Router>
+                        <AnalyticsTracker />
                         <CookieConsent />
                         <Suspense fallback={<PageLoader />}>
                             <Routes>
@@ -169,6 +175,9 @@ const App = () => {
                                 } />
                                 <Route path="/admin" element={
                                     <PrivateLayoutRoute><Admin /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/analytics" element={
+                                    <PrivateLayoutRoute><Analytics /></PrivateLayoutRoute>
                                 } />
                                 <Route path="/settings" element={
                                     <PrivateLayoutRoute><Settings /></PrivateLayoutRoute>

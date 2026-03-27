@@ -711,3 +711,23 @@ class BlogArticle(Base):
 
     created_at = Column(DateTime, default=utc_now)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
+
+
+class PageView(Base):
+    """Track anonymous page views for visitor analytics."""
+    __tablename__ = "page_views"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String(64), index=True, nullable=False)  # Anonymous session ID
+    page = Column(String(500), nullable=False, index=True)  # e.g., "/", "/pricing"
+    referrer = Column(String(1000))  # Where they came from
+    utm_source = Column(String(200))  # UTM tracking
+    utm_medium = Column(String(200))
+    utm_campaign = Column(String(200))
+    user_agent = Column(String(500))
+    ip_hash = Column(String(64))  # Hashed IP for unique visitor counting (GDPR)
+    country = Column(String(10))  # Optional, from IP geolocation
+    screen_width = Column(Integer)
+    is_mobile = Column(Boolean, default=False)
+    user_id = Column(Integer, nullable=True)  # If logged in
+    created_at = Column(DateTime, default=utc_now, index=True)
