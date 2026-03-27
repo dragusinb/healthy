@@ -16,12 +16,12 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 # Support both local development (backend_v2.X) and production (X) imports
 try:
-    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics
+    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap
     from backend_v2.database import Base, engine, SessionLocal
     from backend_v2.routers.auth import seed_default_user
     from backend_v2.services.scheduler import init_scheduler, shutdown_scheduler
 except ImportError:
-    from routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics
+    from routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap
     from database import Base, engine, SessionLocal
     from routers.auth import seed_default_user
     from services.scheduler import init_scheduler, shutdown_scheduler
@@ -87,7 +87,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     # Prevent caching of authenticated API responses
     # Routes are at /auth, /users, etc. (Nginx strips /api prefix before proxying)
-    excluded_paths = ("/", "/health", "/metrics", "/api/health", "/api/metrics")
+    excluded_paths = ("/", "/health", "/metrics", "/api/health", "/api/metrics", "/sitemap.xml")
     if request.url.path not in excluded_paths:
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
         response.headers["Pragma"] = "no-cache"
@@ -127,6 +127,7 @@ app.include_router(medications.router)
 app.include_router(sharing.router)
 app.include_router(blog.router)
 app.include_router(analytics.router)
+app.include_router(sitemap.router)
 
 # Prometheus metrics instrumentation for HTTP request tracking
 # Exposes metrics at /api/metrics for Prometheus scraping
