@@ -9,6 +9,7 @@ import {
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
+import useJsonLd from '../hooks/useJsonLd';
 
 export default function Pricing() {
   const { t, i18n } = useTranslation();
@@ -16,6 +17,41 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { user } = useAuth();
   usePageTitle('pricing.title', 'Pricing');
+
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: isRomanian ? 'Cât costă Analize.Online?' : 'How much does Analize.Online cost?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Planul gratuit include 2 provideri medicali, 50 documente și 3 analize AI/lună. Planul Premium costă 29 RON/lună (sau 199 RON/an) cu furnizori nelimitați și 30 analize AI/lună. Planul Family costă 49 RON/lună pentru până la 5 membri.'
+          : 'The free plan includes 2 medical providers, 50 documents and 3 AI analyses/month. Premium is 29 RON/month (or 199 RON/year) with unlimited providers and 30 AI analyses/month. Family is 49 RON/month for up to 5 members.' },
+      },
+      {
+        '@type': 'Question',
+        name: isRomanian ? 'Ce include planul gratuit?' : 'What does the free plan include?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Planul gratuit include: conectare la 2 provideri medicali (Regina Maria, Synevo, MedLife, Sanador), stocare pentru 50 documente, extracție automată de biomarkeri din PDF-uri și 3 analize AI generale pe lună.'
+          : 'The free plan includes: connection to 2 medical providers (Regina Maria, Synevo, MedLife, Sanador), storage for 50 documents, automatic biomarker extraction from PDFs and 3 general AI analyses per month.' },
+      },
+      {
+        '@type': 'Question',
+        name: isRomanian ? 'Ce specialiști AI sunt disponibili?' : 'What AI specialists are available?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Pe planul Premium ai acces la toți specialiștii AI: Generalist, Cardiolog, Endocrinolog, Hematolog, Hepatolog, Nefrolog, Nutriționist și specialist Fitness. Fiecare analizează rezultatele tale din perspectiva domeniului său.'
+          : 'On the Premium plan you get access to all AI specialists: Generalist, Cardiologist, Endocrinologist, Hematologist, Hepatologist, Nephrologist, Nutritionist and Fitness specialist. Each analyzes your results from their domain perspective.' },
+      },
+      {
+        '@type': 'Question',
+        name: isRomanian ? 'Pot anula abonamentul oricând?' : 'Can I cancel anytime?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Da, poți anula abonamentul oricând din pagina de Facturare. Nu există contract pe termen lung. Datele tale rămân disponibile și pe planul gratuit.'
+          : 'Yes, you can cancel your subscription anytime from the Billing page. There is no long-term contract. Your data remains available on the free plan.' },
+      },
+    ],
+  }, 'pricing-faq');
   const [plans, setPlans] = useState([]);
   const [specialists, setSpecialists] = useState({});
   const [loading, setLoading] = useState(true);
@@ -130,8 +166,8 @@ export default function Pricing() {
       icon: FileText,
       title: isRomanian ? '500 Documente' : '500 Documents',
       description: isRomanian
-        ? 'Stocheaza pana la 500 de documente medicale - 10x mai mult decat planul gratuit'
-        : 'Store up to 500 medical documents - 10x more than the free plan',
+        ? 'Stocheaza pana la 500 de documente medicale - 25x mai mult decat planul gratuit'
+        : 'Store up to 500 medical documents - 25x more than the free plan',
       color: 'text-slate-600',
       bg: 'bg-slate-50',
     },
@@ -155,10 +191,10 @@ export default function Pricing() {
     },
     {
       icon: Heart,
-      title: isRomanian ? 'Economisesti 15 RON/luna' : 'Save 15 RON/month',
+      title: isRomanian ? 'Economisesti 96 RON/luna' : 'Save 96 RON/month',
       description: isRomanian
-        ? 'La 5 membri, fiecare plateste doar 2 RON/luna in loc de 5 RON'
-        : 'With 5 members, each pays only 2 RON/month instead of 5 RON',
+        ? 'La 5 membri, fiecare plateste doar 9,80 RON/luna in loc de 29 RON'
+        : 'With 5 members, each pays only 9.80 RON/month instead of 29 RON',
     },
   ];
 
@@ -169,14 +205,14 @@ export default function Pricing() {
       items: [
         {
           name: isRomanian ? 'Documente medicale' : 'Medical documents',
-          free: '50',
+          free: '20',
           premium: '500',
           family: isRomanian ? '500 / membru' : '500 / member',
           icon: FileText,
         },
         {
           name: isRomanian ? 'Conturi medicale conectate' : 'Connected medical accounts',
-          free: '2',
+          free: '1',
           premium: isRomanian ? 'Nelimitat' : 'Unlimited',
           family: isRomanian ? 'Nelimitat' : 'Unlimited',
           icon: Shield,
@@ -195,7 +231,7 @@ export default function Pricing() {
       items: [
         {
           name: isRomanian ? 'Analize AI pe luna' : 'AI analyses per month',
-          free: '3',
+          free: '2',
           premium: '30',
           family: isRomanian ? '30 / membru' : '30 / member',
           icon: Brain,
@@ -342,7 +378,7 @@ export default function Pricing() {
           >
             {isRomanian ? 'Anual' : 'Yearly'}
             <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
-              -33%
+              -43%
             </span>
           </button>
         </div>
@@ -369,15 +405,15 @@ export default function Pricing() {
             <div className="space-y-3 mb-6 flex-grow">
               <div className="flex items-center gap-2 text-slate-600">
                 <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
-                <span>50 {isRomanian ? 'documente' : 'documents'}</span>
+                <span>20 {isRomanian ? 'documente' : 'documents'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
                 <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
-                <span>2 {isRomanian ? 'conturi medicale' : 'medical accounts'}</span>
+                <span>1 {isRomanian ? 'cont medical' : 'medical account'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
                 <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
-                <span>3 {isRomanian ? 'analize AI/luna' : 'AI analyses/month'}</span>
+                <span>2 {isRomanian ? 'analize AI/luna' : 'AI analyses/month'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-600">
                 <Check className="w-5 h-5 text-slate-500 flex-shrink-0" />
@@ -418,7 +454,7 @@ export default function Pricing() {
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold text-slate-800">
-                  {activePremium?.price || 5}
+                  {activePremium?.price || 29}
                 </span>
                 <span className="text-slate-600">
                   RON / {selectedPeriod === 'yearly' ? (isRomanian ? 'an' : 'year') : (isRomanian ? 'luna' : 'month')}
@@ -426,12 +462,12 @@ export default function Pricing() {
               </div>
               {selectedPeriod === 'yearly' && (
                 <p className="text-green-600 text-sm mt-1 font-medium">
-                  {isRomanian ? 'Economisesti 20 RON pe an' : 'Save 20 RON per year'}
+                  {isRomanian ? 'Economisesti 149 RON pe an (~43%)' : 'Save 149 RON per year (~43%)'}
                 </p>
               )}
               {selectedPeriod === 'monthly' && (
                 <p className="text-slate-600 text-sm mt-1">
-                  {isRomanian ? 'Mai putin decat o cafea' : 'Less than a coffee'}
+                  {isRomanian ? 'Mai putin decat o vizita la medic' : 'Less than a doctor visit'}
                 </p>
               )}
             </div>
@@ -498,14 +534,14 @@ export default function Pricing() {
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold text-slate-800">
-                  {familyPlan?.price || 10}
+                  {familyPlan?.price || 49}
                 </span>
                 <span className="text-slate-600">RON / {isRomanian ? 'luna' : 'month'}</span>
               </div>
               <p className="text-purple-600 text-sm mt-1 font-medium">
                 {isRomanian
-                  ? '= 2 RON/persoana la 5 membri'
-                  : '= 2 RON/person with 5 members'}
+                  ? '= 9,80 RON/persoana la 5 membri'
+                  : '= 9.80 RON/person with 5 members'}
               </p>
             </div>
 
@@ -632,12 +668,12 @@ export default function Pricing() {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="text-center p-4 bg-slate-50 rounded-lg">
                 <p className="text-sm text-slate-600 mb-1">{isRomanian ? 'Cu 5 planuri Premium separate' : 'With 5 separate Premium plans'}</p>
-                <p className="text-2xl font-bold text-slate-800">5 x 5 = <span className="text-rose-500">25 RON</span>/luna</p>
+                <p className="text-2xl font-bold text-slate-800">5 x 29 = <span className="text-rose-500">145 RON</span>/luna</p>
               </div>
               <div className="text-center p-4 bg-purple-100 rounded-lg">
                 <p className="text-sm text-purple-600 mb-1">{isRomanian ? 'Cu Family Plan' : 'With Family Plan'}</p>
-                <p className="text-2xl font-bold text-purple-700">10 RON/luna</p>
-                <p className="text-sm text-purple-600 font-medium">{isRomanian ? 'Economisesti 15 RON!' : 'Save 15 RON!'}</p>
+                <p className="text-2xl font-bold text-purple-700">49 RON/luna</p>
+                <p className="text-sm text-purple-600 font-medium">{isRomanian ? 'Economisesti 96 RON!' : 'Save 96 RON!'}</p>
               </div>
             </div>
           </div>

@@ -1,22 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   HeartPulse, Shield, Brain, Zap, FileText, TrendingUp,
   CheckCircle, ArrowRight, Lock, Users, Clock, Smartphone,
   Globe, Star, ChevronRight, Activity, Stethoscope,
-  UtensilsCrossed, Dumbbell, ShoppingCart, ChefHat, Leaf, Apple
+  UtensilsCrossed, Dumbbell, ShoppingCart, ChefHat, Leaf, Apple, BookOpen, FlaskConical, Calendar
 } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
+import api from '../api/client';
 
 export default function Home() {
   const { i18n } = useTranslation();
   const navigate = useNavigate();
   const isRomanian = i18n.language === 'ro';
+  const [blogArticles, setBlogArticles] = useState([]);
 
   usePageTitle(null, isRomanian
     ? 'Toate analizele tale medicale, într-un singur loc'
     : 'All your medical tests, in one place');
+
+  useEffect(() => {
+    api.get('/blog/articles?limit=3').then(res => setBlogArticles(res.data.articles || [])).catch(() => {});
+  }, []);
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'ro' ? 'en' : 'ro');
@@ -597,6 +603,102 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog + Biomarker Section for SEO internal linking */}
+      <section className="py-20 px-6 bg-gradient-to-b from-white to-slate-50">
+        <div className="max-w-7xl mx-auto">
+          {/* Latest Blog Articles */}
+          {blogArticles.length > 0 && (
+            <div className="mb-16">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-slate-800">
+                    {isRomanian ? 'Din blogul nostru' : 'From our blog'}
+                  </h2>
+                  <p className="text-slate-500 mt-1">
+                    {isRomanian ? 'Sfaturi de sănătate, nutriție și interpretare analize' : 'Health tips, nutrition and lab result interpretation'}
+                  </p>
+                </div>
+                <Link to="/blog" className="hidden sm:flex items-center gap-1 text-teal-600 font-semibold hover:gap-2 transition-all">
+                  {isRomanian ? 'Toate articolele' : 'All articles'} <ArrowRight size={16} />
+                </Link>
+              </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {blogArticles.map(a => (
+                  <Link
+                    key={a.slug}
+                    to={`/blog/${a.slug}`}
+                    className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-slate-300 transition-all group"
+                  >
+                    <div className="flex items-center gap-2 text-xs text-slate-400 mb-3">
+                      <Calendar size={12} />
+                      {a.published_at ? new Date(a.published_at).toLocaleDateString(isRomanian ? 'ro-RO' : 'en-US', { month: 'short', day: 'numeric' }) : ''}
+                    </div>
+                    <h3 className="font-bold text-slate-800 group-hover:text-teal-700 transition-colors mb-2 line-clamp-2">
+                      {isRomanian ? a.title : (a.title_en || a.title)}
+                    </h3>
+                    <p className="text-sm text-slate-500 line-clamp-2">
+                      {isRomanian ? a.excerpt : (a.excerpt_en || a.excerpt)}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+              <div className="text-center mt-6 sm:hidden">
+                <Link to="/blog" className="text-teal-600 font-semibold">
+                  {isRomanian ? 'Toate articolele →' : 'All articles →'}
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Popular Biomarkers */}
+          <div>
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-slate-800">
+                  {isRomanian ? 'Ghid biomarkeri' : 'Biomarker guide'}
+                </h2>
+                <p className="text-slate-500 mt-1">
+                  {isRomanian ? 'Cele mai căutate analize — valori normale și interpretare' : 'Most searched tests — normal values and interpretation'}
+                </p>
+              </div>
+              <Link to="/biomarker" className="hidden sm:flex items-center gap-1 text-teal-600 font-semibold hover:gap-2 transition-all">
+                {isRomanian ? 'Toți biomarkerii' : 'All biomarkers'} <ArrowRight size={16} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {[
+                { slug: 'hemoglobina', name: 'Hemoglobina', aliases: 'Hb, HGB' },
+                { slug: 'glicemie', name: 'Glicemia', aliases: 'Glucoză' },
+                { slug: 'colesterol-total', name: 'Colesterol Total', aliases: '' },
+                { slug: 'colesterol-ldl', name: 'Colesterol LDL', aliases: '"cel rău"' },
+                { slug: 'tgo', name: 'TGO (AST)', aliases: 'Transaminaze' },
+                { slug: 'tgp', name: 'TGP (ALT)', aliases: 'Transaminaze' },
+                { slug: 'tsh', name: 'TSH', aliases: 'Tiroidă' },
+                { slug: 'vitamina-d', name: 'Vitamina D', aliases: '25-OH' },
+                { slug: 'fier-seric', name: 'Fier seric', aliases: '' },
+                { slug: 'hemoglobina-glicata', name: 'HbA1c', aliases: 'Diabet' },
+                { slug: 'vitamina-b12', name: 'Vitamina B12', aliases: '' },
+                { slug: 'creatinina', name: 'Creatinina', aliases: 'Rinichi' },
+              ].map(b => (
+                <Link
+                  key={b.slug}
+                  to={`/biomarker/${b.slug}`}
+                  className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-200 transition-all group text-center"
+                >
+                  <p className="font-bold text-slate-800 group-hover:text-teal-700 transition-colors text-sm">{b.name}</p>
+                  {b.aliases && <p className="text-xs text-slate-400 mt-0.5">{b.aliases}</p>}
+                </Link>
+              ))}
+            </div>
+            <div className="text-center mt-6 sm:hidden">
+              <Link to="/biomarker" className="text-teal-600 font-semibold">
+                {isRomanian ? 'Toți biomarkerii →' : 'All biomarkers →'}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
