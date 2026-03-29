@@ -98,7 +98,7 @@ export default function Analytics() {
             </div>
           )}
           {/* Period selector */}
-          <div className="flex bg-slate-100 rounded-xl p-1">
+          <div className="grid grid-cols-2 sm:flex bg-slate-100 rounded-xl p-1 gap-1 sm:gap-0">
             {PERIODS.map(p => (
               <button
                 key={p.value}
@@ -145,7 +145,7 @@ export default function Analytics() {
               const hVis = Math.max(2, (d.visitors / maxVis) * 100);
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 max-w-[90vw] [&]:left-auto [&]:right-auto pointer-events-none">
                     {d.date}: {d.visitors} viz, {d.pageviews} pv
                   </div>
                   <div className="w-full flex flex-col items-center gap-0.5">
@@ -255,13 +255,14 @@ export default function Analytics() {
             <Smartphone size={18} className="text-orange-600" />
             Dispozitive
           </h2>
-          <div className="flex items-center gap-8 justify-center py-4">
+          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 justify-center py-4">
             <div className="text-center">
               <Monitor size={32} className="mx-auto text-slate-400 mb-2" />
               <p className="text-3xl font-bold text-slate-800">{devices.desktop || 0}</p>
               <p className="text-sm text-slate-500">Desktop</p>
             </div>
-            <div className="w-px h-16 bg-slate-200" />
+            <div className="hidden sm:block w-px h-16 bg-slate-200" />
+            <div className="sm:hidden w-16 h-px bg-slate-200" />
             <div className="text-center">
               <Smartphone size={32} className="mx-auto text-slate-400 mb-2" />
               <p className="text-3xl font-bold text-slate-800">{devices.mobile || 0}</p>

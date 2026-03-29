@@ -137,9 +137,9 @@ export default function BiomarkerReference() {
               {isRo ? 'Valori de referință' : 'Reference ranges'}
             </h2>
           </div>
-          <div className="px-8 pb-8">
-            <div className="rounded-xl overflow-hidden border border-slate-200">
-              <table className="w-full">
+          <div className="px-4 sm:px-8 pb-8">
+            <div className="rounded-xl overflow-hidden border border-slate-200 overflow-x-auto">
+              <table className="w-full min-w-[320px]">
                 <thead>
                   <tr className="bg-slate-800 text-white">
                     <th className="text-left py-3 px-5 text-sm font-semibold">

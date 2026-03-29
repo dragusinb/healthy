@@ -106,7 +106,8 @@ export default function BlogArticle() {
       {/* Article header with gradient */}
       <header className={`${!user ? 'pt-28' : 'pt-8'} pb-12 px-6 bg-gradient-to-br ${gradient} text-white relative overflow-hidden`}>
         <div className="absolute inset-0 opacity-10">
-          <Icon size={300} className="absolute -right-10 -bottom-10 text-white" />
+          <Icon size={300} className="absolute -right-10 -bottom-10 text-white hidden sm:block" />
+          <Icon size={150} className="absolute -right-5 -bottom-5 text-white sm:hidden" />
         </div>
         <div className="max-w-3xl mx-auto relative">
           {/* Breadcrumb */}

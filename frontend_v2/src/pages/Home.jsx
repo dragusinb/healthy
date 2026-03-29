@@ -5,7 +5,8 @@ import {
   HeartPulse, Shield, Brain, Zap, FileText, TrendingUp,
   CheckCircle, ArrowRight, Lock, Users, Clock, Smartphone,
   Globe, Star, ChevronRight, Activity, Stethoscope,
-  UtensilsCrossed, Dumbbell, ShoppingCart, ChefHat, Leaf, Apple, BookOpen, FlaskConical, Calendar
+  UtensilsCrossed, Dumbbell, ShoppingCart, ChefHat, Leaf, Apple, BookOpen, FlaskConical, Calendar,
+  Menu, X
 } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
@@ -15,6 +16,7 @@ export default function Home() {
   const navigate = useNavigate();
   const isRomanian = i18n.language === 'ro';
   const [blogArticles, setBlogArticles] = useState([]);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   usePageTitle(null, isRomanian
     ? 'Toate analizele tale medicale, într-un singur loc'
@@ -64,24 +66,54 @@ export default function Home() {
             </Link>
             <Link
               to="/pricing"
-              className="text-slate-600 hover:text-slate-800 font-medium hidden sm:block"
+              className="text-slate-600 hover:text-slate-800 font-medium hidden md:block"
             >
               {isRomanian ? 'Prețuri' : 'Pricing'}
             </Link>
             <Link
               to="/login"
-              className="text-slate-600 hover:text-slate-800 font-medium hidden sm:block"
+              className="text-slate-600 hover:text-slate-800 font-medium hidden md:block"
             >
               {isRomanian ? 'Autentificare' : 'Login'}
             </Link>
             <Link
               to="/login?mode=register"
-              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md shadow-cyan-500/20"
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md shadow-cyan-500/20 hidden sm:block"
+            >
+              {isRomanian ? 'Înregistrare' : 'Sign Up'}
+            </Link>
+            <button
+              onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              className="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-600 hover:text-slate-800"
+              aria-label={mobileNavOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
+        </div>
+        {mobileNavOpen && (
+          <div className="md:hidden bg-white border-t border-slate-100 px-6 py-4 space-y-3">
+            <Link to="/biomarker" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
+              {isRomanian ? 'Biomarkeri' : 'Biomarkers'}
+            </Link>
+            <Link to="/blog" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
+              Blog
+            </Link>
+            <Link to="/pricing" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
+              {isRomanian ? 'Prețuri' : 'Pricing'}
+            </Link>
+            <Link to="/login" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
+              {isRomanian ? 'Autentificare' : 'Login'}
+            </Link>
+            <Link
+              to="/login?mode=register"
+              onClick={() => setMobileNavOpen(false)}
+              className="block w-full text-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium"
             >
               {isRomanian ? 'Înregistrare' : 'Sign Up'}
             </Link>
           </div>
-        </div>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -262,7 +294,7 @@ export default function Home() {
       {/* Stats / Social Proof */}
       <section className="py-16 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {[
               {
                 value: '4',
@@ -669,7 +701,7 @@ export default function Home() {
                 {isRomanian ? 'Toți biomarkerii' : 'All biomarkers'} <ArrowRight size={16} />
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
               {[
                 { slug: 'hemoglobina', name: 'Hemoglobina', aliases: 'Hb, HGB' },
                 { slug: 'glicemie', name: 'Glicemia', aliases: 'Glucoză' },
@@ -687,10 +719,10 @@ export default function Home() {
                 <Link
                   key={b.slug}
                   to={`/biomarker/${b.slug}`}
-                  className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md hover:border-teal-200 transition-all group text-center"
+                  className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 hover:shadow-md hover:border-teal-200 transition-all group text-center"
                 >
-                  <p className="font-bold text-slate-800 group-hover:text-teal-700 transition-colors text-sm">{b.name}</p>
-                  {b.aliases && <p className="text-xs text-slate-400 mt-0.5">{b.aliases}</p>}
+                  <p className="font-bold text-slate-800 group-hover:text-teal-700 transition-colors text-xs sm:text-sm">{b.name}</p>
+                  {b.aliases && <p className="text-[10px] sm:text-xs text-slate-400 mt-0.5">{b.aliases}</p>}
                 </Link>
               ))}
             </div>

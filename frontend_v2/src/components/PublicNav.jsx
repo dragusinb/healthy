@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { HeartPulse, Globe } from 'lucide-react';
+import { HeartPulse, Globe, Menu, X } from 'lucide-react';
 
 /**
  * Public navigation bar for unauthenticated pages (blog, biomarker, etc.)
@@ -10,6 +10,7 @@ import { HeartPulse, Globe } from 'lucide-react';
 export default function PublicNav() {
   const { i18n } = useTranslation();
   const isRo = i18n.language === 'ro';
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'ro' ? 'en' : 'ro');
@@ -38,17 +39,46 @@ export default function PublicNav() {
           <Link to="/blog" className="text-slate-600 hover:text-slate-800 font-medium hidden md:block">
             Blog
           </Link>
-          <Link to="/pricing" className="text-slate-600 hover:text-slate-800 font-medium hidden sm:block">
+          <Link to="/pricing" className="text-slate-600 hover:text-slate-800 font-medium hidden md:block">
             {isRo ? 'Prețuri' : 'Pricing'}
           </Link>
           <Link
             to="/login"
-            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md shadow-cyan-500/20"
+            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md shadow-cyan-500/20 hidden sm:block"
+          >
+            {isRo ? 'Înregistrare' : 'Sign Up'}
+          </Link>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-600 hover:text-slate-800"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          >
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+      </div>
+      {/* Mobile dropdown */}
+      {mobileOpen && (
+        <div className="md:hidden bg-white border-t border-slate-100 px-6 py-4 space-y-3">
+          <Link to="/biomarker" onClick={() => setMobileOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
+            {isRo ? 'Biomarkeri' : 'Biomarkers'}
+          </Link>
+          <Link to="/blog" onClick={() => setMobileOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
+            Blog
+          </Link>
+          <Link to="/pricing" onClick={() => setMobileOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
+            {isRo ? 'Prețuri' : 'Pricing'}
+          </Link>
+          <Link
+            to="/login"
+            onClick={() => setMobileOpen(false)}
+            className="block w-full text-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md shadow-cyan-500/20"
           >
             {isRo ? 'Înregistrare' : 'Sign Up'}
           </Link>
         </div>
-      </div>
+      )}
     </nav>
   );
 }

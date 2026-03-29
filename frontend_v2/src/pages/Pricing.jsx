@@ -694,39 +694,41 @@ export default function Pricing() {
 
         {showComparison && (
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden animate-in slide-in-from-top-4 duration-300">
-            {/* Table Header */}
-            <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50 border-b border-slate-200 font-medium text-slate-600">
-              <div>{isRomanian ? 'Functionalitate' : 'Feature'}</div>
-              <div className="text-center">Free</div>
-              <div className="text-center text-amber-600">Premium</div>
-              <div className="text-center text-purple-600">Family</div>
-            </div>
-
-            {/* Table Body */}
-            {features.map((category, catIndex) => (
-              <div key={catIndex}>
-                {/* Category Header */}
-                <div className="grid grid-cols-4 gap-4 p-4 bg-slate-50/50 border-b border-slate-100">
-                  <div className="col-span-4 font-semibold text-slate-800">{category.category}</div>
-                </div>
-
-                {/* Category Items */}
-                {category.items.map((item, itemIndex) => (
-                  <div
-                    key={itemIndex}
-                    className="grid grid-cols-4 gap-4 p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50"
-                  >
-                    <div className="flex items-center gap-2 text-slate-700">
-                      <item.icon className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                      <span className="text-sm">{item.name}</span>
-                    </div>
-                    <div className="text-center text-sm">{renderFeatureValue(item.free)}</div>
-                    <div className="text-center text-sm">{renderFeatureValue(item.premium)}</div>
-                    <div className="text-center text-sm">{renderFeatureValue(item.family)}</div>
-                  </div>
-                ))}
+            <div className="overflow-x-auto">
+              {/* Table Header */}
+              <div className="grid grid-cols-[minmax(140px,2fr)_repeat(3,minmax(80px,1fr))] gap-2 sm:gap-4 p-3 sm:p-4 bg-slate-50 border-b border-slate-200 font-medium text-slate-600 min-w-[420px]">
+                <div className="text-sm">{isRomanian ? 'Functionalitate' : 'Feature'}</div>
+                <div className="text-center text-sm">Free</div>
+                <div className="text-center text-sm text-amber-600">Premium</div>
+                <div className="text-center text-sm text-purple-600">Family</div>
               </div>
-            ))}
+
+              {/* Table Body */}
+              {features.map((category, catIndex) => (
+                <div key={catIndex}>
+                  {/* Category Header */}
+                  <div className="p-3 sm:p-4 bg-slate-50/50 border-b border-slate-100 min-w-[420px]">
+                    <div className="font-semibold text-slate-800 text-sm">{category.category}</div>
+                  </div>
+
+                  {/* Category Items */}
+                  {category.items.map((item, itemIndex) => (
+                    <div
+                      key={itemIndex}
+                      className="grid grid-cols-[minmax(140px,2fr)_repeat(3,minmax(80px,1fr))] gap-2 sm:gap-4 p-3 sm:p-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 min-w-[420px]"
+                    >
+                      <div className="flex items-center gap-2 text-slate-700">
+                        <item.icon className="w-4 h-4 text-slate-500 flex-shrink-0 hidden sm:block" />
+                        <span className="text-xs sm:text-sm">{item.name}</span>
+                      </div>
+                      <div className="text-center text-xs sm:text-sm">{renderFeatureValue(item.free)}</div>
+                      <div className="text-center text-xs sm:text-sm">{renderFeatureValue(item.premium)}</div>
+                      <div className="text-center text-xs sm:text-sm">{renderFeatureValue(item.family)}</div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

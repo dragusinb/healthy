@@ -38,7 +38,7 @@ const BottomNavItem = ({ to, icon: Icon, label }) => {
         <NavLink
             to={to}
             className={cn(
-                "flex flex-col items-center justify-center gap-0.5 flex-1 py-2 text-[10px] font-medium transition-colors min-w-0",
+                "flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[44px] text-[11px] font-medium transition-colors min-w-0",
                 isActive
                     ? "text-primary-600 dark:text-primary-400"
                     : "text-slate-500 dark:text-slate-500"
@@ -335,7 +335,7 @@ const Layout = ({ children }) => {
                         />
                         {/* Drawer */}
                         <aside className="absolute left-0 top-0 h-full w-72 max-w-[calc(100vw-3rem)] bg-white dark:bg-slate-800 shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
-                            <div className="p-6 pb-4">
+                            <div className="p-6 pb-4 flex-1 overflow-y-auto min-h-0">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-3 text-primary-600">
                                         <div className="p-2.5 bg-primary-100 rounded-xl">
@@ -380,10 +380,10 @@ const Layout = ({ children }) => {
                                 </nav>
                             </div>
 
-                            <div className="mt-auto p-6 border-t border-slate-100 dark:border-slate-700">
-                                <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 mb-2">
-                                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 overflow-hidden border-2 border-white dark:border-slate-500 shadow-sm">
-                                        <User size={20} />
+                            <div className="shrink-0 p-4 border-t border-slate-100 dark:border-slate-700">
+                                <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600 mb-2">
+                                    <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-slate-500 dark:text-slate-300 overflow-hidden border-2 border-white dark:border-slate-500 shadow-sm">
+                                        <User size={18} />
                                     </div>
                                     <div className="overflow-hidden flex-1">
                                         <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{user?.email?.split('@')[0]}</p>
@@ -418,16 +418,6 @@ const Layout = ({ children }) => {
                                         <LogOut size={16} aria-hidden="true" />
                                         <span>{t('nav.logout')}</span>
                                     </button>
-                                </div>
-                                {/* Legal Links */}
-                                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-500">
-                                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
-                                        {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
-                                    </a>
-                                    <span>•</span>
-                                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
-                                        {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
-                                    </a>
                                 </div>
                             </div>
                         </aside>
