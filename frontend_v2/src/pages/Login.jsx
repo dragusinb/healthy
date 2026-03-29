@@ -836,7 +836,7 @@ const Login = () => {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+                                    className="w-full pl-10 pr-4 py-3 border border-slate-300 bg-slate-50 rounded-xl text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white outline-none transition-all"
                                     placeholder={t('auth.emailPlaceholder') || 'you@example.com'}
                                     autoComplete="email"
                                     required
@@ -853,7 +853,7 @@ const Login = () => {
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+                                    className="w-full pl-10 pr-12 py-3 border border-slate-300 bg-slate-50 rounded-xl text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white outline-none transition-all"
                                     placeholder="••••••••"
                                     autoComplete={isRegisterMode ? "new-password" : "current-password"}
                                     required
@@ -922,7 +922,7 @@ const Login = () => {
                                         type={showConfirmPassword ? "text" : "password"}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
+                                        className="w-full pl-10 pr-12 py-3 border border-slate-300 bg-slate-50 rounded-xl text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-white outline-none transition-all"
                                         placeholder="••••••••"
                                         autoComplete="new-password"
                                         required
