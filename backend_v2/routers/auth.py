@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Backgrou
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
 import httpx
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -44,6 +45,7 @@ class UserCreate(BaseModel):
     accepted_terms: bool = False
     terms_version: str = None
     privacy_version: str = None
+    referral_code: Optional[str] = None
 
     @field_validator('password')
     @classmethod
@@ -200,13 +202,33 @@ def register(
             f"<strong>IP:</strong> {ip_address or 'unknown'}</p>",
         )
 
+    # Process referral code if provided
+    referral_applied = False
+    if user.referral_code:
+        try:
+            from backend_v2.models import Referral
+        except ImportError:
+            from models import Referral
+
+        ref_code = user.referral_code.strip().upper()
+        referral = db.query(Referral).filter(Referral.referral_code == ref_code).first()
+        if referral and referral.referred_id is None and referral.referrer_id != new_user.id:
+            from backend_v2.services.subscription_service import SubscriptionService
+            referral.referred_id = new_user.id
+            referral.status = "registered"
+            referral.registered_at = datetime.now(timezone.utc)
+            # Rewards applied after email verification to prevent abuse
+            db.commit()
+            referral_applied = True
+
     access_token = create_access_token(data={"sub": new_user.email})
     return {
         "access_token": access_token,
         "token_type": "bearer",
         "email_verified": False,
         "verification_email_sent": email_service.is_configured(),
-        "recovery_key": recovery_key  # User MUST save this - only shown once!
+        "recovery_key": recovery_key,  # User MUST save this - only shown once!
+        "referral_applied": referral_applied
     }
 
 @router.post("/token", response_model=Token)
@@ -471,6 +493,33 @@ def verify_email(data: EmailVerifyRequest, db: Session = Depends(get_db)):
     user.verification_token = None
     user.verification_token_expires = None
     db.commit()
+
+    # Process referral rewards now that email is verified
+    try:
+        from backend_v2.models import Referral
+    except ImportError:
+        from models import Referral
+
+    pending_referral = db.query(Referral).filter(
+        Referral.referred_id == user.id,
+        Referral.status == "registered",
+        Referral.referred_rewarded == False
+    ).first()
+
+    if pending_referral:
+        try:
+            from backend_v2.routers.referral import _apply_free_month
+        except ImportError:
+            from routers.referral import _apply_free_month
+
+        now = datetime.now(timezone.utc)
+        _apply_free_month(db, user.id, now)
+        pending_referral.referred_rewarded = True
+        _apply_free_month(db, pending_referral.referrer_id, now)
+        pending_referral.referrer_rewarded = True
+        pending_referral.status = "rewarded"
+        pending_referral.rewarded_at = now
+        db.commit()
 
     return {"message": "Email verified successfully", "email": user.email}
 

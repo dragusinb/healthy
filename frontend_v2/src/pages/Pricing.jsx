@@ -26,15 +26,15 @@ export default function Pricing() {
         '@type': 'Question',
         name: isRomanian ? 'Cât costă Analize.Online?' : 'How much does Analize.Online cost?',
         acceptedAnswer: { '@type': 'Answer', text: isRomanian
-          ? 'Planul gratuit include 2 provideri medicali, 50 documente și 3 analize AI/lună. Planul Premium costă 29 RON/lună (sau 199 RON/an) cu furnizori nelimitați și 30 analize AI/lună. Planul Family costă 49 RON/lună pentru până la 5 membri.'
-          : 'The free plan includes 2 medical providers, 50 documents and 3 AI analyses/month. Premium is 29 RON/month (or 199 RON/year) with unlimited providers and 30 AI analyses/month. Family is 49 RON/month for up to 5 members.' },
+          ? 'Planul gratuit include 1 provider medical, 20 documente și 2 analize AI/lună. Planul Premium costă 29 RON/lună (sau 199 RON/an) cu furnizori nelimitați și 30 analize AI/lună. Planul Family costă 49 RON/lună pentru până la 5 membri.'
+          : 'The free plan includes 1 medical provider, 20 documents and 2 AI analyses/month. Premium is 29 RON/month (or 199 RON/year) with unlimited providers and 30 AI analyses/month. Family is 49 RON/month for up to 5 members.' },
       },
       {
         '@type': 'Question',
         name: isRomanian ? 'Ce include planul gratuit?' : 'What does the free plan include?',
         acceptedAnswer: { '@type': 'Answer', text: isRomanian
-          ? 'Planul gratuit include: conectare la 2 provideri medicali (Regina Maria, Synevo, MedLife, Sanador), stocare pentru 50 documente, extracție automată de biomarkeri din PDF-uri și 3 analize AI generale pe lună.'
-          : 'The free plan includes: connection to 2 medical providers (Regina Maria, Synevo, MedLife, Sanador), storage for 50 documents, automatic biomarker extraction from PDFs and 3 general AI analyses per month.' },
+          ? 'Planul gratuit include: conectare la 1 provider medical (Regina Maria, Synevo, MedLife, Sanador), stocare pentru 20 documente, extracție automată de biomarkeri din PDF-uri și 2 analize AI generale pe lună.'
+          : 'The free plan includes: connection to 1 medical provider (Regina Maria, Synevo, MedLife, Sanador), storage for 20 documents, automatic biomarker extraction from PDFs and 2 general AI analyses per month.' },
       },
       {
         '@type': 'Question',

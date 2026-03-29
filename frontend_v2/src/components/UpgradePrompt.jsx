@@ -72,11 +72,11 @@ export default function UpgradePrompt({ isOpen, onClose, reason, feature }) {
           {/* Pricing */}
           <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 mb-6">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-gray-800">5 RON</span>
+              <span className="text-3xl font-bold text-gray-800">29 RON</span>
               <span className="text-gray-500">/ {t('subscription.month')}</span>
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              {t('subscription.orYearly', { price: '40 RON' })}
+              {t('subscription.orYearly', { price: '199 RON' })}
             </p>
           </div>
 

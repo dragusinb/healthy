@@ -165,7 +165,31 @@ def init_scheduler():
                 replace_existing=True
             )
 
-            logger.info("Scheduler initialized with sync checker, cleanup, duplicate cleanup, document processor, and blog generator")
+            # Add subscription expiry checker (every hour)
+            scheduler.add_job(
+                check_expired_subscriptions,
+                IntervalTrigger(hours=1),
+                id="subscription_expiry_checker",
+                replace_existing=True
+            )
+
+            # Add welcome email campaign (every hour)
+            scheduler.add_job(
+                run_welcome_campaigns,
+                IntervalTrigger(hours=1),
+                id="welcome_campaigns",
+                replace_existing=True
+            )
+
+            # Add monthly health digest (1st of each month, 9:00 AM UTC)
+            scheduler.add_job(
+                run_monthly_digest,
+                CronTrigger(day=1, hour=9, minute=0),
+                id="monthly_digest",
+                replace_existing=True
+            )
+
+            logger.info("Scheduler initialized with sync checker, cleanup, duplicate cleanup, document processor, blog generator, subscription expiry checker, and email campaigns")
 
     return scheduler
 
@@ -829,3 +853,53 @@ def generate_weekly_blog_article():
 
     logger.info("Running scheduled blog article generation...")
     scheduled_generate_article()
+
+
+def run_welcome_campaigns():
+    """Run welcome email campaign check."""
+    try:
+        from backend_v2.services.email_campaigns import run_welcome_email_campaigns
+    except ImportError:
+        from services.email_campaigns import run_welcome_email_campaigns
+
+    logger.info("Running welcome email campaigns...")
+    try:
+        run_welcome_email_campaigns()
+    except Exception as e:
+        logger.error(f"Error in welcome campaigns: {e}")
+
+
+def run_monthly_digest():
+    """Run monthly health digest emails."""
+    try:
+        from backend_v2.services.email_campaigns import run_monthly_health_digest
+    except ImportError:
+        from services.email_campaigns import run_monthly_health_digest
+
+    logger.info("Running monthly health digest...")
+    try:
+        run_monthly_health_digest()
+    except Exception as e:
+        logger.error(f"Error in monthly digest: {e}")
+
+
+def check_expired_subscriptions():
+    """Check for expired subscriptions and downgrade them to free tier."""
+    try:
+        from backend_v2.database import SessionLocal
+        from backend_v2.services.subscription_service import SubscriptionService
+    except ImportError:
+        from database import SessionLocal
+        from services.subscription_service import SubscriptionService
+
+    logger.info("Checking for expired subscriptions...")
+
+    db = SessionLocal()
+    try:
+        count = SubscriptionService.check_expired_subscriptions(db)
+        if count > 0:
+            logger.info(f"Downgraded {count} expired subscriptions to free tier")
+    except Exception as e:
+        logger.error(f"Error checking expired subscriptions: {e}")
+    finally:
+        db.close()

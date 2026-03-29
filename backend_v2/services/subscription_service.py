@@ -16,9 +16,9 @@ except ImportError:
 # Tier limits configuration
 TIER_LIMITS = {
     "free": {
-        "max_providers": 2,
-        "max_documents": 50,
-        "ai_analyses_per_month": 3,
+        "max_providers": 1,
+        "max_documents": 20,
+        "ai_analyses_per_month": 2,
         "specialists": ["general"],  # Only general analysis
         "priority_sync": False,
         "pdf_export": False,
@@ -51,9 +51,9 @@ TIER_LIMITS = {
 
 # Pricing in RON
 PRICING = {
-    "premium_monthly": 5,
-    "premium_yearly": 40,
-    "family_monthly": 10,
+    "premium_monthly": 29,
+    "premium_yearly": 199,
+    "family_monthly": 49,
 }
 
 
@@ -137,7 +137,7 @@ class SubscriptionService:
         if current_count >= limits["max_providers"]:
             tier = self.get_user_tier(user_id)
             if tier == "free":
-                return False, "Ai atins limita de 2 provideri medicali. Upgradează la Premium pentru provideri nelimitați."
+                return False, "Ai atins limita de 1 provider medical. Upgradează la Premium pentru provideri nelimitați."
             return False, f"Ai atins limita de {limits['max_providers']} provideri."
 
         return True, ""
@@ -318,6 +318,40 @@ class SubscriptionService:
         self.db.commit()
         self.db.refresh(subscription)
         return subscription
+
+    @staticmethod
+    def check_expired_subscriptions(db: Session) -> int:
+        """Check for expired subscriptions and downgrade them to free.
+
+        Called by the scheduler periodically.
+        Returns the number of subscriptions downgraded.
+        """
+        now = datetime.now(timezone.utc)
+        count = 0
+
+        # Find subscriptions that are marked to cancel at period end and have expired
+        expired_subs = db.query(Subscription).filter(
+            Subscription.cancel_at_period_end == True,
+            Subscription.tier != "free",
+            Subscription.status == "active",
+            Subscription.current_period_end.isnot(None),
+            Subscription.current_period_end < now
+        ).all()
+
+        for sub in expired_subs:
+            sub.tier = "free"
+            sub.status = "active"
+            sub.cancel_at_period_end = False
+            sub.stripe_subscription_id = None
+            sub.stripe_price_id = None
+            sub.current_period_start = None
+            sub.current_period_end = None
+            count += 1
+
+        if count > 0:
+            db.commit()
+
+        return count
 
     def get_subscription_status(self, user_id: int) -> Dict[str, Any]:
         """Get full subscription status for display."""

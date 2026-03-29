@@ -52,6 +52,7 @@
     "linkedAccounts": "Conturi Conectate",
     "settings": "Setări",
     "billing": "Abonament",
+    "referral": "Invită Prieteni",
     "support": "Suport",
     "admin": "Administrare",
     "logout": "Deconectare",
@@ -778,6 +779,9 @@
     "month": "lună",
     "orYearly": "sau {{price}}/an (economisești 43%)",
     "upgradeCta": "Upgrade"
+  },
+  "referral": {
+    "title": "Invită Prieteni"
   },
   "pricing": {
     "title": "Alege planul potrivit pentru tine",

@@ -677,6 +677,29 @@ User.medications = relationship("Medication", back_populates="user")
 User.shared_reports = relationship("SharedReport", back_populates="user")
 User.food_preferences = relationship("FoodPreference", back_populates="user", cascade="all, delete-orphan")
 User.payments = relationship("PaymentHistory", back_populates="user")
+User.referrals_sent = relationship("Referral", foreign_keys="Referral.referrer_id", back_populates="referrer")
+User.referrals_received = relationship("Referral", foreign_keys="Referral.referred_id", back_populates="referred")
+
+
+class Referral(Base):
+    """Track referral invitations and rewards."""
+    __tablename__ = "referrals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    referrer_id = Column(Integer, ForeignKey("users.id"), index=True)  # User who sent the invite
+    referred_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # User who signed up
+    referral_code = Column(String, unique=True, index=True, nullable=False)  # Unique code for sharing
+    referred_email = Column(String, nullable=True)  # Email the invite was sent to (optional)
+    status = Column(String, default="pending")  # pending, registered, rewarded, expired
+    reward_type = Column(String, default="free_month")  # free_month, discount
+    referrer_rewarded = Column(Boolean, default=False)  # Whether referrer got their reward
+    referred_rewarded = Column(Boolean, default=False)  # Whether referred user got their reward
+    created_at = Column(DateTime, default=utc_now)
+    registered_at = Column(DateTime, nullable=True)  # When referred user signed up
+    rewarded_at = Column(DateTime, nullable=True)  # When rewards were applied
+
+    referrer = relationship("User", foreign_keys=[referrer_id], back_populates="referrals_sent")
+    referred = relationship("User", foreign_keys=[referred_id], back_populates="referrals_received")
 
 
 class BlogArticle(Base):

@@ -98,14 +98,18 @@ export const AuthProvider = ({ children }) => {
         return res.data;
     };
 
-    const register = async (email, password, acceptedTerms = false) => {
-        const res = await api.post('/auth/register', {
+    const register = async (email, password, acceptedTerms = false, referralCode = null) => {
+        const payload = {
             email,
             password,
             accepted_terms: acceptedTerms,
             terms_version: '1.0',
             privacy_version: '1.0'
-        });
+        };
+        if (referralCode) {
+            payload.referral_code = referralCode;
+        }
+        const res = await api.post('/auth/register', payload);
         // If registration_pending, email already exists - return generic message without login
         if (res.data.registration_pending) {
             return res.data;

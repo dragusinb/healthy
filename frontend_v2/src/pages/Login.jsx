@@ -521,7 +521,8 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [searchParams] = useSearchParams();
-    const [isRegisterMode, setIsRegisterMode] = useState(searchParams.get('mode') === 'register');
+    const [isRegisterMode, setIsRegisterMode] = useState(searchParams.get('mode') === 'register' || !!searchParams.get('ref'));
+    const referralCode = searchParams.get('ref') || '';
     const [acceptedTerms, setAcceptedTerms] = useState(false);
     const { login, register, loginWithGoogle, pendingGoogleSetup, clearPendingSetup, user } = useAuth();
     const navigate = useNavigate();
@@ -585,7 +586,7 @@ const Login = () => {
                 return;
             }
             try {
-                const result = await register(email, password, acceptedTerms);
+                const result = await register(email, password, acceptedTerms, referralCode || null);
                 // If backend returned a generic message (email already exists),
                 // show it as a success-like message to prevent email enumeration
                 if (result?.registration_pending) {
@@ -786,6 +787,15 @@ const Login = () => {
                     <h2 className="text-xl font-semibold text-slate-800 mb-4 text-center">
                         {isRegisterMode ? t('auth.signUp') : t('auth.signIn')}
                     </h2>
+
+                    {referralCode && isRegisterMode && (
+                        <div className="bg-amber-50 text-amber-800 p-3 rounded-xl mb-4 text-sm border border-amber-200 flex items-center gap-2">
+                            <span className="text-amber-500 text-lg">🎁</span>
+                            {i18n.language === 'ro'
+                                ? 'Ai primit o invitație! Creează cont și primești 1 lună de Premium gratuit.'
+                                : "You've been invited! Create an account and get 1 free month of Premium."}
+                        </div>
+                    )}
 
                     {registrationMessage && (
                         <div className="bg-teal-50 text-teal-700 p-3 rounded-xl mb-4 text-sm border border-teal-100 flex items-center gap-2">

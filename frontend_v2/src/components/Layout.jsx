@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
-import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Settings2, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon, FlaskConical, Stethoscope, Bell, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, FileText, Activity, LogOut, User, HeartPulse, Link as LinkIcon, Brain, Shield, Globe, Menu, X, ClipboardList, Settings2, CreditCard, Mail, Loader2, CheckCircle, Users, MessageSquare, Leaf, Pill, Sun, Moon, FlaskConical, Stethoscope, Bell, BarChart3, Gift } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
@@ -63,6 +63,7 @@ const PAGE_TITLE_MAP = {
     '/linked-accounts': 'nav.linkedAccounts',
     '/settings': 'nav.settingsTitle',
     '/billing': 'nav.billing',
+    '/referral': 'nav.referral',
     '/support': 'nav.support',
     '/admin': 'nav.admin',
 };
@@ -240,6 +241,7 @@ const Layout = ({ children }) => {
                         <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} />
                         <SidebarItem to="/settings" icon={Settings2} label={t('nav.settingsTitle')} />
                         <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} />
+                        <SidebarItem to="/referral" icon={Gift} label={t('nav.referral')} />
                         <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} />
                         {user?.is_admin && (
                             <>
@@ -370,6 +372,7 @@ const Layout = ({ children }) => {
                                     <SidebarItem to="/linked-accounts" icon={LinkIcon} label={t('nav.linkedAccounts')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/settings" icon={Settings2} label={t('nav.settingsTitle')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/billing" icon={CreditCard} label={t('nav.billing')} onClick={closeMobileMenu} />
+                                    <SidebarItem to="/referral" icon={Gift} label={t('nav.referral')} onClick={closeMobileMenu} />
                                     <SidebarItem to="/support" icon={MessageSquare} label={t('nav.support')} onClick={closeMobileMenu} />
                                     {user?.is_admin && (
                                         <>

@@ -16,12 +16,12 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 # Support both local development (backend_v2.X) and production (X) imports
 try:
-    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap
+    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap, referral
     from backend_v2.database import Base, engine, SessionLocal
     from backend_v2.routers.auth import seed_default_user
     from backend_v2.services.scheduler import init_scheduler, shutdown_scheduler
 except ImportError:
-    from routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap
+    from routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap, referral
     from database import Base, engine, SessionLocal
     from routers.auth import seed_default_user
     from services.scheduler import init_scheduler, shutdown_scheduler
@@ -128,6 +128,7 @@ app.include_router(sharing.router)
 app.include_router(blog.router)
 app.include_router(analytics.router)
 app.include_router(sitemap.router)
+app.include_router(referral.router)
 
 # Prometheus metrics instrumentation for HTTP request tracking
 # Exposes metrics at /api/metrics for Prometheus scraping

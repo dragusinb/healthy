@@ -32,6 +32,7 @@ const Admin = lazy(() => import('./pages/Admin'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Billing = lazy(() => import('./pages/Billing'));
+const Referral = lazy(() => import('./pages/Referral'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const JoinFamily = lazy(() => import('./pages/JoinFamily'));
@@ -184,6 +185,9 @@ const App = () => {
                                 } />
                                 <Route path="/billing" element={
                                     <PrivateLayoutRoute><Billing /></PrivateLayoutRoute>
+                                } />
+                                <Route path="/referral" element={
+                                    <PrivateLayoutRoute><Referral /></PrivateLayoutRoute>
                                 } />
                                 <Route path="/family" element={
                                     <PrivateLayoutRoute><Family /></PrivateLayoutRoute>

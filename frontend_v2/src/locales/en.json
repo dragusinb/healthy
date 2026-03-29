@@ -49,6 +49,7 @@
     "linkedAccounts": "Linked Accounts",
     "settings": "Settings",
     "billing": "Subscription",
+    "referral": "Invite Friends",
     "support": "Support",
     "admin": "Admin",
     "logout": "Logout",
@@ -734,6 +735,9 @@
     "month": "month",
     "orYearly": "or {{price}}/year (save 43%)",
     "upgradeCta": "Upgrade"
+  },
+  "referral": {
+    "title": "Invite Friends"
   },
   "pricing": {
     "title": "Choose the plan that's right for you",
