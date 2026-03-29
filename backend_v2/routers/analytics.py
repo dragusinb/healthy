@@ -185,17 +185,34 @@ def analytics_dashboard(
     cutoff = datetime.now(timezone.utc) - delta
 
     # --- visitors ---
+    # Use ip_hash for unique counting — it's stable across sessions/tabs/localStorage clears.
+    # session_id (now persistent via localStorage) is used as fallback identifier.
     total_pv = db.query(func.count(PageView.id)).filter(PageView.created_at >= cutoff).scalar() or 0
-    unique_sessions = db.query(func.count(distinct(PageView.session_id))).filter(PageView.created_at >= cutoff).scalar() or 0
 
-    # Returning = sessions with pageviews BOTH before and after cutoff
+    # Count unique visitors by ip_hash (most reliable), fall back to session_id for empty ip_hash
+    unique_by_ip = db.query(func.count(distinct(PageView.ip_hash))).filter(
+        PageView.created_at >= cutoff, PageView.ip_hash != "", PageView.ip_hash.isnot(None)
+    ).scalar() or 0
+    # Count sessions with no ip_hash (shouldn't happen, but be safe)
+    unique_no_ip = db.query(func.count(distinct(PageView.session_id))).filter(
+        PageView.created_at >= cutoff, ((PageView.ip_hash == "") | (PageView.ip_hash.is_(None)))
+    ).scalar() or 0
+    unique_sessions = unique_by_ip + unique_no_ip
+
+    # Returning = ip_hashes with pageviews BOTH before and after cutoff
     returning_sessions = 0
     if unique_sessions:
-        # sessions that existed before cutoff AND appeared after cutoff
-        sessions_before = db.query(PageView.session_id).filter(PageView.created_at < cutoff).distinct().subquery()
+        ips_before = db.query(PageView.ip_hash).filter(
+            PageView.created_at < cutoff, PageView.ip_hash != "", PageView.ip_hash.isnot(None)
+        ).distinct().subquery()
         returning_sessions = (
-            db.query(func.count(distinct(PageView.session_id)))
-            .filter(PageView.created_at >= cutoff, PageView.session_id.in_(sessions_before.select()))
+            db.query(func.count(distinct(PageView.ip_hash)))
+            .filter(
+                PageView.created_at >= cutoff,
+                PageView.ip_hash != "",
+                PageView.ip_hash.isnot(None),
+                PageView.ip_hash.in_(ips_before.select()),
+            )
             .scalar() or 0
         )
 
@@ -204,9 +221,9 @@ def analytics_dashboard(
         db.query(
             func.date(PageView.created_at).label("day"),
             func.count(PageView.id).label("pageviews"),
-            func.count(distinct(PageView.session_id)).label("visitors"),
+            func.count(distinct(PageView.ip_hash)).label("visitors"),
         )
-        .filter(PageView.created_at >= cutoff)
+        .filter(PageView.created_at >= cutoff, PageView.ip_hash != "", PageView.ip_hash.isnot(None))
         .group_by(func.date(PageView.created_at))
         .order_by(func.date(PageView.created_at))
         .all()
@@ -218,7 +235,7 @@ def analytics_dashboard(
         db.query(
             PageView.page,
             func.count(PageView.id).label("views"),
-            func.count(distinct(PageView.session_id)).label("unique"),
+            func.count(distinct(PageView.ip_hash)).label("unique"),
         )
         .filter(PageView.created_at >= cutoff)
         .group_by(PageView.page)
@@ -232,7 +249,7 @@ def analytics_dashboard(
     funnel = {}
     for page_path, funnel_key in FUNNEL_PAGES:
         cnt = (
-            db.query(func.count(distinct(PageView.session_id)))
+            db.query(func.count(distinct(PageView.ip_hash)))
             .filter(PageView.created_at >= cutoff, PageView.page.like(f"{page_path}%"))
             .scalar() or 0
         )
@@ -241,7 +258,7 @@ def analytics_dashboard(
     # --- sources ---
     # We need to process referrers in Python (domain extraction)
     ref_rows = (
-        db.query(PageView.referrer, func.count(distinct(PageView.session_id)).label("visitors"))
+        db.query(PageView.referrer, func.count(distinct(PageView.ip_hash)).label("visitors"))
         .filter(PageView.created_at >= cutoff)
         .group_by(PageView.referrer)
         .all()
@@ -257,8 +274,11 @@ def analytics_dashboard(
     )
 
     # --- devices ---
-    mobile_count = db.query(func.count(distinct(PageView.session_id))).filter(PageView.created_at >= cutoff, PageView.is_mobile == True).scalar() or 0
-    desktop_count = unique_sessions - mobile_count
+    mobile_count = db.query(func.count(distinct(PageView.ip_hash))).filter(
+        PageView.created_at >= cutoff, PageView.is_mobile == True,
+        PageView.ip_hash != "", PageView.ip_hash.isnot(None)
+    ).scalar() or 0
+    desktop_count = max(0, unique_by_ip - mobile_count)
 
     return {
         "period": period,
@@ -285,7 +305,9 @@ def analytics_live(
 ):
     """Return visitors active in the last 5 minutes."""
     cutoff = datetime.now(timezone.utc) - timedelta(minutes=5)
-    active = db.query(func.count(distinct(PageView.session_id))).filter(PageView.created_at >= cutoff).scalar() or 0
+    active = db.query(func.count(distinct(PageView.ip_hash))).filter(
+        PageView.created_at >= cutoff, PageView.ip_hash != "", PageView.ip_hash.isnot(None)
+    ).scalar() or 0
     pages = (
         db.query(PageView.page, func.count(PageView.id).label("views"))
         .filter(PageView.created_at >= cutoff)

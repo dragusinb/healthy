@@ -2,14 +2,20 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../api/client';
 
-// Generate or retrieve anonymous session ID
+// Generate or retrieve persistent anonymous visitor ID.
+// Uses localStorage so the same browser always maps to one visitor,
+// even across tabs and browser restarts.
 function getSessionId() {
-  let sid = sessionStorage.getItem('_anl_sid');
-  if (!sid) {
-    sid = Math.random().toString(36).slice(2) + Date.now().toString(36);
-    sessionStorage.setItem('_anl_sid', sid);
+  let vid = localStorage.getItem('_anl_vid');
+  if (!vid) {
+    // Migrate from old sessionStorage key if present
+    vid = sessionStorage.getItem('_anl_sid');
+    if (!vid) {
+      vid = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+    localStorage.setItem('_anl_vid', vid);
   }
-  return sid;
+  return vid;
 }
 
 // Parse UTM params from URL
