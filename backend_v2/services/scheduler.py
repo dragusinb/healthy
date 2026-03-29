@@ -295,6 +295,7 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
         from backend_v2.services.crawlers_manager import run_regina_async, run_synevo_async
         from backend_v2.services import sync_status
         from backend_v2.services.notification_service import notify_new_documents, notify_sync_failed
+        from backend_v2.services.vault_helper import get_vault_helper
     except ImportError:
         from database import SessionLocal
         from models import LinkedAccount, SyncJob
@@ -302,6 +303,7 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
         from services.crawlers_manager import run_regina_async, run_synevo_async
         from services import sync_status
         from services.notification_service import notify_new_documents, notify_sync_failed
+        from services.vault_helper import get_vault_helper
 
     db = SessionLocal()
 
@@ -324,8 +326,36 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
         account.status = "SYNCING"
         db.commit()
 
-        # Decrypt password
-        password = decrypt_password(account.encrypted_password)
+        # Decrypt credentials: try vault-encrypted first, fall back to legacy
+        username = None
+        password = None
+
+        # Try per-user vault first
+        if account.username_enc:
+            try:
+                vault_helper = get_vault_helper(user_id)
+                if vault_helper.is_available:
+                    username = vault_helper.decrypt_credential(account.username_enc)
+                    password = vault_helper.decrypt_credential(account.password_enc)
+            except Exception as e:
+                logger.warning(f"Vault decrypt failed for account {account_id}: {e}")
+
+        # Fall back to legacy fields
+        if not username and account.username:
+            username = account.username
+        if not password and account.encrypted_password:
+            password = decrypt_password(account.encrypted_password)
+
+        if not username or not password:
+            sync_job.status = "failed"
+            sync_job.error_message = "Could not decrypt credentials (vault locked or no credentials stored)"
+            sync_job.completed_at = datetime.now(timezone.utc)
+            account.status = "ERROR"
+            account.last_sync_error = sync_job.error_message
+            account.error_type = "server_error"
+            db.commit()
+            logger.error(f"No credentials for account {account_id} (vault locked?)")
+            return
 
         # Set status
         sync_status.status_starting(user_id, provider_name)
@@ -337,9 +367,9 @@ def run_scheduled_sync(user_id: int, account_id: int, provider_name: str, sync_k
 
         try:
             if provider_name == "Regina Maria":
-                res = loop.run_until_complete(run_regina_async(account.username, password, user_id=user_id))
+                res = loop.run_until_complete(run_regina_async(username, password, user_id=user_id))
             elif provider_name == "Synevo":
-                res = loop.run_until_complete(run_synevo_async(account.username, password, user_id=user_id))
+                res = loop.run_until_complete(run_synevo_async(username, password, user_id=user_id))
             else:
                 raise ValueError(f"Unknown provider: {provider_name}")
         finally:

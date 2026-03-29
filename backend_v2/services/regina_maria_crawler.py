@@ -74,6 +74,20 @@ class ReginaMariaCrawler(BaseCrawler):
         except Exception as e:
             self.log(f"JS overlay removal failed: {e}")
 
+        # Method 4: Remove Usercentrics overlay (newer than OneTrust)
+        try:
+            page.evaluate("""
+                const uc = document.querySelector('#usercentrics-cmp-ui');
+                if (uc) uc.remove();
+                // Also try shadow DOM and any related elements
+                document.querySelectorAll('[id*="usercentrics"], [class*="usercentrics"]').forEach(el => el.remove());
+                // Remove any aside elements that might be consent overlays
+                document.querySelectorAll('aside[data-nosnippet]').forEach(el => el.remove());
+            """)
+            self.log("Removed Usercentrics consent overlay via JavaScript")
+        except Exception as e:
+            self.log(f"Usercentrics removal failed: {e}")
+
     def login_sync(self, page: Page, credentials: Dict[str, str]):
         self.log("Navigating to login page...")
         page.goto(self.login_url, wait_until="domcontentloaded")
@@ -86,12 +100,12 @@ class ReginaMariaCrawler(BaseCrawler):
 
         # Fill username
         username_input = page.locator("#input-username")
-        username_input.click(timeout=5000)
+        username_input.click(timeout=5000, force=True)
         username_input.fill(credentials["username"])
 
         # Fill password
         password_input = page.locator("#input-password")
-        password_input.click(timeout=5000)
+        password_input.click(timeout=5000, force=True)
         password_input.fill(credentials["password"])
 
         page.screenshot(path=f"{self.download_dir}/pre_login_filled.png")
