@@ -75,18 +75,47 @@ class ReginaMariaCrawler(BaseCrawler):
             self.log(f"JS overlay removal failed: {e}")
 
         # Method 4: Remove Usercentrics overlay (newer than OneTrust)
+        # This overlay uses an <aside> with pointer-events that blocks all clicks
         try:
-            page.evaluate("""
+            removed = page.evaluate("""
+                let removed = 0;
+                // Remove the main Usercentrics element
                 const uc = document.querySelector('#usercentrics-cmp-ui');
-                if (uc) uc.remove();
-                // Also try shadow DOM and any related elements
-                document.querySelectorAll('[id*="usercentrics"], [class*="usercentrics"]').forEach(el => el.remove());
-                // Remove any aside elements that might be consent overlays
-                document.querySelectorAll('aside[data-nosnippet]').forEach(el => el.remove());
+                if (uc) { uc.remove(); removed++; }
+                // Remove by attribute patterns
+                document.querySelectorAll('[id*="usercentrics"], [class*="usercentrics"]').forEach(el => { el.remove(); removed++; });
+                // Remove any aside elements that intercept pointer events (consent overlays)
+                document.querySelectorAll('aside[data-nosnippet]').forEach(el => { el.remove(); removed++; });
+                // Nuclear option: remove ANY element covering the page with pointer-events
+                // that isn't part of the app itself
+                document.querySelectorAll('aside, [class*="cmp"], [class*="consent"], [class*="cookie"]').forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    if (style.position === 'fixed' || style.position === 'absolute') {
+                        el.remove(); removed++;
+                    }
+                });
+                return removed;
             """)
-            self.log("Removed Usercentrics consent overlay via JavaScript")
+            self.log(f"Removed {removed} Usercentrics/consent overlay elements via JavaScript")
         except Exception as e:
             self.log(f"Usercentrics removal failed: {e}")
+
+    def _force_remove_overlays(self, page: Page):
+        """Remove any overlay elements that block pointer events (Usercentrics, OneTrust, etc.)."""
+        try:
+            page.evaluate("""
+                // Remove Usercentrics
+                document.querySelectorAll('#usercentrics-cmp-ui, [id*="usercentrics"], aside[data-nosnippet]').forEach(el => el.remove());
+                // Remove OneTrust
+                document.querySelectorAll('#onetrust-consent-sdk, .onetrust-pc-dark-filter, [class*="onetrust"]').forEach(el => el.remove());
+                // Remove any fixed/absolute positioned overlays that cover the page
+                document.querySelectorAll('aside, [class*="cmp"], [class*="consent"], [class*="cookie-banner"]').forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    if (style.position === 'fixed' || style.position === 'absolute') el.remove();
+                });
+            """)
+        except Exception:
+            pass
 
     def login_sync(self, page: Page, credentials: Dict[str, str]):
         self.log("Navigating to login page...")
@@ -98,14 +127,25 @@ class ReginaMariaCrawler(BaseCrawler):
         self.log("Filling credentials...")
         page.wait_for_timeout(1000)
 
-        # Fill username
+        # Remove any overlays that may have reappeared before interacting with inputs
+        self._force_remove_overlays(page)
+
+        # Fill username - use evaluate to bypass any overlay interception
         username_input = page.locator("#input-username")
-        username_input.click(timeout=5000, force=True)
+        try:
+            username_input.click(timeout=3000, force=True)
+        except Exception:
+            self.log("Click on username blocked by overlay, using JS focus instead")
+            page.evaluate("document.querySelector('#input-username').focus()")
         username_input.fill(credentials["username"])
 
-        # Fill password
+        # Fill password - same approach
         password_input = page.locator("#input-password")
-        password_input.click(timeout=5000, force=True)
+        try:
+            password_input.click(timeout=3000, force=True)
+        except Exception:
+            self.log("Click on password blocked by overlay, using JS focus instead")
+            page.evaluate("document.querySelector('#input-password').focus()")
         password_input.fill(credentials["password"])
 
         page.screenshot(path=f"{self.download_dir}/pre_login_filled.png")
@@ -114,7 +154,7 @@ class ReginaMariaCrawler(BaseCrawler):
         page.wait_for_timeout(500)
 
         # Remove overlay before clicking (in case it reappeared)
-        self._dismiss_cookie_consent(page)
+        self._force_remove_overlays(page)
 
         # Try multiple methods to submit the login form
         login_clicked = False
