@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, Info, ArrowUpRight, Brain, Utensils, Dumbbell, ShoppingCart, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, Info, ArrowUpRight, Brain, Utensils, Dumbbell, ShoppingCart, BookOpen, CheckCircle, AlertTriangle, ChevronDown, Upload } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 import useJsonLd from '../hooks/useJsonLd';
@@ -29,6 +29,152 @@ const CATEGORY_IMAGES = {
   'Hormones': 'photo-1576091160399-112ba8d25d1d',
   'Urine': 'photo-1582719508461-905c673771fd',
 };
+
+function parseRange(rangeStr) {
+  // Parse range strings like "13.5 – 17.5 g/dL", "0 - 200", "< 5.7 %", "> 30"
+  const cleaned = rangeStr.replace(/[a-zA-Zµ/%°·×³]/g, '').trim();
+  // "X – Y" or "X - Y"
+  const dashMatch = cleaned.match(/([\d.,]+)\s*[–\-]\s*([\d.,]+)/);
+  if (dashMatch) {
+    return { min: parseFloat(dashMatch[1].replace(',', '.')), max: parseFloat(dashMatch[2].replace(',', '.')) };
+  }
+  // "< X"
+  const ltMatch = cleaned.match(/<\s*([\d.,]+)/);
+  if (ltMatch) return { min: null, max: parseFloat(ltMatch[1].replace(',', '.')) };
+  // "> X"
+  const gtMatch = cleaned.match(/>\s*([\d.,]+)/);
+  if (gtMatch) return { min: parseFloat(gtMatch[1].replace(',', '.')), max: null };
+  return null;
+}
+
+function QuickCheck({ biomarker, isRo }) {
+  const [value, setValue] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState(0);
+  const [result, setResult] = useState(null);
+
+  const ranges = biomarker.ranges || [];
+  if (ranges.length === 0) return null;
+
+  const check = () => {
+    const num = parseFloat(value.replace(',', '.'));
+    if (isNaN(num)) return;
+
+    const range = ranges[selectedGroup];
+    const parsed = parseRange(range.range);
+    if (!parsed) {
+      setResult({ status: 'unknown', value: num });
+      return;
+    }
+
+    let status = 'NORMAL';
+    if (parsed.max !== null && num > parsed.max) status = 'HIGH';
+    else if (parsed.min !== null && num < parsed.min) status = 'LOW';
+
+    setResult({
+      status,
+      value: num,
+      range: range.range,
+      group: isRo ? range.group_ro : range.group_en,
+      explanation: status === 'HIGH'
+        ? (isRo ? biomarker.high_ro : biomarker.high_en)
+        : status === 'LOW'
+        ? (isRo ? biomarker.low_ro : biomarker.low_en)
+        : null,
+    });
+  };
+
+  const statusConfig = {
+    NORMAL: { bg: 'bg-green-50 border-green-200', badge: 'bg-green-100 text-green-700', icon: CheckCircle, iconColor: 'text-green-500', label: 'NORMAL' },
+    HIGH: { bg: 'bg-red-50 border-red-200', badge: 'bg-red-100 text-red-700', icon: TrendingUp, iconColor: 'text-red-500', label: isRo ? 'RIDICAT' : 'HIGH' },
+    LOW: { bg: 'bg-amber-50 border-amber-200', badge: 'bg-amber-100 text-amber-700', icon: TrendingDown, iconColor: 'text-amber-500', label: isRo ? 'SCĂZUT' : 'LOW' },
+  };
+
+  return (
+    <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+      <div className="bg-gradient-to-r from-cyan-500 to-teal-500 p-5 flex items-center gap-3">
+        <CheckCircle size={22} className="text-white" />
+        <h2 className="text-lg font-bold text-white">
+          {isRo ? 'Verifică-ți valoarea' : 'Check your value'}
+        </h2>
+      </div>
+      <div className="p-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="flex-1">
+            <label className="text-sm font-medium text-slate-600 mb-1 block">
+              {isRo ? 'Valoarea ta' : 'Your value'} ({biomarker.unit})
+            </label>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={value}
+              onChange={(e) => { setValue(e.target.value); setResult(null); }}
+              placeholder={isRo ? 'Ex: 14.2' : 'E.g. 14.2'}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none text-slate-700 font-mono"
+              onKeyDown={(e) => e.key === 'Enter' && check()}
+            />
+          </div>
+          {ranges.length > 1 && (
+            <div className="flex-1">
+              <label className="text-sm font-medium text-slate-600 mb-1 block">
+                {isRo ? 'Grup' : 'Group'}
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedGroup}
+                  onChange={(e) => { setSelectedGroup(parseInt(e.target.value)); setResult(null); }}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:border-cyan-500 outline-none text-slate-700 appearance-none bg-white pr-10"
+                >
+                  {ranges.map((r, i) => (
+                    <option key={i} value={i}>{isRo ? r.group_ro : r.group_en}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+          )}
+          <div className="flex items-end">
+            <button
+              onClick={check}
+              disabled={!value.trim()}
+              className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-xl font-semibold hover:from-cyan-600 hover:to-teal-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isRo ? 'Verifică' : 'Check'}
+            </button>
+          </div>
+        </div>
+
+        {result && result.status !== 'unknown' && (
+          <div className={`rounded-xl border p-4 ${statusConfig[result.status].bg}`}>
+            <div className="flex items-center gap-3 mb-2">
+              {React.createElement(statusConfig[result.status].icon, { size: 20, className: statusConfig[result.status].iconColor })}
+              <span className={`px-3 py-1 rounded-full text-sm font-bold ${statusConfig[result.status].badge}`}>
+                {statusConfig[result.status].label}
+              </span>
+              <span className="text-sm text-slate-600">
+                {isRo
+                  ? `${biomarker.name_ro} de ${result.value} ${biomarker.unit} este ${statusConfig[result.status].label} pentru ${result.group}`
+                  : `${biomarker.name_en} of ${result.value} ${biomarker.unit} is ${statusConfig[result.status].label} for ${result.group}`}
+              </span>
+            </div>
+            {result.explanation && (
+              <p className="text-sm text-slate-600 mt-2 pl-8">{result.explanation}</p>
+            )}
+            {result.status !== 'NORMAL' && (
+              <div className="mt-3 pl-8">
+                <Link
+                  to="/analyzer"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 hover:text-teal-800 transition-colors"
+                >
+                  {isRo ? 'Încarcă analizele complete pentru interpretare AI →' : 'Upload your full lab results for AI interpretation →'}
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export default function BiomarkerReference() {
   const { slug } = useParams();
@@ -163,6 +309,9 @@ export default function BiomarkerReference() {
           </div>
         </section>
 
+        {/* Quick-check widget */}
+        <QuickCheck biomarker={biomarker} isRo={isRo} />
+
         {/* High and Low — side by side on desktop */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           {/* High values */}
@@ -218,27 +367,27 @@ export default function BiomarkerReference() {
           </section>
         )}
 
-        {/* CTA */}
+        {/* CTA — links to analyzer */}
         <section className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-2xl p-8 md:p-10 text-white mb-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="flex-1">
               <h2 className="text-xl md:text-2xl font-bold mb-2">
                 {isRo
-                  ? `Vrei să știi exact cum stai cu ${biomarker.name_ro.toLowerCase()}?`
-                  : `Want to know exactly where you stand with ${biomarker.name_en.toLowerCase()}?`}
+                  ? 'Ai analizele complete? Încarcă-le și primești interpretare AI gratuită'
+                  : 'Have your full lab results? Upload them for free AI interpretation'}
               </h2>
               <p className="text-teal-100">
                 {isRo
-                  ? 'Încarcă analizele pe Analize.Online — primești interpretare de la specialiști AI, plan nutrițional cu rețete românești și program de exerciții, bazate pe valorile tale reale.'
-                  : 'Upload your results on Analize.Online — get AI specialist interpretation, nutrition plan with Romanian recipes and exercise program, based on your real values.'}
+                  ? 'Lipește textul analizelor sau încarcă PDF-ul. AI-ul nostru extrage toți biomarkerii instant și îi compară cu valorile de referință.'
+                  : 'Paste your lab results text or upload the PDF. Our AI extracts all biomarkers instantly and compares them to reference ranges.'}
               </p>
             </div>
             <Link
-              to="/login"
+              to="/analyzer"
               className="shrink-0 inline-flex items-center gap-2 px-8 py-3 bg-white text-teal-700 rounded-xl font-bold hover:bg-teal-50 transition-colors shadow-lg"
             >
-              {isRo ? 'Începe Gratuit' : 'Start Free'}
-              <ArrowRight size={18} />
+              {isRo ? 'Analizator Gratuit' : 'Free Analyzer'}
+              <Upload size={18} />
             </Link>
           </div>
         </section>

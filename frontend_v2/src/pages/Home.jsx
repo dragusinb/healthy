@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -6,10 +6,39 @@ import {
   CheckCircle, ArrowRight, Lock, Users, Clock, Smartphone,
   Globe, Star, ChevronRight, Activity, Stethoscope,
   UtensilsCrossed, Dumbbell, ShoppingCart, ChefHat, Leaf, Apple, BookOpen, FlaskConical, Calendar,
-  Menu, X
+  Menu, X, Eye
 } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 import api from '../api/client';
+
+function AnimatedCounter({ end, duration = 2000 }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const start = Date.now();
+          const tick = () => {
+            const elapsed = Date.now() - start;
+            const progress = Math.min(elapsed / duration, 1);
+            setCount(Math.floor(progress * end));
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end, duration]);
+
+  return <span ref={ref}>{count}+</span>;
+}
 
 export default function Home() {
   const { i18n } = useTranslation();
@@ -17,6 +46,7 @@ export default function Home() {
   const isRomanian = i18n.language === 'ro';
   const [blogArticles, setBlogArticles] = useState([]);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [publicStats, setPublicStats] = useState(null);
 
   usePageTitle(null, isRomanian
     ? 'Toate analizele tale medicale, într-un singur loc'
@@ -24,6 +54,7 @@ export default function Home() {
 
   useEffect(() => {
     api.get('/blog/articles?limit=3').then(res => setBlogArticles(res.data.articles || [])).catch(() => {});
+    api.get('/public/stats').then(res => setPublicStats(res.data)).catch(() => {});
   }, []);
 
   const toggleLanguage = () => {
@@ -71,6 +102,12 @@ export default function Home() {
               {isRomanian ? 'Prețuri' : 'Pricing'}
             </Link>
             <Link
+              to="/analyzer"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-sm font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-sm"
+            >
+              {isRomanian ? 'Analizator Gratuit' : 'Free Analyzer'}
+            </Link>
+            <Link
               to="/login"
               className="text-slate-600 hover:text-slate-800 font-medium hidden md:block"
             >
@@ -101,6 +138,9 @@ export default function Home() {
             </Link>
             <Link to="/pricing" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
               {isRomanian ? 'Prețuri' : 'Pricing'}
+            </Link>
+            <Link to="/analyzer" onClick={() => setMobileNavOpen(false)} className="block text-green-600 hover:text-green-800 font-medium py-2">
+              {isRomanian ? 'Analizator Gratuit' : 'Free Analyzer'}
             </Link>
             <Link to="/login" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
               {isRomanian ? 'Autentificare' : 'Login'}
@@ -146,10 +186,20 @@ export default function Home() {
                   <ArrowRight size={20} />
                 </Link>
                 <Link
-                  to="/pricing"
-                  className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-semibold text-lg hover:border-slate-300 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                  to="/analyzer"
+                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold text-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
                 >
-                  {isRomanian ? 'Vezi Prețurile' : 'See Pricing'}
+                  {isRomanian ? 'Analizează Rezultatele' : 'Analyze Your Results'}
+                  <HeartPulse size={20} />
+                </Link>
+              </div>
+              <div className="mt-3">
+                <Link
+                  to="/demo"
+                  className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-teal-600 transition-colors font-medium"
+                >
+                  <Eye size={16} />
+                  {isRomanian ? 'Vezi Demo →' : 'See Demo →'}
                 </Link>
               </div>
               <div className="flex items-center gap-6 mt-8 text-sm text-slate-500">
@@ -297,19 +347,19 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {[
               {
-                value: '4',
-                label: isRomanian ? 'Provideri Integrați' : 'Integrated Providers',
-                sub: 'Regina Maria, Synevo, MedLife, Sanador',
+                value: publicStats ? <AnimatedCounter end={publicStats.biomarkers_analyzed} /> : '100+',
+                label: isRomanian ? 'Biomarkeri Analizați' : 'Biomarkers Analyzed',
+                sub: isRomanian ? 'Extrași automat din PDF-uri' : 'Auto-extracted from PDFs',
+              },
+              {
+                value: publicStats ? <AnimatedCounter end={publicStats.documents_processed} /> : '50+',
+                label: isRomanian ? 'Documente Procesate' : 'Documents Processed',
+                sub: isRomanian ? 'De la furnizorii medicali din România' : 'From Romanian medical providers',
               },
               {
                 value: '8+',
                 label: isRomanian ? 'Specialiști AI' : 'AI Specialists',
                 sub: isRomanian ? 'Cardiolog, Endocrinolog, Nutriționist...' : 'Cardiologist, Endocrinologist, Nutritionist...',
-              },
-              {
-                value: '150+',
-                label: isRomanian ? 'Tipuri de Biomarkeri' : 'Biomarker Types',
-                sub: isRomanian ? 'Extrași automat din PDF-uri' : 'Auto-extracted from PDFs',
               },
               {
                 value: '256-bit',
@@ -589,50 +639,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials / Use Cases */}
+      {/* Built for real health scenarios */}
       <section className="py-20 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
-              {isRomanian ? 'De ce utilizatorii aleg Analize.Online' : 'Why users choose Analize.Online'}
+              {isRomanian ? 'Construit pentru scenarii reale de sănătate' : 'Built for real health scenarios'}
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                quote: isRomanian
-                  ? 'Am analize de la Regina Maria și Synevo din ultimii 5 ani. Acum le văd pe toate într-un singur loc, cu grafice de evoluție.'
-                  : 'I have tests from Regina Maria and Synevo over the last 5 years. Now I see them all in one place, with evolution charts.',
-                name: isRomanian ? 'Monitorizare completă' : 'Complete Monitoring',
-                role: isRomanian ? 'Toate analizele, un singur loc' : 'All tests, one place',
+                title: isRomanian ? 'Monitorizare completă' : 'Complete Monitoring',
+                description: isRomanian
+                  ? 'Ai analize de la Regina Maria și Synevo din ultimii 5 ani? Le vezi pe toate într-un singur loc, cu grafice de evoluție pentru fiecare biomarker.'
+                  : 'Have tests from Regina Maria and Synevo over the last 5 years? See them all in one place, with evolution charts for each biomarker.',
+                subtitle: isRomanian ? 'Toate analizele, un singur loc' : 'All tests, one place',
                 icon: Activity,
               },
               {
-                quote: isRomanian
-                  ? 'Specialistul AI cardiolog mi-a semnalat un trend îngrijorător la colesterol pe care nu l-aș fi observat singur.'
-                  : 'The AI cardiologist specialist flagged a concerning cholesterol trend I wouldn\'t have noticed on my own.',
-                name: isRomanian ? 'Prevenție inteligentă' : 'Smart Prevention',
-                role: isRomanian ? 'Detectarea timpurie a problemelor' : 'Early problem detection',
+                title: isRomanian ? 'Prevenție inteligentă' : 'Smart Prevention',
+                description: isRomanian
+                  ? 'Specialiștii AI detectează trenduri îngrijorătoare pe care le-ai rata altfel — de exemplu un colesterol care crește treptat de la o analiză la alta.'
+                  : 'AI specialists detect concerning trends you might miss — for example cholesterol gradually increasing from one test to the next.',
+                subtitle: isRomanian ? 'Detectarea timpurie a problemelor' : 'Early problem detection',
                 icon: Brain,
               },
               {
-                quote: isRomanian
-                  ? 'Datele mele sunt criptate cu cheia mea personală. Nici măcar administratorul platformei nu le poate vedea.'
-                  : 'My data is encrypted with my personal key. Not even the platform administrator can see it.',
-                name: isRomanian ? 'Confidențialitate totală' : 'Total Privacy',
-                role: isRomanian ? 'Zero acces pentru terți' : 'Zero third-party access',
+                title: isRomanian ? 'Confidențialitate totală' : 'Total Privacy',
+                description: isRomanian
+                  ? 'Datele sunt criptate cu cheia ta personală (AES-256-GCM). Nici măcar administratorul platformei nu le poate vedea sau accesa.'
+                  : 'Data is encrypted with your personal key (AES-256-GCM). Not even the platform administrator can see or access it.',
+                subtitle: isRomanian ? 'Zero acces pentru terți' : 'Zero third-party access',
                 icon: Shield,
               },
-            ].map((testimonial, index) => (
+            ].map((card, index) => (
               <div key={index} className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
                 <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-xl flex items-center justify-center mb-6">
-                  <testimonial.icon className="w-6 h-6 text-white" />
+                  <card.icon className="w-6 h-6 text-white" />
                 </div>
-                <p className="text-slate-600 mb-6 leading-relaxed italic">"{testimonial.quote}"</p>
-                <div>
-                  <p className="font-semibold text-slate-800">{testimonial.name}</p>
-                  <p className="text-sm text-slate-500">{testimonial.role}</p>
-                </div>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">{card.title}</h3>
+                <p className="text-slate-600 mb-4 leading-relaxed">{card.description}</p>
+                <p className="text-sm text-slate-500 font-medium">{card.subtitle}</p>
               </div>
             ))}
           </div>

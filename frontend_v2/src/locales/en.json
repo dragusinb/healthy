@@ -1067,6 +1067,43 @@
     "dark": "Dark mode",
     "toggle": "Toggle theme"
   },
+  "analyzer": {
+    "title": "Free Lab Results Analyzer",
+    "subtitle": "Paste your lab results text or upload a PDF. Our AI extracts biomarkers instantly.",
+    "pasteText": "Paste Text",
+    "uploadPdf": "Upload PDF",
+    "emailPlaceholder": "Email (optional — to save your results)",
+    "analyze": "Analyze Results",
+    "analyzing": "Analyzing...",
+    "freeNoCost": "100% free — no account needed",
+    "dailyLimitReached": "Daily limit reached. Create a free account for unlimited access.",
+    "biomarkersFound": "biomarkers found",
+    "moreBiomarkersFound": "more biomarkers found",
+    "createFreeAccount": "Create Free Account",
+    "createFreeAccountDesc": "Create a free account to see all biomarkers with AI specialist recommendations.",
+    "freeNoCreditCard": "Free — no credit card",
+    "wantAiInterpretation": "Want AI specialist interpretation?",
+    "textTooShort": "Text too short to analyze.",
+    "maxFileSize": "Maximum 20 MB",
+    "onlyPdf": "Only PDF files are accepted.",
+    "dragDropHint": "Drag your PDF here or click to select"
+  },
+  "biomarkerCheck": {
+    "checkYourValue": "Check your value",
+    "yourValue": "Your value",
+    "group": "Group",
+    "check": "Check",
+    "normal": "NORMAL",
+    "high": "HIGH",
+    "low": "LOW",
+    "uploadFullResults": "Upload your full lab results for AI interpretation"
+  },
+  "demo": {
+    "title": "Demo — See how it works",
+    "sampleDataNotice": "This is sample data. Create a free account to see YOUR dashboard.",
+    "createFreeAccount": "Create Free Account",
+    "readyToSeeYourData": "Ready to see your own data?"
+  },
   "sharing": {
     "title": "Share with Doctor",
     "description": "Create a secure, time-limited link to share your health report with your doctor.",

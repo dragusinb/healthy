@@ -42,6 +42,9 @@ export default function PublicNav() {
           <Link to="/pricing" className="text-slate-600 hover:text-slate-800 font-medium hidden md:block">
             {isRo ? 'Prețuri' : 'Pricing'}
           </Link>
+          <Link to="/analyzer" className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-sm font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-sm">
+            {isRo ? 'Analizator Gratuit' : 'Free Analyzer'}
+          </Link>
           <Link
             to="/login"
             className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-lg font-medium hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md shadow-cyan-500/20 hidden sm:block"
@@ -69,6 +72,9 @@ export default function PublicNav() {
           </Link>
           <Link to="/pricing" onClick={() => setMobileOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
             {isRo ? 'Prețuri' : 'Pricing'}
+          </Link>
+          <Link to="/analyzer" onClick={() => setMobileOpen(false)} className="block text-green-600 hover:text-green-800 font-medium py-2">
+            {isRo ? 'Analizator Gratuit' : 'Free Analyzer'}
           </Link>
           <Link
             to="/login"

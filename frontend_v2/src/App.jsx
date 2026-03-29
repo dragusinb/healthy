@@ -45,6 +45,8 @@ const BiomarkerReference = lazy(() => import('./pages/BiomarkerReference'));
 const BlogList = lazy(() => import('./pages/BlogList'));
 const BlogArticle = lazy(() => import('./pages/BlogArticle'));
 const Layout = lazy(() => import('./components/Layout'));
+const Analyzer = lazy(() => import('./pages/Analyzer'));
+const Demo = lazy(() => import('./pages/Demo'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Inline loader for layout-wrapped components
@@ -198,6 +200,10 @@ const App = () => {
                                 <Route path="/medications" element={
                                     <PrivateLayoutRoute><Medications /></PrivateLayoutRoute>
                                 } />
+
+                                {/* Public tools (no auth) */}
+                                <Route path="/analyzer" element={<Analyzer />} />
+                                <Route path="/demo" element={<Demo />} />
 
                                 {/* Public shared report (no auth) */}
                                 <Route path="/shared/:token" element={<SharedReport />} />

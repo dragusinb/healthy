@@ -1138,6 +1138,43 @@
     "dark": "Mod întunecat",
     "toggle": "Schimbă tema"
   },
+  "analyzer": {
+    "title": "Analizator Gratuit Analize Medicale",
+    "subtitle": "Lipește textul analizelor sau încarcă un PDF. AI-ul nostru extrage biomarkerii instant.",
+    "pasteText": "Lipește Text",
+    "uploadPdf": "Încarcă PDF",
+    "emailPlaceholder": "Email (opțional — pentru a salva rezultatele)",
+    "analyze": "Analizează Rezultatele",
+    "analyzing": "Se analizează...",
+    "freeNoCost": "100% gratuit — fără cont necesar",
+    "dailyLimitReached": "Limita zilnică atinsă. Creează un cont gratuit pentru acces nelimitat.",
+    "biomarkersFound": "biomarkeri găsiți",
+    "moreBiomarkersFound": "biomarkeri în plus descoperiți",
+    "createFreeAccount": "Creează Cont Gratuit",
+    "createFreeAccountDesc": "Creează un cont gratuit pentru a vedea toți biomarkerii cu recomandări AI de la specialiști.",
+    "freeNoCreditCard": "Gratuit — fără card bancar",
+    "wantAiInterpretation": "Vrei interpretare AI de la specialiști?",
+    "textTooShort": "Textul este prea scurt pentru analiză.",
+    "maxFileSize": "Maxim 20 MB",
+    "onlyPdf": "Doar fișiere PDF sunt acceptate.",
+    "dragDropHint": "Trage PDF-ul aici sau click pentru a selecta"
+  },
+  "biomarkerCheck": {
+    "checkYourValue": "Verifică-ți valoarea",
+    "yourValue": "Valoarea ta",
+    "group": "Grup",
+    "check": "Verifică",
+    "normal": "NORMAL",
+    "high": "RIDICAT",
+    "low": "SCĂZUT",
+    "uploadFullResults": "Încarcă analizele complete pentru interpretare AI"
+  },
+  "demo": {
+    "title": "Demo — Vezi cum funcționează",
+    "sampleDataNotice": "Acestea sunt date demonstrative. Creează un cont gratuit pentru a vedea datele TALE.",
+    "createFreeAccount": "Creează Cont Gratuit",
+    "readyToSeeYourData": "Pregătit să-ți vezi propriile date?"
+  },
   "sharing": {
     "title": "Partajează cu Medicul",
     "description": "Creează un link securizat, cu termen limitat, pentru a partaja raportul de sănătate cu medicul tău.",

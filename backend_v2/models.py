@@ -736,6 +736,17 @@ class BlogArticle(Base):
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)
 
 
+class LeadCapture(Base):
+    """Capture emails from free analyzer for follow-up."""
+    __tablename__ = "lead_captures"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, index=True, nullable=False)
+    source = Column(String, default="analyzer")  # analyzer_text, analyzer_pdf
+    ip_hash = Column(String(64), nullable=True)
+    created_at = Column(DateTime, default=utc_now)
+
+
 class PageView(Base):
     """Track anonymous page views for visitor analytics."""
     __tablename__ = "page_views"

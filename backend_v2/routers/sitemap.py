@@ -65,6 +65,8 @@ def sitemap_xml(db: Session = Depends(get_db)):
         ("/login", 0.7, "monthly"),
         ("/blog", 0.8, "weekly"),
         ("/biomarker", 0.8, "weekly"),
+        ("/analyzer", 0.9, "weekly"),
+        ("/demo", 0.7, "monthly"),
         ("/terms", 0.3, "yearly"),
         ("/privacy", 0.3, "yearly"),
     ]

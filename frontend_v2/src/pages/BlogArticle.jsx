@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, Calendar, Tag, Loader2, BookOpen, Brain, Utensils, Dumbbell, ShoppingCart, HeartPulse, Activity, Sun, Clock, Share2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Tag, Loader2, BookOpen, Brain, Utensils, Dumbbell, ShoppingCart, HeartPulse, Activity, Sun, Clock, Share2, Upload } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 import useJsonLd from '../hooks/useJsonLd';
@@ -36,6 +36,17 @@ export default function BlogArticle() {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  // Show sticky analyzer bar after 50% scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      setShowStickyBar(scrollPercent > 0.3);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -210,27 +221,27 @@ export default function BlogArticle() {
           </div>
         </article>
 
-        {/* Inline CTA — mid page */}
+        {/* Inline CTA — analyzer */}
         <div className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-2xl p-8 md:p-10 text-white mb-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="flex-1">
               <h3 className="text-xl md:text-2xl font-bold mb-2">
                 {isRo
-                  ? 'Vrei sfaturi personalizate, nu generice?'
-                  : 'Want personalized advice, not generic?'}
+                  ? 'Ai analizele la îndemână? Verifică-le gratuit'
+                  : 'Have your lab results handy? Check them for free'}
               </h3>
               <p className="text-teal-100">
                 {isRo
-                  ? 'Încarcă analizele tale pe Analize.Online și primești plan nutrițional cu rețete românești, program de exerciții și listă de cumpărături — toate bazate pe valorile tale reale.'
-                  : 'Upload your lab results on Analize.Online and get a nutrition plan with Romanian recipes, exercise program and grocery list — all based on your real values.'}
+                  ? 'Lipește textul analizelor sau încarcă PDF-ul. AI-ul nostru extrage biomarkerii instant și îți spune ce e în regulă și ce necesită atenție.'
+                  : 'Paste your lab results text or upload the PDF. Our AI extracts biomarkers instantly and tells you what\'s normal and what needs attention.'}
               </p>
             </div>
             <Link
-              to="/login"
+              to="/analyzer"
               className="shrink-0 inline-flex items-center gap-2 px-8 py-3 bg-white text-teal-700 rounded-xl font-bold hover:bg-teal-50 transition-colors shadow-lg"
             >
-              {isRo ? 'Începe Gratuit' : 'Start Free'}
-              <ArrowRight size={18} />
+              {isRo ? 'Analizator Gratuit' : 'Free Analyzer'}
+              <Upload size={18} />
             </Link>
           </div>
         </div>
@@ -258,10 +269,10 @@ export default function BlogArticle() {
           </div>
           <div className="text-center mt-6">
             <Link
-              to="/login"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-xl font-semibold hover:from-cyan-600 hover:to-teal-600 transition-all shadow-md"
+              to="/analyzer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold hover:from-green-600 hover:to-emerald-600 transition-all shadow-md"
             >
-              {isRo ? 'Creează Cont Gratuit' : 'Create Free Account'}
+              {isRo ? 'Încearcă Analizatorul Gratuit' : 'Try the Free Analyzer'}
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -275,6 +286,27 @@ export default function BlogArticle() {
           </Link>
         </div>
       </div>
+
+      {/* Sticky bottom bar for analyzer */}
+      {!user && showStickyBar && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-slate-200 shadow-lg px-4 py-3">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm text-slate-600 min-w-0">
+              <HeartPulse size={18} className="text-teal-500 shrink-0" />
+              <span className="truncate font-medium">
+                {isRo ? 'Analizator Gratuit — Încarcă PDF-ul sau lipește textul analizelor' : 'Free Lab Results Analyzer — Upload your PDF or paste your results'}
+              </span>
+            </div>
+            <Link
+              to="/analyzer"
+              className="shrink-0 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-sm font-semibold hover:from-green-600 hover:to-emerald-600 transition-all shadow-sm flex items-center gap-1.5"
+            >
+              {isRo ? 'Analizează' : 'Analyze'}
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
