@@ -127,56 +127,77 @@ class ReginaMariaCrawler(BaseCrawler):
         self.log("Filling credentials...")
         page.wait_for_timeout(1000)
 
-        # Remove any overlays that may have reappeared before interacting with inputs
+        # Remove any overlays that block interaction
         self._force_remove_overlays(page)
 
-        # Fill username - use evaluate to bypass any overlay interception
-        username_input = page.locator("#input-username")
-        try:
-            username_input.click(timeout=3000, force=True)
-        except Exception:
-            self.log("Click on username blocked by overlay, using JS focus instead")
-            page.evaluate("document.querySelector('#input-username').focus()")
-        username_input.fill(credentials["username"])
+        # Fill credentials entirely via JavaScript to bypass overlay interception.
+        # Playwright's fill() and click() both fail when Usercentrics <aside> covers the page,
+        # even with force=True. JS execution is not affected by DOM overlays.
+        page.evaluate("""
+            (creds) => {
+                // Remove overlays one more time right before filling
+                document.querySelectorAll('#usercentrics-cmp-ui, aside[data-nosnippet], [id*="usercentrics"]').forEach(el => el.remove());
 
-        # Fill password - same approach
-        password_input = page.locator("#input-password")
-        try:
-            password_input.click(timeout=3000, force=True)
-        except Exception:
-            self.log("Click on password blocked by overlay, using JS focus instead")
-            page.evaluate("document.querySelector('#input-password').focus()")
-        password_input.fill(credentials["password"])
+                const usernameInput = document.querySelector('#input-username');
+                const passwordInput = document.querySelector('#input-password');
+
+                if (usernameInput) {
+                    usernameInput.focus();
+                    usernameInput.value = creds.username;
+                    usernameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    usernameInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                if (passwordInput) {
+                    passwordInput.focus();
+                    passwordInput.value = creds.password;
+                    passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+        """, {"username": credentials["username"], "password": credentials["password"]})
+        self.log("Filled credentials via JavaScript")
 
         page.screenshot(path=f"{self.download_dir}/pre_login_filled.png")
 
         self.log("Clicking login...")
         page.wait_for_timeout(500)
 
-        # Remove overlay before clicking (in case it reappeared)
+        # Remove overlay before clicking submit
         self._force_remove_overlays(page)
 
-        # Try multiple methods to submit the login form
+        # Submit the login form - try JS submit first, then Playwright clicks as fallback
         login_clicked = False
 
-        # Method 1: Click the submit button directly
+        # Method 1: JavaScript form submit / button click (immune to overlays)
         try:
-            submit_btn = page.locator("button[type='submit']")
-            if submit_btn.count() > 0:
-                submit_btn.first.click(timeout=3000, force=True)
-                login_clicked = True
-                self.log("Clicked submit button")
+            login_clicked = page.evaluate("""
+                () => {
+                    // Try clicking submit button via JS
+                    const submitBtn = document.querySelector("button[type='submit']");
+                    if (submitBtn) { submitBtn.click(); return true; }
+                    const primaryBtn = document.querySelector("button.k-button-solid-primary");
+                    if (primaryBtn) { primaryBtn.click(); return true; }
+                    // Try submitting the form directly
+                    const form = document.querySelector('form');
+                    if (form) { form.submit(); return true; }
+                    return false;
+                }
+            """)
+            if login_clicked:
+                self.log("Submitted login via JavaScript")
         except Exception as e:
-            self.log(f"Submit button click failed: {e}")
+            self.log(f"JS submit failed: {e}")
 
-        # Method 2: Try by class
+        # Method 2: Playwright click with force (fallback)
         if not login_clicked:
             try:
-                page.click("button.k-button-solid-primary", timeout=2000, force=True)
-                login_clicked = True
-                self.log("Clicked primary button by class")
-            except:
-                pass
+                submit_btn = page.locator("button[type='submit']")
+                if submit_btn.count() > 0:
+                    submit_btn.first.click(timeout=3000, force=True)
+                    login_clicked = True
+                    self.log("Clicked submit button via Playwright")
+            except Exception as e:
+                self.log(f"Playwright submit click failed: {e}")
 
         # Method 3: Press Enter
         if not login_clicked:
