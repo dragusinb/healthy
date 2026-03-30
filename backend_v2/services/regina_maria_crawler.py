@@ -127,35 +127,25 @@ class ReginaMariaCrawler(BaseCrawler):
         self.log("Filling credentials...")
         page.wait_for_timeout(1000)
 
-        # Remove any overlays that block interaction
+        # Remove all overlays that block interaction
         self._force_remove_overlays(page)
 
-        # Fill credentials entirely via JavaScript to bypass overlay interception.
-        # Playwright's fill() and click() both fail when Usercentrics <aside> covers the page,
-        # even with force=True. JS execution is not affected by DOM overlays.
-        page.evaluate("""
-            (creds) => {
-                // Remove overlays one more time right before filling
-                document.querySelectorAll('#usercentrics-cmp-ui, aside[data-nosnippet], [id*="usercentrics"]').forEach(el => el.remove());
+        # Use Playwright type() to simulate real keystrokes — this triggers Angular's
+        # model binding correctly (unlike setting input.value via JS which Angular ignores).
+        # Clear first, then type character by character.
+        username_input = page.locator("#input-username")
+        password_input = page.locator("#input-password")
 
-                const usernameInput = document.querySelector('#input-username');
-                const passwordInput = document.querySelector('#input-password');
+        # Focus and type via JS focus + Playwright keyboard (bypasses overlay click issues)
+        page.evaluate("document.querySelector('#input-username').focus()")
+        page.keyboard.press("Control+a")
+        page.keyboard.type(credentials["username"], delay=20)
 
-                if (usernameInput) {
-                    usernameInput.focus();
-                    usernameInput.value = creds.username;
-                    usernameInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    usernameInput.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-                if (passwordInput) {
-                    passwordInput.focus();
-                    passwordInput.value = creds.password;
-                    passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
-                    passwordInput.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-            }
-        """, {"username": credentials["username"], "password": credentials["password"]})
-        self.log("Filled credentials via JavaScript")
+        page.evaluate("document.querySelector('#input-password').focus()")
+        page.keyboard.press("Control+a")
+        page.keyboard.type(credentials["password"], delay=20)
+
+        self.log("Filled credentials via keyboard input")
 
         page.screenshot(path=f"{self.download_dir}/pre_login_filled.png")
 
@@ -165,41 +155,26 @@ class ReginaMariaCrawler(BaseCrawler):
         # Remove overlay before clicking submit
         self._force_remove_overlays(page)
 
-        # Submit the login form - try JS submit first, then Playwright clicks as fallback
+        # Submit the login form via JS button click (NOT form.submit() which bypasses Angular)
         login_clicked = False
 
-        # Method 1: JavaScript form submit / button click (immune to overlays)
+        # Method 1: JavaScript button click (immune to overlays, triggers Angular handler)
         try:
             login_clicked = page.evaluate("""
                 () => {
-                    // Try clicking submit button via JS
                     const submitBtn = document.querySelector("button[type='submit']");
                     if (submitBtn) { submitBtn.click(); return true; }
                     const primaryBtn = document.querySelector("button.k-button-solid-primary");
                     if (primaryBtn) { primaryBtn.click(); return true; }
-                    // Try submitting the form directly
-                    const form = document.querySelector('form');
-                    if (form) { form.submit(); return true; }
                     return false;
                 }
             """)
             if login_clicked:
-                self.log("Submitted login via JavaScript")
+                self.log("Submitted login via JavaScript button click")
         except Exception as e:
             self.log(f"JS submit failed: {e}")
 
-        # Method 2: Playwright click with force (fallback)
-        if not login_clicked:
-            try:
-                submit_btn = page.locator("button[type='submit']")
-                if submit_btn.count() > 0:
-                    submit_btn.first.click(timeout=3000, force=True)
-                    login_clicked = True
-                    self.log("Clicked submit button via Playwright")
-            except Exception as e:
-                self.log(f"Playwright submit click failed: {e}")
-
-        # Method 3: Press Enter
+        # Method 2: Press Enter (triggers Angular form submit)
         if not login_clicked:
             self.log("Pressing Enter to login...")
             page.keyboard.press("Enter")
@@ -248,7 +223,7 @@ class ReginaMariaCrawler(BaseCrawler):
                                 return
 
                             # For invisible reCAPTCHA, the callback should have auto-submitted.
-                            # If not, force submit via JS (enable button + click)
+                            # If not, force submit via JS button click (never form.submit which bypasses Angular)
                             self.log("Submitting login form after CAPTCHA...")
                             try:
                                 page.evaluate("""
@@ -260,12 +235,9 @@ class ReginaMariaCrawler(BaseCrawler):
                                             submitBtn.removeAttribute('disabled');
                                             submitBtn.click();
                                         }
-                                        // Also try form submit
-                                        const form = document.querySelector('form');
-                                        if (form) form.submit();
                                     }
                                 """)
-                                self.log("Forced submit via JavaScript")
+                                self.log("Forced submit via JavaScript button click")
                             except Exception as submit_err:
                                 self.log(f"JS submit failed: {submit_err}")
                                 page.keyboard.press("Enter")
