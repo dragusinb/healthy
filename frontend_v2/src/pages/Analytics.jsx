@@ -13,9 +13,7 @@ const COLORS = {
   green: '#22c55e',
   orange: '#f59e0b',
   gray: '#9ca3af',
-  cardBg: 'rgba(30, 41, 59, 0.7)',
-  cardBorder: 'rgba(71, 85, 105, 0.5)',
-  grid: '#1e293b',
+  grid: '#e5e7eb',
 };
 
 export default function Analytics() {
@@ -55,8 +53,8 @@ export default function Analytics() {
 
   if (loading && !data) {
     return (
-      <div className="flex items-center justify-center h-64 bg-gray-950">
-        <Loader2 className="animate-spin text-blue-500" size={32} />
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="animate-spin text-teal-500" size={32} />
       </div>
     );
   }
@@ -78,27 +76,27 @@ export default function Analytics() {
   ].filter(d => d.value > 0);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6 space-y-6 -m-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold">{t('analyticsPage.title')}</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-slate-800">{t('analyticsPage.title')}</h1>
+          <p className="text-slate-500 text-sm mt-1">
             {t('analyticsPage.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {live && (
-            <div className="flex items-center gap-2 bg-green-900/30 border border-green-700/50 rounded-xl px-4 py-2">
+            <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-semibold text-green-400">
+              <span className="text-sm font-semibold text-green-700">
                 {live.active_visitors} {live.active_visitors === 1 ? t('analyticsPage.visitorNow') : t('analyticsPage.visitorsNow')}
               </span>
             </div>
           )}
           <button
             onClick={fetchData}
-            className="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/50"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600"
           >
             <RefreshCw size={16} />
           </button>
@@ -135,9 +133,9 @@ export default function Analytics() {
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={pageViewsByDay}>
               <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
-              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+              <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#1e293b' }} />
               <Line type="monotone" dataKey="value" stroke={COLORS.blue} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -147,9 +145,9 @@ export default function Analytics() {
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={blogByDay}>
               <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
-              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+              <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#1e293b' }} />
               <Line type="monotone" dataKey="value" stroke={COLORS.purple} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -162,9 +160,9 @@ export default function Analytics() {
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={accountsByDay}>
               <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
-              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+              <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#1e293b' }} />
               <Line type="monotone" dataKey="value" stroke={COLORS.green} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -188,14 +186,14 @@ export default function Analytics() {
                   ))}
                 </Pie>
                 <Legend
-                  formatter={(value) => <span className="text-gray-300 text-sm">{value}</span>}
+                  formatter={(value) => <span className="text-slate-600 text-sm">{value}</span>}
                   iconType="circle"
                 />
-                <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+                <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, color: '#1e293b' }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-[220px] text-gray-500 text-sm">
+            <div className="flex items-center justify-center h-[220px] text-slate-400 text-sm">
               {t('analyticsPage.noData')}
             </div>
           )}
@@ -209,26 +207,20 @@ export default function Analytics() {
 
 function KpiCard({ title, value, subtitle }) {
   return (
-    <div
-      className="rounded-2xl p-5 border"
-      style={{ backgroundColor: COLORS.cardBg, borderColor: COLORS.cardBorder }}
-    >
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{title}</p>
-      <p className="text-3xl font-bold text-white">
+    <div className="bg-white rounded-2xl border border-slate-200 p-5">
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{title}</p>
+      <p className="text-3xl font-bold text-slate-800">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
-      <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+      <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
     </div>
   );
 }
 
 function ChartCard({ title, children }) {
   return (
-    <div
-      className="rounded-2xl p-5 border"
-      style={{ backgroundColor: COLORS.cardBg, borderColor: COLORS.cardBorder }}
-    >
-      <h3 className="text-sm font-bold text-white mb-4">{title}</h3>
+    <div className="bg-white rounded-2xl border border-slate-200 p-5">
+      <h3 className="text-sm font-bold text-slate-800 mb-4">{title}</h3>
       {children}
     </div>
   );
