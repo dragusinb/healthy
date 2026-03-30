@@ -235,41 +235,39 @@ class ReginaMariaCrawler(BaseCrawler):
                         solved = self._solve_recaptcha(page)
                         if solved:
                             self.log("reCAPTCHA solved! Waiting for token processing...")
-                            page.wait_for_timeout(2000)  # Wait for token to be processed
+                            page.wait_for_timeout(3000)  # Wait for callback to process
 
                             # Check if the page auto-submitted after CAPTCHA solve
                             current_after_captcha = page.url
                             if current_after_captcha != current_url:
                                 self.log(f"Page navigated after CAPTCHA: {current_after_captcha}")
 
-                            # Check if already authenticated (some sites auto-submit)
+                            # Check if already authenticated (invisible CAPTCHA may auto-submit)
                             if self._check_authenticated(page):
                                 self.log("Login successful after CAPTCHA solve (auto-submit)!")
                                 return
 
-                            # Verify the CAPTCHA was accepted before submitting
-                            captcha_valid = page.evaluate("""
-                                () => {
-                                    const textarea = document.querySelector('#g-recaptcha-response');
-                                    return textarea && textarea.value && textarea.value.length > 0;
-                                }
-                            """)
-                            self.log(f"CAPTCHA token in textarea: {captcha_valid}")
-
-                            # Force submit the form after CAPTCHA solve
-                            self.log("Submitting login form...")
+                            # For invisible reCAPTCHA, the callback should have auto-submitted.
+                            # If not, force submit via JS (enable button + click)
+                            self.log("Submitting login form after CAPTCHA...")
                             try:
-                                # Method 1: Click submit button
-                                submit_btn = page.locator("button[type='submit']")
-                                if submit_btn.count() > 0:
-                                    # Make sure button is enabled
-                                    is_disabled = submit_btn.first.is_disabled()
-                                    self.log(f"Submit button disabled: {is_disabled}")
-                                    submit_btn.first.click(timeout=5000, force=True)
-                                    self.log("Clicked submit button after CAPTCHA solve")
+                                page.evaluate("""
+                                    () => {
+                                        // Enable submit button if Angular disabled it
+                                        const submitBtn = document.querySelector("button[type='submit']");
+                                        if (submitBtn) {
+                                            submitBtn.disabled = false;
+                                            submitBtn.removeAttribute('disabled');
+                                            submitBtn.click();
+                                        }
+                                        // Also try form submit
+                                        const form = document.querySelector('form');
+                                        if (form) form.submit();
+                                    }
+                                """)
+                                self.log("Forced submit via JavaScript")
                             except Exception as submit_err:
-                                self.log(f"Submit click failed: {submit_err}")
-                                # Method 2: Press Enter
+                                self.log(f"JS submit failed: {submit_err}")
                                 page.keyboard.press("Enter")
 
                             page.wait_for_timeout(5000)  # Wait for login to process

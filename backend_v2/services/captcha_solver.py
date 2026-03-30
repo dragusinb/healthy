@@ -314,32 +314,60 @@ def inject_captcha_token(page, token: str) -> bool:
                 // 4. Try to trigger grecaptcha callback if available
                 if (window.grecaptcha) {
                     try {
-                        // Some sites use enterprise version
-                        if (window.grecaptcha.enterprise && window.grecaptcha.enterprise.execute) {
-                            console.log('Enterprise reCAPTCHA detected');
+                        // Override getResponse to return our token for any widget
+                        if (window.grecaptcha.getResponse) {
+                            const originalGetResponse = window.grecaptcha.getResponse;
+                            window.grecaptcha.getResponse = function(id) {
+                                return token;
+                            };
                         }
 
-                        // Try to find the widget and trigger callback
+                        // Find the widget and trigger callback
                         const widgets = document.querySelectorAll('[data-widget-id]');
                         widgets.forEach(widget => {
                             const widgetId = widget.getAttribute('data-widget-id');
-                            if (widgetId && window.grecaptcha.getResponse) {
-                                // Override getResponse to return our token
-                                const originalGetResponse = window.grecaptcha.getResponse;
-                                window.grecaptcha.getResponse = function(id) {
-                                    if (id === parseInt(widgetId) || id === undefined) {
-                                        return token;
-                                    }
-                                    return originalGetResponse.call(this, id);
-                                };
-                            }
+                            console.log('Found widget:', widgetId);
                         });
                     } catch (e) {
                         console.error('grecaptcha manipulation error:', e);
                     }
                 }
 
-                // 5. Look for Angular/React specific patterns
+                // 5. Find and invoke the reCAPTCHA callback from internal config
+                // For invisible reCAPTCHA, the callback is stored in ___grecaptcha_cfg
+                try {
+                    if (window.___grecaptcha_cfg && window.___grecaptcha_cfg.clients) {
+                        const clients = window.___grecaptcha_cfg.clients;
+                        console.log('Found grecaptcha clients:', Object.keys(clients).length);
+                        for (const clientId of Object.keys(clients)) {
+                            const client = clients[clientId];
+                            // Recursively search for callback function in the client object
+                            const findCallback = (obj, depth) => {
+                                if (depth > 5 || !obj || typeof obj !== 'object') return null;
+                                for (const key of Object.keys(obj)) {
+                                    if (typeof obj[key] === 'function' && key !== 'bind') {
+                                        return obj[key];
+                                    }
+                                    if (typeof obj[key] === 'object' && obj[key] !== null) {
+                                        const found = findCallback(obj[key], depth + 1);
+                                        if (found) return found;
+                                    }
+                                }
+                                return null;
+                            };
+                            const callback = findCallback(client, 0);
+                            if (callback) {
+                                console.log('Found and calling reCAPTCHA callback');
+                                callback(token);
+                                success = true;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('grecaptcha cfg callback error:', e);
+                }
+
+                // 6. Look for Angular/React specific patterns
                 try {
                     // Angular apps often use ng-model or formControl
                     const angularInputs = document.querySelectorAll('[ng-model*="captcha"], [formcontrolname*="captcha"]');
@@ -349,7 +377,7 @@ def inject_captcha_token(page, token: str) -> bool:
                     });
                 } catch (e) {}
 
-                // 6. Try to trigger any onsubmit handlers that might check CAPTCHA
+                // 7. Try to trigger any onsubmit handlers that might check CAPTCHA
                 const forms = document.querySelectorAll('form');
                 forms.forEach(form => {
                     // Create/update hidden input with token
