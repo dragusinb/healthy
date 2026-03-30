@@ -61,12 +61,24 @@ export default function useAnalytics() {
     // Don't track admin pages
     if (page.startsWith('/admin')) return;
 
+    // Detect logged-in user for visitor type analytics
+    // Token is a JWT in sessionStorage — decode the payload to get user_id
+    let userId = undefined;
+    try {
+      const token = sessionStorage.getItem('token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.sub) userId = parseInt(payload.sub, 10) || undefined;
+      }
+    } catch {}
+
     // Fire and forget — don't await, don't handle errors
     const data = {
       page,
       session_id: getSessionId(),
       referrer: getReferrer(),
       screen_width: window.innerWidth,
+      user_id: userId,
       ...getUtmParams(),
     };
 

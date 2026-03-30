@@ -1133,5 +1133,26 @@
     "revoke": "Revoke",
     "views": "views",
     "noLinks": "No share links yet"
+  },
+  "analyticsPage": {
+    "title": "Analytics",
+    "subtitle": "Visitors, blog views, account growth — last 30 days",
+    "totalUsers": "Total users",
+    "pageViews30d": "Page views (30d)",
+    "blogViews30d": "Blog views (30d)",
+    "visitorConversion": "Visitor conversion (30d)",
+    "last7days": "last 7 days",
+    "today": "today",
+    "from": "from",
+    "visitors": "visitors",
+    "pageViewsChart": "Page views (30 days)",
+    "blogViewsChart": "Blog views (30 days)",
+    "newAccountsChart": "New accounts (30 days)",
+    "visitorTypes": "Visitor types (30 days)",
+    "loggedIn": "Logged in",
+    "anonymous": "Anonymous",
+    "visitorNow": "visitor now",
+    "visitorsNow": "visitors now",
+    "noData": "No data available"
   }
 }

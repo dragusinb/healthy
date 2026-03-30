@@ -1204,5 +1204,26 @@
     "revoke": "Revocă",
     "views": "vizualizări",
     "noLinks": "Niciun link de partajare încă"
+  },
+  "analyticsPage": {
+    "title": "Analiză",
+    "subtitle": "Vizitatori, vizualizări blog, creșteri conturi — ultimele 30 zile",
+    "totalUsers": "Utilizatori totali",
+    "pageViews30d": "Vizualizări pagini (30z)",
+    "blogViews30d": "Vizualizări blog (30z)",
+    "visitorConversion": "Conversie vizitatori (30z)",
+    "last7days": "ultimele 7 zile",
+    "today": "azi",
+    "from": "din",
+    "visitors": "vizitatori",
+    "pageViewsChart": "Vizualizări pagini (30 zile)",
+    "blogViewsChart": "Vizualizări blog (30 zile)",
+    "newAccountsChart": "Conturi noi (30 zile)",
+    "visitorTypes": "Tipuri vizitatori (30 zile)",
+    "loggedIn": "Logați",
+    "anonymous": "Anonimi",
+    "visitorNow": "vizitator acum",
+    "visitorsNow": "vizitatori acum",
+    "noData": "Nicio dată disponibilă"
   }
 }

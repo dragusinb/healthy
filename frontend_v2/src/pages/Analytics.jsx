@@ -1,28 +1,21 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../api/client';
+import { Loader2, RefreshCw } from 'lucide-react';
 import {
-  BarChart3, Users, Eye, TrendingUp, Globe, Smartphone, Monitor,
-  ArrowRight, Loader2, RefreshCw, Clock, Target, ChevronDown
-} from 'lucide-react';
-import { cn } from '../lib/utils';
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, PieChart, Pie, Cell, Legend
+} from 'recharts';
 
-const PERIODS = [
-  { value: 'today', label: 'Azi' },
-  { value: '7d', label: '7 zile' },
-  { value: '30d', label: '30 zile' },
-  { value: '90d', label: '90 zile' },
-];
-
-const FUNNEL_LABELS = {
-  home: { label: 'Pagina principală', color: 'bg-blue-500' },
-  pricing: { label: 'Prețuri', color: 'bg-cyan-500' },
-  login_page: { label: 'Login / Register', color: 'bg-teal-500' },
-  registered: { label: 'Cont creat', color: 'bg-emerald-500' },
-  dashboard: { label: 'Dashboard', color: 'bg-green-500' },
-  linked_accounts: { label: 'Conturi conectate', color: 'bg-lime-500' },
-  documents: { label: 'Documente', color: 'bg-yellow-500' },
-  health_reports: { label: 'Rapoarte AI', color: 'bg-amber-500' },
+const COLORS = {
+  blue: '#3b82f6',
+  purple: '#a855f7',
+  green: '#22c55e',
+  orange: '#f59e0b',
+  gray: '#9ca3af',
+  cardBg: 'rgba(30, 41, 59, 0.7)',
+  cardBorder: 'rgba(71, 85, 105, 0.5)',
+  grid: '#1e293b',
 };
 
 export default function Analytics() {
@@ -30,13 +23,12 @@ export default function Analytics() {
   const [data, setData] = useState(null);
   const [live, setLive] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState('7d');
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const [dashRes, liveRes] = await Promise.all([
-        api.get(`/analytics/dashboard?period=${period}`),
+        api.get('/analytics/dashboard?period=30d'),
         api.get('/analytics/live'),
       ]);
       setData(dashRes.data);
@@ -48,9 +40,9 @@ export default function Analytics() {
     }
   };
 
-  useEffect(() => { fetchData(); }, [period]);
+  useEffect(() => { fetchData(); }, []);
 
-  // Auto-refresh live count every 30s
+  // Auto-refresh live count
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
@@ -63,237 +55,198 @@ export default function Analytics() {
 
   if (loading && !data) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-teal-500" size={32} />
+      <div className="flex items-center justify-center h-64 bg-gray-950">
+        <Loader2 className="animate-spin text-blue-500" size={32} />
       </div>
     );
   }
 
   const v = data?.visitors || {};
-  const funnel = data?.funnel || {};
-  const maxFunnel = Math.max(...Object.values(funnel), 1);
-  const topPages = data?.top_pages || [];
-  const sources = data?.sources || [];
-  const devices = data?.devices || {};
+  const vt = data?.visitor_types || {};
+  const conv = data?.conversion_30d || {};
+
+  // Ensure by_day has all 30 days filled
+  const pageViewsByDay = fillDays(v.by_day || [], 30, 'pageviews');
+  const blogByDay = fillDays(data?.blog_by_day || [], 30, 'views');
+  const accountsByDay = fillDays(data?.new_accounts_by_day || [], 30, 'count');
+
+  // Visitor types for donut
+  const visitorTypesData = [
+    { name: t('analyticsPage.loggedIn'), value: vt.logged_in || 0, color: COLORS.blue },
+    { name: 'Refcode', value: vt.refcode || 0, color: COLORS.orange },
+    { name: t('analyticsPage.anonymous'), value: vt.anonymous || 0, color: COLORS.gray },
+  ].filter(d => d.value > 0);
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gray-950 text-white p-6 space-y-6 -m-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <BarChart3 size={24} className="text-teal-600" />
-            Analytics
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">Vizitatori și comportament utilizatori</p>
+          <h1 className="text-2xl font-bold">{t('analyticsPage.title')}</h1>
+          <p className="text-gray-400 text-sm mt-1">
+            {t('analyticsPage.subtitle')}
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Live indicator */}
           {live && (
-            <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2">
+            <div className="flex items-center gap-2 bg-green-900/30 border border-green-700/50 rounded-xl px-4 py-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-semibold text-green-700">
-                {live.active_visitors} {live.active_visitors === 1 ? 'vizitator' : 'vizitatori'} acum
+              <span className="text-sm font-semibold text-green-400">
+                {live.active_visitors} {live.active_visitors === 1 ? t('analyticsPage.visitorNow') : t('analyticsPage.visitorsNow')}
               </span>
             </div>
           )}
-          {/* Period selector */}
-          <div className="grid grid-cols-2 sm:flex bg-slate-100 rounded-xl p-1 gap-1 sm:gap-0">
-            {PERIODS.map(p => (
-              <button
-                key={p.value}
-                onClick={() => setPeriod(p.value)}
-                className={cn(
-                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                  period === p.value
-                    ? "bg-white shadow-sm text-slate-800"
-                    : "text-slate-500 hover:text-slate-700"
-                )}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <button onClick={fetchData} className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600">
+          <button
+            onClick={fetchData}
+            className="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 border border-gray-700/50"
+          >
             <RefreshCw size={16} />
           </button>
         </div>
       </div>
 
-      {/* Stats cards */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={Eye} label="Vizualizări" value={v.total || 0} color="text-blue-600" bg="bg-blue-50" />
-        <StatCard icon={Users} label="Vizitatori unici" value={v.unique || 0} color="text-teal-600" bg="bg-teal-50" />
-        <StatCard icon={TrendingUp} label="Reveniri" value={v.returning || 0} color="text-amber-600" bg="bg-amber-50" />
-        <StatCard
-          icon={Target}
-          label="Rată conversie"
-          value={v.unique > 0 ? `${((funnel.registered || 0) / v.unique * 100).toFixed(1)}%` : '0%'}
-          color="text-emerald-600" bg="bg-emerald-50"
+        <KpiCard
+          title={t('analyticsPage.totalUsers')}
+          value={data?.total_users || 0}
+          subtitle={`+${data?.new_users_7d || 0} ${t('analyticsPage.last7days')}`}
+        />
+        <KpiCard
+          title={t('analyticsPage.pageViews30d')}
+          value={v.total || 0}
+          subtitle={`${(data?.pageviews_7d || 0).toLocaleString()} ${t('analyticsPage.last7days')} / ${(data?.pageviews_today || 0).toLocaleString()} ${t('analyticsPage.today')}`}
+        />
+        <KpiCard
+          title={t('analyticsPage.blogViews30d')}
+          value={data?.blog_views_30d || 0}
+          subtitle={`${data?.blog_views_7d || 0} ${t('analyticsPage.last7days')}`}
+        />
+        <KpiCard
+          title={t('analyticsPage.visitorConversion')}
+          value={`${conv.rate || 0}%`}
+          subtitle={`${conv.registered || 0} ${t('analyticsPage.from')} ${conv.total_visitors || 0} ${t('analyticsPage.visitors')}`}
         />
       </div>
 
-      {/* Chart: daily visitors */}
-      {v.by_day?.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-bold text-slate-800 mb-4">Vizitatori pe zi</h2>
-          <div className="flex items-end gap-1 h-40">
-            {v.by_day.map((d, i) => {
-              const maxPv = Math.max(...v.by_day.map(x => x.pageviews), 1);
-              const h = Math.max(4, (d.pageviews / maxPv) * 100);
-              const maxVis = Math.max(...v.by_day.map(x => x.visitors), 1);
-              const hVis = Math.max(2, (d.visitors / maxVis) * 100);
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 max-w-[90vw] [&]:left-auto [&]:right-auto pointer-events-none">
-                    {d.date}: {d.visitors} viz, {d.pageviews} pv
-                  </div>
-                  <div className="w-full flex flex-col items-center gap-0.5">
-                    <div
-                      className="w-full bg-blue-200 rounded-t-sm transition-all"
-                      style={{ height: `${h}%` }}
-                    />
-                    <div
-                      className="w-3/4 bg-teal-400 rounded-t-sm transition-all"
-                      style={{ height: `${hVis}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] text-slate-400 mt-1">
-                    {new Date(d.date).toLocaleDateString('ro', { day: 'numeric', month: 'short' })}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex items-center gap-4 mt-4 text-xs text-slate-400">
-            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-200 rounded" /> Vizualizări</div>
-            <div className="flex items-center gap-1"><div className="w-3 h-3 bg-teal-400 rounded" /> Vizitatori unici</div>
-          </div>
-        </div>
-      )}
-
+      {/* Line Charts Row 1 */}
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Funnel */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Target size={18} className="text-teal-600" />
-            Funnel de conversie
-          </h2>
-          <div className="space-y-3">
-            {Object.entries(FUNNEL_LABELS).map(([key, meta]) => {
-              const count = funnel[key] || 0;
-              const pct = maxFunnel > 0 ? (count / maxFunnel * 100) : 0;
-              return (
-                <div key={key}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <span className="text-slate-600">{meta.label}</span>
-                    <span className="font-bold text-slate-800">{count}</span>
-                  </div>
-                  <div className="h-6 bg-slate-100 rounded-lg overflow-hidden">
-                    <div
-                      className={`h-full ${meta.color} rounded-lg transition-all duration-500 flex items-center justify-end pr-2`}
-                      style={{ width: `${Math.max(pct, 2)}%` }}
-                    >
-                      {pct > 15 && <span className="text-white text-xs font-bold">{Math.round(pct)}%</span>}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {funnel.home > 0 && funnel.registered > 0 && (
-            <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-              <span className="text-sm text-slate-500">
-                Din <strong>{funnel.home}</strong> vizitatori, <strong>{funnel.registered}</strong> au creat cont
-                ({((funnel.registered / funnel.home) * 100).toFixed(1)}%)
-              </span>
-            </div>
-          )}
-        </div>
+        <ChartCard title={t('analyticsPage.pageViewsChart')}>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={pageViewsByDay}>
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
+              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+              <Line type="monotone" dataKey="value" stroke={COLORS.blue} strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-        {/* Top pages */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Eye size={18} className="text-blue-600" />
-            Top pagini
-          </h2>
-          <div className="space-y-2">
-            {topPages.slice(0, 12).map((p, i) => (
-              <div key={i} className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
-                <span className="w-6 text-xs text-slate-400 font-mono">{i + 1}.</span>
-                <span className="flex-1 text-sm text-slate-700 truncate font-mono">{p.page}</span>
-                <span className="text-sm font-bold text-slate-800">{p.views}</span>
-                <span className="text-xs text-slate-400">{p.unique} unici</span>
-              </div>
-            ))}
-            {topPages.length === 0 && <p className="text-slate-400 text-sm">Nicio vizualizare încă.</p>}
-          </div>
-        </div>
+        <ChartCard title={t('analyticsPage.blogViewsChart')}>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={blogByDay}>
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
+              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+              <Line type="monotone" dataKey="value" stroke={COLORS.purple} strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
       </div>
 
+      {/* Line Chart + Donut Row 2 */}
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Traffic sources */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Globe size={18} className="text-violet-600" />
-            Surse de trafic
-          </h2>
-          <div className="space-y-2">
-            {sources.map((s, i) => (
-              <div key={i} className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
-                <span className="text-sm text-slate-700 flex-1">{s.source || 'direct'}</span>
-                <span className="text-sm font-bold text-slate-800">{s.visitors}</span>
-              </div>
-            ))}
-            {sources.length === 0 && <p className="text-slate-400 text-sm">Nicio sursă de trafic încă.</p>}
-          </div>
-        </div>
+        <ChartCard title={t('analyticsPage.newAccountsChart')}>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={accountsByDay}>
+              <CartesianGrid strokeDasharray="3 3" stroke={COLORS.grid} />
+              <XAxis dataKey="label" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+              <Line type="monotone" dataKey="value" stroke={COLORS.green} strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-        {/* Devices */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Smartphone size={18} className="text-orange-600" />
-            Dispozitive
-          </h2>
-          <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 justify-center py-4">
-            <div className="text-center">
-              <Monitor size={32} className="mx-auto text-slate-400 mb-2" />
-              <p className="text-3xl font-bold text-slate-800">{devices.desktop || 0}</p>
-              <p className="text-sm text-slate-500">Desktop</p>
-            </div>
-            <div className="hidden sm:block w-px h-16 bg-slate-200" />
-            <div className="sm:hidden w-16 h-px bg-slate-200" />
-            <div className="text-center">
-              <Smartphone size={32} className="mx-auto text-slate-400 mb-2" />
-              <p className="text-3xl font-bold text-slate-800">{devices.mobile || 0}</p>
-              <p className="text-sm text-slate-500">Mobile</p>
-            </div>
-          </div>
-          {(devices.desktop > 0 || devices.mobile > 0) && (
-            <div className="h-4 bg-slate-100 rounded-full overflow-hidden flex mt-4">
-              <div
-                className="bg-blue-400 h-full transition-all"
-                style={{ width: `${(devices.desktop / ((devices.desktop || 0) + (devices.mobile || 0))) * 100}%` }}
-              />
-              <div className="bg-orange-400 h-full flex-1" />
+        <ChartCard title={t('analyticsPage.visitorTypes')}>
+          {visitorTypesData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={visitorTypesData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={85}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {visitorTypesData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Legend
+                  formatter={(value) => <span className="text-gray-300 text-sm">{value}</span>}
+                  iconType="circle"
+                />
+                <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 8, color: '#fff' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[220px] text-gray-500 text-sm">
+              {t('analyticsPage.noData')}
             </div>
           )}
-        </div>
+        </ChartCard>
       </div>
     </div>
   );
 }
 
-function StatCard({ icon: Icon, label, value, color, bg }) {
+/* ----- Helper Components ----- */
+
+function KpiCard({ title, value, subtitle }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5">
-      <div className="flex items-center gap-3 mb-2">
-        <div className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center`}>
-          <Icon size={20} className={color} />
-        </div>
-      </div>
-      <p className="text-2xl font-bold text-slate-800">{typeof value === 'number' ? value.toLocaleString() : value}</p>
-      <p className="text-sm text-slate-500">{label}</p>
+    <div
+      className="rounded-2xl p-5 border"
+      style={{ backgroundColor: COLORS.cardBg, borderColor: COLORS.cardBorder }}
+    >
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{title}</p>
+      <p className="text-3xl font-bold text-white">
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
+      <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
     </div>
   );
+}
+
+function ChartCard({ title, children }) {
+  return (
+    <div
+      className="rounded-2xl p-5 border"
+      style={{ backgroundColor: COLORS.cardBg, borderColor: COLORS.cardBorder }}
+    >
+      <h3 className="text-sm font-bold text-white mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+/* Fill missing days in a date-series array so the chart has no gaps */
+function fillDays(data, days, valueKey) {
+  const map = {};
+  data.forEach(d => { map[d.date] = d[valueKey] || 0; });
+
+  const result = [];
+  const now = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const dt = new Date(now);
+    dt.setDate(dt.getDate() - i);
+    const key = dt.toISOString().split('T')[0];
+    const label = `${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+    result.push({ date: key, label, value: map[key] || 0 });
+  }
+  return result;
 }

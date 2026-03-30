@@ -122,6 +122,7 @@ class PageViewIn(BaseModel):
     utm_medium: Optional[str] = None
     utm_campaign: Optional[str] = None
     screen_width: Optional[int] = None
+    user_id: Optional[int] = None
 
 
 @router.post("/pageview", status_code=204)
@@ -152,6 +153,7 @@ def track_pageview(data: PageViewIn, request: Request, db: Session = Depends(get
         ip_hash=_hash_ip(client_ip),
         screen_width=data.screen_width,
         is_mobile=_is_mobile(ua),
+        user_id=data.user_id,
     )
     db.add(pv)
     db.commit()
@@ -280,6 +282,87 @@ def analytics_dashboard(
     ).scalar() or 0
     desktop_count = max(0, unique_by_ip - mobile_count)
 
+    # --- NEW: total registered users ---
+    total_users = db.query(func.count(User.id)).scalar() or 0
+    cutoff_7d = datetime.now(timezone.utc) - timedelta(days=7)
+    new_users_7d = db.query(func.count(User.id)).filter(User.created_at >= cutoff_7d).scalar() or 0
+
+    # --- NEW: pageview breakdowns ---
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    pageviews_today = db.query(func.count(PageView.id)).filter(PageView.created_at >= today_start).scalar() or 0
+    pageviews_7d = db.query(func.count(PageView.id)).filter(PageView.created_at >= cutoff_7d).scalar() or 0
+
+    # --- NEW: blog views ---
+    blog_views_30d = db.query(func.count(PageView.id)).filter(
+        PageView.created_at >= cutoff, PageView.page.like("/blog%")
+    ).scalar() or 0
+    blog_views_7d = db.query(func.count(PageView.id)).filter(
+        PageView.created_at >= cutoff_7d, PageView.page.like("/blog%")
+    ).scalar() or 0
+
+    blog_day_rows = (
+        db.query(
+            func.date(PageView.created_at).label("day"),
+            func.count(PageView.id).label("views"),
+        )
+        .filter(PageView.created_at >= cutoff, PageView.page.like("/blog%"))
+        .group_by(func.date(PageView.created_at))
+        .order_by(func.date(PageView.created_at))
+        .all()
+    )
+    blog_by_day = [{"date": str(r.day), "views": r.views} for r in blog_day_rows]
+
+    # --- NEW: new accounts by day ---
+    accounts_day_rows = (
+        db.query(
+            func.date(User.created_at).label("day"),
+            func.count(User.id).label("count"),
+        )
+        .filter(User.created_at >= cutoff)
+        .group_by(func.date(User.created_at))
+        .order_by(func.date(User.created_at))
+        .all()
+    )
+    new_accounts_by_day = [{"date": str(r.day), "count": r.count} for r in accounts_day_rows]
+
+    # --- NEW: visitor types ---
+    # Logged in: ip_hashes with at least one pageview with user_id set
+    logged_in_ips = db.query(func.count(distinct(PageView.ip_hash))).filter(
+        PageView.created_at >= cutoff,
+        PageView.user_id.isnot(None),
+        PageView.ip_hash != "", PageView.ip_hash.isnot(None)
+    ).scalar() or 0
+
+    # Refcode: visitors with utm_source/medium set but not logged in
+    refcode_ips = db.query(func.count(distinct(PageView.ip_hash))).filter(
+        PageView.created_at >= cutoff,
+        PageView.user_id.is_(None),
+        PageView.ip_hash != "", PageView.ip_hash.isnot(None),
+        (PageView.utm_source.isnot(None) | PageView.utm_medium.isnot(None))
+    ).scalar() or 0
+
+    anonymous_ips = max(0, unique_by_ip - logged_in_ips - refcode_ips)
+
+    # --- NEW: conversion from refcode visitors ---
+    # Count users who registered via a referral code
+    try:
+        from backend_v2.models import Referral
+    except ImportError:
+        from models import Referral
+    referral_registrations = 0
+    try:
+        referral_registrations = db.query(func.count(Referral.id)).filter(
+            Referral.created_at >= cutoff,
+            Referral.referred_id.isnot(None)
+        ).scalar() or 0
+    except Exception:
+        pass
+
+    conversion_rate = 0.0
+    conversion_base = refcode_ips or unique_by_ip
+    if conversion_base > 0 and funnel.get("registered", 0) > 0:
+        conversion_rate = round((funnel["registered"] / conversion_base) * 100, 1)
+
     return {
         "period": period,
         "visitors": {
@@ -294,6 +377,25 @@ def analytics_dashboard(
         "devices": {
             "mobile": mobile_count,
             "desktop": desktop_count,
+        },
+        # New fields for enhanced dashboard
+        "total_users": total_users,
+        "new_users_7d": new_users_7d,
+        "pageviews_today": pageviews_today,
+        "pageviews_7d": pageviews_7d,
+        "blog_views_30d": blog_views_30d,
+        "blog_views_7d": blog_views_7d,
+        "blog_by_day": blog_by_day,
+        "new_accounts_by_day": new_accounts_by_day,
+        "visitor_types": {
+            "logged_in": logged_in_ips,
+            "refcode": refcode_ips,
+            "anonymous": anonymous_ips,
+        },
+        "conversion_30d": {
+            "rate": conversion_rate,
+            "registered": funnel.get("registered", 0),
+            "total_visitors": conversion_base,
         },
     }
 
