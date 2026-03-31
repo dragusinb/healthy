@@ -10,9 +10,19 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Analize.Online" />
 
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8Q87TLBHGS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-8Q87TLBHGS');
+    </script>
+
     <!-- Preconnect hints for faster resource loading -->
     <link rel="preconnect" href="https://cdn.logr-in.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
     <!-- RSS Feed -->
     <link rel="alternate" type="application/rss+xml" title="Blog Analize.Online" href="https://analize.online/blog/feed.xml" />
