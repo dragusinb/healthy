@@ -1153,6 +1153,22 @@
     "anonymous": "Anonymous",
     "visitorNow": "visitor now",
     "visitorsNow": "visitors now",
-    "noData": "No data available"
+    "noData": "No data available",
+    "biomarkerViews30d": "Biomarker views (30d)",
+    "analyzerViews30d": "Analyzer views (30d)",
+    "biomarkerViewsChart": "Biomarker views (30 days)",
+    "analyzerViewsChart": "Analyzer views (30 days)",
+    "topBlogArticles": "Top blog articles (30 days)",
+    "topBiomarkers": "Top biomarker pages (30 days)",
+    "article": "Article",
+    "views": "Views",
+    "unique": "Unique",
+    "biomarker": "Biomarker",
+    "noArticles": "No blog article views yet",
+    "noBiomarkers": "No biomarker page views yet",
+    "topPages": "Top pages (30 days)",
+    "trafficSources": "Traffic sources (30 days)",
+    "source": "Source",
+    "page": "Page"
   }
 }

@@ -312,6 +312,90 @@ def analytics_dashboard(
     )
     blog_by_day = [{"date": str(r.day), "views": r.views} for r in blog_day_rows]
 
+    # --- Top blog articles (individual slugs) ---
+    blog_article_rows = (
+        db.query(
+            PageView.page,
+            func.count(PageView.id).label("views"),
+            func.count(distinct(PageView.ip_hash)).label("unique"),
+        )
+        .filter(
+            PageView.created_at >= cutoff,
+            PageView.page.like("/blog/%"),  # Only individual articles, not /blog listing
+            PageView.ip_hash != "", PageView.ip_hash.isnot(None),
+        )
+        .group_by(PageView.page)
+        .order_by(func.count(PageView.id).desc())
+        .limit(30)
+        .all()
+    )
+    top_blog_articles = [
+        {"page": r.page, "slug": r.page.replace("/blog/", ""), "views": r.views, "unique": r.unique}
+        for r in blog_article_rows
+    ]
+
+    # --- Biomarker page views ---
+    biomarker_views_30d = db.query(func.count(PageView.id)).filter(
+        PageView.created_at >= cutoff, PageView.page.like("/biomarker%")
+    ).scalar() or 0
+    biomarker_views_7d = db.query(func.count(PageView.id)).filter(
+        PageView.created_at >= cutoff_7d, PageView.page.like("/biomarker%")
+    ).scalar() or 0
+
+    biomarker_day_rows = (
+        db.query(
+            func.date(PageView.created_at).label("day"),
+            func.count(PageView.id).label("views"),
+        )
+        .filter(PageView.created_at >= cutoff, PageView.page.like("/biomarker%"))
+        .group_by(func.date(PageView.created_at))
+        .order_by(func.date(PageView.created_at))
+        .all()
+    )
+    biomarker_by_day = [{"date": str(r.day), "views": r.views} for r in biomarker_day_rows]
+
+    # Top biomarker pages (individual slugs)
+    top_biomarker_rows = (
+        db.query(
+            PageView.page,
+            func.count(PageView.id).label("views"),
+            func.count(distinct(PageView.ip_hash)).label("unique"),
+        )
+        .filter(
+            PageView.created_at >= cutoff,
+            PageView.page.like("/biomarker/%"),  # Only individual biomarker pages
+            PageView.ip_hash != "", PageView.ip_hash.isnot(None),
+        )
+        .group_by(PageView.page)
+        .order_by(func.count(PageView.id).desc())
+        .limit(20)
+        .all()
+    )
+    top_biomarkers = [
+        {"page": r.page, "slug": r.page.replace("/biomarker/", ""), "views": r.views, "unique": r.unique}
+        for r in top_biomarker_rows
+    ]
+
+    # --- Analyzer page views ---
+    analyzer_views_30d = db.query(func.count(PageView.id)).filter(
+        PageView.created_at >= cutoff, PageView.page.like("/analyzer%")
+    ).scalar() or 0
+    analyzer_views_7d = db.query(func.count(PageView.id)).filter(
+        PageView.created_at >= cutoff_7d, PageView.page.like("/analyzer%")
+    ).scalar() or 0
+
+    analyzer_day_rows = (
+        db.query(
+            func.date(PageView.created_at).label("day"),
+            func.count(PageView.id).label("views"),
+        )
+        .filter(PageView.created_at >= cutoff, PageView.page.like("/analyzer%"))
+        .group_by(func.date(PageView.created_at))
+        .order_by(func.date(PageView.created_at))
+        .all()
+    )
+    analyzer_by_day = [{"date": str(r.day), "views": r.views} for r in analyzer_day_rows]
+
     # --- NEW: new accounts by day ---
     accounts_day_rows = (
         db.query(
@@ -386,6 +470,14 @@ def analytics_dashboard(
         "blog_views_30d": blog_views_30d,
         "blog_views_7d": blog_views_7d,
         "blog_by_day": blog_by_day,
+        "top_blog_articles": top_blog_articles,
+        "biomarker_views_30d": biomarker_views_30d,
+        "biomarker_views_7d": biomarker_views_7d,
+        "biomarker_by_day": biomarker_by_day,
+        "top_biomarkers": top_biomarkers,
+        "analyzer_views_30d": analyzer_views_30d,
+        "analyzer_views_7d": analyzer_views_7d,
+        "analyzer_by_day": analyzer_by_day,
         "new_accounts_by_day": new_accounts_by_day,
         "visitor_types": {
             "logged_in": logged_in_ips,

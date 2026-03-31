@@ -1224,6 +1224,22 @@
     "anonymous": "Anonimi",
     "visitorNow": "vizitator acum",
     "visitorsNow": "vizitatori acum",
-    "noData": "Nicio dată disponibilă"
+    "noData": "Nicio dată disponibilă",
+    "biomarkerViews30d": "Vizualizări biomarkeri (30z)",
+    "analyzerViews30d": "Vizualizări analizator (30z)",
+    "biomarkerViewsChart": "Vizualizări biomarkeri (30 zile)",
+    "analyzerViewsChart": "Vizualizări analizator (30 zile)",
+    "topBlogArticles": "Top articole blog (30 zile)",
+    "topBiomarkers": "Top pagini biomarkeri (30 zile)",
+    "article": "Articol",
+    "views": "Vizualizări",
+    "unique": "Unice",
+    "biomarker": "Biomarker",
+    "noArticles": "Nicio vizualizare articol blog încă",
+    "noBiomarkers": "Nicio vizualizare pagină biomarker încă",
+    "topPages": "Top pagini (30 zile)",
+    "trafficSources": "Surse de trafic (30 zile)",
+    "source": "Sursă",
+    "page": "Pagină"
   }
 }
