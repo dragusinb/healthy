@@ -130,15 +130,15 @@ def blog_rss_feed(db: Session = Depends(get_db)):
     items = []
     for a in articles:
         pub_date = a.published_at.strftime("%a, %d %b %Y %H:%M:%S +0000") if a.published_at else now
-        title = html_mod.escape(a.title or "")
-        desc = html_mod.escape(a.meta_description or a.excerpt or "")
+        item_title = html_mod.escape(a.title or "")
+        item_desc = html_mod.escape(a.meta_description or a.excerpt or "")
         link = f"{base_url}/blog/{a.slug}"
         items.append(
             f"    <item>\n"
-            f"      <title>{title}</title>\n"
+            f"      <title>{item_title}</title>\n"
             f"      <link>{link}</link>\n"
             f"      <guid isPermaLink=\"true\">{link}</guid>\n"
-            f"      <description>{desc}</description>\n"
+            f"      <description>{item_desc}</description>\n"
             f"      <pubDate>{pub_date}</pubDate>\n"
             f"    </item>"
         )

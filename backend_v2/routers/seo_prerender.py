@@ -156,7 +156,7 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
     if not html:
         return HTMLResponse(content="<html><body>Page not found</body></html>", status_code=404)
 
-    clean_path = f"/{path}" if path else "/"
+    clean_path = f"/{path}".rstrip("/") if path else "/"
     url = f"{BASE_URL}{clean_path}" if clean_path != "/" else BASE_URL
 
     # Blog article
