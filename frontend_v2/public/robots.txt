@@ -12,6 +12,12 @@ Allow: /biomarker
 Allow: /biomarker/*
 Allow: /blog
 Allow: /blog/*
+Allow: /analyzer
+Allow: /despre-noi
+Allow: /contact
+Allow: /disclaimer-medical
+Allow: /demo
+Allow: /sitemap.xml
 
 # Private user pages
 Disallow: /dashboard

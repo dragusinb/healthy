@@ -475,3 +475,61 @@ def get_attachment(
         media_type=attachment.file_type or "application/octet-stream",
         filename=attachment.file_name
     )
+
+
+# ---------------------------------------------------------------------------
+# Public contact form (no auth required)
+# ---------------------------------------------------------------------------
+
+class ContactFormIn(BaseModel):
+    name: str
+    email: str
+    subject: Optional[str] = None
+    message: str
+
+
+@router.post("/contact", status_code=201)
+def submit_contact_form(
+    data: ContactFormIn,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    """Public: receive a contact form submission and send notification email."""
+    logger = logging.getLogger(__name__)
+
+    # Create as a support ticket from anonymous user
+    ticket = SupportTicket(
+        reporter_id=None,
+        reporter_email=data.email,
+        subject=f"[Contact] {data.subject or 'Mesaj de contact'}",
+        description=f"De la: {data.name} <{data.email}>\n\n{data.message}",
+        status="open",
+        priority="normal",
+        type="contact",
+    )
+    db.add(ticket)
+    db.commit()
+    db.refresh(ticket)
+
+    # Send email notification to admin
+    def _send_notification():
+        try:
+            email_service = get_email_service()
+            email_service.send_email(
+                to_email=os.getenv("ADMIN_EMAIL", "contact@analize.online"),
+                subject=f"[Contact Form] {data.subject or 'Mesaj nou'}",
+                html_body=f"""
+                <h2>Mesaj nou de contact</h2>
+                <p><strong>Nume:</strong> {data.name}</p>
+                <p><strong>Email:</strong> {data.email}</p>
+                <p><strong>Subiect:</strong> {data.subject or '-'}</p>
+                <hr/>
+                <p>{data.message}</p>
+                """,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to send contact notification: {e}")
+
+    background_tasks.add_task(_send_notification)
+
+    return {"status": "ok", "ticket_id": ticket.id}

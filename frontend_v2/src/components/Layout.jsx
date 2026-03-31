@@ -290,12 +290,20 @@ const Layout = ({ children }) => {
                         </button>
                     </div>
                     {/* Legal Links */}
-                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-center gap-3 text-xs text-slate-500">
-                        <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-slate-500">
+                        <a href="/despre-noi" className="hover:text-primary-600 transition-colors">
+                            {i18n.language === 'ro' ? 'Despre noi' : 'About'}
+                        </a>
+                        <span>•</span>
+                        <a href="/contact" className="hover:text-primary-600 transition-colors">
+                            Contact
+                        </a>
+                        <span>•</span>
+                        <a href="/terms" className="hover:text-primary-600 transition-colors">
                             {i18n.language === 'ro' ? 'Termeni' : 'Terms'}
                         </a>
                         <span>•</span>
-                        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                        <a href="/privacy" className="hover:text-primary-600 transition-colors">
                             {i18n.language === 'ro' ? 'Confidențialitate' : 'Privacy'}
                         </a>
                     </div>

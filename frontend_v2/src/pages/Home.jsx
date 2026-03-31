@@ -826,15 +826,21 @@ export default function Home() {
               <Link to="/pricing" className="hover:text-cyan-600">
                 {isRomanian ? 'Prețuri' : 'Pricing'}
               </Link>
-              <Link to="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-600">
+              <Link to="/despre-noi" className="hover:text-cyan-600">
+                {isRomanian ? 'Despre noi' : 'About'}
+              </Link>
+              <Link to="/contact" className="hover:text-cyan-600">
+                Contact
+              </Link>
+              <Link to="/terms" className="hover:text-cyan-600">
                 {isRomanian ? 'Termeni' : 'Terms'}
               </Link>
-              <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-600">
+              <Link to="/privacy" className="hover:text-cyan-600">
                 {isRomanian ? 'Confidențialitate' : 'Privacy'}
               </Link>
-              <a href="mailto:contact@analize.online" className="hover:text-cyan-600">
-                Contact
-              </a>
+              <Link to="/disclaimer-medical" className="hover:text-cyan-600">
+                {isRomanian ? 'Disclaimer medical' : 'Medical Disclaimer'}
+              </Link>
             </div>
             <p className="text-sm text-slate-500">
               © 2026 Analize.Online. {isRomanian ? 'Toate drepturile rezervate.' : 'All rights reserved.'}

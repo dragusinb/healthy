@@ -10,6 +10,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Analize.Online" />
 
+    <!-- Preconnect hints for faster resource loading -->
+    <link rel="preconnect" href="https://cdn.logr-in.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="Blog Analize.Online" href="https://analize.online/blog/feed.xml" />
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://analize.online" />
 
@@ -64,7 +71,9 @@
         "@type": "Country",
         "name": "Romania"
       },
-      "sameAs": []
+      "sameAs": [
+        "mailto:contact@analize.online"
+      ]
     }
     </script>
 
@@ -205,12 +214,12 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- LogRocket session replay -->
-    <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous"></script>
-    <script>window.LogRocket && window.LogRocket.init('coffeepot/analize');</script>
+    <!-- LogRocket session replay (async for Core Web Vitals) -->
+    <script src="https://cdn.logr-in.com/LogRocket.min.js" crossorigin="anonymous" async></script>
+    <script>window.addEventListener('load',function(){window.LogRocket && window.LogRocket.init('coffeepot/analize');});</script>
     <script type="module" src="/src/main.jsx"></script>
-    <!-- html2canvas for screenshot capture in feedback button -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- html2canvas for screenshot capture in feedback button (deferred for Core Web Vitals) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
     <!-- Register service worker for push notifications -->
     <script>
       if ('serviceWorker' in navigator) {

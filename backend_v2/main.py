@@ -16,12 +16,12 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 # Support both local development (backend_v2.X) and production (X) imports
 try:
-    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap, referral, analyzer
+    from backend_v2.routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap, referral, analyzer, seo_prerender
     from backend_v2.database import Base, engine, SessionLocal
     from backend_v2.routers.auth import seed_default_user
     from backend_v2.services.scheduler import init_scheduler, shutdown_scheduler
 except ImportError:
-    from routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap, referral, analyzer
+    from routers import auth, users, dashboard, documents, health, admin, vault, notifications, subscription, payment, gdpr, support, lifestyle, medications, sharing, blog, analytics, sitemap, referral, analyzer, seo_prerender
     from database import Base, engine, SessionLocal
     from routers.auth import seed_default_user
     from services.scheduler import init_scheduler, shutdown_scheduler
@@ -97,11 +97,11 @@ async def add_security_headers(request: Request, call_next):
     # Content Security Policy - restrict resource loading
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: blob: https:; "
-        "connect-src 'self' https://analize.online https://*.googleapis.com; "
+        "connect-src 'self' https://analize.online https://*.googleapis.com https://*.google-analytics.com https://*.analytics.google.com; "
         "frame-ancestors 'none'; "
         "base-uri 'self'; "
         "form-action 'self'"
@@ -130,6 +130,7 @@ app.include_router(analytics.router)
 app.include_router(sitemap.router)
 app.include_router(referral.router)
 app.include_router(analyzer.router)
+app.include_router(seo_prerender.router)
 
 # Prometheus metrics instrumentation for HTTP request tracking
 # Exposes metrics at /api/metrics for Prometheus scraping

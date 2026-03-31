@@ -1,9 +1,11 @@
 """Blog API router for public SEO articles."""
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
 from datetime import datetime, timezone
 from typing import Optional
+import html as html_mod
 
 try:
     from backend_v2.database import get_db
@@ -109,6 +111,54 @@ def list_tags(db: Session = Depends(get_db)):
                     tag_counts[tag] = tag_counts.get(tag, 0) + 1
 
     return {"tags": [{"tag": k, "count": v} for k, v in sorted(tag_counts.items(), key=lambda x: -x[1])]}
+
+
+@router.get("/feed.xml", include_in_schema=False)
+def blog_rss_feed(db: Session = Depends(get_db)):
+    """Public RSS 2.0 feed for blog articles."""
+    articles = (
+        db.query(BlogArticle)
+        .filter(BlogArticle.status == "published")
+        .order_by(desc(BlogArticle.published_at))
+        .limit(50)
+        .all()
+    )
+
+    base_url = "https://analize.online"
+    now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+    items = []
+    for a in articles:
+        pub_date = a.published_at.strftime("%a, %d %b %Y %H:%M:%S +0000") if a.published_at else now
+        title = html_mod.escape(a.title or "")
+        desc = html_mod.escape(a.meta_description or a.excerpt or "")
+        link = f"{base_url}/blog/{a.slug}"
+        items.append(
+            f"    <item>\n"
+            f"      <title>{title}</title>\n"
+            f"      <link>{link}</link>\n"
+            f"      <guid isPermaLink=\"true\">{link}</guid>\n"
+            f"      <description>{desc}</description>\n"
+            f"      <pubDate>{pub_date}</pubDate>\n"
+            f"    </item>"
+        )
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+        '  <channel>\n'
+        f'    <title>Blog Sănătate — Analize.Online</title>\n'
+        f'    <link>{base_url}/blog</link>\n'
+        f'    <description>Articole despre sănătate, nutriție, rețete românești sănătoase, ghiduri biomarkeri și sfaturi de la specialiști AI.</description>\n'
+        f'    <language>ro</language>\n'
+        f'    <lastBuildDate>{now}</lastBuildDate>\n'
+        f'    <atom:link href="{base_url}/blog/feed.xml" rel="self" type="application/rss+xml" />\n'
+        + "\n".join(items) + "\n"
+        '  </channel>\n'
+        '</rss>\n'
+    )
+
+    return Response(content=xml, media_type="application/rss+xml; charset=utf-8")
 
 
 def _require_admin(current_user: User = Depends(get_current_user)):

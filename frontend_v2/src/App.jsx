@@ -47,6 +47,9 @@ const BlogArticle = lazy(() => import('./pages/BlogArticle'));
 const Layout = lazy(() => import('./components/Layout'));
 const Analyzer = lazy(() => import('./pages/Analyzer'));
 const Demo = lazy(() => import('./pages/Demo'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const MedicalDisclaimer = lazy(() => import('./pages/MedicalDisclaimer'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Inline loader for layout-wrapped components
@@ -230,6 +233,15 @@ const App = () => {
                                 } />
                                 <Route path="/privacy" element={
                                     <OptionalLayoutRoute><Privacy /></OptionalLayoutRoute>
+                                } />
+                                <Route path="/despre-noi" element={
+                                    <OptionalLayoutRoute><About /></OptionalLayoutRoute>
+                                } />
+                                <Route path="/contact" element={
+                                    <OptionalLayoutRoute><Contact /></OptionalLayoutRoute>
+                                } />
+                                <Route path="/disclaimer-medical" element={
+                                    <OptionalLayoutRoute><MedicalDisclaimer /></OptionalLayoutRoute>
                                 } />
 
                                 {/* 404 catch-all route */}

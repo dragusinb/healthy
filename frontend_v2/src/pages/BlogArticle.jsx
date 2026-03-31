@@ -78,8 +78,9 @@ export default function BlogArticle() {
     dateModified: article.updated_at || article.published_at,
     url: `https://analize.online/blog/${article.slug}`,
     inLanguage: isRo ? 'ro' : 'en',
-    publisher: { '@type': 'Organization', name: 'Analize.Online', url: 'https://analize.online', logo: 'https://analize.online/healthy.svg' },
-    author: { '@type': 'Organization', name: 'Analize.Online' },
+    publisher: { '@type': 'Organization', name: 'Analize.Online', url: 'https://analize.online', logo: { '@type': 'ImageObject', url: 'https://analize.online/healthy.svg' } },
+    author: { '@type': 'Organization', name: 'Analize.Online', url: 'https://analize.online' },
+    image: 'https://analize.online/og-image.png',
     mainEntityOfPage: { '@type': 'WebPage', '@id': `https://analize.online/blog/${article.slug}` },
   } : null);
 

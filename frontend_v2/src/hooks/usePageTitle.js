@@ -67,6 +67,18 @@ const PAGE_META = {
         ro: { title: 'Politica de confidențialitate — Analize.Online', description: 'Politica de confidențialitate și protecția datelor personale pe Analize.Online. Conform GDPR.' },
         en: { title: 'Privacy Policy — Analize.Online', description: 'Privacy policy and personal data protection on Analize.Online. GDPR compliant.' },
     },
+    '/despre-noi': {
+        ro: { title: 'Despre noi — Echipa Analize.Online', description: 'Misiunea Analize.Online: digitalizarea sănătății în România. Agregare analize medicale, interpretare AI, criptare per utilizator.' },
+        en: { title: 'About Us — Analize.Online Team', description: 'Analize.Online mission: digitalizing healthcare in Romania. Medical test aggregation, AI interpretation, per-user encryption.' },
+    },
+    '/contact': {
+        ro: { title: 'Contact — Analize.Online', description: 'Contactează echipa Analize.Online pentru întrebări, sugestii sau parteneriate. Email: contact@analize.online.' },
+        en: { title: 'Contact — Analize.Online', description: 'Contact the Analize.Online team for questions, suggestions or partnerships. Email: contact@analize.online.' },
+    },
+    '/disclaimer-medical': {
+        ro: { title: 'Disclaimer Medical — Analize.Online', description: 'Analize.Online oferă informații orientative bazate pe AI, nu diagnostic medical. Consultă întotdeauna un medic specialist.' },
+        en: { title: 'Medical Disclaimer — Analize.Online', description: 'Analize.Online provides AI-based informational guidance, not medical diagnosis. Always consult a medical specialist.' },
+    },
 };
 
 const setMetaTag = (property, content) => {
