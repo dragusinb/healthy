@@ -191,20 +191,58 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
         bio = _biomarkers.get(slug)
         if bio:
             name = bio.get("name_ro", bio.get("name_en", slug))
+            category = bio.get("category_ro", "")
             title = f"{name} — Valori normale, interpretare | Analize.Online"
-            desc = f"Ghid complet {name}: valori normale, cauze valori crescute sau scăzute, ce măsoară, când se recomandă testarea. Verifică-ți rezultatele gratuit."
-            json_ld = json.dumps({
+            desc = bio.get("meta_ro") or f"Ghid complet {name}: valori normale, cauze valori crescute sau scăzute, ce măsoară, când se recomandă testarea. Verifică-ți rezultatele gratuit."
+
+            # MedicalWebPage schema
+            medical_ld = json.dumps({
                 "@context": "https://schema.org",
                 "@type": "MedicalWebPage",
                 "name": name,
                 "description": desc,
                 "url": url,
                 "inLanguage": "ro",
+                "about": {"@type": "MedicalTest", "name": bio.get("name_en", name)},
                 "medicalAudience": {"@type": "MedicalAudience", "audienceType": "Patient"},
+                "publisher": {"@type": "Organization", "name": "Analize.Online", "url": BASE_URL},
+                "breadcrumb": {
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        {"@type": "ListItem", "position": 1, "name": "Acasă", "item": BASE_URL},
+                        {"@type": "ListItem", "position": 2, "name": "Biomarkeri", "item": f"{BASE_URL}/biomarker"},
+                        {"@type": "ListItem", "position": 3, "name": name},
+                    ],
+                },
             }, ensure_ascii=False)
-            extra = f'<script type="application/ld+json">{json_ld}</script>'
-            category = bio.get("category", "")
-            body = f'<article><h1>{_escape(name)}</h1><p>{_escape(desc)}</p><p>Categorie: {_escape(category)}</p></article>'
+            extra = f'<script type="application/ld+json">{medical_ld}</script>'
+
+            # FAQPage schema from biomarker FAQs
+            faqs = bio.get("faqs_ro", [])
+            if faqs:
+                faq_ld = json.dumps({
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": [
+                        {"@type": "Question", "name": f["q"], "acceptedAnswer": {"@type": "Answer", "text": f["a"]}}
+                        for f in faqs
+                    ],
+                }, ensure_ascii=False)
+                extra += f'\n<script type="application/ld+json">{faq_ld}</script>'
+
+            # Visible content for crawlers
+            what = bio.get("what_ro", "")
+            high = bio.get("high_ro", "")
+            low = bio.get("low_ro", "")
+            faq_html = "".join(f"<details><summary>{_escape(f['q'])}</summary><p>{_escape(f['a'])}</p></details>" for f in faqs)
+            body = (
+                f'<article><h1>{_escape(name)}</h1>'
+                f'<p>{_escape(what)}</p>'
+                f'<h2>Valori crescute</h2><p>{_escape(high)}</p>'
+                f'<h2>Valori scăzute</h2><p>{_escape(low)}</p>'
+                f'<h2>Întrebări frecvente</h2>{faq_html}'
+                f'</article>'
+            )
             result = _inject_meta(html, title, desc, url, extra, body)
             return HTMLResponse(content=result)
 

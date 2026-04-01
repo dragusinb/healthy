@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, Info, ArrowUpRight, Brain, Utensils, Dumbbell, ShoppingCart, BookOpen, CheckCircle, AlertTriangle, ChevronDown, Upload } from 'lucide-react';
+import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, Info, ArrowUpRight, Brain, Utensils, Dumbbell, ShoppingCart, BookOpen, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Upload, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 import useJsonLd from '../hooks/useJsonLd';
@@ -213,6 +213,18 @@ export default function BiomarkerReference() {
     },
   });
 
+  // FAQ JSON-LD schema for rich snippets
+  const faqs = isRo ? biomarker.faqs_ro : biomarker.faqs_en;
+  useJsonLd(faqs?.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  } : null);
+
   const related = (biomarker.related || []).map(s => biomarkers.find(b => b.slug === s)).filter(Boolean);
 
   return (
@@ -367,6 +379,21 @@ export default function BiomarkerReference() {
           </section>
         )}
 
+        {/* FAQ Section */}
+        {faqs?.length > 0 && (
+          <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
+              <HelpCircle className="w-5 h-5 text-teal-500" />
+              {isRo ? 'Întrebări frecvente' : 'Frequently Asked Questions'}
+            </h2>
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <FaqItem key={i} question={faq.q} answer={faq.a} />
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* CTA — links to analyzer */}
         <section className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-2xl p-8 md:p-10 text-white mb-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
@@ -423,6 +450,26 @@ export default function BiomarkerReference() {
           </Link>
         </div>
       </div>
+    </div>
+  );
+}
+
+function FaqItem({ question, answer }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-slate-200 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 transition-colors"
+      >
+        <span className="font-medium text-slate-800 pr-4">{question}</span>
+        {open ? <ChevronUp size={18} className="text-slate-400 flex-shrink-0" /> : <ChevronDown size={18} className="text-slate-400 flex-shrink-0" />}
+      </button>
+      {open && (
+        <div className="px-5 pb-4 text-slate-600 leading-relaxed text-sm border-t border-slate-100 pt-3">
+          {answer}
+        </div>
+      )}
     </div>
   );
 }

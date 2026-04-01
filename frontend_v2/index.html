@@ -206,6 +206,24 @@
     }
     </script>
 
+    <!-- JSON-LD: WebSite with SearchAction (enables Sitelinks Search Box) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Analize.Online",
+      "url": "https://analize.online",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://analize.online/biomarker?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
     <!-- JSON-LD: BreadcrumbList -->
     <script type="application/ld+json">
     {

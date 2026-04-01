@@ -79,6 +79,14 @@ const PAGE_META = {
         ro: { title: 'Disclaimer Medical — Analize.Online', description: 'Analize.Online oferă informații orientative bazate pe AI, nu diagnostic medical. Consultă întotdeauna un medic specialist.' },
         en: { title: 'Medical Disclaimer — Analize.Online', description: 'Analize.Online provides AI-based informational guidance, not medical diagnosis. Always consult a medical specialist.' },
     },
+    '/analyzer': {
+        ro: { title: 'Analizator Gratuit Analize Medicale | Analize.Online', description: 'Încarcă rezultatele analizelor tale medicale (text sau PDF) și primești interpretare AI gratuită. Fără cont necesar. Identifică valorile anormale instant.' },
+        en: { title: 'Free Lab Results Analyzer | Analize.Online', description: 'Upload your lab results (text or PDF) and get free AI interpretation. No account needed. Identify abnormal values instantly.' },
+    },
+    '/demo': {
+        ro: { title: 'Demo — Analize.Online | Vezi cum funcționează', description: 'Demo interactiv Analize.Online: dashboard cu date exemplu, biomarkeri extrasi, grafice evoluție, alerte. Vezi platforma în acțiune.' },
+        en: { title: 'Demo — Analize.Online | See how it works', description: 'Interactive Analize.Online demo: dashboard with sample data, extracted biomarkers, evolution charts, alerts. See the platform in action.' },
+    },
 };
 
 const setMetaTag = (property, content) => {
@@ -170,6 +178,11 @@ const usePageTitle = (titleKey, fallback = '', override = null) => {
         setNameMetaTag('twitter:title', title);
         setNameMetaTag('twitter:description', description);
         setNameMetaTag('twitter:image', OG_IMAGE);
+
+        // Dynamic hreflang — update per page so crawlers see correct URLs
+        document.querySelectorAll('link[hreflang]').forEach(el => {
+            el.setAttribute('href', canonicalUrl);
+        });
 
         // Cleanup
         return () => {
