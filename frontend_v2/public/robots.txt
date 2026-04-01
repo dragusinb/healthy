@@ -16,6 +16,8 @@ Allow: /analyzer
 Allow: /despre-noi
 Allow: /contact
 Allow: /disclaimer-medical
+Allow: /analize-pentru
+Allow: /analize-pentru/*
 Allow: /demo
 Allow: /sitemap.xml
 

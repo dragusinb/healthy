@@ -47,6 +47,7 @@ const BlogArticle = lazy(() => import('./pages/BlogArticle'));
 const Layout = lazy(() => import('./components/Layout'));
 const Analyzer = lazy(() => import('./pages/Analyzer'));
 const Demo = lazy(() => import('./pages/Demo'));
+const ConditionReference = lazy(() => import('./pages/ConditionReference'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const MedicalDisclaimer = lazy(() => import('./pages/MedicalDisclaimer'));
@@ -225,6 +226,11 @@ const App = () => {
                                 } />
                                 <Route path="/blog/:slug" element={
                                     <OptionalLayoutRoute><BlogArticle /></OptionalLayoutRoute>
+                                } />
+
+                                {/* Condition landing pages */}
+                                <Route path="/analize-pentru/:slug" element={
+                                    <OptionalLayoutRoute><ConditionReference /></OptionalLayoutRoute>
                                 } />
 
                                 {/* Optional layout routes (show layout for logged-in users) */}

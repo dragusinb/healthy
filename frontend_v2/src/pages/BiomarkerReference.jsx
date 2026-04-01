@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, Info, ArrowUpRight, Brain, Utensils, Dumbbell, ShoppingCart, BookOpen, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Upload, HelpCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, Info, ArrowUpRight, Brain, Utensils, Dumbbell, ShoppingCart, BookOpen, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Upload, HelpCircle, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import usePageTitle from '../hooks/usePageTitle';
 import useJsonLd from '../hooks/useJsonLd';
 import PublicNav from '../components/PublicNav';
+import api from '../api/client';
 import biomarkers from '../data/biomarkers-reference.json';
 
 const CATEGORY_IMAGES = {
@@ -225,6 +226,14 @@ export default function BiomarkerReference() {
     })),
   } : null);
 
+  // Fetch related blog articles
+  const [relatedArticles, setRelatedArticles] = useState([]);
+  useEffect(() => {
+    api.get(`/blog/articles?biomarker=${encodeURIComponent(biomarker.name_ro)}&limit=3`)
+      .then(res => setRelatedArticles(res.data.articles || []))
+      .catch(() => {});
+  }, [biomarker.name_ro]);
+
   const related = (biomarker.related || []).map(s => biomarkers.find(b => b.slug === s)).filter(Boolean);
 
   return (
@@ -373,6 +382,28 @@ export default function BiomarkerReference() {
                   <BookOpen size={14} className="text-slate-400 group-hover:text-teal-500" />
                   {isRo ? r.name_ro : r.name_en}
                   <ArrowUpRight size={12} className="ml-auto text-slate-300 group-hover:text-teal-500" />
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Related Blog Articles */}
+        {relatedArticles.length > 0 && (
+          <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-6">
+            <h2 className="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-teal-500" />
+              {isRo ? 'Articole despre' : 'Articles about'} {name}
+            </h2>
+            <div className="space-y-3">
+              {relatedArticles.map(a => (
+                <Link
+                  key={a.slug}
+                  to={`/blog/${a.slug}`}
+                  className="block p-4 rounded-xl border border-slate-200 hover:border-teal-300 hover:bg-teal-50 transition-colors"
+                >
+                  <h3 className="font-semibold text-slate-800 mb-1">{isRo ? a.title : (a.title_en || a.title)}</h3>
+                  <p className="text-sm text-slate-500 line-clamp-2">{isRo ? a.excerpt : (a.excerpt_en || a.excerpt)}</p>
                 </Link>
               ))}
             </div>

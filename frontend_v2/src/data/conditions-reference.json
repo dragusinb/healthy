@@ -1,0 +1,338 @@
+[
+  {
+    "slug": "diabet",
+    "name_ro": "Analize pentru Diabet",
+    "name_en": "Tests for Diabetes",
+    "description_ro": "Diabetul zaharat este o afecțiune metabolică caracterizată prin niveluri crescute de glucoză în sânge. Diagnosticul precoce prin analize de sânge permite tratament timpuriu și prevenirea complicațiilor.",
+    "description_en": "Diabetes mellitus is a metabolic condition characterized by elevated blood glucose levels. Early diagnosis through blood tests allows timely treatment and prevention of complications.",
+    "symptoms_ro": ["Sete excesivă", "Urinări frecvente", "Oboseală", "Pierdere în greutate", "Vedere încețoșată", "Vindecarea lentă a rănilor"],
+    "symptoms_en": ["Excessive thirst", "Frequent urination", "Fatigue", "Weight loss", "Blurred vision", "Slow wound healing"],
+    "biomarkers": ["glicemie", "hemoglobina-glicata", "insulina", "colesterol-total", "trigliceride", "creatinina", "sumar-urina"],
+    "when_ro": "Se recomandă testare anuală după 45 de ani, sau mai devreme dacă ai factori de risc: obezitate, istoric familial, sedentarism sau diabet gestațional.",
+    "when_en": "Annual testing is recommended after age 45, or earlier if you have risk factors: obesity, family history, sedentary lifestyle, or gestational diabetes.",
+    "meta_ro": "Ce analize se fac pentru diabet: glicemie, hemoglobina glicată, insulina. Valori normale, interpretare. Ghid complet Analize.Online.",
+    "meta_en": "What tests for diabetes: glucose, glycated hemoglobin, insulin. Normal values, interpretation. Complete Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analize confirmă diabetul?", "a": "Glicemia a jeun peste 126 mg/dL (la 2 recoltări separate) sau hemoglobina glicată (HbA1c) peste 6.5% confirmă diabetul. Glicemia 100-125 mg/dL indică prediabet."},
+      {"q": "Cât de des trebuie verificată glicemia?", "a": "Persoanele sănătoase ar trebui să verifice glicemia anual după 45 de ani. Diabeticii monitorizează mai frecvent, conform indicațiilor medicului."},
+      {"q": "Ce este prediabetul?", "a": "Prediabetul este stadiul în care glicemia este mai mare decât normal (100-125 mg/dL a jeun) dar nu suficient de mare pentru diagnostic de diabet. Poate fi reversibil prin dietă și exerciții."},
+      {"q": "De ce trebuie verificat și colesterolul la diabetici?", "a": "Diabetul crește riscul cardiovascular. Profilul lipidic (colesterol, trigliceride) trebuie monitorizat pentru prevenirea complicațiilor cardiace."},
+      {"q": "Ce este rezistența la insulină?", "a": "Rezistența la insulină apare când celulele nu mai răspund normal la insulină. Insulina a jeun crescută (peste 25 µUI/mL) și indicele HOMA-IR pot confirma rezistența la insulină."}
+    ],
+    "faqs_en": [
+      {"q": "What tests confirm diabetes?", "a": "Fasting glucose over 126 mg/dL (on 2 separate occasions) or glycated hemoglobin (HbA1c) over 6.5% confirms diabetes. Glucose 100-125 mg/dL indicates prediabetes."},
+      {"q": "How often should glucose be checked?", "a": "Healthy individuals should check glucose annually after age 45. Diabetics monitor more frequently, as directed by their doctor."},
+      {"q": "What is prediabetes?", "a": "Prediabetes is the stage where glucose is higher than normal (100-125 mg/dL fasting) but not high enough for diabetes diagnosis. It can be reversible through diet and exercise."},
+      {"q": "Why should cholesterol be checked in diabetics?", "a": "Diabetes increases cardiovascular risk. Lipid profile (cholesterol, triglycerides) must be monitored to prevent cardiac complications."},
+      {"q": "What is insulin resistance?", "a": "Insulin resistance occurs when cells no longer respond normally to insulin. Elevated fasting insulin (over 25 µUI/mL) and HOMA-IR index can confirm insulin resistance."}
+    ]
+  },
+  {
+    "slug": "tiroida",
+    "name_ro": "Analize pentru Tiroidă",
+    "name_en": "Tests for Thyroid",
+    "description_ro": "Tiroida este o glandă endocrină care produce hormoni esențiali pentru metabolism, energie și creștere. Disfuncțiile tiroidiene (hipo- și hipertiroidism) sunt foarte frecvente, mai ales la femei.",
+    "description_en": "The thyroid is an endocrine gland that produces hormones essential for metabolism, energy, and growth. Thyroid dysfunctions (hypo- and hyperthyroidism) are very common, especially in women.",
+    "symptoms_ro": ["Oboseală inexplicabilă", "Creștere/scădere în greutate", "Sensibilitate la frig/căldură", "Piele uscată", "Căderea părului", "Iritabilitate sau depresie"],
+    "symptoms_en": ["Unexplained fatigue", "Weight gain/loss", "Cold/heat sensitivity", "Dry skin", "Hair loss", "Irritability or depression"],
+    "biomarkers": ["tsh", "ft4", "ft3", "anti-tpo"],
+    "when_ro": "Se recomandă la femei după 35 de ani (la fiecare 5 ani), în sarcină, la istoric familial de boli tiroidiene, sau la simptome sugestive.",
+    "when_en": "Recommended for women after age 35 (every 5 years), during pregnancy, with family history of thyroid disease, or with suggestive symptoms.",
+    "meta_ro": "Ce analize se fac pentru tiroidă: TSH, FT4, FT3, anti-TPO. Valori normale, hipotiroidism, hipertiroidism. Ghid Analize.Online.",
+    "meta_en": "What tests for thyroid: TSH, FT4, FT3, anti-TPO. Normal values, hypothyroidism, hyperthyroidism. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analiză de bază trebuie pentru tiroidă?", "a": "TSH este analiza de screening de bază. Dacă TSH este anormal, medicul va cere FT4 și FT3 pentru a stabili tipul de disfuncție tiroidiană."},
+      {"q": "Ce înseamnă TSH crescut?", "a": "TSH crescut cu FT4 scăzut indică hipotiroidism. TSH ușor crescut cu FT4 normal se numește hipotiroidism subclinic și necesită monitorizare."},
+      {"q": "Ce sunt anticorpii anti-TPO?", "a": "Anticorpii anti-TPO confirmă cauza autoimună a disfuncției tiroidiene (tiroidita Hashimoto sau boala Graves). Pot fi pozitivi ani înainte de apariția simptomelor."},
+      {"q": "Tiroidita Hashimoto se vindecă?", "a": "Hashimoto este o afecțiune cronică autoimună. Nu se vindecă, dar se controlează eficient cu levotiroxină (hormon tiroidian sintetic), cu monitorizare periodică a TSH."},
+      {"q": "Biotina afectează analizele tiroidiene?", "a": "Da, biotina (vitamina B7) din suplimente poate falsifica rezultatele TSH, FT4, FT3. Oprește suplimentele cu biotină cu 2-3 zile înainte de recoltare."}
+    ],
+    "faqs_en": [
+      {"q": "What basic test is needed for thyroid?", "a": "TSH is the basic screening test. If TSH is abnormal, the doctor will order FT4 and FT3 to determine the type of thyroid dysfunction."},
+      {"q": "What does elevated TSH mean?", "a": "Elevated TSH with low FT4 indicates hypothyroidism. Slightly elevated TSH with normal FT4 is called subclinical hypothyroidism and requires monitoring."},
+      {"q": "What are anti-TPO antibodies?", "a": "Anti-TPO antibodies confirm the autoimmune cause of thyroid dysfunction (Hashimoto's thyroiditis or Graves' disease). They can be positive years before symptoms appear."},
+      {"q": "Can Hashimoto's thyroiditis be cured?", "a": "Hashimoto's is a chronic autoimmune condition. It cannot be cured, but is effectively controlled with levothyroxine (synthetic thyroid hormone), with periodic TSH monitoring."},
+      {"q": "Does biotin affect thyroid tests?", "a": "Yes, biotin (vitamin B7) from supplements can falsify TSH, FT4, FT3 results. Stop biotin supplements 2-3 days before blood collection."}
+    ]
+  },
+  {
+    "slug": "anemie",
+    "name_ro": "Analize pentru Anemie",
+    "name_en": "Tests for Anemia",
+    "description_ro": "Anemia este o afecțiune în care sângele nu transportă suficient oxigen la țesuturi, de obicei din cauza hemoglobinei sau eritrocitelor scăzute. Este cea mai frecventă tulburare hematologică la nivel mondial.",
+    "description_en": "Anemia is a condition where blood doesn't carry enough oxygen to tissues, usually due to low hemoglobin or red blood cells. It is the most common hematological disorder worldwide.",
+    "symptoms_ro": ["Oboseală și slăbiciune", "Paloare", "Amețeli", "Bătăi rapide ale inimii", "Dificultăți de concentrare", "Unghii fragile"],
+    "symptoms_en": ["Fatigue and weakness", "Pallor", "Dizziness", "Rapid heartbeat", "Difficulty concentrating", "Brittle nails"],
+    "biomarkers": ["hemoglobina", "hematocrit", "eritrocite", "vem", "hem", "rdw", "reticulocite", "fier-seric", "feritina", "tibc", "transferina", "vitamina-b12", "acid-folic"],
+    "when_ro": "Se recomandă la oboseală persistentă, paloare, amețeli, menstruații abundente, sarcină sau diete restrictive (veganism).",
+    "when_en": "Recommended for persistent fatigue, pallor, dizziness, heavy periods, pregnancy, or restrictive diets (veganism).",
+    "meta_ro": "Ce analize se fac pentru anemie: hemoglobina, fier, feritina, vitamina B12. Cauze, tipuri de anemie. Ghid Analize.Online.",
+    "meta_en": "What tests for anemia: hemoglobin, iron, ferritin, vitamin B12. Causes, types of anemia. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analiză confirmă anemia?", "a": "Hemoglobina sub 12 g/dL la femei sau sub 13.5 g/dL la bărbați confirmă anemia. Hemoleucograma completă este prima analiză necesară."},
+      {"q": "Ce tipuri de anemie există?", "a": "Principalele tipuri: anemie feriprivă (deficit de fier — cea mai frecventă), megaloblastică (deficit B12/folat), hemolitică (distrugerea eritrocitelor), aplastică (insuficiența măduvei)."},
+      {"q": "Feritina scăzută ce înseamnă?", "a": "Feritina scăzută (sub 30 ng/mL) indică depozite de fier epuizate. Poate apărea înainte de scăderea hemoglobinei — este un semn precoce de deficit de fier."},
+      {"q": "VEM ajută la tipul de anemie?", "a": "Da. VEM scăzut (microcitar) sugerează deficit de fier sau talasemie. VEM crescut (macrocitar) sugerează deficit B12/folat. VEM normal (normocitar) sugerează boli cronice sau hemoragii."},
+      {"q": "Pot avea deficit de fier fără anemie?", "a": "Da. Deficitul de fier latent (feritina scăzută, hemoglobina normală) cauza oboseală, căderea părului și dificultăți de concentrare, chiar fără anemie."}
+    ],
+    "faqs_en": [
+      {"q": "What test confirms anemia?", "a": "Hemoglobin below 12 g/dL in women or below 13.5 g/dL in men confirms anemia. A complete blood count is the first test needed."},
+      {"q": "What types of anemia exist?", "a": "Main types: iron deficiency anemia (most common), megaloblastic (B12/folate deficiency), hemolytic (red blood cell destruction), aplastic (bone marrow failure)."},
+      {"q": "What does low ferritin mean?", "a": "Low ferritin (below 30 ng/mL) indicates depleted iron stores. It can occur before hemoglobin drops — it's an early sign of iron deficiency."},
+      {"q": "Does MCV help determine anemia type?", "a": "Yes. Low MCV (microcytic) suggests iron deficiency or thalassemia. High MCV (macrocytic) suggests B12/folate deficiency. Normal MCV (normocytic) suggests chronic disease or bleeding."},
+      {"q": "Can I have iron deficiency without anemia?", "a": "Yes. Latent iron deficiency (low ferritin, normal hemoglobin) causes fatigue, hair loss, and concentration difficulties, even without anemia."}
+    ]
+  },
+  {
+    "slug": "ficat",
+    "name_ro": "Analize pentru Ficat",
+    "name_en": "Tests for Liver",
+    "description_ro": "Ficatul este cel mai mare organ intern, responsabil cu detoxifierea, producția de bilă, metabolismul medicamentelor și sinteza proteinelor. Analizele hepatice detectează inflamația, obstrucția sau insuficiența hepatică.",
+    "description_en": "The liver is the largest internal organ, responsible for detoxification, bile production, drug metabolism, and protein synthesis. Liver tests detect inflammation, obstruction, or liver failure.",
+    "symptoms_ro": ["Icter (îngălbenirea pielii)", "Oboseală", "Durere abdominală dreaptă", "Greață", "Urină închisă la culoare", "Pierderea apetitului"],
+    "symptoms_en": ["Jaundice (yellowing of skin)", "Fatigue", "Right abdominal pain", "Nausea", "Dark urine", "Loss of appetite"],
+    "biomarkers": ["tgo", "tgp", "ggt", "gamma-gt", "fosfataza-alcalina", "bilirubina-totala", "bilirubina-directa", "albumina", "ldh", "proteine-totale"],
+    "when_ro": "Se recomandă la consum de alcool, medicamente hepatotoxice, obezitate, diabet, hepatită sau simptome sugestive.",
+    "when_en": "Recommended for alcohol consumption, hepatotoxic medications, obesity, diabetes, hepatitis, or suggestive symptoms.",
+    "meta_ro": "Ce analize se fac pentru ficat: TGO, TGP, GGT, bilirubina. Valori normale, interpretare. Ghid Analize.Online.",
+    "meta_en": "What tests for liver: AST, ALT, GGT, bilirubin. Normal values, interpretation. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analize arată cum funcționează ficatul?", "a": "TGP (ALT) este cel mai specific marker hepatic. TGO (AST), GGT, fosfataza alcalină, bilirubina și albumina completează profilul hepatic."},
+      {"q": "TGO și TGP crescute — ce înseamnă?", "a": "Transaminazele crescute indică inflamație hepatică. Cauze frecvente: alcool, medicamente, hepatită virală, steatoză hepatică (ficat gras), obezitate."},
+      {"q": "GGT crescut de la alcool se normalizează?", "a": "Da, GGT se normalizează de obicei în 2-6 săptămâni după oprirea consumului de alcool. Este cel mai sensibil marker al consumului cronic de alcool."},
+      {"q": "Ce este ficatul gras (steatoza hepatică)?", "a": "Steatoza hepatică este acumularea de grăsime în ficat. TGP este de obicei mai mare decât TGO. Cauze: obezitate, diabet, alcool. Se tratează prin dietă și exerciții."},
+      {"q": "Bilirubina crescută ce indică?", "a": "Bilirubina crescută cauza icter. Cauze: hepatită, obstrucție biliară (calculi), hemoliză sau sindrom Gilbert (afecțiune benignă, genetică, la ~5% din populație)."}
+    ],
+    "faqs_en": [
+      {"q": "What tests show how the liver is functioning?", "a": "ALT is the most specific liver marker. AST, GGT, alkaline phosphatase, bilirubin, and albumin complete the liver profile."},
+      {"q": "Elevated AST and ALT — what does it mean?", "a": "Elevated transaminases indicate liver inflammation. Common causes: alcohol, medications, viral hepatitis, fatty liver disease, obesity."},
+      {"q": "Does GGT elevated from alcohol normalize?", "a": "Yes, GGT usually normalizes within 2-6 weeks after stopping alcohol consumption. It is the most sensitive marker of chronic alcohol use."},
+      {"q": "What is fatty liver disease?", "a": "Fatty liver is fat accumulation in the liver. ALT is usually higher than AST. Causes: obesity, diabetes, alcohol. Treated through diet and exercise."},
+      {"q": "What does elevated bilirubin indicate?", "a": "Elevated bilirubin causes jaundice. Causes: hepatitis, biliary obstruction (stones), hemolysis, or Gilbert syndrome (benign genetic condition in ~5% of population)."}
+    ]
+  },
+  {
+    "slug": "rinichi",
+    "name_ro": "Analize pentru Rinichi",
+    "name_en": "Tests for Kidneys",
+    "description_ro": "Rinichii filtrează sângele, elimină deșeurile, reglează echilibrul electrolitic și tensiunea arterială. Boala renală cronică este adesea silențioasă și detectabilă doar prin analize de sânge.",
+    "description_en": "The kidneys filter blood, remove waste, regulate electrolyte balance and blood pressure. Chronic kidney disease is often silent and detectable only through blood tests.",
+    "symptoms_ro": ["Umflarea picioarelor", "Oboseală", "Urinări frecvente noaptea", "Urină spumoasă", "Greață", "Pierderea apetitului"],
+    "symptoms_en": ["Swelling of legs", "Fatigue", "Frequent nighttime urination", "Foamy urine", "Nausea", "Loss of appetite"],
+    "biomarkers": ["creatinina", "uree", "acid-uric", "gfr", "sodiu", "potasiu", "calciu", "fosfor", "sumar-urina"],
+    "when_ro": "Se recomandă la diabet, hipertensiune, istoric familial de boli renale, medicamente nefrotoxice sau vârstă peste 60 de ani.",
+    "when_en": "Recommended for diabetes, hypertension, family history of kidney disease, nephrotoxic medications, or age over 60.",
+    "meta_ro": "Ce analize se fac pentru rinichi: creatinina, uree, GFR, sumar urină. Funcție renală. Ghid Analize.Online.",
+    "meta_en": "What tests for kidneys: creatinine, urea, GFR, urinalysis. Kidney function. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analiză arată funcția rinichilor?", "a": "GFR (rata filtrării glomerulare) calculat din creatinină este cel mai important indicator. GFR peste 90 este normal, sub 60 indică boală renală cronică."},
+      {"q": "Creatinina crescută ce înseamnă?", "a": "Creatinina crescută indică scăderea funcției renale. Poate fi tranzitorie (deshidratare, efort fizic intens) sau cronică (boală renală). Trebuie corelată cu GFR."},
+      {"q": "Ureea crescută e gravă?", "a": "Ureea crescută poate indica insuficiență renală, deshidratare, dietă hiperproteică sau sângerare digestivă. Trebuie interpretată împreună cu creatinina și GFR."},
+      {"q": "Potasiul crescut e periculos?", "a": "Da, potasiul crescut peste 5.5 mEq/L poate cauza aritmii cardiace periculoase. Apare în insuficiență renală, medicamente (IECA, spironolactonă) sau hemoliză la recoltare."},
+      {"q": "Sumarul de urină ce arată pentru rinichi?", "a": "Proteinuria (proteine în urină) este un semn precoce de boală renală. Hematuria (sânge în urină) poate indica infecție, calculi sau afecțiuni glomerulare."}
+    ],
+    "faqs_en": [
+      {"q": "What test shows kidney function?", "a": "GFR (glomerular filtration rate) calculated from creatinine is the most important indicator. GFR above 90 is normal, below 60 indicates chronic kidney disease."},
+      {"q": "What does elevated creatinine mean?", "a": "Elevated creatinine indicates decreased kidney function. It can be transient (dehydration, intense exercise) or chronic (kidney disease). Must be correlated with GFR."},
+      {"q": "Is elevated urea serious?", "a": "Elevated urea may indicate kidney failure, dehydration, high-protein diet, or digestive bleeding. Must be interpreted together with creatinine and GFR."},
+      {"q": "Is elevated potassium dangerous?", "a": "Yes, potassium above 5.5 mEq/L can cause dangerous cardiac arrhythmias. Occurs in kidney failure, medications (ACE inhibitors, spironolactone), or hemolysis during collection."},
+      {"q": "What does urinalysis show for kidneys?", "a": "Proteinuria (protein in urine) is an early sign of kidney disease. Hematuria (blood in urine) may indicate infection, stones, or glomerular conditions."}
+    ]
+  },
+  {
+    "slug": "inima",
+    "name_ro": "Analize pentru Inimă",
+    "name_en": "Tests for Heart",
+    "description_ro": "Bolile cardiovasculare sunt principala cauză de deces la nivel mondial. Analizele de sânge pot identifica factorii de risc (colesterol, inflamație) și pot preveni infarctul și AVC-ul prin intervenție timpurie.",
+    "description_en": "Cardiovascular diseases are the leading cause of death worldwide. Blood tests can identify risk factors (cholesterol, inflammation) and prevent heart attack and stroke through early intervention.",
+    "symptoms_ro": ["Durere în piept", "Dispnee (dificultăți de respirație)", "Oboseală la efort", "Palpitații", "Amețeli", "Umflarea gleznelor"],
+    "symptoms_en": ["Chest pain", "Dyspnea (difficulty breathing)", "Fatigue on exertion", "Palpitations", "Dizziness", "Ankle swelling"],
+    "biomarkers": ["colesterol-total", "colesterol-ldl", "colesterol-hdl", "trigliceride", "pcr", "fibrinogen", "homocisteina", "glicemie"],
+    "when_ro": "Se recomandă de la 20 de ani (la fiecare 5 ani), sau mai frecvent la obezitate, diabet, hipertensiune, fumat sau istoric familial de boli cardiace.",
+    "when_en": "Recommended from age 20 (every 5 years), or more frequently with obesity, diabetes, hypertension, smoking, or family history of heart disease.",
+    "meta_ro": "Ce analize se fac pentru inimă: colesterol, trigliceride, PCR, fibrinogen. Risc cardiovascular. Ghid Analize.Online.",
+    "meta_en": "What tests for heart: cholesterol, triglycerides, CRP, fibrinogen. Cardiovascular risk. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analize arată riscul cardiovascular?", "a": "Profilul lipidic (colesterol total, LDL, HDL, trigliceride) plus PCR (inflamație) și fibrinogenul evaluează riscul cardiac. Raportul LDL/HDL este un indicator important."},
+      {"q": "Colesterolul LDL — care e valoarea ideală?", "a": "LDL sub 100 mg/dL este ideal. Sub 70 mg/dL pentru persoane cu risc cardiovascular crescut. Peste 160 mg/dL crește semnificativ riscul de ateroscleroză."},
+      {"q": "PCR-ul ce rol are în evaluarea cardiacă?", "a": "PCR-ul ultrasensibil (hs-CRP) detectează inflamația vasculară, un factor de risc cardiac independent. Valori sub 1 mg/L = risc scăzut, peste 3 mg/L = risc crescut."},
+      {"q": "Trigliceridele crescute sunt periculoase?", "a": "Da, trigliceridele peste 150 mg/dL cresc riscul cardiovascular. Peste 500 mg/dL cresc riscul de pancreatită. Se scad prin dietă, exerciții și reducerea alcoolului."},
+      {"q": "Ce este homocisteina și de ce contează?", "a": "Homocisteina crescută (peste 15 µmol/L) este un factor de risc cardiovascular independent. Se scade cu suplimente de acid folic, vitamina B12 și B6."}
+    ],
+    "faqs_en": [
+      {"q": "What tests show cardiovascular risk?", "a": "Lipid profile (total cholesterol, LDL, HDL, triglycerides) plus CRP (inflammation) and fibrinogen evaluate cardiac risk. The LDL/HDL ratio is an important indicator."},
+      {"q": "LDL cholesterol — what's the ideal value?", "a": "LDL below 100 mg/dL is ideal. Below 70 mg/dL for high cardiovascular risk individuals. Above 160 mg/dL significantly increases atherosclerosis risk."},
+      {"q": "What role does CRP play in cardiac evaluation?", "a": "High-sensitivity CRP (hs-CRP) detects vascular inflammation, an independent cardiac risk factor. Values below 1 mg/L = low risk, above 3 mg/L = high risk."},
+      {"q": "Are elevated triglycerides dangerous?", "a": "Yes, triglycerides above 150 mg/dL increase cardiovascular risk. Above 500 mg/dL increase pancreatitis risk. Reduced through diet, exercise, and alcohol reduction."},
+      {"q": "What is homocysteine and why does it matter?", "a": "Elevated homocysteine (above 15 µmol/L) is an independent cardiovascular risk factor. Reduced with folic acid, vitamin B12, and B6 supplements."}
+    ]
+  },
+  {
+    "slug": "hemoleucograma",
+    "name_ro": "Hemoleucograma Completă",
+    "name_en": "Complete Blood Count (CBC)",
+    "description_ro": "Hemoleucograma (CBC) este cea mai frecventă analiză de sânge, care evaluează globulele roșii, globulele albe și trombocitele. Oferă o imagine de ansamblu asupra sănătății generale și poate detecta anemie, infecții sau boli hematologice.",
+    "description_en": "The complete blood count (CBC) is the most common blood test, evaluating red blood cells, white blood cells, and platelets. It provides an overview of general health and can detect anemia, infections, or hematological diseases.",
+    "symptoms_ro": ["Oboseală persistentă", "Infecții frecvente", "Vânătăi ușoare", "Sângerări prelungite", "Paloare", "Amețeli"],
+    "symptoms_en": ["Persistent fatigue", "Frequent infections", "Easy bruising", "Prolonged bleeding", "Pallor", "Dizziness"],
+    "biomarkers": ["hemoglobina", "hematocrit", "eritrocite", "leucocite", "trombocite", "neutrofile", "limfocite", "monocite", "eozinofile", "bazofile", "vem", "hem", "chem", "rdw", "mpv", "reticulocite", "vsh"],
+    "when_ro": "Se recomandă anual ca screening general, sau oricând la oboseală, infecții frecvente, sângerări, paloare sau pregătire preoperatorie.",
+    "when_en": "Recommended annually as general screening, or anytime for fatigue, frequent infections, bleeding, pallor, or preoperative preparation.",
+    "meta_ro": "Hemoleucograma completă: valori normale, cum se citește, ce înseamnă fiecare parametru. Ghid complet Analize.Online.",
+    "meta_en": "Complete blood count: normal values, how to read it, what each parameter means. Complete Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce include hemoleucograma completă?", "a": "Include: hemoglobina, hematocritul, eritrocite, leucocite (cu formulă: neutrofile, limfocite, monocite, eozinofile, bazofile), trombocite, VEM, HEM, CHEM, RDW și MPV."},
+      {"q": "Trebuie să fiu a jeun pentru hemoleucogramă?", "a": "Nu este obligatoriu, dar se recomandă. Alimentele nu afectează semnificativ hemoleucograma, dar analiza se face dimineața pentru consistență."},
+      {"q": "Cum citesc hemoleucograma?", "a": "Verifică hemoglobina (anemie), leucocitele (infecții/imunitate) și trombocitele (coagulare). Valorile în afara intervalului de referință sunt marcate cu H (high) sau L (low)."},
+      {"q": "Leucocitele crescute ce înseamnă?", "a": "Leucocitele peste 10.000/µL pot indica infecție bacteriană, inflamație, stres sau leucemie. Formula leucocitară (neutrofile, limfocite) ajută la diferențiere."},
+      {"q": "Cât de des se face hemoleucograma?", "a": "O dată pe an ca screening general. Mai frecvent dacă ai anemie, infecții recurente sau afecțiuni hematologice. Medicul stabilește frecvența optimă."}
+    ],
+    "faqs_en": [
+      {"q": "What does a complete blood count include?", "a": "Includes: hemoglobin, hematocrit, RBCs, WBCs (with differential: neutrophils, lymphocytes, monocytes, eosinophils, basophils), platelets, MCV, MCH, MCHC, RDW, and MPV."},
+      {"q": "Do I need to fast for a CBC?", "a": "Not mandatory, but recommended. Food doesn't significantly affect CBC, but the test is done in the morning for consistency."},
+      {"q": "How do I read a CBC?", "a": "Check hemoglobin (anemia), WBCs (infections/immunity), and platelets (coagulation). Values outside reference range are marked H (high) or L (low)."},
+      {"q": "What do elevated WBCs mean?", "a": "WBCs above 10,000/µL may indicate bacterial infection, inflammation, stress, or leukemia. The WBC differential (neutrophils, lymphocytes) helps differentiate."},
+      {"q": "How often should a CBC be done?", "a": "Once a year as general screening. More frequently if you have anemia, recurrent infections, or hematological conditions. Your doctor determines optimal frequency."}
+    ]
+  },
+  {
+    "slug": "sarcina",
+    "name_ro": "Analize în Sarcină",
+    "name_en": "Tests During Pregnancy",
+    "description_ro": "Monitorizarea sănătății în sarcină necesită analize regulate pentru a detecta anemie, diabet gestațional, infecții sau disfuncții tiroidiene care pot afecta mama și fătul.",
+    "description_en": "Health monitoring during pregnancy requires regular tests to detect anemia, gestational diabetes, infections, or thyroid dysfunctions that may affect mother and fetus.",
+    "symptoms_ro": [],
+    "symptoms_en": [],
+    "biomarkers": ["hemoglobina", "hematocrit", "glicemie", "hemoglobina-glicata", "tsh", "fier-seric", "feritina", "acid-folic", "vitamina-d", "vitamina-b12", "sumar-urina", "hbsag", "anti-hcv"],
+    "when_ro": "Trimestrul I: hemoleucogramă, grupa sanguină, screening infecții. Trimestrul II: test toleranță glucoză. Trimestrul III: hemoleucogramă, coagulare.",
+    "when_en": "1st trimester: CBC, blood type, infection screening. 2nd trimester: glucose tolerance test. 3rd trimester: CBC, coagulation.",
+    "meta_ro": "Ce analize se fac în sarcină: hemoglobina, glicemie, TSH, fier, screening infecții. Ghid pe trimestre. Analize.Online.",
+    "meta_en": "What tests during pregnancy: hemoglobin, glucose, TSH, iron, infection screening. Guide by trimester. Analize.Online.",
+    "faqs_ro": [
+      {"q": "Ce analize se fac în primul trimestru?", "a": "Hemoleucogramă, grupa sanguină + Rh, glicemie, TSH, sumar urină, HBsAg, anti-HCV, toxoplasmoză, rubeolă, HIV (cu acordul). Sunt esențiale pentru o sarcină monitorizată."},
+      {"q": "Hemoglobina scăzută în sarcină e normală?", "a": "O ușoară scădere este fiziologică (volumul de sânge crește). Totuși, hemoglobina sub 11 g/dL necesită suplimentare cu fier. Sub 10 g/dL e anemie semnificativă."},
+      {"q": "Ce este testul de toleranță la glucoză?", "a": "Se face în săptămânile 24-28. Bei o soluție cu 75g glucoză și se măsoară glicemia la 0, 1 și 2 ore. Detectează diabetul gestațional."},
+      {"q": "De ce se verifică TSH în sarcină?", "a": "Hipotiroidismul netratat în sarcină poate afecta dezvoltarea neurologică a fătului. TSH-ul trebuie sub 2.5 mUI/mL în primul trimestru."},
+      {"q": "Ce suplimente sunt necesare în sarcină?", "a": "Acid folic (previne defecte de tub neural), fier (previne anemia), vitamina D și iod sunt esențiale. Dozele se stabilesc pe baza analizelor."}
+    ],
+    "faqs_en": [
+      {"q": "What tests are done in the first trimester?", "a": "CBC, blood type + Rh, glucose, TSH, urinalysis, HBsAg, anti-HCV, toxoplasmosis, rubella, HIV (with consent). Essential for a monitored pregnancy."},
+      {"q": "Is low hemoglobin during pregnancy normal?", "a": "A slight decrease is physiological (blood volume increases). However, hemoglobin below 11 g/dL requires iron supplementation. Below 10 g/dL is significant anemia."},
+      {"q": "What is the glucose tolerance test?", "a": "Done at weeks 24-28. You drink a solution with 75g glucose and blood glucose is measured at 0, 1, and 2 hours. It detects gestational diabetes."},
+      {"q": "Why is TSH checked during pregnancy?", "a": "Untreated hypothyroidism in pregnancy can affect fetal neurological development. TSH should be below 2.5 mIU/mL in the first trimester."},
+      {"q": "What supplements are needed during pregnancy?", "a": "Folic acid (prevents neural tube defects), iron (prevents anemia), vitamin D, and iodine are essential. Doses are determined based on test results."}
+    ]
+  },
+  {
+    "slug": "imunitate",
+    "name_ro": "Analize pentru Imunitate",
+    "name_en": "Tests for Immunity",
+    "description_ro": "Sistemul imunitar protejează organismul de infecții și boli. Analizele de sânge evaluează funcția imunitară, identifică alergii și detectează boli autoimune.",
+    "description_en": "The immune system protects the body from infections and diseases. Blood tests evaluate immune function, identify allergies, and detect autoimmune diseases.",
+    "symptoms_ro": ["Infecții frecvente", "Vindecare lentă", "Alergii recurente", "Oboseală cronică", "Dureri articulare", "Erupții cutanate"],
+    "symptoms_en": ["Frequent infections", "Slow healing", "Recurrent allergies", "Chronic fatigue", "Joint pain", "Skin rashes"],
+    "biomarkers": ["leucocite", "neutrofile", "limfocite", "eozinofile", "pcr", "vsh", "ige-total", "vitamina-d", "zinc"],
+    "when_ro": "Se recomandă la infecții frecvente, alergii severe, suspiciune de boală autoimună sau imunodepresie.",
+    "when_en": "Recommended for frequent infections, severe allergies, suspected autoimmune disease, or immunosuppression.",
+    "meta_ro": "Ce analize se fac pentru imunitate: leucocite, IgE, vitamina D, zinc. Infecții și alergii. Ghid Analize.Online.",
+    "meta_en": "What tests for immunity: WBCs, IgE, vitamin D, zinc. Infections and allergies. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analize arată starea imunității?", "a": "Leucocitele (cu formula: neutrofile, limfocite) arată capacitatea de apărare. Vitamina D, zincul și IgE completează evaluarea. PCR și VSH detectează inflamația."},
+      {"q": "Limfocitele scăzute ce înseamnă?", "a": "Limfocitele sub 1000/µL pot indica imunosupresie, infecții virale (HIV), stres sever sau tratament imunosupresor. Necesită investigații suplimentare."},
+      {"q": "Vitamina D influențează imunitatea?", "a": "Da, vitamina D sub 30 ng/mL este asociată cu risc crescut de infecții, boli autoimune și inflamație cronică. Suplimentarea îmbunătățește răspunsul imunitar."},
+      {"q": "IgE crescut ce înseamnă?", "a": "IgE total crescut indică predispoziție alergică (atopie), dar nu identifică alergenul specific. Teste IgE specifice sunt necesare pentru diagnosticul alergiilor."},
+      {"q": "Zincul afectează imunitatea?", "a": "Da, zincul este esențial pentru funcția imunitară. Deficitul cauza infecții frecvente, vindecare lentă și căderea părului. Se găsește în carne, nuci și semințe."}
+    ],
+    "faqs_en": [
+      {"q": "What tests show immune status?", "a": "WBCs (with differential: neutrophils, lymphocytes) show defense capacity. Vitamin D, zinc, and IgE complete the evaluation. CRP and ESR detect inflammation."},
+      {"q": "What do low lymphocytes mean?", "a": "Lymphocytes below 1000/µL may indicate immunosuppression, viral infections (HIV), severe stress, or immunosuppressive treatment. Requires further investigation."},
+      {"q": "Does vitamin D affect immunity?", "a": "Yes, vitamin D below 30 ng/mL is associated with increased risk of infections, autoimmune diseases, and chronic inflammation. Supplementation improves immune response."},
+      {"q": "What does elevated IgE mean?", "a": "Elevated total IgE indicates allergic predisposition (atopy), but does not identify the specific allergen. Specific IgE tests are needed for allergy diagnosis."},
+      {"q": "Does zinc affect immunity?", "a": "Yes, zinc is essential for immune function. Deficiency causes frequent infections, slow healing, and hair loss. Found in meat, nuts, and seeds."}
+    ]
+  },
+  {
+    "slug": "stres-oboseala",
+    "name_ro": "Analize pentru Stres și Oboseală",
+    "name_en": "Tests for Stress and Fatigue",
+    "description_ro": "Oboseala cronică poate avea cauze medicale detectabile prin analize de sânge: anemie, disfuncție tiroidiană, deficit de vitamine sau dezechilibre hormonale. Nu ignora oboseala persistentă.",
+    "description_en": "Chronic fatigue can have medical causes detectable through blood tests: anemia, thyroid dysfunction, vitamin deficiency, or hormonal imbalances. Don't ignore persistent fatigue.",
+    "symptoms_ro": ["Oboseală persistentă", "Lipsa energiei dimineața", "Dificultăți de concentrare", "Iritabilitate", "Insomnie", "Dureri musculare"],
+    "symptoms_en": ["Persistent fatigue", "Lack of morning energy", "Difficulty concentrating", "Irritability", "Insomnia", "Muscle pain"],
+    "biomarkers": ["hemoglobina", "fier-seric", "feritina", "tsh", "ft4", "vitamina-d", "vitamina-b12", "cortizol", "glicemie", "magneziu"],
+    "when_ro": "Se recomandă când oboseala persistă peste 2-4 săptămâni fără explicație evidentă (somn insuficient, stres acut).",
+    "when_en": "Recommended when fatigue persists for over 2-4 weeks without obvious explanation (insufficient sleep, acute stress).",
+    "meta_ro": "Ce analize să faci când ești obosit: fier, feritina, TSH, vitamina D, B12. Cauze oboseală cronică. Ghid Analize.Online.",
+    "meta_en": "What tests when you're tired: iron, ferritin, TSH, vitamin D, B12. Chronic fatigue causes. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analize se fac pentru oboseală cronică?", "a": "Start cu: hemoleucogramă (anemie), feritina (depozite fier), TSH (tiroidă), vitamina D, vitamina B12, glicemie. Cortizolul și magneziul completează evaluarea."},
+      {"q": "Pot avea deficit de fier fără anemie?", "a": "Da. Feritina sub 30 ng/mL cu hemoglobina normală cauza oboseală, căderea părului și dificultăți de concentrare — se numește deficit de fier latent și este foarte frecvent."},
+      {"q": "TSH-ul cauza oboseală?", "a": "Da, hipotiroidismul (TSH crescut) este o cauză frecventă de oboseală cronică. TSH-ul trebuie verificat mai ales la femei peste 35 de ani sau cu istoric familial."},
+      {"q": "Vitamina D scăzută cauza oboseală?", "a": "Da, deficit de vitamina D (sub 30 ng/mL) este asociat cu oboseală, slăbiciune musculară și depresie. 80% din români au deficit, mai ales iarna."},
+      {"q": "Cortizolul crescut cauza oboseală?", "a": "Paradoxal, da. Cortizolul cronic crescut (stres prelungit) cauza epuizare, insomnie, creștere în greutate și dificultăți de concentrare. Recoltarea se face dimineața (7-9)."}
+    ],
+    "faqs_en": [
+      {"q": "What tests for chronic fatigue?", "a": "Start with: CBC (anemia), ferritin (iron stores), TSH (thyroid), vitamin D, vitamin B12, glucose. Cortisol and magnesium complete the evaluation."},
+      {"q": "Can I have iron deficiency without anemia?", "a": "Yes. Ferritin below 30 ng/mL with normal hemoglobin causes fatigue, hair loss, and concentration difficulties — called latent iron deficiency and very common."},
+      {"q": "Can TSH cause fatigue?", "a": "Yes, hypothyroidism (elevated TSH) is a common cause of chronic fatigue. TSH should be checked especially in women over 35 or with family history."},
+      {"q": "Does low vitamin D cause fatigue?", "a": "Yes, vitamin D deficiency (below 30 ng/mL) is associated with fatigue, muscle weakness, and depression. 80% of Romanians are deficient, especially in winter."},
+      {"q": "Does elevated cortisol cause fatigue?", "a": "Paradoxically, yes. Chronically elevated cortisol (prolonged stress) causes exhaustion, insomnia, weight gain, and concentration difficulties. Collection is done in the morning (7-9 AM)."}
+    ]
+  },
+  {
+    "slug": "hormoni-barbati",
+    "name_ro": "Analize Hormonale Bărbați",
+    "name_en": "Hormonal Tests for Men",
+    "description_ro": "Echilibrul hormonal la bărbați influențează energia, masa musculară, libido, dispoziția și fertilitatea. Testosteronul scade natural cu vârsta, dar scăderea excesivă necesită evaluare medicală.",
+    "description_en": "Hormonal balance in men influences energy, muscle mass, libido, mood, and fertility. Testosterone naturally decreases with age, but excessive decline requires medical evaluation.",
+    "symptoms_ro": ["Scăderea libidoului", "Oboseală", "Pierdere de masă musculară", "Creștere în greutate", "Depresie", "Dificultăți de concentrare"],
+    "symptoms_en": ["Decreased libido", "Fatigue", "Muscle mass loss", "Weight gain", "Depression", "Difficulty concentrating"],
+    "biomarkers": ["testosteron", "fsh", "lh", "prolactina", "cortizol", "estradiol", "tsh", "insulina", "glicemie"],
+    "when_ro": "Se recomandă la scăderea libidoului, oboseală, disfuncție erectilă, infertilitate sau după 40 de ani.",
+    "when_en": "Recommended for decreased libido, fatigue, erectile dysfunction, infertility, or after age 40.",
+    "meta_ro": "Ce analize hormonale pentru bărbați: testosteron, FSH, LH, prolactina. Hipogonadism. Ghid Analize.Online.",
+    "meta_en": "What hormonal tests for men: testosterone, FSH, LH, prolactin. Hypogonadism. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analize hormonale trebuie să facă un bărbat?", "a": "Testosteronul total este prima analiză. Dacă este scăzut, se verifică FSH, LH (cauza hipofizară sau testiculară), prolactina și estradiolul."},
+      {"q": "Testosteronul scăzut la ce vârstă e normal?", "a": "Testosteronul scade cu ~1-2% pe an după 30 de ani. Valori sub 270 ng/dL cu simptome (oboseală, libido scăzut) pot necesita tratament — consultă un endocrinolog."},
+      {"q": "Prolactina crescută la bărbați ce înseamnă?", "a": "Prolactina crescută poate suprima testosteronul și cauza ginecomastie, disfuncție erectilă. Cauze: medicamente (antipsihotice), stres, adenom hipofizar."},
+      {"q": "Estradiolul crescut la bărbați e normal?", "a": "Nu. Estradiolul crescut la bărbați apare în obezitate (aromatizare în țesutul adipos), ciroză sau tumori. Cauza ginecomastie și scăderea libidoului."},
+      {"q": "Când se face recoltarea pentru testosteron?", "a": "Dimineața devreme (7-10), a jeun. Testosteronul are vârf dimineața și scade pe parcursul zilei. Recoltarea după-amiază poate da valori fals scăzute."}
+    ],
+    "faqs_en": [
+      {"q": "What hormonal tests should a man get?", "a": "Total testosterone is the first test. If low, FSH, LH (pituitary or testicular cause), prolactin, and estradiol are checked."},
+      {"q": "At what age is low testosterone normal?", "a": "Testosterone decreases ~1-2% per year after 30. Values below 270 ng/dL with symptoms (fatigue, low libido) may need treatment — consult an endocrinologist."},
+      {"q": "What does elevated prolactin in men mean?", "a": "Elevated prolactin can suppress testosterone and cause gynecomastia, erectile dysfunction. Causes: medications (antipsychotics), stress, pituitary adenoma."},
+      {"q": "Is elevated estradiol in men normal?", "a": "No. Elevated estradiol in men occurs in obesity (aromatization in fat tissue), cirrhosis, or tumors. Causes gynecomastia and decreased libido."},
+      {"q": "When should testosterone be collected?", "a": "Early morning (7-10 AM), fasting. Testosterone peaks in the morning and decreases throughout the day. Afternoon collection may give falsely low values."}
+    ]
+  },
+  {
+    "slug": "hormoni-femei",
+    "name_ro": "Analize Hormonale Femei",
+    "name_en": "Hormonal Tests for Women",
+    "description_ro": "Echilibrul hormonal feminin influențează ciclul menstrual, fertilitatea, sănătatea osoasă și starea emoțională. Analizele hormonale sunt esențiale pentru evaluarea tulburărilor menstruale și infertilității.",
+    "description_en": "Female hormonal balance influences menstrual cycle, fertility, bone health, and emotional state. Hormonal tests are essential for evaluating menstrual disorders and infertility.",
+    "symptoms_ro": ["Menstruații neregulate", "Infertilitate", "Acnee hormonală", "Creștere excesivă de păr", "Bufeuri", "Modificări de dispoziție"],
+    "symptoms_en": ["Irregular periods", "Infertility", "Hormonal acne", "Excessive hair growth", "Hot flashes", "Mood changes"],
+    "biomarkers": ["estradiol", "progesteron", "fsh", "lh", "prolactina", "testosteron", "tsh", "anti-tpo", "fier-seric", "vitamina-d", "acid-folic"],
+    "when_ro": "Se recomandă la menstruații neregulate, infertilitate, simptome de menopauză, acnee severă, hirsutism sau pregătire pentru sarcină.",
+    "when_en": "Recommended for irregular periods, infertility, menopause symptoms, severe acne, hirsutism, or pregnancy preparation.",
+    "meta_ro": "Ce analize hormonale pentru femei: estradiol, progesteron, FSH, LH, TSH. Ciclul menstrual și fertilitate. Ghid Analize.Online.",
+    "meta_en": "What hormonal tests for women: estradiol, progesterone, FSH, LH, TSH. Menstrual cycle and fertility. Analize.Online guide.",
+    "faqs_ro": [
+      {"q": "Ce analize hormonale trebuie să facă o femeie?", "a": "Depinde de motiv: FSH, LH, estradiol (ziua 3 a ciclului) pentru fertilitate; progesteron (ziua 21) pentru ovulație; TSH pentru tiroida. Prolactina dacă amenoree."},
+      {"q": "În ce zi a ciclului se fac analizele hormonale?", "a": "FSH, LH, estradiol: ziua 2-5 a ciclului. Progesteron: ziua 21-23. TSH: oricând. Prolactina: dimineața devreme, fără stres."},
+      {"q": "FSH crescut la femei ce înseamnă?", "a": "FSH peste 25 mUI/mL sugerează menopauză sau insuficiență ovariană. FSH crescut la femei tinere poate indica rezervă ovariană scăzută (important pentru fertilitate)."},
+      {"q": "Ce este SOPC (sindromul de ovare polichistice)?", "a": "SOPC se caracterizează prin testosteron crescut, raport LH/FSH crescut, menstruații neregulate și acnee/hirsutism. Afectează ~10% din femei."},
+      {"q": "Când începe menopauza?", "a": "Media în România este 50-51 de ani. FSH peste 30 mUI/mL cu estradiol scăzut și amenoree peste 12 luni confirmă menopauza. Perimenopauzei poate începe cu 5-10 ani înainte."}
+    ],
+    "faqs_en": [
+      {"q": "What hormonal tests should a woman get?", "a": "Depends on the reason: FSH, LH, estradiol (day 3 of cycle) for fertility; progesterone (day 21) for ovulation; TSH for thyroid. Prolactin if amenorrhea."},
+      {"q": "What day of the cycle should hormonal tests be done?", "a": "FSH, LH, estradiol: day 2-5 of cycle. Progesterone: day 21-23. TSH: anytime. Prolactin: early morning, without stress."},
+      {"q": "What does elevated FSH in women mean?", "a": "FSH above 25 mIU/mL suggests menopause or ovarian insufficiency. Elevated FSH in young women may indicate low ovarian reserve (important for fertility)."},
+      {"q": "What is PCOS (polycystic ovary syndrome)?", "a": "PCOS is characterized by elevated testosterone, increased LH/FSH ratio, irregular periods, and acne/hirsutism. Affects ~10% of women."},
+      {"q": "When does menopause start?", "a": "Average in Romania is 50-51 years. FSH above 30 mIU/mL with low estradiol and amenorrhea over 12 months confirms menopause. Perimenopause can start 5-10 years earlier."}
+    ]
+  }
+]

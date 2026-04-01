@@ -24,6 +24,7 @@ def list_articles(
     page: int = Query(1, ge=1),
     limit: int = Query(10, ge=1, le=50),
     tag: Optional[str] = None,
+    biomarker: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
     """Public: paginated list of published blog articles."""
@@ -32,6 +33,14 @@ def list_articles(
     if tag:
         # Match tag in comma-separated tags field
         query = query.filter(BlogArticle.tags.ilike(f"%{tag}%"))
+
+    if biomarker:
+        # Search for biomarker name in tags, title, or content
+        query = query.filter(
+            (BlogArticle.tags.ilike(f"%{biomarker}%")) |
+            (BlogArticle.title.ilike(f"%{biomarker}%")) |
+            (BlogArticle.content_html.ilike(f"%{biomarker}%"))
+        )
 
     total = query.count()
     articles = (

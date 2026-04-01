@@ -40,6 +40,19 @@ try:
 except Exception as e:
     logger.warning(f"SEO prerender: could not load biomarkers: {e}")
 
+# Load condition reference data once
+_conditions: dict[str, dict] = {}
+try:
+    _cond_path = os.path.normpath(os.path.join(
+        os.path.dirname(__file__), "..", "..", "frontend_v2", "src", "data", "conditions-reference.json"
+    ))
+    with open(_cond_path, "r", encoding="utf-8") as f:
+        for c in json.load(f):
+            _conditions[c["slug"]] = c
+    logger.info(f"SEO prerender: loaded {len(_conditions)} conditions")
+except Exception as e:
+    logger.warning(f"SEO prerender: could not load conditions: {e}")
+
 # Static page meta (Romanian primary, English fallback)
 STATIC_META = {
     "/": {
@@ -243,6 +256,34 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
                 f'<h2>Întrebări frecvente</h2>{faq_html}'
                 f'</article>'
             )
+            result = _inject_meta(html, title, desc, url, extra, body)
+            return HTMLResponse(content=result)
+
+    # Condition landing page
+    if clean_path.startswith("/analize-pentru/") and len(clean_path) > 16:
+        cond_slug = clean_path[16:]
+        cond = _conditions.get(cond_slug)
+        if cond:
+            name = cond.get("name_ro", cond_slug)
+            title = f"{name} | Analize.Online"
+            desc = cond.get("meta_ro", "")
+            cond_ld = json.dumps({
+                "@context": "https://schema.org", "@type": "MedicalWebPage",
+                "name": name, "description": desc, "url": url, "inLanguage": "ro",
+                "medicalAudience": {"@type": "MedicalAudience", "audienceType": "Patient"},
+                "publisher": {"@type": "Organization", "name": "Analize.Online", "url": BASE_URL},
+            }, ensure_ascii=False)
+            extra = f'<script type="application/ld+json">{cond_ld}</script>'
+            faqs = cond.get("faqs_ro", [])
+            if faqs:
+                faq_ld = json.dumps({
+                    "@context": "https://schema.org", "@type": "FAQPage",
+                    "mainEntity": [{"@type": "Question", "name": f["q"], "acceptedAnswer": {"@type": "Answer", "text": f["a"]}} for f in faqs],
+                }, ensure_ascii=False)
+                extra += f'\n<script type="application/ld+json">{faq_ld}</script>'
+            description = cond.get("description_ro", "")
+            biomarker_names = [_biomarkers.get(s, {}).get("name_ro", s) for s in cond.get("biomarkers", [])]
+            body = f'<article><h1>{_escape(name)}</h1><p>{_escape(description)}</p><h2>Biomarkeri verificați</h2><p>{", ".join(_escape(n) for n in biomarker_names)}</p></article>'
             result = _inject_meta(html, title, desc, url, extra, body)
             return HTMLResponse(content=result)
 

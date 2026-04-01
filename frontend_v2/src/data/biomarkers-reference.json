@@ -4255,5 +4255,2395 @@
         "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values or chronic conditions, your doctor may recommend testing every 1-3 months. Regular monitoring helps with early detection of problems."
       }
     ]
+  },
+  {
+    "slug": "psa",
+    "name_ro": "PSA (Antigen specific prostatic)",
+    "name_en": "PSA (Prostate-Specific Antigen)",
+    "aliases_ro": [
+      "PSA",
+      "Antigen prostatic",
+      "PSA total"
+    ],
+    "category_ro": "Markeri tumorali",
+    "category_en": "Tumor Markers",
+    "unit": "ng/mL",
+    "what_ro": "PSA este o proteină produsă de prostată. Nivelul crescut poate indica hiperplazie benignă de prostată, prostatită sau cancer de prostată. Este cel mai utilizat marker pentru screeningul cancerului de prostată.",
+    "what_en": "PSA is a protein produced by the prostate. Elevated levels may indicate benign prostatic hyperplasia, prostatitis, or prostate cancer. It is the most used marker for prostate cancer screening.",
+    "ranges": [
+      {
+        "group_ro": "Bărbați < 50 ani",
+        "group_en": "Men < 50 yrs",
+        "range": "0 – 2.5 ng/mL"
+      },
+      {
+        "group_ro": "Bărbați 50-60 ani",
+        "group_en": "Men 50-60 yrs",
+        "range": "0 – 3.5 ng/mL"
+      },
+      {
+        "group_ro": "Bărbați 60-70 ani",
+        "group_en": "Men 60-70 yrs",
+        "range": "0 – 4.5 ng/mL"
+      }
+    ],
+    "high_ro": "PSA crescut poate indica cancer de prostată, hiperplazie benignă (adenom), prostatită sau infecție urinară. Valori peste 4 ng/mL necesită investigații suplimentare (ecografie, biopsie).",
+    "high_en": "Elevated PSA may indicate prostate cancer, benign hyperplasia (adenoma), prostatitis, or urinary infection. Values above 4 ng/mL require further investigation (ultrasound, biopsy).",
+    "low_ro": "PSA scăzut este normal și indică funcționarea sănătoasă a prostatei. Valorile foarte scăzute sub tratament pot confirma eficacitatea terapiei.",
+    "low_en": "Low PSA is normal and indicates healthy prostate function. Very low values under treatment may confirm therapy effectiveness.",
+    "related": [
+      "creatinina",
+      "sumar-urina"
+    ],
+    "meta_ro": "Ce este PSA, valori normale pe vârstă, PSA crescut cauze. Screening cancer prostată. Ghid Analize.Online.",
+    "meta_en": "What is PSA, normal values by age, elevated PSA causes. Prostate cancer screening. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă PSA (Antigen specific prostatic) crescut?",
+        "a": "PSA crescut poate indica cancer de prostată, hiperplazie benignă (adenom), prostatită sau infecție urinară. Valori peste 4 ng/mL necesită investigații suplimentare (ecografie, biopsie). Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă PSA (Antigen specific prostatic) scăzut?",
+        "a": "PSA scăzut este normal și indică funcționarea sănătoasă a prostatei. Valorile foarte scăzute sub tratament pot confirma eficacitatea terapiei. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de PSA (Antigen specific prostatic)?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența PSA (Antigen specific prostatic)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat PSA (Antigen specific prostatic)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high PSA (Prostate-Specific Antigen) mean?",
+        "a": "Elevated PSA may indicate prostate cancer, benign hyperplasia (adenoma), prostatitis, or urinary infection. Values above 4 ng/mL require further investigation (ultrasound, biopsy). Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low PSA (Prostate-Specific Antigen) mean?",
+        "a": "Low PSA is normal and indicates healthy prostate function. Very low values under treatment may confirm therapy effectiveness. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a PSA (Prostate-Specific Antigen) test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect PSA (Prostate-Specific Antigen)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should PSA (Prostate-Specific Antigen) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "cea",
+    "name_ro": "CEA (Antigen carcinoembrionar)",
+    "name_en": "CEA (Carcinoembryonic Antigen)",
+    "aliases_ro": [
+      "CEA",
+      "Antigen carcinoembrionar"
+    ],
+    "category_ro": "Markeri tumorali",
+    "category_en": "Tumor Markers",
+    "unit": "ng/mL",
+    "what_ro": "CEA este o proteină prezentă în cantități mici în sângele persoanelor sănătoase. Nivelul crescut este asociat cu cancere digestive (colon, rect, stomac), dar și cu afecțiuni benigne sau fumat.",
+    "what_en": "CEA is a protein present in small amounts in healthy people's blood. Elevated levels are associated with digestive cancers (colon, rectum, stomach), but also benign conditions or smoking.",
+    "ranges": [
+      {
+        "group_ro": "Nefumători",
+        "group_en": "Non-smokers",
+        "range": "0 – 3.0 ng/mL"
+      },
+      {
+        "group_ro": "Fumători",
+        "group_en": "Smokers",
+        "range": "0 – 5.0 ng/mL"
+      }
+    ],
+    "high_ro": "CEA crescut apare în cancer colorectal, gastric, pancreatic, pulmonar sau mamar. Poate fi crescut și în boli benigne: ciroză, colită ulcerativă, boala Crohn sau fumat.",
+    "high_en": "Elevated CEA occurs in colorectal, gastric, pancreatic, lung, or breast cancer. It may also be elevated in benign conditions: cirrhosis, ulcerative colitis, Crohn's disease, or smoking.",
+    "low_ro": "CEA scăzut este normal. După tratamentul pentru cancer, scăderea CEA indică răspuns terapeutic favorabil.",
+    "low_en": "Low CEA is normal. After cancer treatment, decreasing CEA indicates favorable therapeutic response.",
+    "related": [
+      "pcr"
+    ],
+    "meta_ro": "Ce este CEA, valori normale, cauze CEA crescut. Marker tumoral digestiv. Ghid Analize.Online.",
+    "meta_en": "What is CEA, normal values, causes of elevated CEA. Digestive tumor marker. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă CEA (Antigen carcinoembrionar) crescut?",
+        "a": "CEA crescut apare în cancer colorectal, gastric, pancreatic, pulmonar sau mamar. Poate fi crescut și în boli benigne: ciroză, colită ulcerativă, boala Crohn sau fumat. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă CEA (Antigen carcinoembrionar) scăzut?",
+        "a": "CEA scăzut este normal. După tratamentul pentru cancer, scăderea CEA indică răspuns terapeutic favorabil. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de CEA (Antigen carcinoembrionar)?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența CEA (Antigen carcinoembrionar)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat CEA (Antigen carcinoembrionar)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high CEA (Carcinoembryonic Antigen) mean?",
+        "a": "Elevated CEA occurs in colorectal, gastric, pancreatic, lung, or breast cancer. It may also be elevated in benign conditions: cirrhosis, ulcerative colitis, Crohn's disease, or smoking. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low CEA (Carcinoembryonic Antigen) mean?",
+        "a": "Low CEA is normal. After cancer treatment, decreasing CEA indicates favorable therapeutic response. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a CEA (Carcinoembryonic Antigen) test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect CEA (Carcinoembryonic Antigen)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should CEA (Carcinoembryonic Antigen) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "ca-125",
+    "name_ro": "CA 125",
+    "name_en": "CA 125",
+    "aliases_ro": [
+      "CA-125",
+      "Cancer Antigen 125"
+    ],
+    "category_ro": "Markeri tumorali",
+    "category_en": "Tumor Markers",
+    "unit": "U/mL",
+    "what_ro": "CA 125 este o proteină produsă de celulele ovariene și peritoneale. Este principalul marker pentru monitorizarea cancerului ovarian, dar poate fi crescut și în endometrioză sau sarcină.",
+    "what_en": "CA 125 is a protein produced by ovarian and peritoneal cells. It is the main marker for monitoring ovarian cancer, but may also be elevated in endometriosis or pregnancy.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 35 U/mL"
+      }
+    ],
+    "high_ro": "CA 125 crescut apare în cancer ovarian, endometrioză, fibroame uterine, sarcină, ciroză sau peritonită. Nu este specific doar pentru cancer.",
+    "high_en": "Elevated CA 125 occurs in ovarian cancer, endometriosis, uterine fibroids, pregnancy, cirrhosis, or peritonitis. It is not specific only for cancer.",
+    "low_ro": "CA 125 scăzut este normal. După chimioterapie, scăderea indică răspuns terapeutic pozitiv.",
+    "low_en": "Low CA 125 is normal. After chemotherapy, decrease indicates positive therapeutic response.",
+    "related": [
+      "cea"
+    ],
+    "meta_ro": "Ce este CA 125, valori normale, CA 125 crescut cauze. Marker cancer ovarian. Ghid Analize.Online.",
+    "meta_en": "What is CA 125, normal values, elevated CA 125 causes. Ovarian cancer marker. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă CA 125 crescut?",
+        "a": "CA 125 crescut apare în cancer ovarian, endometrioză, fibroame uterine, sarcină, ciroză sau peritonită. Nu este specific doar pentru cancer. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă CA 125 scăzut?",
+        "a": "CA 125 scăzut este normal. După chimioterapie, scăderea indică răspuns terapeutic pozitiv. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de CA 125?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența CA 125?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat CA 125?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high CA 125 mean?",
+        "a": "Elevated CA 125 occurs in ovarian cancer, endometriosis, uterine fibroids, pregnancy, cirrhosis, or peritonitis. It is not specific only for cancer. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low CA 125 mean?",
+        "a": "Low CA 125 is normal. After chemotherapy, decrease indicates positive therapeutic response. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a CA 125 test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect CA 125?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should CA 125 be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "afp",
+    "name_ro": "AFP (Alfa-fetoproteina)",
+    "name_en": "AFP (Alpha-Fetoprotein)",
+    "aliases_ro": [
+      "AFP",
+      "Alfa-fetoproteina"
+    ],
+    "category_ro": "Markeri tumorali",
+    "category_en": "Tumor Markers",
+    "unit": "ng/mL",
+    "what_ro": "AFP este o proteină produsă de ficatul fetal și, în cantități mici, de ficatul adult. Este utilizată ca marker pentru cancer hepatic și tumori testiculare, dar și pentru screeningul prenatal.",
+    "what_en": "AFP is a protein produced by the fetal liver and, in small amounts, by the adult liver. It is used as a marker for liver cancer and testicular tumors, and for prenatal screening.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 10 ng/mL"
+      }
+    ],
+    "high_ro": "AFP crescut poate indica hepatocarcinom, tumori testiculare, ciroză, hepatită cronică sau sarcină. La gravide, AFP crescut poate sugera defecte de tub neural la făt.",
+    "high_en": "Elevated AFP may indicate hepatocellular carcinoma, testicular tumors, cirrhosis, chronic hepatitis, or pregnancy. In pregnant women, elevated AFP may suggest neural tube defects.",
+    "low_ro": "AFP scăzut la adulți este normal. La gravide, AFP scăzut poate fi asociat cu sindromul Down.",
+    "low_en": "Low AFP in adults is normal. In pregnant women, low AFP may be associated with Down syndrome.",
+    "related": [
+      "tgo",
+      "tgp",
+      "bilirubina-totala"
+    ],
+    "meta_ro": "Ce este AFP, valori normale, cauze AFP crescut. Marker hepatic și prenatal. Ghid Analize.Online.",
+    "meta_en": "What is AFP, normal values, elevated AFP causes. Liver and prenatal marker. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă AFP (Alfa-fetoproteina) crescut?",
+        "a": "AFP crescut poate indica hepatocarcinom, tumori testiculare, ciroză, hepatită cronică sau sarcină. La gravide, AFP crescut poate sugera defecte de tub neural la făt. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă AFP (Alfa-fetoproteina) scăzut?",
+        "a": "AFP scăzut la adulți este normal. La gravide, AFP scăzut poate fi asociat cu sindromul Down. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de AFP (Alfa-fetoproteina)?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența AFP (Alfa-fetoproteina)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat AFP (Alfa-fetoproteina)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high AFP (Alpha-Fetoprotein) mean?",
+        "a": "Elevated AFP may indicate hepatocellular carcinoma, testicular tumors, cirrhosis, chronic hepatitis, or pregnancy. In pregnant women, elevated AFP may suggest neural tube defects. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low AFP (Alpha-Fetoprotein) mean?",
+        "a": "Low AFP in adults is normal. In pregnant women, low AFP may be associated with Down syndrome. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a AFP (Alpha-Fetoprotein) test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect AFP (Alpha-Fetoprotein)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should AFP (Alpha-Fetoprotein) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "prolactina",
+    "name_ro": "Prolactina",
+    "name_en": "Prolactin",
+    "aliases_ro": [
+      "Prolactina",
+      "PRL"
+    ],
+    "category_ro": "Hormoni",
+    "category_en": "Hormones",
+    "unit": "ng/mL",
+    "what_ro": "Prolactina este un hormon produs de hipofiză, responsabil principal cu stimularea producției de lapte matern. La ambele sexe influențează funcția reproductivă și ciclul menstrual.",
+    "what_en": "Prolactin is a hormone produced by the pituitary gland, primarily responsible for stimulating breast milk production. In both sexes it influences reproductive function and menstrual cycle.",
+    "ranges": [
+      {
+        "group_ro": "Femei (neînsărcinate)",
+        "group_en": "Women (non-pregnant)",
+        "range": "4.8 – 23.3 ng/mL"
+      },
+      {
+        "group_ro": "Bărbați",
+        "group_en": "Men",
+        "range": "4.0 – 15.2 ng/mL"
+      }
+    ],
+    "high_ro": "Prolactina crescută (hiperprolactinemie) cauza galactoree, amenoree, infertilitate. Cauze: prolactinom (adenom hipofizar), medicamente (antipsihotice, antidepresive), hipotiroidism, stres.",
+    "high_en": "Elevated prolactin (hyperprolactinemia) causes galactorrhea, amenorrhea, infertility. Causes: prolactinoma (pituitary adenoma), medications (antipsychotics, antidepressants), hypothyroidism, stress.",
+    "low_ro": "Prolactina scăzută este rară și poate indica insuficiență hipofizară (sindrom Sheehan). De obicei nu are semnificație clinică.",
+    "low_en": "Low prolactin is rare and may indicate pituitary insufficiency (Sheehan syndrome). Usually not clinically significant.",
+    "related": [
+      "tsh",
+      "estradiol",
+      "testosteron"
+    ],
+    "meta_ro": "Ce este prolactina, valori normale, prolactina crescută cauze și simptome. Ghid Analize.Online.",
+    "meta_en": "What is prolactin, normal values, elevated prolactin causes and symptoms. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Prolactina crescută?",
+        "a": "Prolactina crescută (hiperprolactinemie) cauza galactoree, amenoree, infertilitate. Cauze: prolactinom (adenom hipofizar), medicamente (antipsihotice, antidepresive), hipotiroidism, stres. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Prolactina scăzută?",
+        "a": "Prolactina scăzută este rară și poate indica insuficiență hipofizară (sindrom Sheehan). De obicei nu are semnificație clinică. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Când trebuie testat Prolactina?",
+        "a": "Recoltarea se recomandă dimineața (între 7-10), a jeun. Stresul și efortul fizic pot influența rezultatele. Medicul îți poate indica momentul optim."
+      },
+      {
+        "q": "Prolactina în sarcină — ce se schimbă?",
+        "a": "Sarcina modifică semnificativ nivelul hormonal. Valorile de referință pentru gravide sunt diferite. Medicul obstetrician interpretează rezultatele."
+      },
+      {
+        "q": "Cât de des trebuie verificat Prolactina?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Prolactin mean?",
+        "a": "Elevated prolactin (hyperprolactinemia) causes galactorrhea, amenorrhea, infertility. Causes: prolactinoma (pituitary adenoma), medications (antipsychotics, antidepressants), hypothyroidism, stress. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Prolactin mean?",
+        "a": "Low prolactin is rare and may indicate pituitary insufficiency (Sheehan syndrome). Usually not clinically significant. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "When should Prolactin be tested?",
+        "a": "Sample collection is recommended in the morning (7-10 AM), fasting. Stress and exercise can influence results. Your doctor can indicate the optimal time."
+      },
+      {
+        "q": "Prolactin during pregnancy — what changes?",
+        "a": "Pregnancy significantly alters hormone levels. Reference values for pregnant women differ. The obstetrician interprets results."
+      },
+      {
+        "q": "How often should Prolactin be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "fsh",
+    "name_ro": "FSH (Hormonul foliculostimulant)",
+    "name_en": "FSH (Follicle-Stimulating Hormone)",
+    "aliases_ro": [
+      "FSH",
+      "Hormon foliculostimulant"
+    ],
+    "category_ro": "Hormoni",
+    "category_en": "Hormones",
+    "unit": "mUI/mL",
+    "what_ro": "FSH este un hormon produs de hipofiză care stimulează creșterea foliculilor ovarieni la femei și producția de spermatozoizi la bărbați. Este esențial pentru fertilitate.",
+    "what_en": "FSH is a hormone produced by the pituitary gland that stimulates ovarian follicle growth in women and sperm production in men. It is essential for fertility.",
+    "ranges": [
+      {
+        "group_ro": "Femei faza foliculară",
+        "group_en": "Women follicular phase",
+        "range": "3.5 – 12.5 mUI/mL"
+      },
+      {
+        "group_ro": "Femei ovulație",
+        "group_en": "Women ovulation",
+        "range": "4.7 – 21.5 mUI/mL"
+      },
+      {
+        "group_ro": "Femei postmenopauză",
+        "group_en": "Postmenopausal women",
+        "range": "25.8 – 134.8 mUI/mL"
+      },
+      {
+        "group_ro": "Bărbați",
+        "group_en": "Men",
+        "range": "1.5 – 12.4 mUI/mL"
+      }
+    ],
+    "high_ro": "FSH crescut la femei indică menopauză, insuficiență ovariană sau sindrom Turner. La bărbați poate indica insuficiență testiculară sau sindrom Klinefelter.",
+    "high_en": "Elevated FSH in women indicates menopause, ovarian insufficiency, or Turner syndrome. In men it may indicate testicular insufficiency or Klinefelter syndrome.",
+    "low_ro": "FSH scăzut poate indica disfuncție hipofizară, anorexie, stres sever sau supresie hormonală. La femei cauza oligomenoree sau amenoree.",
+    "low_en": "Low FSH may indicate pituitary dysfunction, anorexia, severe stress, or hormonal suppression. In women it causes oligomenorrhea or amenorrhea.",
+    "related": [
+      "estradiol",
+      "testosteron",
+      "prolactina"
+    ],
+    "meta_ro": "Ce este FSH, valori normale pe faze, FSH crescut sau scăzut cauze. Fertilitate. Ghid Analize.Online.",
+    "meta_en": "What is FSH, normal values by phase, high or low FSH causes. Fertility. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă FSH (Hormonul foliculostimulant) crescut?",
+        "a": "FSH crescut la femei indică menopauză, insuficiență ovariană sau sindrom Turner. La bărbați poate indica insuficiență testiculară sau sindrom Klinefelter. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă FSH (Hormonul foliculostimulant) scăzut?",
+        "a": "FSH scăzut poate indica disfuncție hipofizară, anorexie, stres sever sau supresie hormonală. La femei cauza oligomenoree sau amenoree. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Când trebuie testat FSH (Hormonul foliculostimulant)?",
+        "a": "Recoltarea se recomandă dimineața (între 7-10), a jeun. Stresul și efortul fizic pot influența rezultatele. Medicul îți poate indica momentul optim."
+      },
+      {
+        "q": "FSH (Hormonul foliculostimulant) în sarcină — ce se schimbă?",
+        "a": "Sarcina modifică semnificativ nivelul hormonal. Valorile de referință pentru gravide sunt diferite. Medicul obstetrician interpretează rezultatele."
+      },
+      {
+        "q": "Cât de des trebuie verificat FSH (Hormonul foliculostimulant)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high FSH (Follicle-Stimulating Hormone) mean?",
+        "a": "Elevated FSH in women indicates menopause, ovarian insufficiency, or Turner syndrome. In men it may indicate testicular insufficiency or Klinefelter syndrome. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low FSH (Follicle-Stimulating Hormone) mean?",
+        "a": "Low FSH may indicate pituitary dysfunction, anorexia, severe stress, or hormonal suppression. In women it causes oligomenorrhea or amenorrhea. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "When should FSH (Follicle-Stimulating Hormone) be tested?",
+        "a": "Sample collection is recommended in the morning (7-10 AM), fasting. Stress and exercise can influence results. Your doctor can indicate the optimal time."
+      },
+      {
+        "q": "FSH (Follicle-Stimulating Hormone) during pregnancy — what changes?",
+        "a": "Pregnancy significantly alters hormone levels. Reference values for pregnant women differ. The obstetrician interprets results."
+      },
+      {
+        "q": "How often should FSH (Follicle-Stimulating Hormone) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "lh",
+    "name_ro": "LH (Hormonul luteinizant)",
+    "name_en": "LH (Luteinizing Hormone)",
+    "aliases_ro": [
+      "LH",
+      "Hormon luteinizant"
+    ],
+    "category_ro": "Hormoni",
+    "category_en": "Hormones",
+    "unit": "mUI/mL",
+    "what_ro": "LH este un hormon produs de hipofiză care declanșează ovulația la femei și stimulează producția de testosteron la bărbați. Vârful de LH la mijlocul ciclului semnalează ovulația.",
+    "what_en": "LH is a hormone produced by the pituitary gland that triggers ovulation in women and stimulates testosterone production in men. The LH surge mid-cycle signals ovulation.",
+    "ranges": [
+      {
+        "group_ro": "Femei faza foliculară",
+        "group_en": "Women follicular phase",
+        "range": "2.4 – 12.6 mUI/mL"
+      },
+      {
+        "group_ro": "Femei ovulație",
+        "group_en": "Women ovulation",
+        "range": "14.0 – 95.6 mUI/mL"
+      },
+      {
+        "group_ro": "Femei postmenopauză",
+        "group_en": "Postmenopausal women",
+        "range": "7.7 – 58.5 mUI/mL"
+      },
+      {
+        "group_ro": "Bărbați",
+        "group_en": "Men",
+        "range": "1.7 – 8.6 mUI/mL"
+      }
+    ],
+    "high_ro": "LH crescut la femei poate indica sindrom de ovare polichistice (SOPC), menopauză sau insuficiență ovariană. La bărbați indică insuficiență testiculară primară.",
+    "high_en": "Elevated LH in women may indicate polycystic ovary syndrome (PCOS), menopause, or ovarian insufficiency. In men it indicates primary testicular insufficiency.",
+    "low_ro": "LH scăzut indică disfuncție hipofizară sau hipotalamică, stres sever, anorexie sau supresie hormonală.",
+    "low_en": "Low LH indicates pituitary or hypothalamic dysfunction, severe stress, anorexia, or hormonal suppression.",
+    "related": [
+      "fsh",
+      "estradiol",
+      "testosteron",
+      "prolactina"
+    ],
+    "meta_ro": "Ce este LH, valori normale pe faze, LH crescut cauze. Ovulație și fertilitate. Ghid Analize.Online.",
+    "meta_en": "What is LH, normal values by phase, elevated LH causes. Ovulation and fertility. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă LH (Hormonul luteinizant) crescut?",
+        "a": "LH crescut la femei poate indica sindrom de ovare polichistice (SOPC), menopauză sau insuficiență ovariană. La bărbați indică insuficiență testiculară primară. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă LH (Hormonul luteinizant) scăzut?",
+        "a": "LH scăzut indică disfuncție hipofizară sau hipotalamică, stres sever, anorexie sau supresie hormonală.. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Când trebuie testat LH (Hormonul luteinizant)?",
+        "a": "Recoltarea se recomandă dimineața (între 7-10), a jeun. Stresul și efortul fizic pot influența rezultatele. Medicul îți poate indica momentul optim."
+      },
+      {
+        "q": "LH (Hormonul luteinizant) în sarcină — ce se schimbă?",
+        "a": "Sarcina modifică semnificativ nivelul hormonal. Valorile de referință pentru gravide sunt diferite. Medicul obstetrician interpretează rezultatele."
+      },
+      {
+        "q": "Cât de des trebuie verificat LH (Hormonul luteinizant)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high LH (Luteinizing Hormone) mean?",
+        "a": "Elevated LH in women may indicate polycystic ovary syndrome (PCOS), menopause, or ovarian insufficiency. In men it indicates primary testicular insufficiency. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low LH (Luteinizing Hormone) mean?",
+        "a": "Low LH indicates pituitary or hypothalamic dysfunction, severe stress, anorexia, or hormonal suppression.. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "When should LH (Luteinizing Hormone) be tested?",
+        "a": "Sample collection is recommended in the morning (7-10 AM), fasting. Stress and exercise can influence results. Your doctor can indicate the optimal time."
+      },
+      {
+        "q": "LH (Luteinizing Hormone) during pregnancy — what changes?",
+        "a": "Pregnancy significantly alters hormone levels. Reference values for pregnant women differ. The obstetrician interprets results."
+      },
+      {
+        "q": "How often should LH (Luteinizing Hormone) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "insulina",
+    "name_ro": "Insulina",
+    "name_en": "Insulin",
+    "aliases_ro": [
+      "Insulina bazală",
+      "Insulina serică",
+      "Insulina"
+    ],
+    "category_ro": "Hormoni",
+    "category_en": "Hormones",
+    "unit": "µUI/mL",
+    "what_ro": "Insulina este un hormon produs de pancreas care reglează nivelul glucozei în sânge. Permite celulelor să absoarbă glucoza pentru energie. Rezistența la insulină este precursorul diabetului tip 2.",
+    "what_en": "Insulin is a hormone produced by the pancreas that regulates blood glucose levels. It allows cells to absorb glucose for energy. Insulin resistance is the precursor of type 2 diabetes.",
+    "ranges": [
+      {
+        "group_ro": "Adulți (a jeun)",
+        "group_en": "Adults (fasting)",
+        "range": "2.6 – 24.9 µUI/mL"
+      }
+    ],
+    "high_ro": "Insulina crescută (hiperinsulinism) indică rezistență la insulină, prediabet, sindrom metabolic sau insulinom. Asociat cu obezitate abdominală și risc cardiovascular crescut.",
+    "high_en": "Elevated insulin (hyperinsulinism) indicates insulin resistance, prediabetes, metabolic syndrome, or insulinoma. Associated with abdominal obesity and increased cardiovascular risk.",
+    "low_ro": "Insulina scăzută apare în diabet tip 1 (distrugerea celulelor beta pancreatice) sau în diabet tip 2 avansat când pancreasul se epuizează.",
+    "low_en": "Low insulin occurs in type 1 diabetes (destruction of pancreatic beta cells) or in advanced type 2 diabetes when the pancreas becomes exhausted.",
+    "related": [
+      "glicemie",
+      "hemoglobina-glicata",
+      "trigliceride"
+    ],
+    "meta_ro": "Ce este insulina, valori normale a jeun, insulina crescută cauze. Rezistența la insulină. Ghid Analize.Online.",
+    "meta_en": "What is insulin, normal fasting values, elevated insulin causes. Insulin resistance. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Insulina crescută?",
+        "a": "Insulina crescută (hiperinsulinism) indică rezistență la insulină, prediabet, sindrom metabolic sau insulinom. Asociat cu obezitate abdominală și risc cardiovascular crescut. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Insulina scăzută?",
+        "a": "Insulina scăzută apare în diabet tip 1 (distrugerea celulelor beta pancreatice) sau în diabet tip 2 avansat când pancreasul se epuizează.. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Când trebuie testat Insulina?",
+        "a": "Recoltarea se recomandă dimineața (între 7-10), a jeun. Stresul și efortul fizic pot influența rezultatele. Medicul îți poate indica momentul optim."
+      },
+      {
+        "q": "Insulina în sarcină — ce se schimbă?",
+        "a": "Sarcina modifică semnificativ nivelul hormonal. Valorile de referință pentru gravide sunt diferite. Medicul obstetrician interpretează rezultatele."
+      },
+      {
+        "q": "Cât de des trebuie verificat Insulina?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Insulin mean?",
+        "a": "Elevated insulin (hyperinsulinism) indicates insulin resistance, prediabetes, metabolic syndrome, or insulinoma. Associated with abdominal obesity and increased cardiovascular risk. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Insulin mean?",
+        "a": "Low insulin occurs in type 1 diabetes (destruction of pancreatic beta cells) or in advanced type 2 diabetes when the pancreas becomes exhausted.. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "When should Insulin be tested?",
+        "a": "Sample collection is recommended in the morning (7-10 AM), fasting. Stress and exercise can influence results. Your doctor can indicate the optimal time."
+      },
+      {
+        "q": "Insulin during pregnancy — what changes?",
+        "a": "Pregnancy significantly alters hormone levels. Reference values for pregnant women differ. The obstetrician interprets results."
+      },
+      {
+        "q": "How often should Insulin be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "progesteron",
+    "name_ro": "Progesteron",
+    "name_en": "Progesterone",
+    "aliases_ro": [
+      "Progesteron",
+      "Progesteron seric"
+    ],
+    "category_ro": "Hormoni",
+    "category_en": "Hormones",
+    "unit": "ng/mL",
+    "what_ro": "Progesteronul este un hormon steroid produs de corpul galben ovarian după ovulație. Pregătește uterul pentru implantarea embrionului și menține sarcina în primele săptămâni.",
+    "what_en": "Progesterone is a steroid hormone produced by the ovarian corpus luteum after ovulation. It prepares the uterus for embryo implantation and maintains pregnancy in the first weeks.",
+    "ranges": [
+      {
+        "group_ro": "Femei faza foliculară",
+        "group_en": "Women follicular phase",
+        "range": "0.2 – 1.5 ng/mL"
+      },
+      {
+        "group_ro": "Femei faza luteală",
+        "group_en": "Women luteal phase",
+        "range": "1.7 – 27.0 ng/mL"
+      },
+      {
+        "group_ro": "Trimestrul I sarcină",
+        "group_en": "1st trimester pregnancy",
+        "range": "11.2 – 90.0 ng/mL"
+      },
+      {
+        "group_ro": "Bărbați",
+        "group_en": "Men",
+        "range": "0.2 – 1.4 ng/mL"
+      }
+    ],
+    "high_ro": "Progesteronul crescut apare normal în faza luteală și sarcină. Valori anormal de crescute pot indica chisturi ovariene, sarcină molară sau tumori suprarenale.",
+    "high_en": "Elevated progesterone normally occurs in the luteal phase and pregnancy. Abnormally high values may indicate ovarian cysts, molar pregnancy, or adrenal tumors.",
+    "low_ro": "Progesteronul scăzut în faza luteală poate indica anovulație, insuficiență luteală sau risc de avort spontan. Este o cauză frecventă de infertilitate.",
+    "low_en": "Low progesterone in the luteal phase may indicate anovulation, luteal insufficiency, or risk of miscarriage. It is a common cause of infertility.",
+    "related": [
+      "estradiol",
+      "fsh",
+      "lh"
+    ],
+    "meta_ro": "Ce este progesteronul, valori normale pe faze, progesteron scăzut cauze. Fertilitate și sarcină. Ghid Analize.Online.",
+    "meta_en": "What is progesterone, normal values by phase, low progesterone causes. Fertility and pregnancy. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Progesteron crescut?",
+        "a": "Progesteronul crescut apare normal în faza luteală și sarcină. Valori anormal de crescute pot indica chisturi ovariene, sarcină molară sau tumori suprarenale. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Progesteron scăzut?",
+        "a": "Progesteronul scăzut în faza luteală poate indica anovulație, insuficiență luteală sau risc de avort spontan. Este o cauză frecventă de infertilitate. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Când trebuie testat Progesteron?",
+        "a": "Recoltarea se recomandă dimineața (între 7-10), a jeun. Stresul și efortul fizic pot influența rezultatele. Medicul îți poate indica momentul optim."
+      },
+      {
+        "q": "Progesteron în sarcină — ce se schimbă?",
+        "a": "Sarcina modifică semnificativ nivelul hormonal. Valorile de referință pentru gravide sunt diferite. Medicul obstetrician interpretează rezultatele."
+      },
+      {
+        "q": "Cât de des trebuie verificat Progesteron?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Progesterone mean?",
+        "a": "Elevated progesterone normally occurs in the luteal phase and pregnancy. Abnormally high values may indicate ovarian cysts, molar pregnancy, or adrenal tumors. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Progesterone mean?",
+        "a": "Low progesterone in the luteal phase may indicate anovulation, luteal insufficiency, or risk of miscarriage. It is a common cause of infertility. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "When should Progesterone be tested?",
+        "a": "Sample collection is recommended in the morning (7-10 AM), fasting. Stress and exercise can influence results. Your doctor can indicate the optimal time."
+      },
+      {
+        "q": "Progesterone during pregnancy — what changes?",
+        "a": "Pregnancy significantly alters hormone levels. Reference values for pregnant women differ. The obstetrician interprets results."
+      },
+      {
+        "q": "How often should Progesterone be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "parathormon",
+    "name_ro": "Parathormon (PTH)",
+    "name_en": "Parathyroid Hormone (PTH)",
+    "aliases_ro": [
+      "PTH",
+      "Parathormon",
+      "Hormon paratiroidian"
+    ],
+    "category_ro": "Hormoni",
+    "category_en": "Hormones",
+    "unit": "pg/mL",
+    "what_ro": "Parathormonul este produs de glandele paratiroide și reglează nivelul calciului și fosforului din sânge. Crește calciul sanguin prin mobilizarea din oase și reducerea eliminării renale.",
+    "what_en": "Parathyroid hormone is produced by the parathyroid glands and regulates blood calcium and phosphorus levels. It increases blood calcium by mobilizing it from bones and reducing renal excretion.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "15 – 65 pg/mL"
+      }
+    ],
+    "high_ro": "PTH crescut (hiperparatiroidism) cauza hipercalcemie, osteoporoză, calculi renali. Cauze: adenom paratiroidian, deficit de vitamina D, insuficiență renală cronică.",
+    "high_en": "Elevated PTH (hyperparathyroidism) causes hypercalcemia, osteoporosis, kidney stones. Causes: parathyroid adenoma, vitamin D deficiency, chronic kidney disease.",
+    "low_ro": "PTH scăzut (hipoparatiroidism) cauza hipocalcemie, crampe musculare, furnicături. Poate apărea post-chirurgical (tiroidectomie) sau autoimun.",
+    "low_en": "Low PTH (hypoparathyroidism) causes hypocalcemia, muscle cramps, tingling. May occur post-surgically (thyroidectomy) or autoimmune.",
+    "related": [
+      "calciu",
+      "vitamina-d",
+      "magneziu"
+    ],
+    "meta_ro": "Ce este parathormonul, valori normale PTH, cauze PTH crescut. Calciu și oase. Ghid Analize.Online.",
+    "meta_en": "What is PTH, normal values, elevated PTH causes. Calcium and bones. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Parathormon (PTH) crescut?",
+        "a": "PTH crescut (hiperparatiroidism) cauza hipercalcemie, osteoporoză, calculi renali. Cauze: adenom paratiroidian, deficit de vitamina D, insuficiență renală cronică. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Parathormon (PTH) scăzut?",
+        "a": "PTH scăzut (hipoparatiroidism) cauza hipocalcemie, crampe musculare, furnicături. Poate apărea post-chirurgical (tiroidectomie) sau autoimun. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Când trebuie testat Parathormon (PTH)?",
+        "a": "Recoltarea se recomandă dimineața (între 7-10), a jeun. Stresul și efortul fizic pot influența rezultatele. Medicul îți poate indica momentul optim."
+      },
+      {
+        "q": "Parathormon (PTH) în sarcină — ce se schimbă?",
+        "a": "Sarcina modifică semnificativ nivelul hormonal. Valorile de referință pentru gravide sunt diferite. Medicul obstetrician interpretează rezultatele."
+      },
+      {
+        "q": "Cât de des trebuie verificat Parathormon (PTH)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Parathyroid Hormone (PTH) mean?",
+        "a": "Elevated PTH (hyperparathyroidism) causes hypercalcemia, osteoporosis, kidney stones. Causes: parathyroid adenoma, vitamin D deficiency, chronic kidney disease. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Parathyroid Hormone (PTH) mean?",
+        "a": "Low PTH (hypoparathyroidism) causes hypocalcemia, muscle cramps, tingling. May occur post-surgically (thyroidectomy) or autoimmune. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "When should Parathyroid Hormone (PTH) be tested?",
+        "a": "Sample collection is recommended in the morning (7-10 AM), fasting. Stress and exercise can influence results. Your doctor can indicate the optimal time."
+      },
+      {
+        "q": "Parathyroid Hormone (PTH) during pregnancy — what changes?",
+        "a": "Pregnancy significantly alters hormone levels. Reference values for pregnant women differ. The obstetrician interprets results."
+      },
+      {
+        "q": "How often should Parathyroid Hormone (PTH) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "ige-total",
+    "name_ro": "IgE total",
+    "name_en": "Total IgE",
+    "aliases_ro": [
+      "IgE",
+      "Imunoglobulina E",
+      "IgE total"
+    ],
+    "category_ro": "Imunologie",
+    "category_en": "Immunology",
+    "unit": "UI/mL",
+    "what_ro": "IgE este un anticorp implicat în reacțiile alergice și apărarea antiparazitară. Nivelul total crescut sugerează predispoziție alergică (atopie), dar nu identifică alergenul specific.",
+    "what_en": "IgE is an antibody involved in allergic reactions and antiparasitic defense. Elevated total levels suggest allergic predisposition (atopy), but do not identify the specific allergen.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 100 UI/mL"
+      }
+    ],
+    "high_ro": "IgE crescut apare în alergii (rinită, astm, dermatită atopică), infecții parazitare, aspergiloză, sindrom hiper-IgE. Nu confirmă un alergen specific — necesită teste IgE specifice.",
+    "high_en": "Elevated IgE occurs in allergies (rhinitis, asthma, atopic dermatitis), parasitic infections, aspergillosis, hyper-IgE syndrome. Does not confirm a specific allergen — requires specific IgE tests.",
+    "low_ro": "IgE scăzut este normal la majoritatea persoanelor. Poate apărea în imunodeficiențe rare.",
+    "low_en": "Low IgE is normal in most people. May occur in rare immunodeficiencies.",
+    "related": [
+      "eozinofile",
+      "leucocite"
+    ],
+    "meta_ro": "Ce este IgE total, valori normale, IgE crescut cauze. Alergii și imunitate. Ghid Analize.Online.",
+    "meta_en": "What is total IgE, normal values, elevated IgE causes. Allergies and immunity. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă IgE total crescut?",
+        "a": "IgE crescut apare în alergii (rinită, astm, dermatită atopică), infecții parazitare, aspergiloză, sindrom hiper-IgE. Nu confirmă un alergen specific — necesită teste IgE specifice. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă IgE total scăzut?",
+        "a": "IgE scăzut este normal la majoritatea persoanelor. Poate apărea în imunodeficiențe rare. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de IgE total?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența IgE total?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat IgE total?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Total IgE mean?",
+        "a": "Elevated IgE occurs in allergies (rhinitis, asthma, atopic dermatitis), parasitic infections, aspergillosis, hyper-IgE syndrome. Does not confirm a specific allergen — requires specific IgE tests. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Total IgE mean?",
+        "a": "Low IgE is normal in most people. May occur in rare immunodeficiencies. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a Total IgE test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect Total IgE?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Total IgE be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "factor-reumatoid",
+    "name_ro": "Factor reumatoid (FR)",
+    "name_en": "Rheumatoid Factor (RF)",
+    "aliases_ro": [
+      "FR",
+      "Factor reumatoid",
+      "RF",
+      "Latex RF"
+    ],
+    "category_ro": "Imunologie",
+    "category_en": "Immunology",
+    "unit": "UI/mL",
+    "what_ro": "Factorul reumatoid este un autoanticorp asociat cu bolile autoimune, în special artrita reumatoidă. Este prezent la 70-80% din pacienții cu artrită reumatoidă, dar poate apărea și în alte afecțiuni.",
+    "what_en": "Rheumatoid factor is an autoantibody associated with autoimmune diseases, especially rheumatoid arthritis. It is present in 70-80% of rheumatoid arthritis patients, but may occur in other conditions.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 14 UI/mL"
+      }
+    ],
+    "high_ro": "FR crescut apare în artrita reumatoidă, lupus, sindrom Sjögren, endocardită, hepatită cronică. Poate fi pozitiv și la 5-10% din persoanele sănătoase, mai ales vârstnici.",
+    "high_en": "Elevated RF occurs in rheumatoid arthritis, lupus, Sjögren syndrome, endocarditis, chronic hepatitis. May be positive in 5-10% of healthy people, especially elderly.",
+    "low_ro": "FR negativ nu exclude artrita reumatoidă — 20-30% din pacienți sunt seronegativi. Absența FR este normală la persoanele sănătoase.",
+    "low_en": "Negative RF does not exclude rheumatoid arthritis — 20-30% of patients are seronegative. Absence of RF is normal in healthy people.",
+    "related": [
+      "pcr",
+      "vsh"
+    ],
+    "meta_ro": "Ce este factorul reumatoid, valori normale, FR crescut cauze. Artrită reumatoidă. Ghid Analize.Online.",
+    "meta_en": "What is rheumatoid factor, normal values, elevated RF causes. Rheumatoid arthritis. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Factor reumatoid (FR) crescut?",
+        "a": "FR crescut apare în artrita reumatoidă, lupus, sindrom Sjögren, endocardită, hepatită cronică. Poate fi pozitiv și la 5-10% din persoanele sănătoase, mai ales vârstnici. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Factor reumatoid (FR) scăzut?",
+        "a": "FR negativ nu exclude artrita reumatoidă — 20-30% din pacienți sunt seronegativi. Absența FR este normală la persoanele sănătoase. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de Factor reumatoid (FR)?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența Factor reumatoid (FR)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Factor reumatoid (FR)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Rheumatoid Factor (RF) mean?",
+        "a": "Elevated RF occurs in rheumatoid arthritis, lupus, Sjögren syndrome, endocarditis, chronic hepatitis. May be positive in 5-10% of healthy people, especially elderly. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Rheumatoid Factor (RF) mean?",
+        "a": "Negative RF does not exclude rheumatoid arthritis — 20-30% of patients are seronegative. Absence of RF is normal in healthy people. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a Rheumatoid Factor (RF) test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect Rheumatoid Factor (RF)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Rheumatoid Factor (RF) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "anti-tpo",
+    "name_ro": "Anticorpi anti-TPO",
+    "name_en": "Anti-TPO Antibodies",
+    "aliases_ro": [
+      "Anti-TPO",
+      "Anticorpi antiperoxidază tiroidiană",
+      "ATPO"
+    ],
+    "category_ro": "Tiroidă",
+    "category_en": "Thyroid",
+    "unit": "UI/mL",
+    "what_ro": "Anticorpii anti-TPO sunt autoanticorpi dirijați împotriva peroxidazei tiroidiene, o enzimă esențială pentru sinteza hormonilor tiroidieni. Prezența lor indică un proces autoimun tiroidian.",
+    "what_en": "Anti-TPO antibodies are autoantibodies directed against thyroid peroxidase, an enzyme essential for thyroid hormone synthesis. Their presence indicates an autoimmune thyroid process.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 34 UI/mL"
+      }
+    ],
+    "high_ro": "Anti-TPO crescuți confirmă tiroidita Hashimoto (hipotiroidism autoimun) sau boala Graves (hipertiroidism autoimun). Pot fi prezenți ani înainte de apariția simptomelor.",
+    "high_en": "Elevated anti-TPO confirms Hashimoto's thyroiditis (autoimmune hypothyroidism) or Graves' disease (autoimmune hyperthyroidism). May be present years before symptoms appear.",
+    "low_ro": "Anti-TPO negativi exclud cu mare probabilitate o cauză autoimună a disfuncției tiroidiene. Alte cauze trebuie investigate.",
+    "low_en": "Negative anti-TPO largely exclude an autoimmune cause of thyroid dysfunction. Other causes should be investigated.",
+    "related": [
+      "tsh",
+      "ft4",
+      "ft3"
+    ],
+    "meta_ro": "Ce sunt anticorpii anti-TPO, valori normale, anti-TPO crescuți cauze. Hashimoto și tiroida. Ghid Analize.Online.",
+    "meta_en": "What are anti-TPO antibodies, normal values, elevated anti-TPO causes. Hashimoto and thyroid. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Anticorpi anti-TPO crescut?",
+        "a": "Anti-TPO crescuți confirmă tiroidita Hashimoto (hipotiroidism autoimun) sau boala Graves (hipertiroidism autoimun). Pot fi prezenți ani înainte de apariția simptomelor. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Anticorpi anti-TPO scăzut?",
+        "a": "Anti-TPO negativi exclud cu mare probabilitate o cauză autoimună a disfuncției tiroidiene. Alte cauze trebuie investigate. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru testul de Anticorpi anti-TPO?",
+        "a": "Recoltarea se face dimineața, de preferință a jeun. Biotina din suplimente poate falsifica rezultatele — oprește-o cu 2-3 zile înainte."
+      },
+      {
+        "q": "Anticorpi anti-TPO în sarcină — ce se schimbă?",
+        "a": "Sarcina modifică semnificativ nivelul hormonal. Valorile de referință pentru gravide sunt diferite. Medicul obstetrician interpretează rezultatele."
+      },
+      {
+        "q": "Cât de des trebuie verificat Anticorpi anti-TPO?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Anti-TPO Antibodies mean?",
+        "a": "Elevated anti-TPO confirms Hashimoto's thyroiditis (autoimmune hypothyroidism) or Graves' disease (autoimmune hyperthyroidism). May be present years before symptoms appear. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Anti-TPO Antibodies mean?",
+        "a": "Negative anti-TPO largely exclude an autoimmune cause of thyroid dysfunction. Other causes should be investigated. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a Anti-TPO Antibodies test?",
+        "a": "Collection is done in the morning, preferably fasting. Biotin from supplements can falsify results — stop it 2-3 days before."
+      },
+      {
+        "q": "Anti-TPO Antibodies during pregnancy — what changes?",
+        "a": "Pregnancy significantly alters hormone levels. Reference values for pregnant women differ. The obstetrician interprets results."
+      },
+      {
+        "q": "How often should Anti-TPO Antibodies be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "d-dimeri",
+    "name_ro": "D-dimeri",
+    "name_en": "D-dimer",
+    "aliases_ro": [
+      "D-dimeri",
+      "D-dimer"
+    ],
+    "category_ro": "Coagulare",
+    "category_en": "Coagulation",
+    "unit": "ng/mL",
+    "what_ro": "D-dimerii sunt fragmente proteice rezultate din degradarea cheagurilor de sânge (fibrinoliză). Nivelul crescut indică activarea coagulării și formarea de cheaguri undeva în organism.",
+    "what_en": "D-dimers are protein fragments resulting from blood clot degradation (fibrinolysis). Elevated levels indicate coagulation activation and clot formation somewhere in the body.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 500 ng/mL"
+      }
+    ],
+    "high_ro": "D-dimeri crescuți apar în tromboză venoasă profundă (TVP), embolie pulmonară, CID, post-chirurgical, sarcină, infecții sau cancer. Valoarea negativă exclude tromboza cu mare probabilitate.",
+    "high_en": "Elevated D-dimers occur in deep vein thrombosis (DVT), pulmonary embolism, DIC, post-surgical, pregnancy, infections, or cancer. A negative value largely excludes thrombosis.",
+    "low_ro": "D-dimeri negativi (< 500 ng/mL) exclud cu probabilitate mare tromboza venoasă profundă și embolia pulmonară. Este un test cu valoare predictivă negativă excelentă.",
+    "low_en": "Negative D-dimers (< 500 ng/mL) largely exclude deep vein thrombosis and pulmonary embolism. It is a test with excellent negative predictive value.",
+    "related": [
+      "fibrinogen",
+      "timp-de-protrombina",
+      "trombocite"
+    ],
+    "meta_ro": "Ce sunt D-dimerii, valori normale, D-dimeri crescuți cauze. Tromboză și embolie. Ghid Analize.Online.",
+    "meta_en": "What are D-dimers, normal values, elevated D-dimer causes. Thrombosis and embolism. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă D-dimeri crescut?",
+        "a": "D-dimeri crescuți apar în tromboză venoasă profundă (TVP), embolie pulmonară, CID, post-chirurgical, sarcină, infecții sau cancer. Valoarea negativă exclude tromboza cu mare probabilitate. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă D-dimeri scăzut?",
+        "a": "D-dimeri negativi (< 500 ng/mL) exclud cu probabilitate mare tromboza venoasă profundă și embolia pulmonară. Este un test cu valoare predictivă negativă excelentă. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de D-dimeri?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența D-dimeri?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat D-dimeri?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high D-dimer mean?",
+        "a": "Elevated D-dimers occur in deep vein thrombosis (DVT), pulmonary embolism, DIC, post-surgical, pregnancy, infections, or cancer. A negative value largely excludes thrombosis. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low D-dimer mean?",
+        "a": "Negative D-dimers (< 500 ng/mL) largely exclude deep vein thrombosis and pulmonary embolism. It is a test with excellent negative predictive value. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a D-dimer test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect D-dimer?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should D-dimer be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "aslo",
+    "name_ro": "ASLO (Antistreptolizina O)",
+    "name_en": "ASO (Antistreptolysin O)",
+    "aliases_ro": [
+      "ASLO",
+      "Antistreptolizina O",
+      "ASO"
+    ],
+    "category_ro": "Imunologie",
+    "category_en": "Immunology",
+    "unit": "UI/mL",
+    "what_ro": "ASLO măsoară anticorpii produși împotriva streptococului beta-hemolitic de grup A. Nivelul crescut indică o infecție streptococică recentă sau în curs (faringită, scarlatină).",
+    "what_en": "ASO measures antibodies produced against group A beta-hemolytic streptococcus. Elevated levels indicate a recent or ongoing streptococcal infection (pharyngitis, scarlet fever).",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 200 UI/mL"
+      },
+      {
+        "group_ro": "Copii",
+        "group_en": "Children",
+        "range": "0 – 150 UI/mL"
+      }
+    ],
+    "high_ro": "ASLO crescut indică infecție streptococică recentă. Important pentru diagnosticul reumatismului articular acut (RAA) și glomerulonefritei post-streptococice, complicații grave ale infecțiilor netratate.",
+    "high_en": "Elevated ASO indicates recent streptococcal infection. Important for diagnosing acute rheumatic fever and post-streptococcal glomerulonephritis, serious complications of untreated infections.",
+    "low_ro": "ASLO normal exclude o infecție streptococică recentă. Valorile scad natural în 6-12 luni după infecție.",
+    "low_en": "Normal ASO excludes a recent streptococcal infection. Values naturally decrease in 6-12 months after infection.",
+    "related": [
+      "pcr",
+      "vsh",
+      "leucocite"
+    ],
+    "meta_ro": "Ce este ASLO, valori normale, ASLO crescut cauze. Infecție streptococică. Ghid Analize.Online.",
+    "meta_en": "What is ASO, normal values, elevated ASO causes. Streptococcal infection. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă ASLO (Antistreptolizina O) crescut?",
+        "a": "ASLO crescut indică infecție streptococică recentă. Important pentru diagnosticul reumatismului articular acut (RAA) și glomerulonefritei post-streptococice, complicații grave ale infecțiilor netratate. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă ASLO (Antistreptolizina O) scăzut?",
+        "a": "ASLO normal exclude o infecție streptococică recentă. Valorile scad natural în 6-12 luni după infecție. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de ASLO (Antistreptolizina O)?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența ASLO (Antistreptolizina O)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat ASLO (Antistreptolizina O)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high ASO (Antistreptolysin O) mean?",
+        "a": "Elevated ASO indicates recent streptococcal infection. Important for diagnosing acute rheumatic fever and post-streptococcal glomerulonephritis, serious complications of untreated infections. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low ASO (Antistreptolysin O) mean?",
+        "a": "Normal ASO excludes a recent streptococcal infection. Values naturally decrease in 6-12 months after infection. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a ASO (Antistreptolysin O) test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect ASO (Antistreptolysin O)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should ASO (Antistreptolysin O) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "fosfor",
+    "name_ro": "Fosfor (Fosfat)",
+    "name_en": "Phosphorus (Phosphate)",
+    "aliases_ro": [
+      "Fosfor",
+      "Fosfat",
+      "Fosfor seric"
+    ],
+    "category_ro": "Biochimie",
+    "category_en": "Biochemistry",
+    "unit": "mg/dL",
+    "what_ro": "Fosforul este un mineral esențial pentru oase, dinți, producția de energie (ATP) și structura ADN-ului. Metabolismul fosforului este strâns legat de cel al calciului și parathormonului.",
+    "what_en": "Phosphorus is an essential mineral for bones, teeth, energy production (ATP), and DNA structure. Phosphorus metabolism is closely linked to calcium and parathyroid hormone.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "2.5 – 4.5 mg/dL"
+      },
+      {
+        "group_ro": "Copii",
+        "group_en": "Children",
+        "range": "4.0 – 7.0 mg/dL"
+      }
+    ],
+    "high_ro": "Fosforul crescut apare în insuficiență renală, hipoparatiroidism, exces de vitamina D sau rabdomioliză. Poate cauza calcifiere vasculară și prurit.",
+    "high_en": "Elevated phosphorus occurs in kidney failure, hypoparathyroidism, excess vitamin D, or rhabdomyolysis. May cause vascular calcification and pruritus.",
+    "low_ro": "Fosforul scăzut apare în hiperparatiroidism, deficit de vitamina D, malabsorbție sau alcoolism cronic. Cauza slăbiciune musculară și fragilitate osoasă.",
+    "low_en": "Low phosphorus occurs in hyperparathyroidism, vitamin D deficiency, malabsorption, or chronic alcoholism. Causes muscle weakness and bone fragility.",
+    "related": [
+      "calciu",
+      "parathormon",
+      "vitamina-d",
+      "creatinina"
+    ],
+    "meta_ro": "Ce este fosforul, valori normale fosfor seric, cauze fosfor crescut sau scăzut. Ghid Analize.Online.",
+    "meta_en": "What is phosphorus, normal values, causes of high or low phosphorus. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Fosfor (Fosfat) crescut?",
+        "a": "Fosforul crescut apare în insuficiență renală, hipoparatiroidism, exces de vitamina D sau rabdomioliză. Poate cauza calcifiere vasculară și prurit. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Fosfor (Fosfat) scăzut?",
+        "a": "Fosforul scăzut apare în hiperparatiroidism, deficit de vitamina D, malabsorbție sau alcoolism cronic. Cauza slăbiciune musculară și fragilitate osoasă. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Fosfor (Fosfat)?",
+        "a": "Alimentația echilibrată influențează Fosfor (Fosfat). Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența Fosfor (Fosfat)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Fosfor (Fosfat)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Phosphorus (Phosphate) mean?",
+        "a": "Elevated phosphorus occurs in kidney failure, hypoparathyroidism, excess vitamin D, or rhabdomyolysis. May cause vascular calcification and pruritus. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Phosphorus (Phosphate) mean?",
+        "a": "Low phosphorus occurs in hyperparathyroidism, vitamin D deficiency, malabsorption, or chronic alcoholism. Causes muscle weakness and bone fragility. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Phosphorus (Phosphate) levels?",
+        "a": "A balanced diet affects Phosphorus (Phosphate). Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect Phosphorus (Phosphate)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Phosphorus (Phosphate) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "homocisteina",
+    "name_ro": "Homocisteina",
+    "name_en": "Homocysteine",
+    "aliases_ro": [
+      "Homocisteina",
+      "Homocisteină serică"
+    ],
+    "category_ro": "Biochimie",
+    "category_en": "Biochemistry",
+    "unit": "µmol/L",
+    "what_ro": "Homocisteina este un aminoacid produs în metabolismul metioninei. Nivelul crescut este un factor de risc cardiovascular independent, asociat cu ateroscleroză, tromboze și AVC.",
+    "what_en": "Homocysteine is an amino acid produced in methionine metabolism. Elevated levels are an independent cardiovascular risk factor, associated with atherosclerosis, thrombosis, and stroke.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "5 – 15 µmol/L"
+      }
+    ],
+    "high_ro": "Homocisteina crescută (hiperhomocisteinemie) crește riscul de infarct, AVC și tromboze. Cauze: deficit de vitamina B12, B6, acid folic, insuficiență renală sau genetic (mutație MTHFR).",
+    "high_en": "Elevated homocysteine (hyperhomocysteinemia) increases risk of heart attack, stroke, and thrombosis. Causes: vitamin B12, B6, folic acid deficiency, kidney failure, or genetic (MTHFR mutation).",
+    "low_ro": "Homocisteina scăzută nu are semnificație clinică și este considerată normală.",
+    "low_en": "Low homocysteine has no clinical significance and is considered normal.",
+    "related": [
+      "vitamina-b12",
+      "acid-folic",
+      "colesterol-ldl"
+    ],
+    "meta_ro": "Ce este homocisteina, valori normale, homocisteina crescută cauze. Risc cardiovascular. Ghid Analize.Online.",
+    "meta_en": "What is homocysteine, normal values, elevated homocysteine causes. Cardiovascular risk. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Homocisteina crescută?",
+        "a": "Homocisteina crescută (hiperhomocisteinemie) crește riscul de infarct, AVC și tromboze. Cauze: deficit de vitamina B12, B6, acid folic, insuficiență renală sau genetic (mutație MTHFR). Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Homocisteina scăzută?",
+        "a": "Homocisteina scăzută nu are semnificație clinică și este considerată normală.. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Homocisteina?",
+        "a": "Alimentația echilibrată influențează Homocisteina. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența Homocisteina?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Homocisteina?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Homocysteine mean?",
+        "a": "Elevated homocysteine (hyperhomocysteinemia) increases risk of heart attack, stroke, and thrombosis. Causes: vitamin B12, B6, folic acid deficiency, kidney failure, or genetic (MTHFR mutation). Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Homocysteine mean?",
+        "a": "Low homocysteine has no clinical significance and is considered normal.. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Homocysteine levels?",
+        "a": "A balanced diet affects Homocysteine. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect Homocysteine?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Homocysteine be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "amilaza",
+    "name_ro": "Amilaza",
+    "name_en": "Amylase",
+    "aliases_ro": [
+      "Amilaza",
+      "Amilaza serică",
+      "Amilaza pancreatică"
+    ],
+    "category_ro": "Biochimie",
+    "category_en": "Biochemistry",
+    "unit": "U/L",
+    "what_ro": "Amilaza este o enzimă produsă de pancreas și glandele salivare care descompune amidonul. Creșterea nivelului seric indică de obicei o afecțiune pancreatică acută.",
+    "what_en": "Amylase is an enzyme produced by the pancreas and salivary glands that breaks down starch. Elevated serum levels usually indicate an acute pancreatic condition.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "28 – 100 U/L"
+      }
+    ],
+    "high_ro": "Amilaza crescută indică pancreatită acută (de 3-5× normal), obstrucție biliară, parotidită (oreion), perforație intestinală sau insuficiență renală.",
+    "high_en": "Elevated amylase indicates acute pancreatitis (3-5× normal), biliary obstruction, parotitis (mumps), intestinal perforation, or kidney failure.",
+    "low_ro": "Amilaza scăzută poate apărea în pancreatită cronică (distrugerea pancreasului), fibroză chistică sau insuficiență hepatică severă.",
+    "low_en": "Low amylase may occur in chronic pancreatitis (pancreas destruction), cystic fibrosis, or severe liver failure.",
+    "related": [
+      "glicemie",
+      "tgo",
+      "tgp",
+      "bilirubina-totala"
+    ],
+    "meta_ro": "Ce este amilaza, valori normale, amilaza crescută cauze. Pancreatită. Ghid Analize.Online.",
+    "meta_en": "What is amylase, normal values, elevated amylase causes. Pancreatitis. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Amilaza crescută?",
+        "a": "Amilaza crescută indică pancreatită acută (de 3-5× normal), obstrucție biliară, parotidită (oreion), perforație intestinală sau insuficiență renală.. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Amilaza scăzută?",
+        "a": "Amilaza scăzută poate apărea în pancreatită cronică (distrugerea pancreasului), fibroză chistică sau insuficiență hepatică severă.. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Amilaza?",
+        "a": "Alimentația echilibrată influențează Amilaza. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența Amilaza?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Amilaza?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Amylase mean?",
+        "a": "Elevated amylase indicates acute pancreatitis (3-5× normal), biliary obstruction, parotitis (mumps), intestinal perforation, or kidney failure.. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Amylase mean?",
+        "a": "Low amylase may occur in chronic pancreatitis (pancreas destruction), cystic fibrosis, or severe liver failure.. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Amylase levels?",
+        "a": "A balanced diet affects Amylase. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect Amylase?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Amylase be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "lipaza",
+    "name_ro": "Lipaza",
+    "name_en": "Lipase",
+    "aliases_ro": [
+      "Lipaza",
+      "Lipaza pancreatică",
+      "Lipaza serică"
+    ],
+    "category_ro": "Biochimie",
+    "category_en": "Biochemistry",
+    "unit": "U/L",
+    "what_ro": "Lipaza este o enzimă produsă predominant de pancreas care descompune grăsimile. Este mai specifică decât amilaza pentru diagnosticul pancreatitei acute.",
+    "what_en": "Lipase is an enzyme predominantly produced by the pancreas that breaks down fats. It is more specific than amylase for diagnosing acute pancreatitis.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 160 U/L"
+      }
+    ],
+    "high_ro": "Lipaza crescută peste 3× normal confirmă pancreatita acută. Poate fi crescută și în obstrucție biliară, insuficiență renală, peritonită sau ulcer perforat.",
+    "high_en": "Lipase elevated over 3× normal confirms acute pancreatitis. May also be elevated in biliary obstruction, kidney failure, peritonitis, or perforated ulcer.",
+    "low_ro": "Lipaza scăzută poate indica insuficiență pancreatică cronică sau fibroză chistică, dar este rareori semnificativă clinic.",
+    "low_en": "Low lipase may indicate chronic pancreatic insufficiency or cystic fibrosis, but is rarely clinically significant.",
+    "related": [
+      "amilaza",
+      "trigliceride",
+      "bilirubina-totala"
+    ],
+    "meta_ro": "Ce este lipaza, valori normale, lipaza crescută cauze. Diagnostic pancreatită. Ghid Analize.Online.",
+    "meta_en": "What is lipase, normal values, elevated lipase causes. Pancreatitis diagnosis. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Lipaza crescută?",
+        "a": "Lipaza crescută peste 3× normal confirmă pancreatita acută. Poate fi crescută și în obstrucție biliară, insuficiență renală, peritonită sau ulcer perforat. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Lipaza scăzută?",
+        "a": "Lipaza scăzută poate indica insuficiență pancreatică cronică sau fibroză chistică, dar este rareori semnificativă clinic.. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Lipaza?",
+        "a": "Alimentația echilibrată influențează Lipaza. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența Lipaza?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Lipaza?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Lipase mean?",
+        "a": "Lipase elevated over 3× normal confirms acute pancreatitis. May also be elevated in biliary obstruction, kidney failure, peritonitis, or perforated ulcer. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Lipase mean?",
+        "a": "Low lipase may indicate chronic pancreatic insufficiency or cystic fibrosis, but is rarely clinically significant.. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Lipase levels?",
+        "a": "A balanced diet affects Lipase. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect Lipase?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Lipase be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "transferina",
+    "name_ro": "Transferina",
+    "name_en": "Transferrin",
+    "aliases_ro": [
+      "Transferina",
+      "Transferină serică"
+    ],
+    "category_ro": "Biochimie",
+    "category_en": "Biochemistry",
+    "unit": "mg/dL",
+    "what_ro": "Transferina este principala proteină de transport a fierului în sânge. Nivelul ei reflectă capacitatea organismului de a transporta fierul și este utilizat în evaluarea anemiei.",
+    "what_en": "Transferrin is the main iron transport protein in blood. Its level reflects the body's capacity to transport iron and is used in evaluating anemia.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "200 – 360 mg/dL"
+      }
+    ],
+    "high_ro": "Transferina crescută apare în deficit de fier (organismul produce mai multă transferină pentru a capta mai mult fier), sarcină sau tratament cu estrogen.",
+    "high_en": "Elevated transferrin occurs in iron deficiency (the body produces more transferrin to capture more iron), pregnancy, or estrogen treatment.",
+    "low_ro": "Transferina scăzută indică supraîncărcare cu fier (hemocromatoză), malnutriție, boli hepatice cronice sau inflamație cronică.",
+    "low_en": "Low transferrin indicates iron overload (hemochromatosis), malnutrition, chronic liver disease, or chronic inflammation.",
+    "related": [
+      "fier-seric",
+      "feritina",
+      "tibc",
+      "hemoglobina"
+    ],
+    "meta_ro": "Ce este transferina, valori normale, transferina crescută sau scăzută cauze. Transport fier. Ghid Analize.Online.",
+    "meta_en": "What is transferrin, normal values, elevated or low transferrin causes. Iron transport. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Transferina crescută?",
+        "a": "Transferina crescută apare în deficit de fier (organismul produce mai multă transferină pentru a capta mai mult fier), sarcină sau tratament cu estrogen.. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Transferina scăzută?",
+        "a": "Transferina scăzută indică supraîncărcare cu fier (hemocromatoză), malnutriție, boli hepatice cronice sau inflamație cronică.. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Transferina?",
+        "a": "Alimentația echilibrată influențează Transferina. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența Transferina?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Transferina?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Transferrin mean?",
+        "a": "Elevated transferrin occurs in iron deficiency (the body produces more transferrin to capture more iron), pregnancy, or estrogen treatment.. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Transferrin mean?",
+        "a": "Low transferrin indicates iron overload (hemochromatosis), malnutrition, chronic liver disease, or chronic inflammation.. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Transferrin levels?",
+        "a": "A balanced diet affects Transferrin. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect Transferrin?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Transferrin be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "zinc",
+    "name_ro": "Zinc",
+    "name_en": "Zinc",
+    "aliases_ro": [
+      "Zinc",
+      "Zinc seric"
+    ],
+    "category_ro": "Vitamine",
+    "category_en": "Vitamins",
+    "unit": "µg/dL",
+    "what_ro": "Zincul este un mineral esențial implicat în funcția imunitară, vindecarea rănilor, sinteza ADN și peste 300 de reacții enzimatice. Deficitul este frecvent la nivel global.",
+    "what_en": "Zinc is an essential mineral involved in immune function, wound healing, DNA synthesis, and over 300 enzymatic reactions. Deficiency is common globally.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "70 – 120 µg/dL"
+      }
+    ],
+    "high_ro": "Zincul crescut este rar și apare de obicei din suplimentare excesivă. Poate cauza greață, vărsături, scăderea cuprului și afectarea imunității.",
+    "high_en": "Elevated zinc is rare and usually occurs from excessive supplementation. May cause nausea, vomiting, copper decrease, and immunity impairment.",
+    "low_ro": "Zincul scăzut cauza imunitate slabă, căderea părului, pierderea gustului, vindecarea lentă a rănilor și diaree. Frecvent în diete vegetariene, alcoolism sau malabsorbție.",
+    "low_en": "Low zinc causes weak immunity, hair loss, taste loss, slow wound healing, and diarrhea. Common in vegetarian diets, alcoholism, or malabsorption.",
+    "related": [
+      "fier-seric",
+      "vitamina-d"
+    ],
+    "meta_ro": "Ce este zincul, valori normale, zinc scăzut simptome. Imunitate și vindecare. Ghid Analize.Online.",
+    "meta_en": "What is zinc, normal values, low zinc symptoms. Immunity and healing. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Zinc crescut?",
+        "a": "Zincul crescut este rar și apare de obicei din suplimentare excesivă. Poate cauza greață, vărsături, scăderea cuprului și afectarea imunității. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Zinc scăzut?",
+        "a": "Zincul scăzut cauza imunitate slabă, căderea părului, pierderea gustului, vindecarea lentă a rănilor și diaree. Frecvent în diete vegetariene, alcoolism sau malabsorbție. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Zinc?",
+        "a": "Alimentația echilibrată influențează Zinc. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența Zinc?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Zinc?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Zinc mean?",
+        "a": "Elevated zinc is rare and usually occurs from excessive supplementation. May cause nausea, vomiting, copper decrease, and immunity impairment. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Zinc mean?",
+        "a": "Low zinc causes weak immunity, hair loss, taste loss, slow wound healing, and diarrhea. Common in vegetarian diets, alcoholism, or malabsorption. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Zinc levels?",
+        "a": "A balanced diet affects Zinc. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect Zinc?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Zinc be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "selen",
+    "name_ro": "Selen",
+    "name_en": "Selenium",
+    "aliases_ro": [
+      "Selen",
+      "Selen seric"
+    ],
+    "category_ro": "Vitamine",
+    "category_en": "Vitamins",
+    "unit": "µg/L",
+    "what_ro": "Selenul este un oligoelement esențial cu rol antioxidant, implicat în funcția tiroidiană, imunitate și protecția celulară împotriva stresului oxidativ.",
+    "what_en": "Selenium is an essential trace element with antioxidant role, involved in thyroid function, immunity, and cellular protection against oxidative stress.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "70 – 150 µg/L"
+      }
+    ],
+    "high_ro": "Selenul crescut (selenoză) apare din suplimentare excesivă și cauza oboseală, căderea părului, fragilitatea unghiilor, miros de usturoi al respirației.",
+    "high_en": "Elevated selenium (selenosis) occurs from excessive supplementation and causes fatigue, hair loss, nail brittleness, garlic breath odor.",
+    "low_ro": "Selenul scăzut este asociat cu risc crescut de cancer, disfuncție tiroidiană, imunitate slabă și boli cardiovasculare. Frecvent în solurile sărace în selen.",
+    "low_en": "Low selenium is associated with increased cancer risk, thyroid dysfunction, weak immunity, and cardiovascular diseases. Common in selenium-poor soils.",
+    "related": [
+      "tsh",
+      "zinc",
+      "vitamina-d"
+    ],
+    "meta_ro": "Ce este selenul, valori normale, selen scăzut cauze. Antioxidant și tiroida. Ghid Analize.Online.",
+    "meta_en": "What is selenium, normal values, low selenium causes. Antioxidant and thyroid. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Selen crescut?",
+        "a": "Selenul crescut (selenoză) apare din suplimentare excesivă și cauza oboseală, căderea părului, fragilitatea unghiilor, miros de usturoi al respirației.. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Selen scăzut?",
+        "a": "Selenul scăzut este asociat cu risc crescut de cancer, disfuncție tiroidiană, imunitate slabă și boli cardiovasculare. Frecvent în solurile sărace în selen. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Selen?",
+        "a": "Alimentația echilibrată influențează Selen. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența Selen?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Selen?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Selenium mean?",
+        "a": "Elevated selenium (selenosis) occurs from excessive supplementation and causes fatigue, hair loss, nail brittleness, garlic breath odor.. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Selenium mean?",
+        "a": "Low selenium is associated with increased cancer risk, thyroid dysfunction, weak immunity, and cardiovascular diseases. Common in selenium-poor soils. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Selenium levels?",
+        "a": "A balanced diet affects Selenium. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect Selenium?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Selenium be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "reticulocite",
+    "name_ro": "Reticulocite",
+    "name_en": "Reticulocytes",
+    "aliases_ro": [
+      "Reticulocite",
+      "Reticulocite %"
+    ],
+    "category_ro": "Hematologie",
+    "category_en": "Hematology",
+    "unit": "%",
+    "what_ro": "Reticulocitele sunt globule roșii tinere, recent eliberate din măduva osoasă. Nivelul lor reflectă activitatea de producție a eritrocitelor și capacitatea măduvei de a compensa anemia.",
+    "what_en": "Reticulocytes are young red blood cells recently released from the bone marrow. Their level reflects erythrocyte production activity and the marrow's ability to compensate for anemia.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0.5 – 2.5 %"
+      }
+    ],
+    "high_ro": "Reticulocitele crescute indică răspunsul măduvei la pierderi de sânge (hemoragie), hemoliză sau tratament eficient al anemiei (fier, B12). Măduva produce activ globule roșii.",
+    "high_en": "Elevated reticulocytes indicate marrow response to blood loss (hemorrhage), hemolysis, or effective anemia treatment (iron, B12). The marrow is actively producing red blood cells.",
+    "low_ro": "Reticulocitele scăzute în context de anemie indică anemie aregenerativă — măduva nu produce suficiente eritrocite. Cauze: deficit B12/folat, aplazie medulară, infiltrare tumorală.",
+    "low_en": "Low reticulocytes in the context of anemia indicate aregenerative anemia — the marrow is not producing enough red blood cells. Causes: B12/folate deficiency, aplastic anemia, tumor infiltration.",
+    "related": [
+      "hemoglobina",
+      "eritrocite",
+      "fier-seric",
+      "vitamina-b12"
+    ],
+    "meta_ro": "Ce sunt reticulocitele, valori normale, reticulocite crescute sau scăzute cauze. Anemie. Ghid Analize.Online.",
+    "meta_en": "What are reticulocytes, normal values, high or low reticulocyte causes. Anemia. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Reticulocite crescut?",
+        "a": "Reticulocitele crescute indică răspunsul măduvei la pierderi de sânge (hemoragie), hemoliză sau tratament eficient al anemiei (fier, B12). Măduva produce activ globule roșii. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Reticulocite scăzut?",
+        "a": "Reticulocitele scăzute în context de anemie indică anemie aregenerativă — măduva nu produce suficiente eritrocite. Cauze: deficit B12/folat, aplazie medulară, infiltrare tumorală. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Reticulocite?",
+        "a": "Alimentația echilibrată influențează Reticulocite. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Reticulocite la copii — ce valori sunt normale?",
+        "a": "Valorile normale la copii diferă de cele ale adulților. Pediatrul interpretează rezultatele în funcție de vârsta copilului."
+      },
+      {
+        "q": "Cât de des trebuie verificat Reticulocite?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Reticulocytes mean?",
+        "a": "Elevated reticulocytes indicate marrow response to blood loss (hemorrhage), hemolysis, or effective anemia treatment (iron, B12). The marrow is actively producing red blood cells. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Reticulocytes mean?",
+        "a": "Low reticulocytes in the context of anemia indicate aregenerative anemia — the marrow is not producing enough red blood cells. Causes: B12/folate deficiency, aplastic anemia, tumor infiltration. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Reticulocytes levels?",
+        "a": "A balanced diet affects Reticulocytes. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Reticulocytes in children — what values are normal?",
+        "a": "Normal values in children differ from adults. The pediatrician interprets results based on the child's age."
+      },
+      {
+        "q": "How often should Reticulocytes be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "rdw",
+    "name_ro": "RDW (Lățimea distribuției eritrocitare)",
+    "name_en": "RDW (Red Cell Distribution Width)",
+    "aliases_ro": [
+      "RDW",
+      "RDW-CV",
+      "Lățime distribuție eritrocitară"
+    ],
+    "category_ro": "Hematologie",
+    "category_en": "Hematology",
+    "unit": "%",
+    "what_ro": "RDW măsoară variabilitatea în dimensiunea globulelor roșii (anizocitoză). Un RDW crescut indică prezența simultană de eritrocite de dimensiuni diferite, utilă pentru diferențierea tipurilor de anemie.",
+    "what_en": "RDW measures variability in red blood cell size (anisocytosis). Elevated RDW indicates simultaneous presence of differently sized red blood cells, useful for differentiating types of anemia.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "11.5 – 14.5 %"
+      }
+    ],
+    "high_ro": "RDW crescut apare în anemie feriprivă, anemie megaloblastică (deficit B12/folat), talasemie, post-transfuzii. Ajută la diferențierea anemiei feriprive (RDW crescut) de talasemie (RDW normal).",
+    "high_en": "Elevated RDW occurs in iron deficiency anemia, megaloblastic anemia (B12/folate deficiency), thalassemia, post-transfusion. Helps differentiate iron deficiency anemia (high RDW) from thalassemia (normal RDW).",
+    "low_ro": "RDW scăzut indică eritrocite uniforme ca dimensiune. Este normal și nu are semnificație patologică.",
+    "low_en": "Low RDW indicates uniform-sized red blood cells. It is normal and has no pathological significance.",
+    "related": [
+      "hemoglobina",
+      "vem",
+      "fier-seric",
+      "vitamina-b12"
+    ],
+    "meta_ro": "Ce este RDW, valori normale, RDW crescut cauze. Diferențiere tipuri anemie. Ghid Analize.Online.",
+    "meta_en": "What is RDW, normal values, elevated RDW causes. Anemia type differentiation. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă RDW (Lățimea distribuției eritrocitare) crescut?",
+        "a": "RDW crescut apare în anemie feriprivă, anemie megaloblastică (deficit B12/folat), talasemie, post-transfuzii. Ajută la diferențierea anemiei feriprive (RDW crescut) de talasemie (RDW normal). Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă RDW (Lățimea distribuției eritrocitare) scăzut?",
+        "a": "RDW scăzut indică eritrocite uniforme ca dimensiune. Este normal și nu are semnificație patologică. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de RDW (Lățimea distribuției eritrocitare)?",
+        "a": "Alimentația echilibrată influențează RDW (Lățimea distribuției eritrocitare). Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "RDW (Lățimea distribuției eritrocitare) la copii — ce valori sunt normale?",
+        "a": "Valorile normale la copii diferă de cele ale adulților. Pediatrul interpretează rezultatele în funcție de vârsta copilului."
+      },
+      {
+        "q": "Cât de des trebuie verificat RDW (Lățimea distribuției eritrocitare)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high RDW (Red Cell Distribution Width) mean?",
+        "a": "Elevated RDW occurs in iron deficiency anemia, megaloblastic anemia (B12/folate deficiency), thalassemia, post-transfusion. Helps differentiate iron deficiency anemia (high RDW) from thalassemia (normal RDW). Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low RDW (Red Cell Distribution Width) mean?",
+        "a": "Low RDW indicates uniform-sized red blood cells. It is normal and has no pathological significance. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect RDW (Red Cell Distribution Width) levels?",
+        "a": "A balanced diet affects RDW (Red Cell Distribution Width). Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "RDW (Red Cell Distribution Width) in children — what values are normal?",
+        "a": "Normal values in children differ from adults. The pediatrician interprets results based on the child's age."
+      },
+      {
+        "q": "How often should RDW (Red Cell Distribution Width) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "bazofile",
+    "name_ro": "Bazofile",
+    "name_en": "Basophils",
+    "aliases_ro": [
+      "Bazofile",
+      "Granulocite bazofile"
+    ],
+    "category_ro": "Hematologie",
+    "category_en": "Hematology",
+    "unit": "%",
+    "what_ro": "Bazofilele sunt cele mai rare granulocite din sânge, implicate în reacțiile alergice și inflamatorii. Conțin histamină și heparină pe care le eliberează în reacțiile de hipersensibilitate.",
+    "what_en": "Basophils are the rarest granulocytes in blood, involved in allergic and inflammatory reactions. They contain histamine and heparin which they release in hypersensitivity reactions.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "0 – 1 %"
+      }
+    ],
+    "high_ro": "Bazofilia (bazofile crescute) poate apărea în leucemie mieloidă cronică, reacții alergice severe, hipotiroidism, boli mieloproliferative sau infecții virale.",
+    "high_en": "Basophilia (elevated basophils) may occur in chronic myeloid leukemia, severe allergic reactions, hypothyroidism, myeloproliferative disorders, or viral infections.",
+    "low_ro": "Bazofilele scăzute (basopenie) sunt dificil de detectat datorită numărului lor mic normal. Pot apărea în reacții alergice acute, hipertiroidism sau tratament cu corticosteroizi.",
+    "low_en": "Low basophils (basopenia) are difficult to detect due to their normally small number. May occur in acute allergic reactions, hyperthyroidism, or corticosteroid treatment.",
+    "related": [
+      "eozinofile",
+      "leucocite",
+      "neutrofile"
+    ],
+    "meta_ro": "Ce sunt bazofilele, valori normale, bazofile crescute cauze. Alergii și leucemie. Ghid Analize.Online.",
+    "meta_en": "What are basophils, normal values, elevated basophils causes. Allergies and leukemia. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Bazofile crescut?",
+        "a": "Bazofilia (bazofile crescute) poate apărea în leucemie mieloidă cronică, reacții alergice severe, hipotiroidism, boli mieloproliferative sau infecții virale.. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Bazofile scăzut?",
+        "a": "Bazofilele scăzute (basopenie) sunt dificil de detectat datorită numărului lor mic normal. Pot apărea în reacții alergice acute, hipertiroidism sau tratament cu corticosteroizi. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de Bazofile?",
+        "a": "Alimentația echilibrată influențează Bazofile. Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Bazofile la copii — ce valori sunt normale?",
+        "a": "Valorile normale la copii diferă de cele ale adulților. Pediatrul interpretează rezultatele în funcție de vârsta copilului."
+      },
+      {
+        "q": "Cât de des trebuie verificat Bazofile?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Basophils mean?",
+        "a": "Basophilia (elevated basophils) may occur in chronic myeloid leukemia, severe allergic reactions, hypothyroidism, myeloproliferative disorders, or viral infections.. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Basophils mean?",
+        "a": "Low basophils (basopenia) are difficult to detect due to their normally small number. May occur in acute allergic reactions, hyperthyroidism, or corticosteroid treatment. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect Basophils levels?",
+        "a": "A balanced diet affects Basophils. Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Basophils in children — what values are normal?",
+        "a": "Normal values in children differ from adults. The pediatrician interprets results based on the child's age."
+      },
+      {
+        "q": "How often should Basophils be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "hbsag",
+    "name_ro": "HBsAg (Antigen Hepatita B)",
+    "name_en": "HBsAg (Hepatitis B Surface Antigen)",
+    "aliases_ro": [
+      "HBsAg",
+      "Antigen HBs",
+      "Ag HBs",
+      "Antigen de suprafață Hepatita B"
+    ],
+    "category_ro": "Imunologie",
+    "category_en": "Immunology",
+    "unit": "–",
+    "what_ro": "HBsAg este antigenul de suprafață al virusului hepatitei B. Prezența sa în sânge indică infecție activă cu hepatita B (acută sau cronică). Este primul marker care devine pozitiv după infectare.",
+    "what_en": "HBsAg is the surface antigen of the hepatitis B virus. Its presence in blood indicates active hepatitis B infection (acute or chronic). It is the first marker to become positive after infection.",
+    "ranges": [
+      {
+        "group_ro": "Normal",
+        "group_en": "Normal",
+        "range": "Negativ (non-reactiv)"
+      }
+    ],
+    "high_ro": "HBsAg pozitiv (reactiv) confirmă infecția cu virusul hepatitei B. Persistența peste 6 luni indică hepatită B cronică. Necesită evaluare hepatologică și teste suplimentare (ADN VHB, markeri).",
+    "high_en": "Positive (reactive) HBsAg confirms hepatitis B virus infection. Persistence over 6 months indicates chronic hepatitis B. Requires hepatological evaluation and additional tests (HBV DNA, markers).",
+    "low_ro": "HBsAg negativ (non-reactiv) înseamnă absența infecției active cu hepatita B. Persoanele vaccinate au HBsAg negativ dar anti-HBs pozitiv.",
+    "low_en": "Negative (non-reactive) HBsAg means absence of active hepatitis B infection. Vaccinated individuals have negative HBsAg but positive anti-HBs.",
+    "related": [
+      "tgo",
+      "tgp",
+      "bilirubina-totala"
+    ],
+    "meta_ro": "Ce este HBsAg, ce înseamnă HBsAg pozitiv. Screening hepatita B. Ghid Analize.Online.",
+    "meta_en": "What is HBsAg, what does positive HBsAg mean. Hepatitis B screening. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă HBsAg (Antigen Hepatita B) crescut?",
+        "a": "HBsAg pozitiv (reactiv) confirmă infecția cu virusul hepatitei B. Persistența peste 6 luni indică hepatită B cronică. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă HBsAg (Antigen Hepatita B) scăzut?",
+        "a": "HBsAg negativ (non-reactiv) înseamnă absența infecției active cu hepatita B. Persoanele vaccinate au HBsAg negativ dar anti-HBs pozitiv. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de HBsAg (Antigen Hepatita B)?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența HBsAg (Antigen Hepatita B)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat HBsAg (Antigen Hepatita B)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high HBsAg (Hepatitis B Surface Antigen) mean?",
+        "a": "Positive (reactive) HBsAg confirms hepatitis B virus infection. Persistence over 6 months indicates chronic hepatitis B. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low HBsAg (Hepatitis B Surface Antigen) mean?",
+        "a": "Negative (non-reactive) HBsAg means absence of active hepatitis B infection. Vaccinated individuals have negative HBsAg but positive anti-HBs. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a HBsAg (Hepatitis B Surface Antigen) test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect HBsAg (Hepatitis B Surface Antigen)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should HBsAg (Hepatitis B Surface Antigen) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "anti-hcv",
+    "name_ro": "Anti-HCV (Anticorpi Hepatita C)",
+    "name_en": "Anti-HCV (Hepatitis C Antibodies)",
+    "aliases_ro": [
+      "Anti-HCV",
+      "Anticorpi HCV",
+      "Anticorpi Hepatita C"
+    ],
+    "category_ro": "Imunologie",
+    "category_en": "Immunology",
+    "unit": "–",
+    "what_ro": "Anti-HCV detectează anticorpii produși împotriva virusului hepatitei C. Un rezultat pozitiv indică contact cu virusul (infecție activă sau vindecată) și necesită confirmare prin ARN-HCV.",
+    "what_en": "Anti-HCV detects antibodies produced against the hepatitis C virus. A positive result indicates contact with the virus (active or resolved infection) and requires confirmation by HCV RNA.",
+    "ranges": [
+      {
+        "group_ro": "Normal",
+        "group_en": "Normal",
+        "range": "Negativ (non-reactiv)"
+      }
+    ],
+    "high_ro": "Anti-HCV pozitiv indică expunere la virusul hepatitei C. NU diferențiază infecția activă de cea vindecată. Este obligatoriu testul ARN-HCV pentru a confirma viremia activă.",
+    "high_en": "Positive anti-HCV indicates exposure to the hepatitis C virus. Does NOT differentiate active from resolved infection. HCV RNA test is mandatory to confirm active viremia.",
+    "low_ro": "Anti-HCV negativ exclude cu mare probabilitate infecția cu hepatita C. Poate fi fals negativ în primele 6-12 săptămâni după expunere (fereastră serologică).",
+    "low_en": "Negative anti-HCV largely excludes hepatitis C infection. May be false negative in the first 6-12 weeks after exposure (serological window).",
+    "related": [
+      "tgo",
+      "tgp",
+      "ggt",
+      "bilirubina-totala"
+    ],
+    "meta_ro": "Ce sunt anticorpii anti-HCV, ce înseamnă anti-HCV pozitiv. Screening hepatita C. Ghid Analize.Online.",
+    "meta_en": "What are anti-HCV antibodies, what does positive anti-HCV mean. Hepatitis C screening. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Anti-HCV (Anticorpi Hepatita C) crescut?",
+        "a": "Anti-HCV pozitiv indică expunere la virusul hepatitei C. NU diferențiază infecția activă de cea vindecată. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Anti-HCV (Anticorpi Hepatita C) scăzut?",
+        "a": "Anti-HCV negativ exclude cu mare probabilitate infecția cu hepatita C. Poate fi fals negativ în primele 6-12 săptămâni după expunere (fereastră serologică). Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Cum mă pregătesc pentru analiza de Anti-HCV (Anticorpi Hepatita C)?",
+        "a": "Recoltarea se face dimineața, a jeun. Bea apă și evită efortul fizic intens cu o zi înainte."
+      },
+      {
+        "q": "Medicamentele pot influența Anti-HCV (Anticorpi Hepatita C)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Anti-HCV (Anticorpi Hepatita C)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Anti-HCV (Hepatitis C Antibodies) mean?",
+        "a": "Positive anti-HCV indicates exposure to the hepatitis C virus. Does NOT differentiate active from resolved infection. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Anti-HCV (Hepatitis C Antibodies) mean?",
+        "a": "Negative anti-HCV largely excludes hepatitis C infection. May be false negative in the first 6-12 weeks after exposure (serological window). A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "How do I prepare for a Anti-HCV (Hepatitis C Antibodies) test?",
+        "a": "Collection is usually done in the morning, fasting. Drink water and avoid intense exercise the day before."
+      },
+      {
+        "q": "Can medications affect Anti-HCV (Hepatitis C Antibodies)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Anti-HCV (Hepatitis C Antibodies) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "gfr",
+    "name_ro": "GFR (Rata filtrării glomerulare)",
+    "name_en": "GFR (Glomerular Filtration Rate)",
+    "aliases_ro": [
+      "GFR",
+      "eGFR",
+      "Rata filtrare glomerulară",
+      "Clearance creatinină"
+    ],
+    "category_ro": "Biochimie",
+    "category_en": "Biochemistry",
+    "unit": "mL/min/1.73m²",
+    "what_ro": "GFR estimează cât de bine filtrează rinichii sângele. Este calculat din creatinină, vârstă, sex și rasă. Este cel mai important indicator al funcției renale și stadializării bolii renale cronice.",
+    "what_en": "GFR estimates how well the kidneys filter blood. It is calculated from creatinine, age, sex, and race. It is the most important indicator of kidney function and chronic kidney disease staging.",
+    "ranges": [
+      {
+        "group_ro": "Normal",
+        "group_en": "Normal",
+        "range": "> 90 mL/min/1.73m²"
+      },
+      {
+        "group_ro": "Ușor scăzut",
+        "group_en": "Mildly decreased",
+        "range": "60 – 89 mL/min/1.73m²"
+      },
+      {
+        "group_ro": "Moderat scăzut",
+        "group_en": "Moderately decreased",
+        "range": "30 – 59 mL/min/1.73m²"
+      }
+    ],
+    "high_ro": "GFR peste 90 este normal. Valori foarte mari pot apărea în sarcină sau la donatorii de rinichi (hiperfiltare), dar de obicei nu sunt îngrijorătoare.",
+    "high_en": "GFR above 90 is normal. Very high values may occur in pregnancy or kidney donors (hyperfiltration), but are usually not concerning.",
+    "low_ro": "GFR sub 60 indică boală renală cronică. Sub 30 este insuficiență renală severă, iar sub 15 necesită dializă sau transplant renal. Scăderea progresivă necesită monitorizare nefrologică.",
+    "low_en": "GFR below 60 indicates chronic kidney disease. Below 30 is severe kidney failure, and below 15 requires dialysis or kidney transplant. Progressive decrease requires nephrological monitoring.",
+    "related": [
+      "creatinina",
+      "uree",
+      "acid-uric",
+      "potasiu"
+    ],
+    "meta_ro": "Ce este GFR, valori normale, GFR scăzut stadii. Funcție renală. Ghid Analize.Online.",
+    "meta_en": "What is GFR, normal values, low GFR stages. Kidney function. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă GFR (Rata filtrării glomerulare) crescută?",
+        "a": "GFR peste 90 este normal. Valori foarte mari pot apărea în sarcină sau la donatorii de rinichi (hiperfiltare), dar de obicei nu sunt îngrijorătoare. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă GFR (Rata filtrării glomerulare) scăzută?",
+        "a": "GFR sub 60 indică boală renală cronică. Sub 30 este insuficiență renală severă, iar sub 15 necesită dializă sau transplant renal. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de GFR (Rata filtrării glomerulare)?",
+        "a": "Alimentația echilibrată influențează GFR (Rata filtrării glomerulare). Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "Medicamentele pot influența GFR (Rata filtrării glomerulare)?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat GFR (Rata filtrării glomerulare)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high GFR (Glomerular Filtration Rate) mean?",
+        "a": "GFR above 90 is normal. Very high values may occur in pregnancy or kidney donors (hyperfiltration), but are usually not concerning. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low GFR (Glomerular Filtration Rate) mean?",
+        "a": "GFR below 60 indicates chronic kidney disease. Below 30 is severe kidney failure, and below 15 requires dialysis or kidney transplant. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect GFR (Glomerular Filtration Rate) levels?",
+        "a": "A balanced diet affects GFR (Glomerular Filtration Rate). Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "Can medications affect GFR (Glomerular Filtration Rate)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should GFR (Glomerular Filtration Rate) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "gamma-gt",
+    "name_ro": "Gamma-GT",
+    "name_en": "Gamma-GT (GGT)",
+    "aliases_ro": [
+      "Gamma GT",
+      "γ-GT",
+      "Gamma glutamiltransferaza"
+    ],
+    "category_ro": "Enzime hepatice",
+    "category_en": "Liver Enzymes",
+    "unit": "U/L",
+    "what_ro": "Gamma-GT este o enzimă hepatică sensibilă la consumul de alcool și medicamente. Este mai sensibilă decât TGO/TGP pentru detectarea afectării hepatice induse de alcool.",
+    "what_en": "Gamma-GT is a liver enzyme sensitive to alcohol and medication consumption. It is more sensitive than AST/ALT for detecting alcohol-induced liver damage.",
+    "ranges": [
+      {
+        "group_ro": "Bărbați",
+        "group_en": "Men",
+        "range": "8 – 61 U/L"
+      },
+      {
+        "group_ro": "Femei",
+        "group_en": "Women",
+        "range": "5 – 36 U/L"
+      }
+    ],
+    "high_ro": "Gamma-GT crescut apare în consum cronic de alcool, hepatită, ciroză, colestază, medicamente hepatotoxice, obezitate sau diabet. Este cel mai sensibil marker al consumului de alcool.",
+    "high_en": "Elevated Gamma-GT occurs in chronic alcohol consumption, hepatitis, cirrhosis, cholestasis, hepatotoxic medications, obesity, or diabetes. It is the most sensitive marker of alcohol consumption.",
+    "low_ro": "Gamma-GT scăzut nu are semnificație clinică și este considerat normal.",
+    "low_en": "Low Gamma-GT has no clinical significance and is considered normal.",
+    "related": [
+      "tgo",
+      "tgp",
+      "ggt",
+      "fosfataza-alcalina",
+      "bilirubina-totala"
+    ],
+    "meta_ro": "Ce este Gamma-GT, valori normale, Gamma-GT crescut cauze. Alcool și ficat. Ghid Analize.Online.",
+    "meta_en": "What is Gamma-GT, normal values, elevated Gamma-GT causes. Alcohol and liver. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă Gamma-GT crescut?",
+        "a": "Gamma-GT crescut apare în consum cronic de alcool, hepatită, ciroză, colestază, medicamente hepatotoxice, obezitate sau diabet. Este cel mai sensibil marker al consumului de alcool. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă Gamma-GT scăzut?",
+        "a": "Gamma-GT scăzut nu are semnificație clinică și este considerat normal.. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce factori afectează nivelul de Gamma-GT?",
+        "a": "Alcoolul, medicamentele, obezitatea și hepatitele virale pot crește Gamma-GT. Evitarea alcoolului ajută la normalizarea valorilor."
+      },
+      {
+        "q": "Medicamentele pot influența Gamma-GT?",
+        "a": "Da, multe medicamente pot modifica valorile. Informează întotdeauna medicul despre medicația curentă."
+      },
+      {
+        "q": "Cât de des trebuie verificat Gamma-GT?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high Gamma-GT (GGT) mean?",
+        "a": "Elevated Gamma-GT occurs in chronic alcohol consumption, hepatitis, cirrhosis, cholestasis, hepatotoxic medications, obesity, or diabetes. It is the most sensitive marker of alcohol consumption. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low Gamma-GT (GGT) mean?",
+        "a": "Low Gamma-GT has no clinical significance and is considered normal.. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What factors affect Gamma-GT (GGT) levels?",
+        "a": "Alcohol, medications, obesity, and viral hepatitis can increase Gamma-GT (GGT). Avoiding alcohol helps normalize values."
+      },
+      {
+        "q": "Can medications affect Gamma-GT (GGT)?",
+        "a": "Yes, many medications can alter values. Always inform your doctor about current medication."
+      },
+      {
+        "q": "How often should Gamma-GT (GGT) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
+  },
+  {
+    "slug": "mpv",
+    "name_ro": "MPV (Volum trombocitar mediu)",
+    "name_en": "MPV (Mean Platelet Volume)",
+    "aliases_ro": [
+      "MPV",
+      "Volum mediu trombocitar"
+    ],
+    "category_ro": "Hematologie",
+    "category_en": "Hematology",
+    "unit": "fL",
+    "what_ro": "MPV măsoară dimensiunea medie a trombocitelor. Trombocitele mari sunt mai tinere și mai active. MPV ajută la evaluarea producției de trombocite de către măduva osoasă.",
+    "what_en": "MPV measures the average platelet size. Larger platelets are younger and more active. MPV helps evaluate platelet production by the bone marrow.",
+    "ranges": [
+      {
+        "group_ro": "Adulți",
+        "group_en": "Adults",
+        "range": "7.5 – 12.0 fL"
+      }
+    ],
+    "high_ro": "MPV crescut indică producție activă de trombocite tinere (răspuns la distrugere sau consum). Apare în purpura trombocitopenică imună, sepsis, boli cardiovasculare sau diabet.",
+    "high_en": "Elevated MPV indicates active production of young platelets (response to destruction or consumption). Occurs in immune thrombocytopenic purpura, sepsis, cardiovascular disease, or diabetes.",
+    "low_ro": "MPV scăzut sugerează producție redusă de trombocite (aplazie medulară) sau trombocite vechi. Poate apărea în chimioterapie sau boli mieloproliferative.",
+    "low_en": "Low MPV suggests reduced platelet production (aplastic anemia) or old platelets. May occur in chemotherapy or myeloproliferative disorders.",
+    "related": [
+      "trombocite",
+      "leucocite",
+      "hemoglobina"
+    ],
+    "meta_ro": "Ce este MPV, valori normale, MPV crescut sau scăzut cauze. Volum trombocitar. Ghid Analize.Online.",
+    "meta_en": "What is MPV, normal values, high or low MPV causes. Platelet volume. Analize.Online guide.",
+    "faqs_ro": [
+      {
+        "q": "Ce înseamnă MPV (Volum trombocitar mediu) crescut?",
+        "a": "MPV crescut indică producție activă de trombocite tinere (răspuns la distrugere sau consum). Apare în purpura trombocitopenică imună, sepsis, boli cardiovasculare sau diabet. Consultă un medic pentru interpretare personalizată."
+      },
+      {
+        "q": "Ce înseamnă MPV (Volum trombocitar mediu) scăzut?",
+        "a": "MPV scăzut sugerează producție redusă de trombocite (aplazie medulară) sau trombocite vechi. Poate apărea în chimioterapie sau boli mieloproliferative. Un medic poate stabili cauza exactă prin analize suplimentare."
+      },
+      {
+        "q": "Ce alimente influențează nivelul de MPV (Volum trombocitar mediu)?",
+        "a": "Alimentația echilibrată influențează MPV (Volum trombocitar mediu). Consultă un nutriționist pentru sfaturi personalizate bazate pe analizele tale."
+      },
+      {
+        "q": "MPV (Volum trombocitar mediu) la copii — ce valori sunt normale?",
+        "a": "Valorile normale la copii diferă de cele ale adulților. Pediatrul interpretează rezultatele în funcție de vârsta copilului."
+      },
+      {
+        "q": "Cât de des trebuie verificat MPV (Volum trombocitar mediu)?",
+        "a": "Pentru persoane sănătoase, un control anual este suficient. Dacă ai valori anormale, medicul poate recomanda verificare la 1-3 luni."
+      }
+    ],
+    "faqs_en": [
+      {
+        "q": "What does high MPV (Mean Platelet Volume) mean?",
+        "a": "Elevated MPV indicates active production of young platelets (response to destruction or consumption). Occurs in immune thrombocytopenic purpura, sepsis, cardiovascular disease, or diabetes. Consult a doctor for personalized interpretation."
+      },
+      {
+        "q": "What does low MPV (Mean Platelet Volume) mean?",
+        "a": "Low MPV suggests reduced platelet production (aplastic anemia) or old platelets. May occur in chemotherapy or myeloproliferative disorders. A doctor can determine the exact cause through additional tests."
+      },
+      {
+        "q": "What foods affect MPV (Mean Platelet Volume) levels?",
+        "a": "A balanced diet affects MPV (Mean Platelet Volume). Consult a nutritionist for personalized advice based on your lab results."
+      },
+      {
+        "q": "MPV (Mean Platelet Volume) in children — what values are normal?",
+        "a": "Normal values in children differ from adults. The pediatrician interprets results based on the child's age."
+      },
+      {
+        "q": "How often should MPV (Mean Platelet Volume) be checked?",
+        "a": "For healthy individuals, an annual check is sufficient. If you have abnormal values, your doctor may recommend testing every 1-3 months."
+      }
+    ]
   }
 ]

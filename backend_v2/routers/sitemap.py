@@ -40,6 +40,18 @@ try:
 except Exception as e:
     logger.warning(f"Sitemap: could not load biomarkers-reference.json: {e}")
 
+# Load condition slugs once at import time
+_condition_slugs: list[str] = []
+try:
+    _cond_path = os.path.normpath(os.path.join(
+        os.path.dirname(__file__), "..", "..", "frontend_v2", "src", "data", "conditions-reference.json"
+    ))
+    with open(_cond_path, "r", encoding="utf-8") as f:
+        _condition_slugs = [c["slug"] for c in json.load(f)]
+    logger.info(f"Sitemap: loaded {len(_condition_slugs)} condition slugs")
+except Exception as e:
+    logger.warning(f"Sitemap: could not load conditions-reference.json: {e}")
+
 
 def _url_entry(loc: str, changefreq: str, priority: float, lastmod: str | None = None) -> str:
     parts = [f"  <url>", f"    <loc>{loc}</loc>"]
@@ -79,6 +91,10 @@ def sitemap_xml(db: Session = Depends(get_db)):
     # Biomarker pages
     for slug in _biomarker_slugs:
         urls.append(_url_entry(f"{BASE_URL}/biomarker/{slug}", "monthly", 0.7))
+
+    # Condition landing pages
+    for slug in _condition_slugs:
+        urls.append(_url_entry(f"{BASE_URL}/analize-pentru/{slug}", "monthly", 0.8))
 
     # Blog articles from database
     try:
