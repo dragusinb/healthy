@@ -125,7 +125,18 @@ class ReginaMariaCrawler(BaseCrawler):
         self._dismiss_cookie_consent(page)
 
         self.log("Filling credentials...")
-        page.wait_for_timeout(1000)
+
+        # Wait for Angular to render the login form inputs (domcontentloaded fires too early)
+        try:
+            page.wait_for_selector("#input-username", state="attached", timeout=15000)
+            self.log("Login form inputs detected")
+        except Exception:
+            self.log("Login form not found after 15s, retrying page load...")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_timeout(3000)
+            page.wait_for_selector("#input-username", state="attached", timeout=15000)
+
+        page.wait_for_timeout(500)
 
         # Remove all overlays that block interaction
         self._force_remove_overlays(page)
