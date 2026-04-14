@@ -243,17 +243,44 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
                 }, ensure_ascii=False)
                 extra += f'\n<script type="application/ld+json">{faq_ld}</script>'
 
-            # Visible content for crawlers
+            # Visible content for crawlers — rich, substantial content for indexing
             what = bio.get("what_ro", "")
             high = bio.get("high_ro", "")
             low = bio.get("low_ro", "")
+            meta_desc = bio.get("meta_ro", "")
+            unit = bio.get("unit", "")
+            aliases = ", ".join(bio.get("aliases_ro", []))
+
+            # Reference ranges table
+            ranges = bio.get("ranges", [])
+            ranges_html = ""
+            if ranges:
+                rows = "".join(f"<tr><td>{_escape(r.get('group_ro', ''))}</td><td>{_escape(r.get('range', ''))}</td></tr>" for r in ranges)
+                ranges_html = f"<h2>Valori normale {_escape(name)}</h2><table><thead><tr><th>Grup</th><th>Interval referință</th></tr></thead><tbody>{rows}</tbody></table>"
+
+            # Related biomarkers
+            related = bio.get("related", [])
+            related_html = ""
+            if related:
+                links = ", ".join(f'<a href="{BASE_URL}/biomarker/{_escape(s)}">{_escape(_biomarkers.get(s, {}).get("name_ro", s))}</a>' for s in related if s in _biomarkers)
+                if links:
+                    related_html = f"<h2>Biomarkeri asociați</h2><p>{links}</p>"
+
+            # FAQ section
             faq_html = "".join(f"<details><summary>{_escape(f['q'])}</summary><p>{_escape(f['a'])}</p></details>" for f in faqs)
+
             body = (
-                f'<article><h1>{_escape(name)}</h1>'
-                f'<p>{_escape(what)}</p>'
-                f'<h2>Valori crescute</h2><p>{_escape(high)}</p>'
-                f'<h2>Valori scăzute</h2><p>{_escape(low)}</p>'
-                f'<h2>Întrebări frecvente</h2>{faq_html}'
+                f'<article>'
+                f'<h1>{_escape(name)} — Valori normale și interpretare</h1>'
+                f'<p><strong>Categorie:</strong> {_escape(category)} | <strong>Unitate:</strong> {_escape(unit)}</p>'
+                f'{"<p><strong>Cunoscut și ca:</strong> " + _escape(aliases) + "</p>" if aliases else ""}'
+                f'<h2>Ce este {_escape(name)}?</h2><p>{_escape(what)}</p>'
+                f'{ranges_html}'
+                f'<h2>Ce înseamnă {_escape(name)} crescut?</h2><p>{_escape(high)}</p>'
+                f'<h2>Ce înseamnă {_escape(name)} scăzut?</h2><p>{_escape(low)}</p>'
+                f'{related_html}'
+                f'<h2>Întrebări frecvente despre {_escape(name)}</h2>{faq_html}'
+                f'<p>Verifică-ți valorile gratuit cu <a href="{BASE_URL}/analyzer">Analizatorul Gratuit Analize.Online</a>.</p>'
                 f'</article>'
             )
             result = _inject_meta(html, title, desc, url, extra, body)
