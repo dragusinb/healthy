@@ -182,7 +182,7 @@ export default function Home() {
                   to="/login"
                   className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-xl font-semibold text-lg hover:from-cyan-600 hover:to-teal-600 transition-all shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2"
                 >
-                  {isRomanian ? 'Creează Cont Gratuit' : 'Create Free Account'}
+                  {isRomanian ? 'Încearcă 30 Zile Gratuit' : 'Try 30 Days Free'}
                   <ArrowRight size={20} />
                 </Link>
                 <Link
@@ -205,7 +205,7 @@ export default function Home() {
               <div className="flex items-center gap-6 mt-8 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-teal-500" />
-                  {isRomanian ? 'Gratuit pentru început' : 'Free to start'}
+                  {isRomanian ? '30 zile Premium gratuit' : '30 days Premium free'}
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle size={16} className="text-teal-500" />
@@ -544,8 +544,8 @@ export default function Home() {
           </h2>
           <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
             {isRomanian
-              ? 'Începe gratuit. Upgrade când ai nevoie de mai mult.'
-              : 'Start free. Upgrade when you need more.'}
+              ? 'Primești 30 de zile de Premium gratuit la înregistrare. Fără card bancar.'
+              : 'Get 30 days of free Premium when you sign up. No credit card required.'}
           </p>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Free */}
@@ -576,7 +576,7 @@ export default function Home() {
             {/* Premium */}
             <div className="bg-gradient-to-b from-amber-50 to-white rounded-2xl p-8 border-2 border-amber-400 shadow-lg relative">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                {isRomanian ? 'Popular' : 'Popular'}
+                {isRomanian ? '30 zile gratuit' : '30 days free'}
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-2">Premium</h3>
               <div className="text-4xl font-bold text-slate-800 mb-6">29 <span className="text-lg font-normal text-slate-500">RON/{isRomanian ? 'lună' : 'mo'}</span></div>
@@ -602,7 +602,7 @@ export default function Home() {
                 to="/login"
                 className="block w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-colors"
               >
-                {isRomanian ? 'Începe cu Premium' : 'Start with Premium'}
+                {isRomanian ? 'Încearcă 30 Zile Gratuit' : 'Try 30 Days Free'}
               </Link>
             </div>
             {/* Family */}
@@ -793,14 +793,14 @@ export default function Home() {
           </h2>
           <p className="text-xl text-slate-600 mb-8">
             {isRomanian
-              ? 'Creează un cont gratuit în 30 de secunde. Fără card bancar.'
-              : 'Create a free account in 30 seconds. No credit card required.'}
+              ? 'Primești 30 de zile de Premium gratuit. Fără card bancar.'
+              : 'Get 30 days of free Premium. No credit card required.'}
           </p>
           <Link
             to="/login"
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-xl font-semibold text-lg hover:from-cyan-600 hover:to-teal-600 transition-all shadow-lg shadow-cyan-500/30"
           >
-            {isRomanian ? 'Creează Cont Gratuit' : 'Create Free Account'}
+            {isRomanian ? 'Încearcă 30 Zile Gratuit' : 'Try 30 Days Free'}
             <ArrowRight size={20} />
           </Link>
         </div>
