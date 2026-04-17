@@ -126,6 +126,8 @@ export default function Billing() {
   }
 
   const isPremium = tier === 'premium' || tier === 'family';
+  const isTrialing = subscription?.status === 'trialing';
+  const trialDaysLeft = subscription?.trial_days_remaining;
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -170,17 +172,30 @@ export default function Billing() {
               )}
               <div>
                 <h2 className="text-lg font-semibold text-slate-800">
-                  {tier === 'family' ? 'Family' : tier === 'premium' ? 'Premium' : 'Free'}
+                  {isTrialing ? 'Premium Trial' : tier === 'family' ? 'Family' : tier === 'premium' ? 'Premium' : 'Free'}
                 </h2>
-                {isPremium && (
+                {isTrialing ? (
+                  <p className="text-amber-600 font-medium">
+                    {t('subscription.trialDaysRemaining', { days: trialDaysLeft })}
+                  </p>
+                ) : isPremium ? (
                   <p className="text-slate-600">
                     {subscription?.billing_cycle === 'yearly' ? t('billing.yearlyPlan') : t('billing.monthlyPlan')}
                   </p>
-                )}
+                ) : null}
               </div>
             </div>
 
-            {isPremium && (
+            {isTrialing ? (
+              <div className="text-right">
+                <p className="text-sm text-slate-600">{t('subscription.trialBadge')}</p>
+                <p className="font-medium text-amber-600">
+                  {subscription?.trial_end_date
+                    ? new Date(subscription.trial_end_date).toLocaleDateString()
+                    : '-'}
+                </p>
+              </div>
+            ) : isPremium ? (
               <div className="text-right">
                 <p className="text-sm text-slate-600">{t('billing.nextBilling')}</p>
                 <p className="font-medium text-slate-800">
@@ -189,12 +204,37 @@ export default function Billing() {
                     : '-'}
                 </p>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
 
+        {/* Trial Progress */}
+        {isTrialing && trialDaysLeft !== null && (
+          <div className="p-4 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-slate-700">
+                {t('subscription.trialProgress', { current: 30 - trialDaysLeft })}
+              </span>
+              <span className="text-xs text-amber-600 font-medium">
+                {trialDaysLeft <= 7 ? t('subscription.trialBannerExpiring') : ''}
+              </span>
+            </div>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div
+                className={`h-2 rounded-full transition-all ${trialDaysLeft <= 7 ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-amber-400 to-orange-500'}`}
+                style={{ width: `${Math.min(100, ((30 - trialDaysLeft) / 30) * 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-slate-500 mt-2">
+              {isRomanian
+                ? `Fă upgrade pentru a păstra accesul Premium după terminarea trialului.`
+                : `Upgrade to keep Premium access after your trial ends.`}
+            </p>
+          </div>
+        )}
+
         {/* Subscription Actions */}
-        {isPremium && (
+        {isPremium && !isTrialing && (
           <div className="p-4 bg-slate-50 flex items-center justify-between">
             {subscription?.cancel_at_period_end ? (
               <>

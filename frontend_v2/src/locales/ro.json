@@ -778,7 +778,18 @@
     "featureShareReports": "Partajare rapoarte cu medici",
     "month": "lună",
     "orYearly": "sau {{price}}/an (economisești 43%)",
-    "upgradeCta": "Upgrade"
+    "upgradeCta": "Upgrade",
+    "trialBadge": "Trial Premium",
+    "trialDaysRemaining": "{{days}} zile rămase",
+    "trialActive": "Ai un trial Premium de 30 de zile",
+    "trialEnded": "Trialul tău Premium a expirat",
+    "trialKeepPremium": "Păstrează Premium",
+    "trialUpgradeNow": "Upgrade Acum",
+    "trialProgress": "Trial: Ziua {{current}} din 30",
+    "trialFeatureIncluded": "Această funcționalitate este inclusă în trialul tău! Păstreaz-o făcând upgrade.",
+    "trialExpiredMessage": "Trialul tău Premium a expirat. Fă upgrade pentru a păstra toate funcționalitățile.",
+    "trialBannerText": "Trial Premium — {{days}} zile rămase",
+    "trialBannerExpiring": "Trialul tău expiră în curând!"
   },
   "referral": {
     "title": "Invită Prieteni"

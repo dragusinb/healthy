@@ -91,6 +91,14 @@ export const SubscriptionProvider = ({ children }) => {
     return !subscription || subscription.tier === 'free';
   };
 
+  const isTrialing = () => {
+    return subscription?.status === 'trialing';
+  };
+
+  const trialDaysRemaining = () => {
+    return subscription?.trial_days_remaining ?? null;
+  };
+
   const refreshSubscription = () => {
     setLoading(true);
     fetchSubscriptionStatus();
@@ -109,6 +117,8 @@ export const SubscriptionProvider = ({ children }) => {
     hasFeature,
     isPremium,
     isFree,
+    isTrialing,
+    trialDaysRemaining,
     refreshSubscription,
     tier: subscription?.tier || 'free',
   };

@@ -291,6 +291,10 @@ class Subscription(Base):
     status = Column(String, default="active")  # active, cancelled, past_due, trialing
     cancel_at_period_end = Column(Boolean, default=False)
 
+    # Trial tracking
+    is_trial = Column(Boolean, default=False)
+    trial_end_date = Column(DateTime, nullable=True)
+
     # Timestamps
     created_at = Column(DateTime, default=utc_now)
     updated_at = Column(DateTime, default=utc_now, onupdate=utc_now)

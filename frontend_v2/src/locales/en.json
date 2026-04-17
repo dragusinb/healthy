@@ -734,7 +734,18 @@
     "featureShareReports": "Share reports with doctors",
     "month": "month",
     "orYearly": "or {{price}}/year (save 43%)",
-    "upgradeCta": "Upgrade"
+    "upgradeCta": "Upgrade",
+    "trialBadge": "Premium Trial",
+    "trialDaysRemaining": "{{days}} days remaining",
+    "trialActive": "You're on a 30-day Premium trial",
+    "trialEnded": "Your Premium trial has expired",
+    "trialKeepPremium": "Keep Premium",
+    "trialUpgradeNow": "Upgrade Now",
+    "trialProgress": "Trial: Day {{current}} of 30",
+    "trialFeatureIncluded": "This feature is included in your trial! Keep it by upgrading.",
+    "trialExpiredMessage": "Your Premium trial has expired. Upgrade to keep all features.",
+    "trialBannerText": "Premium Trial — {{days}} days remaining",
+    "trialBannerExpiring": "Your trial expires soon!"
   },
   "referral": {
     "title": "Invite Friends"

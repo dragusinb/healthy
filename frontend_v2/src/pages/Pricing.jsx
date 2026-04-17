@@ -443,7 +443,7 @@ export default function Pricing() {
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
                 <Sparkles size={12} />
-                {isRomanian ? 'Recomandat' : 'Recommended'}
+                {isRomanian ? '30 zile gratuit' : '30 days free trial'}
               </span>
             </div>
 
@@ -520,7 +520,9 @@ export default function Pricing() {
               onClick={() => handleSelectPlan(activePremium?.id)}
               className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium hover:from-amber-600 hover:to-orange-600 transition-colors flex items-center justify-center gap-2"
             >
-              {isRomanian ? 'Alege Premium' : 'Choose Premium'}
+              {user
+                ? (isRomanian ? 'Alege Premium' : 'Choose Premium')
+                : (isRomanian ? 'Incepe 30 zile gratuit' : 'Start 30-day free trial')}
               <ArrowRight size={18} />
             </button>
           </div>

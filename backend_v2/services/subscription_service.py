@@ -81,6 +81,46 @@ class SubscriptionService:
 
         return subscription
 
+    def create_trial_subscription(self, user_id: int) -> Subscription:
+        """Create a 30-day premium trial for a new user. One trial per user."""
+        existing = self.db.query(Subscription).filter(
+            Subscription.user_id == user_id
+        ).first()
+
+        if existing and existing.is_trial:
+            return existing
+
+        if existing and existing.tier in ("premium", "family") and existing.status == "active":
+            return existing
+
+        now = datetime.now(timezone.utc)
+        trial_end = now + timedelta(days=30)
+
+        if existing:
+            existing.tier = "premium"
+            existing.status = "trialing"
+            existing.is_trial = True
+            existing.trial_end_date = trial_end
+            existing.current_period_start = now
+            existing.current_period_end = trial_end
+            self.db.commit()
+            self.db.refresh(existing)
+            return existing
+
+        sub = Subscription(
+            user_id=user_id,
+            tier="premium",
+            status="trialing",
+            is_trial=True,
+            trial_end_date=trial_end,
+            current_period_start=now,
+            current_period_end=trial_end,
+        )
+        self.db.add(sub)
+        self.db.commit()
+        self.db.refresh(sub)
+        return sub
+
     def get_or_create_usage_tracker(self, user_id: int) -> UsageTracker:
         """Get user's usage tracker or create one."""
         tracker = self.db.query(UsageTracker).filter(
@@ -116,7 +156,7 @@ class SubscriptionService:
             if owner_subscription and owner_subscription.tier == "family" and owner_subscription.status == "active":
                 return "family"
 
-        return subscription.tier if subscription.status == "active" else "free"
+        return subscription.tier if subscription.status in ("active", "trialing") else "free"
 
     def get_tier_limits(self, tier: str) -> Dict[str, Any]:
         """Get limits for a tier."""
@@ -348,6 +388,19 @@ class SubscriptionService:
             sub.current_period_end = None
             count += 1
 
+        expired_trials = db.query(Subscription).filter(
+            Subscription.status == "trialing",
+            Subscription.current_period_end.isnot(None),
+            Subscription.current_period_end < now
+        ).all()
+
+        for sub in expired_trials:
+            sub.tier = "free"
+            sub.status = "active"
+            sub.current_period_start = None
+            sub.current_period_end = None
+            count += 1
+
         if count > 0:
             db.commit()
 
@@ -358,6 +411,14 @@ class SubscriptionService:
         subscription = self.get_or_create_subscription(user_id)
         usage = self.get_usage_stats(user_id)
 
+        now = datetime.now(timezone.utc)
+        trial_days_remaining = None
+        if subscription.status == "trialing" and subscription.trial_end_date:
+            trial_end = subscription.trial_end_date
+            if trial_end.tzinfo is None:
+                trial_end = trial_end.replace(tzinfo=timezone.utc)
+            trial_days_remaining = max(0, (trial_end - now).days)
+
         return {
             "subscription": {
                 "tier": subscription.tier,
@@ -366,6 +427,9 @@ class SubscriptionService:
                 "current_period_start": subscription.current_period_start.isoformat() if subscription.current_period_start else None,
                 "current_period_end": subscription.current_period_end.isoformat() if subscription.current_period_end else None,
                 "cancel_at_period_end": subscription.cancel_at_period_end,
+                "is_trial": subscription.is_trial or False,
+                "trial_end_date": subscription.trial_end_date.isoformat() if subscription.trial_end_date else None,
+                "trial_days_remaining": trial_days_remaining,
             },
             "usage": usage["usage"],
             "limits": usage["limits"],

@@ -166,6 +166,13 @@ def register(
     # Store unlocked vault in session
     set_user_vault_session(new_user.id, vault)
 
+    # Start 30-day premium trial
+    try:
+        from backend_v2.services.subscription_service import SubscriptionService
+    except ImportError:
+        from services.subscription_service import SubscriptionService
+    SubscriptionService(db).create_trial_subscription(new_user.id)
+
     # Get recovery key to show to user (ONCE - they must save it!)
     recovery_key = vault_result['recovery_key']
 
@@ -423,6 +430,13 @@ async def google_login(token_data: GoogleToken, request: Request, db: Session = 
         db.commit()
         db.refresh(user)
         is_new_user = True
+
+        # Start 30-day premium trial for new Google users
+        try:
+            from backend_v2.services.subscription_service import SubscriptionService
+        except ImportError:
+            from services.subscription_service import SubscriptionService
+        SubscriptionService(db).create_trial_subscription(user.id)
     elif not user.email_verified:
         # Mark existing user as verified if they login via Google
         user.email_verified = True

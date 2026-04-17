@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext';
 import { cn } from '../lib/utils';
 import FeedbackButton from './FeedbackButton';
 import VaultUnlockModal from './VaultUnlockModal';
+import TrialBanner from './TrialBanner';
 
 const SidebarItem = ({ to, icon: Icon, label, onClick, title }) => (
     <NavLink
@@ -491,6 +492,8 @@ const Layout = ({ children }) => {
                             </div>
                         </div>
                     )}
+
+                    <TrialBanner />
 
                     {/* Dynamic Page Header */}
                     <div className="mb-4 md:mb-8">
