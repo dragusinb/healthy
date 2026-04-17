@@ -26,8 +26,8 @@ export default function Pricing() {
         '@type': 'Question',
         name: isRomanian ? 'Cât costă Analize.Online?' : 'How much does Analize.Online cost?',
         acceptedAnswer: { '@type': 'Answer', text: isRomanian
-          ? 'Planul gratuit include 1 provider medical, 20 documente și 2 analize AI/lună. Planul Premium costă 29 RON/lună (sau 199 RON/an) cu furnizori nelimitați și 30 analize AI/lună. Planul Family costă 49 RON/lună pentru până la 5 membri.'
-          : 'The free plan includes 1 medical provider, 20 documents and 2 AI analyses/month. Premium is 29 RON/month (or 199 RON/year) with unlimited providers and 30 AI analyses/month. Family is 49 RON/month for up to 5 members.' },
+          ? 'La înregistrare primești 30 de zile de Premium gratuit, cu acces complet la toți specialiștii AI, 30 analize/lună și provideri nelimitați. După trial, planul Premium costă 29 RON/lună (sau 199 RON/an). Planul Family costă 49 RON/lună pentru până la 5 membri.'
+          : 'When you sign up you get 30 days of free Premium with full access to all AI specialists, 30 analyses/month and unlimited providers. After the trial, Premium is 29 RON/month (or 199 RON/year). Family is 49 RON/month for up to 5 members.' },
       },
       {
         '@type': 'Question',
@@ -350,8 +350,8 @@ export default function Pricing() {
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
           {isRomanian
-            ? 'Toate planurile includ sincronizare automata cu Regina Maria, Synevo si alti provideri medicali.'
-            : 'All plans include automatic sync with Regina Maria, Synevo and other medical providers.'}
+            ? 'Primești 30 de zile de Premium gratuit la înregistrare. Fără card bancar necesar.'
+            : 'Get 30 days of free Premium when you sign up. No credit card required.'}
         </p>
       </div>
 
@@ -397,8 +397,8 @@ export default function Pricing() {
               </div>
               <p className="text-slate-600 mt-2 text-sm">
                 {isRomanian
-                  ? 'Pentru a incepe sa iti monitorizezi sanatatea'
-                  : 'To start monitoring your health'}
+                  ? 'După terminarea trialului Premium de 30 zile'
+                  : 'After your 30-day Premium trial ends'}
               </p>
             </div>
 
@@ -466,8 +466,8 @@ export default function Pricing() {
                 </p>
               )}
               {selectedPeriod === 'monthly' && (
-                <p className="text-slate-600 text-sm mt-1">
-                  {isRomanian ? 'Mai putin decat o vizita la medic' : 'Less than a doctor visit'}
+                <p className="text-amber-600 text-sm mt-1 font-medium">
+                  {isRomanian ? 'Primele 30 zile gratuit!' : 'First 30 days free!'}
                 </p>
               )}
             </div>
@@ -614,8 +614,8 @@ export default function Pricing() {
             </h2>
             <p className="text-slate-600">
               {isRomanian
-                ? 'Acces complet la toate instrumentele pentru a-ti intelege sanatatea'
-                : 'Full access to all tools to understand your health'}
+                ? 'Încearcă totul gratuit 30 de zile. Acces complet la toate instrumentele.'
+                : 'Try everything free for 30 days. Full access to all tools.'}
             </p>
           </div>
 
