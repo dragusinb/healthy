@@ -59,7 +59,7 @@ export default function ConditionReference() {
       '@type': 'Question', name: f.q,
       acceptedAnswer: { '@type': 'Answer', text: f.a },
     })),
-  } : null);
+  } : null, 'condition-faq');
 
   const linkedBiomarkers = (condition.biomarkers || []).map(s => biomarkerMap[s]).filter(Boolean);
 

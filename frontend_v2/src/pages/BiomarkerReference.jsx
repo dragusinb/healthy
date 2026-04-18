@@ -224,7 +224,7 @@ export default function BiomarkerReference() {
       name: f.q,
       acceptedAnswer: { '@type': 'Answer', text: f.a },
     })),
-  } : null);
+  } : null, 'biomarker-faq');
 
   // Fetch related blog articles
   const [relatedArticles, setRelatedArticles] = useState([]);
