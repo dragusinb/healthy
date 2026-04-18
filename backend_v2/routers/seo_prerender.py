@@ -230,7 +230,7 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
             }, ensure_ascii=False)
             extra = f'<script type="application/ld+json">{medical_ld}</script>'
 
-            # FAQPage schema from biomarker FAQs
+            # FAQPage schema from biomarker FAQs (id must match useJsonLd in React to avoid duplicates)
             faqs = bio.get("faqs_ro", [])
             if faqs:
                 faq_ld = json.dumps({
@@ -241,7 +241,7 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
                         for f in faqs
                     ],
                 }, ensure_ascii=False)
-                extra += f'\n<script type="application/ld+json">{faq_ld}</script>'
+                extra += f'\n<script type="application/ld+json" id="biomarker-faq">{faq_ld}</script>'
 
             # Visible content for crawlers — rich, substantial content for indexing
             what = bio.get("what_ro", "")
@@ -307,7 +307,7 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
                     "@context": "https://schema.org", "@type": "FAQPage",
                     "mainEntity": [{"@type": "Question", "name": f["q"], "acceptedAnswer": {"@type": "Answer", "text": f["a"]}} for f in faqs],
                 }, ensure_ascii=False)
-                extra += f'\n<script type="application/ld+json">{faq_ld}</script>'
+                extra += f'\n<script type="application/ld+json" id="condition-faq">{faq_ld}</script>'
             description = cond.get("description_ro", "")
             biomarker_names = [_biomarkers.get(s, {}).get("name_ro", s) for s in cond.get("biomarkers", [])]
             body = f'<article><h1>{_escape(name)}</h1><p>{_escape(description)}</p><h2>Biomarkeri verificați</h2><p>{", ".join(_escape(n) for n in biomarker_names)}</p></article>'
