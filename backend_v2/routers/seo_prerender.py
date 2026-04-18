@@ -56,8 +56,8 @@ except Exception as e:
 # Static page meta (Romanian primary, English fallback)
 STATIC_META = {
     "/": {
-        "title": "Analize.Online — Toate analizele tale medicale într-un singur loc",
-        "description": "Prima platformă din România care agregă analizele medicale de la Regina Maria, Synevo, MedLife și Sanador. Interpretare AI cu 6 specialiști virtuali. Criptare AES-256 per utilizator.",
+        "title": "Plan Alimentar Personalizat din Analize de Sânge | Analize.Online",
+        "description": "Primești un plan alimentar de 7 zile cu rețete românești, listă de cumpărături Carrefour și program de exerciții — totul generat de AI din analizele tale de la Regina Maria, Synevo, MedLife sau Sanador.",
     },
     "/pricing": {
         "title": "Prețuri — Analize.Online | De la 0 RON/lună",
@@ -102,6 +102,10 @@ STATIC_META = {
     "/demo": {
         "title": "Demo — Analize.Online",
         "description": "Vezi cum funcționează platforma Analize.Online. Demo interactiv cu date exemple.",
+    },
+    "/nutrition-preview": {
+        "title": "Preview Plan Alimentar Personalizat din Analize de Sânge | Analize.Online",
+        "description": "Lipește analizele de sânge și primești gratuit un plan alimentar cu rețete românești, listă de cumpărături Carrefour și program de exerciții. Fără cont, fără card.",
     },
 }
 
