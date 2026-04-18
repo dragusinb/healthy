@@ -298,8 +298,8 @@ export default function Analyzer() {
                   </h3>
                   <p className="text-sm text-slate-500 mb-6">
                     {isRo
-                      ? 'Creează un cont gratuit pentru a vedea toți biomarkerii cu recomandări AI de la specialiști.'
-                      : 'Create a free account to see all biomarkers with AI specialist recommendations.'}
+                      ? 'Creează un cont gratuit pentru a vedea toți biomarkerii ȘI a primi un plan alimentar personalizat cu rețete românești și listă de cumpărături.'
+                      : 'Create a free account to see all biomarkers AND get a personalized meal plan with Romanian recipes and shopping list.'}
                   </p>
                   <Link
                     to="/login?mode=register"
@@ -311,6 +311,12 @@ export default function Analyzer() {
                   <p className="text-xs text-slate-400 mt-3">
                     {isRo ? 'Gratuit — fără card bancar' : 'Free — no credit card'}
                   </p>
+                  <Link
+                    to="/nutrition-preview"
+                    className="inline-flex items-center gap-1 text-xs text-teal-500 hover:text-teal-700 mt-2 transition-colors"
+                  >
+                    {isRo ? 'Sau încearcă planul alimentar gratuit →' : 'Or try the free meal plan →'}
+                  </Link>
                 </div>
               </div>
             </div>
@@ -326,8 +332,8 @@ export default function Analyzer() {
               </h3>
               <p className="text-teal-100 mb-6">
                 {isRo
-                  ? 'Creează un cont gratuit pentru analize detaliate de la Cardiolog, Endocrinolog, Hematolog și alți specialiști AI.'
-                  : 'Create a free account for detailed analyses from Cardiologist, Endocrinologist, Hematologist and more AI specialists.'}
+                  ? 'Creează un cont gratuit pentru analize AI de la specialiști ȘI un plan alimentar personalizat cu rețete românești, listă de cumpărături și program de exerciții.'
+                  : 'Create a free account for AI specialist analyses AND a personalized meal plan with Romanian recipes, shopping list and exercise program.'}
               </p>
               <Link
                 to="/login?mode=register"

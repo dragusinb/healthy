@@ -9,6 +9,7 @@ import {
   Menu, X, Eye
 } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
+import useJsonLd from '../hooks/useJsonLd';
 import api from '../api/client';
 
 function AnimatedCounter({ end, duration = 2000 }) {
@@ -49,8 +50,36 @@ export default function Home() {
   const [publicStats, setPublicStats] = useState(null);
 
   usePageTitle(null, isRomanian
-    ? 'Toate analizele tale medicale, într-un singur loc'
-    : 'All your medical tests, in one place');
+    ? 'Plan Alimentar Personalizat din Analize de Sânge'
+    : 'Personalized Meal Plan from Blood Tests');
+
+  useJsonLd({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: isRomanian ? 'Ce include planul alimentar personalizat?' : 'What does the personalized meal plan include?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Planul include un meniu pe 7 zile cu rețete românești (ciorbă, sarmale, tocăniță), lista de cumpărături organizată pe categorii pentru Carrefour, și un program de exerciții fizice — totul personalizat pe baza biomarkerilor din analizele tale de sânge.'
+          : 'The plan includes a 7-day menu with Romanian recipes (soups, sarmale, stews), a shopping list organized by category for Carrefour, and an exercise program — all personalized based on biomarkers from your blood tests.' },
+      },
+      {
+        '@type': 'Question',
+        name: isRomanian ? 'Cum funcționează generarea planului alimentar?' : 'How does meal plan generation work?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Conectezi contul tău de la Regina Maria, Synevo, MedLife sau Sanador. AI extrage biomarkerii din analizele tale și generează un plan alimentar personalizat cu rețete românești adaptate nevoilor tale nutriționale specifice.'
+          : 'You connect your account from Regina Maria, Synevo, MedLife or Sanador. AI extracts biomarkers from your tests and generates a personalized meal plan with Romanian recipes adapted to your specific nutritional needs.' },
+      },
+      {
+        '@type': 'Question',
+        name: isRomanian ? 'Este gratuit?' : 'Is it free?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Da, primești 30 de zile de acces Premium gratuit la înregistrare, fără card bancar. Include plan alimentar complet, rețete, listă de cumpărături și program de exerciții.'
+          : 'Yes, you get 30 days of free Premium access when you sign up, no credit card needed. Includes full meal plan, recipes, shopping list and exercise program.' },
+      },
+    ],
+  }, 'home-faq');
 
   useEffect(() => {
     api.get('/blog/articles?limit=3').then(res => setBlogArticles(res.data.articles || [])).catch(() => {});
@@ -102,10 +131,10 @@ export default function Home() {
               {isRomanian ? 'Prețuri' : 'Pricing'}
             </Link>
             <Link
-              to="/analyzer"
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-sm font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-sm"
+              to="/nutrition-preview"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all shadow-sm"
             >
-              {isRomanian ? 'Analizator Gratuit' : 'Free Analyzer'}
+              {isRomanian ? 'Plan Nutrițional Gratuit' : 'Free Nutrition Plan'}
             </Link>
             <Link
               to="/login"
@@ -139,8 +168,8 @@ export default function Home() {
             <Link to="/pricing" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
               {isRomanian ? 'Prețuri' : 'Pricing'}
             </Link>
-            <Link to="/analyzer" onClick={() => setMobileNavOpen(false)} className="block text-green-600 hover:text-green-800 font-medium py-2">
-              {isRomanian ? 'Analizator Gratuit' : 'Free Analyzer'}
+            <Link to="/nutrition-preview" onClick={() => setMobileNavOpen(false)} className="block text-amber-600 hover:text-amber-800 font-medium py-2">
+              {isRomanian ? 'Plan Nutrițional Gratuit' : 'Free Nutrition Plan'}
             </Link>
             <Link to="/login" onClick={() => setMobileNavOpen(false)} className="block text-slate-600 hover:text-slate-800 font-medium py-2">
               {isRomanian ? 'Autentificare' : 'Login'}
@@ -161,21 +190,21 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 bg-cyan-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <Shield size={16} />
-                {isRomanian ? 'Date criptate end-to-end' : 'End-to-end encrypted'}
+              <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <UtensilsCrossed size={16} />
+                {isRomanian ? 'Rețete românești bazate pe analizele tale' : 'Romanian recipes based on your lab results'}
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-800 leading-tight mb-6">
                 {isRomanian ? (
-                  <>Toate analizele tale medicale, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-teal-500">într-un singur loc</span></>
+                  <>Plan alimentar personalizat, bazat pe <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-teal-500">analizele tale de sânge</span></>
                 ) : (
-                  <>All your medical tests, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-teal-500">in one place</span></>
+                  <>Personalized meal plan, based on <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-teal-500">your real blood tests</span></>
                 )}
               </h1>
               <p className="text-xl text-slate-600 mb-8 leading-relaxed">
                 {isRomanian
-                  ? 'Conectează conturile de la Regina Maria, Synevo, MedLife și Sanador. Primești interpretare de la o echipă de specialiști AI, plan nutrițional cu rețete românești și program de exerciții — totul bazat pe analizele tale reale.'
-                  : 'Connect your Regina Maria, Synevo, MedLife and Sanador accounts. Get analysis from a team of AI specialists, a nutrition plan with Romanian recipes and an exercise program — all based on your real lab results.'}
+                  ? 'Primești un plan de 7 zile cu rețete românești (ciorbă, sarmale, tocăniță), lista de cumpărături pentru Carrefour și program de exerciții — totul generat de AI, bazat pe analizele tale reale de la Regina Maria, Synevo, MedLife sau Sanador.'
+                  : 'Get a 7-day meal plan with Romanian recipes, a Carrefour shopping list and an exercise program — all AI-generated from your real lab results from Regina Maria, Synevo, MedLife or Sanador.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -185,13 +214,13 @@ export default function Home() {
                   {isRomanian ? 'Încearcă 30 Zile Gratuit' : 'Try 30 Days Free'}
                   <ArrowRight size={20} />
                 </Link>
-                <Link
-                  to="/analyzer"
-                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold text-lg hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
+                <a
+                  href="#sample-plan"
+                  className="px-8 py-4 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-semibold text-lg hover:border-teal-300 hover:text-teal-600 transition-all flex items-center justify-center gap-2"
                 >
-                  {isRomanian ? 'Analizează Rezultatele' : 'Analyze Your Results'}
-                  <HeartPulse size={20} />
-                </Link>
+                  {isRomanian ? 'Vezi un Exemplu' : 'See an Example'}
+                  <Eye size={20} />
+                </a>
               </div>
               <div className="mt-3">
                 <Link
@@ -202,62 +231,80 @@ export default function Home() {
                   {isRomanian ? 'Vezi Demo →' : 'See Demo →'}
                 </Link>
               </div>
-              <div className="flex items-center gap-6 mt-8 text-sm text-slate-500">
+              <div className="flex flex-wrap items-center gap-6 mt-8 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
-                  <CheckCircle size={16} className="text-teal-500" />
-                  {isRomanian ? '30 zile Premium gratuit' : '30 days Premium free'}
+                  <UtensilsCrossed size={16} className="text-amber-500" />
+                  {isRomanian ? 'Rețete românești' : 'Romanian recipes'}
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle size={16} className="text-teal-500" />
+                  <ShoppingCart size={16} className="text-teal-500" />
+                  {isRomanian ? 'Listă cumpărături Carrefour' : 'Carrefour shopping list'}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield size={16} className="text-cyan-500" />
                   {isRomanian ? 'Fără card bancar' : 'No credit card'}
                 </div>
               </div>
             </div>
             <div className="relative">
-              <div className="bg-gradient-to-br from-cyan-100 to-teal-100 rounded-3xl p-8 shadow-2xl shadow-cyan-500/10">
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-8 shadow-2xl shadow-amber-500/10">
                 <div className="bg-white rounded-2xl p-6 shadow-lg mb-4">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-500 rounded-xl flex items-center justify-center">
-                      <Brain className="w-6 h-6 text-white" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <p className="font-semibold text-slate-800">
-                        {isRomanian ? 'Analiză AI Completă' : 'Complete AI Analysis'}
+                        {isRomanian ? 'Ziua 1 — Luni' : 'Day 1 — Monday'}
                       </p>
-                      <p className="text-sm text-slate-500">
-                        {isRomanian ? 'Bazată pe 47 biomarkeri' : 'Based on 47 biomarkers'}
+                      <p className="text-xs text-slate-400">
+                        {isRomanian ? 'Plan personalizat' : 'Personalized plan'}
                       </p>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
-                      <span className="text-sm text-slate-600">Colesterol total</span>
-                      <span className="text-sm font-medium text-green-600">Normal ✓</span>
+                    <div className="flex items-center justify-between p-2.5 bg-amber-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">🌅</span>
+                        <div>
+                          <p className="text-sm font-medium text-slate-700">{isRomanian ? 'Mic dejun' : 'Breakfast'}</p>
+                          <p className="text-xs text-slate-500">{isRomanian ? 'Ouă cu brânză și roșii' : 'Eggs with cheese & tomatoes'}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">350 kcal</span>
                     </div>
-                    <div className="flex items-center justify-between p-2 bg-amber-50 rounded-lg">
-                      <span className="text-sm text-slate-600">Vitamina D</span>
-                      <span className="text-sm font-medium text-amber-600">Atenție !</span>
+                    <div className="flex items-center justify-between p-2.5 bg-green-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">☀️</span>
+                        <div>
+                          <p className="text-sm font-medium text-slate-700">{isRomanian ? 'Prânz' : 'Lunch'}</p>
+                          <p className="text-xs text-slate-500">{isRomanian ? 'Ciorbă de legume + pui la grătar' : 'Vegetable soup + grilled chicken'}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">550 kcal</span>
                     </div>
-                    <div className="flex items-center justify-between p-2 bg-green-50 rounded-lg">
-                      <span className="text-sm text-slate-600">Hemoglobina</span>
-                      <span className="text-sm font-medium text-green-600">Normal ✓</span>
+                    <div className="flex items-center justify-between p-2.5 bg-violet-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">🌙</span>
+                        <div>
+                          <p className="text-sm font-medium text-slate-700">{isRomanian ? 'Cină' : 'Dinner'}</p>
+                          <p className="text-xs text-slate-500">{isRomanian ? 'Somon cu legume la cuptor' : 'Baked salmon with vegetables'}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full">450 kcal</span>
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white rounded-xl p-4 shadow-md">
-                    <Stethoscope className="w-8 h-8 text-teal-500 mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">8+</p>
-                    <p className="text-xs text-slate-500">
-                      {isRomanian ? 'Specialiști AI' : 'AI Specialists'}
-                    </p>
+                <div className="bg-white rounded-xl p-4 shadow-md">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShoppingCart className="w-4 h-4 text-teal-500" />
+                    <p className="text-sm font-semibold text-slate-700">{isRomanian ? 'Listă cumpărături' : 'Shopping list'}</p>
                   </div>
-                  <div className="bg-white rounded-xl p-4 shadow-md">
-                    <TrendingUp className="w-8 h-8 text-violet-500 mb-2" />
-                    <p className="text-2xl font-bold text-slate-800">100%</p>
-                    <p className="text-xs text-slate-500">
-                      {isRomanian ? 'Istoric complet' : 'Full history'}
-                    </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Somon', 'Brânză', 'Ouă', 'Roșii', 'Pui', 'Legume'].map(item => (
+                      <span key={item} className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full">{item}</span>
+                    ))}
+                    <span className="text-xs text-teal-500 font-medium px-2 py-1">+12</span>
                   </div>
                 </div>
               </div>
@@ -337,6 +384,209 @@ export default function Home() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Sample Plan Preview */}
+      <section id="sample-plan" className="py-20 px-6 bg-gradient-to-b from-white to-amber-50/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-4">
+            <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <FlaskConical size={16} />
+              {isRomanian ? 'Exemplu real generat de AI' : 'Real AI-generated example'}
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3">
+              {isRomanian ? 'Ce primești exact?' : 'What exactly do you get?'}
+            </h2>
+            <p className="text-slate-500 max-w-2xl mx-auto">
+              {isRomanian
+                ? 'Exemplu generat pentru un utilizator cu colesterol crescut și vitamina D scăzută'
+                : 'Example generated for a user with high cholesterol and low vitamin D'}
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6 mt-12">
+            {/* Column 1 — 3-Day Meal Plan */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <UtensilsCrossed size={20} className="text-amber-500" />
+                {isRomanian ? 'Plan alimentar 3 zile' : '3-Day Meal Plan'}
+              </h3>
+              {[
+                {
+                  day: isRomanian ? 'Ziua 1 — Luni' : 'Day 1 — Monday',
+                  meals: [
+                    { time: isRomanian ? 'Mic dejun' : 'Breakfast', dish: isRomanian ? 'Ovăz cu nuci, semințe de in și afine' : 'Oats with walnuts, flax seeds & blueberries', cal: 380 },
+                    { time: isRomanian ? 'Prânz' : 'Lunch', dish: isRomanian ? 'Ciorbă de legume + piept de pui la grătar' : 'Vegetable soup + grilled chicken breast', cal: 520 },
+                    { time: isRomanian ? 'Cină' : 'Dinner', dish: isRomanian ? 'Somon la cuptor cu broccoli și cartofi dulci' : 'Baked salmon with broccoli & sweet potatoes', cal: 480 },
+                  ]
+                },
+                {
+                  day: isRomanian ? 'Ziua 2 — Marți' : 'Day 2 — Tuesday',
+                  meals: [
+                    { time: isRomanian ? 'Mic dejun' : 'Breakfast', dish: isRomanian ? 'Omletă cu spanac și brânză de capră' : 'Spinach & goat cheese omelette', cal: 350 },
+                    { time: isRomanian ? 'Prânz' : 'Lunch', dish: isRomanian ? 'Tocăniță de pui cu legume de sezon' : 'Chicken stew with seasonal vegetables', cal: 550 },
+                    { time: isRomanian ? 'Cină' : 'Dinner', dish: isRomanian ? 'Salată cu ton, avocado și semințe' : 'Tuna salad with avocado & seeds', cal: 420 },
+                  ]
+                },
+                {
+                  day: isRomanian ? 'Ziua 3 — Miercuri' : 'Day 3 — Wednesday',
+                  meals: [
+                    { time: isRomanian ? 'Mic dejun' : 'Breakfast', dish: isRomanian ? 'Smoothie cu spanac, banană și unt de arahide' : 'Spinach, banana & peanut butter smoothie', cal: 340 },
+                    { time: isRomanian ? 'Prânz' : 'Lunch', dish: isRomanian ? 'Sarmale în foi de viță cu mămăligă' : 'Vine leaf sarmale with polenta', cal: 580 },
+                    { time: isRomanian ? 'Cină' : 'Dinner', dish: isRomanian ? 'Păstrăv la grătar cu salată verde' : 'Grilled trout with green salad', cal: 430 },
+                  ]
+                },
+              ].map((day, i) => (
+                <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                  <p className="text-sm font-bold text-slate-700 mb-2">{day.day}</p>
+                  <div className="space-y-1.5">
+                    {day.meals.map((meal, j) => (
+                      <div key={j} className="flex items-center justify-between text-sm">
+                        <div>
+                          <span className="font-medium text-slate-600">{meal.time}: </span>
+                          <span className="text-slate-500">{meal.dish}</span>
+                        </div>
+                        <span className="text-xs text-amber-600 font-medium whitespace-nowrap ml-2">{meal.cal} kcal</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {/* Blurred days 4-7 */}
+              <div className="relative">
+                <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm blur-[3px] select-none">
+                  <p className="text-sm font-bold text-slate-700 mb-2">{isRomanian ? 'Ziua 4 — Joi' : 'Day 4 — Thursday'}</p>
+                  <div className="space-y-1.5 text-sm text-slate-400">
+                    <p>{isRomanian ? 'Mic dejun: Clătite cu brânză și miere...' : 'Breakfast: Cheese pancakes with honey...'}</p>
+                    <p>{isRomanian ? 'Prânz: Ghiveci de legume cu orez...' : 'Lunch: Vegetable stew with rice...'}</p>
+                    <p>{isRomanian ? 'Cină: File de curcan cu ciuperci...' : 'Dinner: Turkey fillet with mushrooms...'}</p>
+                  </div>
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-600 transition-all flex items-center gap-1"
+                  >
+                    {isRomanian ? 'Vezi zilele 4-7' : 'See days 4-7'}
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Column 2 — Shopping List */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <ShoppingCart size={20} className="text-teal-500" />
+                {isRomanian ? 'Listă cumpărături Carrefour' : 'Carrefour Shopping List'}
+              </h3>
+              {[
+                {
+                  category: isRomanian ? 'Lactate & Ouă' : 'Dairy & Eggs',
+                  icon: '🥛',
+                  items: isRomanian
+                    ? ['Brânză de capră – 200g', 'Ouă – 10 buc', 'Iaurt grecesc – 500g']
+                    : ['Goat cheese – 200g', 'Eggs – 10 pcs', 'Greek yogurt – 500g']
+                },
+                {
+                  category: isRomanian ? 'Legume & Fructe' : 'Vegetables & Fruits',
+                  icon: '🥬',
+                  items: isRomanian
+                    ? ['Spanac proaspăt – 300g', 'Broccoli – 500g', 'Cartofi dulci – 1kg', 'Roșii – 500g', 'Afine – 250g', 'Banane – 1kg']
+                    : ['Fresh spinach – 300g', 'Broccoli – 500g', 'Sweet potatoes – 1kg', 'Tomatoes – 500g', 'Blueberries – 250g', 'Bananas – 1kg']
+                },
+                {
+                  category: isRomanian ? 'Carne & Pește' : 'Meat & Fish',
+                  icon: '🐟',
+                  items: isRomanian
+                    ? ['Piept de pui – 600g', 'Fileu de somon – 400g', 'Păstrăv – 2 buc', 'Ton conservă – 2 cutii']
+                    : ['Chicken breast – 600g', 'Salmon fillet – 400g', 'Trout – 2 pcs', 'Canned tuna – 2 cans']
+                },
+                {
+                  category: isRomanian ? 'Cereale & Semințe' : 'Grains & Seeds',
+                  icon: '🌾',
+                  items: isRomanian
+                    ? ['Fulgi de ovăz – 500g', 'Semințe de in – 200g', 'Nuci – 300g', 'Orez brun – 500g']
+                    : ['Oat flakes – 500g', 'Flax seeds – 200g', 'Walnuts – 300g', 'Brown rice – 500g']
+                },
+              ].map((cat, i) => (
+                <div key={i} className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                  <p className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                    <span>{cat.icon}</span> {cat.category}
+                  </p>
+                  <ul className="space-y-1">
+                    {cat.items.map((item, j) => (
+                      <li key={j} className="text-sm text-slate-500 flex items-center gap-2">
+                        <CheckCircle size={12} className="text-teal-400 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Column 3 — Exercise Day */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Dumbbell size={20} className="text-violet-500" />
+                {isRomanian ? 'Program exerciții — Ziua 1' : 'Exercise Program — Day 1'}
+              </h3>
+              <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                <p className="text-sm font-bold text-violet-600 mb-2 flex items-center gap-2">
+                  <Activity size={14} />
+                  {isRomanian ? 'Încălzire — 10 min' : 'Warm-up — 10 min'}
+                </p>
+                <ul className="space-y-1 text-sm text-slate-500">
+                  <li>{isRomanian ? '• Mers pe loc – 3 min' : '• Walking in place – 3 min'}</li>
+                  <li>{isRomanian ? '• Rotări de brațe – 2 min' : '• Arm circles – 2 min'}</li>
+                  <li>{isRomanian ? '• Stretching dinamic – 5 min' : '• Dynamic stretching – 5 min'}</li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                <p className="text-sm font-bold text-violet-600 mb-2 flex items-center gap-2">
+                  <Dumbbell size={14} />
+                  {isRomanian ? 'Antrenament principal — 30 min' : 'Main workout — 30 min'}
+                </p>
+                <ul className="space-y-1.5 text-sm text-slate-500">
+                  <li className="flex justify-between"><span>{isRomanian ? 'Genuflexiuni' : 'Squats'}</span><span className="text-violet-500 font-medium">3×15</span></li>
+                  <li className="flex justify-between"><span>{isRomanian ? 'Flotări' : 'Push-ups'}</span><span className="text-violet-500 font-medium">3×12</span></li>
+                  <li className="flex justify-between"><span>{isRomanian ? 'Fandări' : 'Lunges'}</span><span className="text-violet-500 font-medium">3×12</span></li>
+                  <li className="flex justify-between"><span>{isRomanian ? 'Plank' : 'Plank'}</span><span className="text-violet-500 font-medium">3×45s</span></li>
+                  <li className="flex justify-between"><span>{isRomanian ? 'Ridicări de bazin' : 'Glute bridges'}</span><span className="text-violet-500 font-medium">3×15</span></li>
+                </ul>
+              </div>
+              <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                <p className="text-sm font-bold text-violet-600 mb-2 flex items-center gap-2">
+                  <Leaf size={14} />
+                  {isRomanian ? 'Revenire — 10 min' : 'Cool-down — 10 min'}
+                </p>
+                <ul className="space-y-1 text-sm text-slate-500">
+                  <li>{isRomanian ? '• Stretching static – 7 min' : '• Static stretching – 7 min'}</li>
+                  <li>{isRomanian ? '• Respirație profundă – 3 min' : '• Deep breathing – 3 min'}</li>
+                </ul>
+              </div>
+              <div className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-100 text-center">
+                <p className="text-xs text-violet-500 mb-1">{isRomanian ? 'Adaptat pentru colesterol crescut' : 'Adapted for high cholesterol'}</p>
+                <p className="text-sm font-semibold text-violet-700">{isRomanian ? 'Focus pe exerciții cardio + rezistență' : 'Focus on cardio + resistance exercises'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA below sample */}
+          <div className="text-center mt-12">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold text-lg hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/30"
+            >
+              {isRomanian ? 'Obține planul TĂU personalizat' : 'Get YOUR personalized plan'}
+              <ArrowRight size={20} />
+            </Link>
+            <p className="text-sm text-slate-400 mt-3">
+              {isRomanian ? '30 zile gratuit • Nu necesită card bancar' : '30 days free • No credit card required'}
+            </p>
           </div>
         </div>
       </section>

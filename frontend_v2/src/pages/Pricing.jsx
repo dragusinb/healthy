@@ -45,6 +45,13 @@ export default function Pricing() {
       },
       {
         '@type': 'Question',
+        name: isRomanian ? 'Ce include planul nutrițional?' : 'What does the nutrition plan include?',
+        acceptedAnswer: { '@type': 'Answer', text: isRomanian
+          ? 'Planul nutrițional include: meniu pe 7 zile cu rețete românești (ciorbă, sarmale, tocăniță, grătar), lista completă de cumpărături organizată pe categorii (pentru Carrefour sau orice supermarket), program de exerciții fizice adaptat stării tale de sănătate, toate generate de AI pe baza biomarkerilor tăi reali. Se regenerează săptămânal.'
+          : 'The nutrition plan includes: a 7-day meal plan with Romanian recipes (soups, sarmale, stews, grilled dishes), a complete shopping list organized by category (for Carrefour or any supermarket), an exercise program adapted to your health status, all AI-generated based on your real biomarkers. Regenerated weekly.' },
+      },
+      {
+        '@type': 'Question',
         name: isRomanian ? 'Pot anula abonamentul oricând?' : 'Can I cancel anytime?',
         acceptedAnswer: { '@type': 'Answer', text: isRomanian
           ? 'Da, poți anula abonamentul oricând din pagina de Facturare. Nu există contract pe termen lung. Datele tale rămân disponibile și pe planul gratuit.'

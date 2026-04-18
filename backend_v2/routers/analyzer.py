@@ -186,6 +186,134 @@ def analyze_pdf(
     }
 
 
+# ---------- Nutrition Preview ----------
+MAX_NUTRITION_PREVIEW_PER_IP_PER_DAY = 1
+_nutrition_rate_limits: dict[str, list[float]] = {}
+_nutrition_cache: dict[str, dict] = {}
+_nutrition_cache_times: dict[str, float] = {}
+
+def _check_nutrition_rate_limit(request: Request):
+    _cleanup_rate_limits()
+    ip = request.client.host if request.client else "unknown"
+    ip_hash = hashlib.sha256(ip.encode()).hexdigest()[:16]
+    now = time.time()
+    cutoff = now - 86400
+    hits = _nutrition_rate_limits.get(ip_hash, [])
+    hits = [t for t in hits if t > cutoff]
+    if len(hits) >= MAX_NUTRITION_PREVIEW_PER_IP_PER_DAY:
+        raise HTTPException(
+            status_code=429,
+            detail="You can generate 1 nutrition preview per day. Create a free account for weekly meal plans.",
+        )
+    hits.append(now)
+    _nutrition_rate_limits[ip_hash] = hits
+
+
+class NutritionPreviewRequest(BaseModel):
+    text: str
+    email: Optional[str] = None
+
+
+NUTRITION_PREVIEW_SYSTEM_PROMPT = """You are an AI nutrition advisor creating a SHORT preview meal plan based on lab results.
+
+Create a 3-day meal plan with Romanian cuisine, a shopping list, and 1 exercise day.
+
+Respond in JSON with these fields:
+- "biomarker_flags": array of {"name": string, "value": string, "status": "normal"|"high"|"low", "note": string} — top 5 most relevant biomarkers
+- "meal_plan": array of 3 objects with "day" (e.g. "Ziua 1 — Luni"), "meals" array of 3 meals with "meal" (Mic dejun/Prânz/Cină), "time", "items" array, "calories", "notes"
+- "shopping_list": array of {"category", "items" array}
+- "exercise": object with "title" (e.g. "Program exerciții — Ziua 1"), "sections" array of {"name", "duration", "exercises" array of {"name", "sets": "3×15" or similar}}
+- "summary": 2-3 sentences explaining why this plan was created for these specific biomarkers
+
+RULES:
+- Write ALL text in Romanian
+- Use traditional Romanian dishes (ciorbă, sarmale, tocăniță, mămăligă, etc.)
+- Include specific gram portions for every food item
+- Shopping list should use Romanian product names
+- Exercise program should be adapted to the biomarker findings
+- Keep it concise — this is a preview, not a full plan"""
+
+
+@router.post("/analyzer/nutrition-preview")
+def nutrition_preview(
+    body: NutritionPreviewRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    _check_nutrition_rate_limit(request)
+
+    text = body.text.strip()
+    if len(text) < 20:
+        raise HTTPException(status_code=400, detail="Text too short to analyze.")
+
+    text_hash = hashlib.sha256(text.encode()).hexdigest()[:32]
+    now = time.time()
+    if text_hash in _nutrition_cache and now - _nutrition_cache_times.get(text_hash, 0) < 86400:
+        cached = _nutrition_cache[text_hash]
+        _save_lead(db, body.email, "nutrition_preview", request)
+        return cached
+
+    ai = AIService()
+    data = ai.parse_text_with_ai(text)
+
+    if data.get("error"):
+        raise HTTPException(status_code=422, detail=data["error"])
+
+    results = data.get("results", [])
+    if not results:
+        raise HTTPException(status_code=422, detail="No biomarkers found in the text.")
+
+    biomarker_text = "\n".join(
+        f"- {r.get('test_name', '')}: {r.get('value', '')} {r.get('unit', '')} "
+        f"(ref: {r.get('reference_range', 'N/A')}) [{r.get('flags', 'NORMAL')}]"
+        for r in results
+    )
+
+    import openai
+    import json as json_module
+    client = openai.OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": NUTRITION_PREVIEW_SYSTEM_PROMPT},
+            {"role": "user", "content": f"Lab results:\n{biomarker_text}\n\nCreate the preview meal plan in JSON."},
+        ],
+        max_tokens=4000,
+        temperature=0.7,
+    )
+
+    raw = response.choices[0].message.content or ""
+    try:
+        json_str = raw
+        if "```json" in raw:
+            json_str = raw.split("```json")[1].split("```")[0]
+        elif "```" in raw:
+            json_str = raw.split("```")[1].split("```")[0]
+        nutrition_data = json_module.loads(json_str)
+    except (json_module.JSONDecodeError, IndexError):
+        raise HTTPException(status_code=500, detail="Failed to generate nutrition plan. Please try again.")
+
+    result = {
+        "biomarker_count": len(results),
+        "biomarker_flags": nutrition_data.get("biomarker_flags", []),
+        "meal_plan": nutrition_data.get("meal_plan", []),
+        "shopping_list": nutrition_data.get("shopping_list", []),
+        "exercise": nutrition_data.get("exercise", {}),
+        "summary": nutrition_data.get("summary", ""),
+    }
+
+    _nutrition_cache[text_hash] = result
+    _nutrition_cache_times[text_hash] = now
+    if len(_nutrition_cache) > 100:
+        oldest = min(_nutrition_cache_times, key=_nutrition_cache_times.get)
+        del _nutrition_cache[oldest]
+        del _nutrition_cache_times[oldest]
+
+    _save_lead(db, body.email, "nutrition_preview", request)
+
+    return result
+
+
 # ---------- Public stats ----------
 _stats_cache: dict = {}
 _stats_cache_time: float = 0

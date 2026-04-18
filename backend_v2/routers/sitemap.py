@@ -82,6 +82,7 @@ def sitemap_xml(db: Session = Depends(get_db)):
         ("/contact", 0.7, "monthly"),
         ("/disclaimer-medical", 0.5, "yearly"),
         ("/demo", 0.7, "monthly"),
+        ("/nutrition-preview", 0.9, "weekly"),
         ("/terms", 0.3, "yearly"),
         ("/privacy", 0.3, "yearly"),
     ]

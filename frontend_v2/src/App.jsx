@@ -46,6 +46,7 @@ const BlogList = lazy(() => import('./pages/BlogList'));
 const BlogArticle = lazy(() => import('./pages/BlogArticle'));
 const Layout = lazy(() => import('./components/Layout'));
 const Analyzer = lazy(() => import('./pages/Analyzer'));
+const NutritionPreview = lazy(() => import('./pages/NutritionPreview'));
 const Demo = lazy(() => import('./pages/Demo'));
 const ConditionReference = lazy(() => import('./pages/ConditionReference'));
 const About = lazy(() => import('./pages/About'));
@@ -207,6 +208,7 @@ const App = () => {
 
                                 {/* Public tools (no auth) */}
                                 <Route path="/analyzer" element={<Analyzer />} />
+                                <Route path="/nutrition-preview" element={<NutritionPreview />} />
                                 <Route path="/demo" element={<Demo />} />
 
                                 {/* Public shared report (no auth) */}

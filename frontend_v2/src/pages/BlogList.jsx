@@ -278,10 +278,10 @@ export default function BlogList() {
                   : 'On Analize.Online you get a nutrition plan with Romanian recipes, exercise program and AI specialist interpretation — all based on your real lab results, not a blog article.'}
               </p>
               <Link
-                to="/login"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white rounded-xl font-semibold hover:from-cyan-600 hover:to-teal-600 transition-all shadow-lg shadow-cyan-500/20"
+                to="/nutrition-preview"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg shadow-amber-500/20"
               >
-                {isRo ? 'Încarcă analizele gratuit' : 'Upload results for free'}
+                {isRo ? 'Încearcă planul alimentar gratuit' : 'Try the free meal plan'}
                 <ArrowRight size={18} />
               </Link>
             </div>
