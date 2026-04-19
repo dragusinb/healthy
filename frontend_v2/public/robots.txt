@@ -4,8 +4,6 @@
 User-agent: *
 Allow: /
 Allow: /pricing
-Allow: /login
-Allow: /register
 Allow: /terms
 Allow: /privacy
 Allow: /biomarker
@@ -13,6 +11,7 @@ Allow: /biomarker/*
 Allow: /blog
 Allow: /blog/*
 Allow: /analyzer
+Allow: /nutrition-preview
 Allow: /despre-noi
 Allow: /contact
 Allow: /disclaimer-medical
@@ -20,6 +19,10 @@ Allow: /analize-pentru
 Allow: /analize-pentru/*
 Allow: /demo
 Allow: /sitemap.xml
+
+# Auth pages (no value to index)
+Disallow: /login
+Disallow: /register
 
 # Private user pages
 Disallow: /dashboard
