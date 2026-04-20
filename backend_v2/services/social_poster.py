@@ -52,7 +52,7 @@ Write Facebook posts in ROMANIAN. Rules:
 - Under 250 words
 - Emoji: 2-3 max, natural placement
 - Include a surprising fact or counterintuitive insight that makes people stop scrolling
-- The last line can casually mention "Mai multe pe analize.online/nutrition-preview" but NEVER as a hard sell
+- The last line can casually mention "Mai multe pe https://analize.online/nutrition-preview" but NEVER as a hard sell. ALWAYS use the full URL with https:// so it's clickable
 - Some posts can skip the CTA entirely — pure value is fine
 
 NEVER use hashtags. NEVER use "Click aici". NEVER use salesy language like "Încearcă acum!", "Nu rata!", "Ofertă", "Gratuit!".
