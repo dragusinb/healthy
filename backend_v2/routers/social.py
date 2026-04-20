@@ -30,7 +30,7 @@ def facebook_auth_redirect(request: Request):
     if not config["app_id"]:
         raise HTTPException(status_code=500, detail="FB_APP_ID not configured in .env")
 
-    redirect_uri = f"{BASE_URL}/api/admin/facebook/callback"
+    redirect_uri = f"{BASE_URL}/admin/facebook/callback"
     scope = "pages_manage_posts,pages_read_engagement,pages_show_list"
 
     oauth_url = (
@@ -59,7 +59,7 @@ def facebook_auth_callback(code: str = None, error: str = None):
     if not code:
         raise HTTPException(status_code=400, detail="No authorization code received")
 
-    redirect_uri = f"{BASE_URL}/api/admin/facebook/callback"
+    redirect_uri = f"{BASE_URL}/admin/facebook/callback"
     result = exchange_code_for_token(code, redirect_uri)
 
     if result.get("error"):
