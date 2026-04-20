@@ -31,7 +31,7 @@ def facebook_auth_redirect(request: Request):
         raise HTTPException(status_code=500, detail="FB_APP_ID not configured in .env")
 
     redirect_uri = f"{BASE_URL}/admin/facebook/callback"
-    scope = "pages_manage_posts,pages_read_engagement,pages_show_list"
+    scope = "pages_show_list,pages_manage_posts"
 
     oauth_url = (
         f"https://www.facebook.com/v25.0/dialog/oauth?"
