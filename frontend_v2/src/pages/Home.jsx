@@ -597,24 +597,24 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {[
               {
-                value: publicStats ? <AnimatedCounter end={publicStats.biomarkers_analyzed} /> : '100+',
-                label: isRomanian ? 'Biomarkeri Analizați' : 'Biomarkers Analyzed',
-                sub: isRomanian ? 'Extrași automat din PDF-uri' : 'Auto-extracted from PDFs',
+                value: publicStats ? <AnimatedCounter end={publicStats.analyses_run} /> : '100+',
+                label: isRomanian ? 'Rapoarte AI Generate' : 'AI Reports Generated',
+                sub: isRomanian ? 'Analize complete de la specialiști virtuali' : 'Complete analyses from virtual specialists',
               },
               {
-                value: publicStats ? <AnimatedCounter end={publicStats.documents_processed} /> : '50+',
-                label: isRomanian ? 'Documente Procesate' : 'Documents Processed',
-                sub: isRomanian ? 'De la furnizorii medicali din România' : 'From Romanian medical providers',
+                value: publicStats ? <AnimatedCounter end={publicStats.biomarkers_analyzed} /> : '500+',
+                label: isRomanian ? 'Biomarkeri Monitorizați' : 'Biomarkers Tracked',
+                sub: isRomanian ? 'Extrași automat din analize de sânge' : 'Auto-extracted from blood tests',
               },
               {
                 value: '8+',
                 label: isRomanian ? 'Specialiști AI' : 'AI Specialists',
-                sub: isRomanian ? 'Cardiolog, Endocrinolog, Nutriționist...' : 'Cardiologist, Endocrinologist, Nutritionist...',
+                sub: isRomanian ? 'Cardiolog, Nutriționist, Endocrinolog...' : 'Cardiologist, Nutritionist, Endocrinologist...',
               },
               {
-                value: '256-bit',
-                label: isRomanian ? 'Criptare' : 'Encryption',
-                sub: isRomanian ? 'AES-256-GCM per utilizator' : 'AES-256-GCM per user',
+                value: isRomanian ? '7 zile' : '7 days',
+                label: isRomanian ? 'Plan Alimentar' : 'Meal Plan',
+                sub: isRomanian ? 'Rețete românești + listă cumpărături' : 'Romanian recipes + shopping list',
               },
             ].map((stat, index) => (
               <div key={index} className="text-center">

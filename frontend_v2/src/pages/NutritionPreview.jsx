@@ -76,7 +76,13 @@ export default function NutritionPreview() {
     ],
   }, 'nutrition-preview-faq');
 
+  const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
   const generate = async () => {
+    if (!isValidEmail(email)) {
+      setError(isRo ? 'Te rugăm introdu adresa de email pentru a primi planul.' : 'Please enter your email to receive the plan.');
+      return;
+    }
     setError('');
     setLoading(true);
     setResults(null);
@@ -131,12 +137,13 @@ export default function NutritionPreview() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder={isRo ? 'Email (opțional, pentru planul complet)' : 'Email (optional, for full plan)'}
+              placeholder={isRo ? 'Adresa ta de email *' : 'Your email address *'}
+              required
               className="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             <button
               onClick={generate}
-              disabled={loading || text.trim().length < 20}
+              disabled={loading || text.trim().length < 20 || !email.trim()}
               className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
             >
               {loading ? (
