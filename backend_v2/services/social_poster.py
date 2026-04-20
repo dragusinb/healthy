@@ -105,36 +105,36 @@ Write the post now. Plain text, Romanian language."""
 
 
 def generate_post_image(topic_type: str, post_text: str) -> Optional[str]:
-    """Generate an image for the post using DALL-E. Returns image URL or None."""
-    image_prompts = {
-        "educational": "A clean, modern flat illustration of a blood test vial next to fresh healthy foods (vegetables, fish, nuts) on a light background. Warm colors, minimal, no text.",
-        "recipe": "A beautiful overhead photo-style illustration of a traditional Romanian healthy meal on a rustic wooden table. Warm lighting, appetizing, no text.",
-        "myth_busting": "A clean illustration showing a magnifying glass over a food item revealing scientific molecules inside. Modern, educational feel, light background, no text.",
-        "meal_plan_example": "A flat lay illustration of three healthy meals arranged neatly — breakfast bowl, lunch plate, dinner plate — with colorful fresh ingredients. Clean, modern, no text.",
-        "exercise_tip": "A serene illustration of a person doing light exercise (walking/yoga) outdoors in a Romanian landscape with rolling green hills. Warm colors, peaceful, no text.",
-        "seasonal": "A beautiful illustration of seasonal Romanian produce and foods arranged artfully — current season vegetables, fruits, herbs. Warm, natural colors, no text.",
-        "did_you_know": "A creative illustration of a human body silhouette filled with colorful healthy foods, showing the connection between nutrition and health. Modern, clean, no text.",
-    }
-
-    prompt = image_prompts.get(topic_type, image_prompts["educational"])
-
+    """Generate a contextual image based on the actual post content."""
     try:
         client = openai.OpenAI()
+
+        # Ask GPT to create a specific image prompt based on the post content
+        prompt_response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You create image prompts for DALL-E/GPT-image. Given a Facebook post about health/nutrition, write a detailed image prompt that matches the specific foods, ingredients, and topic mentioned. The image should be a beautiful, appetizing, photorealistic food photography style. NEVER include text, watermarks, or logos in the image. Keep the prompt under 100 words."},
+                {"role": "user", "content": f"Create an image prompt for this post:\n\n{post_text}"},
+            ],
+            max_tokens=150,
+            temperature=0.7,
+        )
+        image_prompt = prompt_response.choices[0].message.content.strip()
+
         response = client.images.generate(
             model="gpt-image-1",
-            prompt=f"{prompt} Style: clean digital illustration, suitable for a health education Facebook page.",
+            prompt=f"{image_prompt} Style: professional food photography, warm natural lighting, shallow depth of field, clean composition. No text, no watermarks, no logos, no letters.",
             size="1024x1024",
-            quality="low",
+            quality="medium",
             n=1,
         )
-        # gpt-image-1 returns base64 by default, upload to Facebook directly
         import base64
         import tempfile
         image_data = base64.b64decode(response.data[0].b64_json)
         tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
         tmp.write(image_data)
         tmp.close()
-        logger.info(f"Generated image for {topic_type} post: {tmp.name}")
+        logger.info(f"Generated contextual image for {topic_type} post: {tmp.name}")
         return tmp.name
     except Exception as e:
         logger.warning(f"Image generation failed, posting without image: {e}")
