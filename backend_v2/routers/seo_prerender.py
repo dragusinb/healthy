@@ -106,6 +106,7 @@ STATIC_META = {
     "/nutrition-preview": {
         "title": "Preview Plan Alimentar Personalizat din Analize de Sânge | Analize.Online",
         "description": "Lipește analizele de sânge și primești gratuit un plan alimentar cu rețete românești, listă de cumpărături Carrefour și program de exerciții. Fără cont, fără card.",
+        "og_image": f"{BASE_URL}/og-nutrition.png",
     },
 }
 
@@ -123,7 +124,7 @@ def _get_index_html() -> str:
     return ""
 
 
-def _inject_meta(html: str, title: str, description: str, url: str, extra_head: str = "", body_content: str = "") -> str:
+def _inject_meta(html: str, title: str, description: str, url: str, extra_head: str = "", body_content: str = "", og_image: str = "") -> str:
     """Replace meta tags in the HTML template."""
     # Replace title
     html = re.sub(r"<title>[^<]*</title>", f"<title>{_escape(title)}</title>", html)
@@ -139,6 +140,10 @@ def _inject_meta(html: str, title: str, description: str, url: str, extra_head: 
     html = re.sub(r'<meta property="og:title" content="[^"]*"', f'<meta property="og:title" content="{_escape(title)}"', html)
     html = re.sub(r'<meta property="og:description" content="[^"]*"', f'<meta property="og:description" content="{_escape(description)}"', html)
     html = re.sub(r'<meta property="og:url" content="[^"]*"', f'<meta property="og:url" content="{_escape(url)}"', html)
+
+    if og_image:
+        html = re.sub(r'<meta property="og:image" content="[^"]*"', f'<meta property="og:image" content="{_escape(og_image)}"', html)
+        html = re.sub(r'<meta name="twitter:image" content="[^"]*"', f'<meta name="twitter:image" content="{_escape(og_image)}"', html)
 
     # Replace Twitter tags
     html = re.sub(r'<meta name="twitter:title" content="[^"]*"', f'<meta name="twitter:title" content="{_escape(title)}"', html)
@@ -322,5 +327,6 @@ def prerender_page(path: str, db: Session = Depends(get_db)):
     meta = STATIC_META.get(clean_path, STATIC_META.get("/"))
     title = meta["title"]
     desc = meta["description"]
-    result = _inject_meta(html, title, desc, url)
+    og_image = meta.get("og_image", "")
+    result = _inject_meta(html, title, desc, url, og_image=og_image)
     return HTMLResponse(content=result)

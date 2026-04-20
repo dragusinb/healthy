@@ -189,7 +189,15 @@ def init_scheduler():
                 replace_existing=True
             )
 
-            logger.info("Scheduler initialized with sync checker, cleanup, duplicate cleanup, document processor, blog generator, subscription expiry checker, and email campaigns")
+            # Add daily Facebook post (10:00 AM Bucharest = 7:00 AM UTC)
+            scheduler.add_job(
+                run_daily_social_post_job,
+                CronTrigger(hour=7, minute=0),
+                id="daily_social_post",
+                replace_existing=True
+            )
+
+            logger.info("Scheduler initialized with sync checker, cleanup, duplicate cleanup, document processor, blog generator, subscription expiry checker, email campaigns, and daily social post")
 
     return scheduler
 
@@ -911,6 +919,20 @@ def run_monthly_digest():
         run_monthly_health_digest()
     except Exception as e:
         logger.error(f"Error in monthly digest: {e}")
+
+
+def run_daily_social_post_job():
+    """Run daily Facebook post."""
+    try:
+        from backend_v2.services.social_poster import run_daily_social_post
+    except ImportError:
+        from services.social_poster import run_daily_social_post
+
+    logger.info("Running daily social post...")
+    try:
+        run_daily_social_post()
+    except Exception as e:
+        logger.error(f"Error in daily social post: {e}")
 
 
 def check_expired_subscriptions():
