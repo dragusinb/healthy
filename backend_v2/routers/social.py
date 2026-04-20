@@ -9,12 +9,12 @@ try:
     from backend_v2.services.social_poster import (
         generate_post_content, publish_to_facebook, exchange_code_for_token, _get_fb_config
     )
-    from backend_v2.routers.auth import get_current_user
+    from backend_v2.routers.documents import get_current_user
 except ImportError:
     from services.social_poster import (
         generate_post_content, publish_to_facebook, exchange_code_for_token, _get_fb_config
     )
-    from routers.auth import get_current_user
+    from routers.documents import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["social"])
@@ -99,7 +99,7 @@ class PostRequest(BaseModel):
 @router.post("/admin/facebook/post")
 def manual_facebook_post(body: PostRequest, user=Depends(get_current_user)):
     """Manually publish a post to Facebook Page (admin only)."""
-    if not user.get("is_admin"):
+    if not user.is_admin:
         raise HTTPException(status_code=403, detail="Admin only")
 
     config = _get_fb_config()
@@ -120,7 +120,7 @@ def manual_facebook_post(body: PostRequest, user=Depends(get_current_user)):
 @router.get("/admin/facebook/preview")
 def preview_post(user=Depends(get_current_user)):
     """Preview today's auto-generated post without publishing."""
-    if not user.get("is_admin"):
+    if not user.is_admin:
         raise HTTPException(status_code=403, detail="Admin only")
 
     content = generate_post_content()
@@ -130,7 +130,7 @@ def preview_post(user=Depends(get_current_user)):
 @router.get("/admin/facebook/status")
 def facebook_status(user=Depends(get_current_user)):
     """Check Facebook connection status."""
-    if not user.get("is_admin"):
+    if not user.is_admin:
         raise HTTPException(status_code=403, detail="Admin only")
 
     config = _get_fb_config()
