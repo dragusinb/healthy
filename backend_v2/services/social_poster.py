@@ -104,19 +104,70 @@ Write the post now. Plain text, Romanian language."""
     return response.choices[0].message.content.strip()
 
 
-def publish_to_facebook(message: str) -> dict:
+def generate_post_image(topic_type: str, post_text: str) -> Optional[str]:
+    """Generate an image for the post using DALL-E. Returns image URL or None."""
+    image_prompts = {
+        "educational": "A clean, modern flat illustration of a blood test vial next to fresh healthy foods (vegetables, fish, nuts) on a light background. Warm colors, minimal, no text.",
+        "recipe": "A beautiful overhead photo-style illustration of a traditional Romanian healthy meal on a rustic wooden table. Warm lighting, appetizing, no text.",
+        "myth_busting": "A clean illustration showing a magnifying glass over a food item revealing scientific molecules inside. Modern, educational feel, light background, no text.",
+        "meal_plan_example": "A flat lay illustration of three healthy meals arranged neatly — breakfast bowl, lunch plate, dinner plate — with colorful fresh ingredients. Clean, modern, no text.",
+        "exercise_tip": "A serene illustration of a person doing light exercise (walking/yoga) outdoors in a Romanian landscape with rolling green hills. Warm colors, peaceful, no text.",
+        "seasonal": "A beautiful illustration of seasonal Romanian produce and foods arranged artfully — current season vegetables, fruits, herbs. Warm, natural colors, no text.",
+        "did_you_know": "A creative illustration of a human body silhouette filled with colorful healthy foods, showing the connection between nutrition and health. Modern, clean, no text.",
+    }
+
+    prompt = image_prompts.get(topic_type, image_prompts["educational"])
+
+    try:
+        client = openai.OpenAI()
+        response = client.images.generate(
+            model="gpt-image-1",
+            prompt=f"{prompt} Style: clean digital illustration, suitable for a health education Facebook page.",
+            size="1024x1024",
+            quality="low",
+            n=1,
+        )
+        # gpt-image-1 returns base64 by default, upload to Facebook directly
+        import base64
+        import tempfile
+        image_data = base64.b64decode(response.data[0].b64_json)
+        tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        tmp.write(image_data)
+        tmp.close()
+        logger.info(f"Generated image for {topic_type} post: {tmp.name}")
+        return tmp.name
+    except Exception as e:
+        logger.warning(f"Image generation failed, posting without image: {e}")
+        return None
+
+
+def publish_to_facebook(message: str, image_url: str = None, link: str = None) -> dict:
     config = _get_fb_config()
     if not config["page_token"] or not config["page_id"]:
         logger.error("Facebook credentials not configured")
         return {"error": "Facebook credentials not configured"}
 
-    url = f"{FB_GRAPH_URL}/{config['page_id']}/feed"
-
-    with httpx.Client(timeout=30) as client:
-        resp = client.post(url, data={
-            "message": message,
-            "access_token": config["page_token"],
-        })
+    with httpx.Client(timeout=60) as client:
+        if image_url and os.path.isfile(image_url):
+            url = f"{FB_GRAPH_URL}/{config['page_id']}/photos"
+            with open(image_url, "rb") as img_file:
+                resp = client.post(url, data={
+                    "message": message,
+                    "access_token": config["page_token"],
+                }, files={"source": ("post.png", img_file, "image/png")})
+            try:
+                os.unlink(image_url)
+            except Exception:
+                pass
+        else:
+            url = f"{FB_GRAPH_URL}/{config['page_id']}/feed"
+            data = {
+                "message": message,
+                "access_token": config["page_token"],
+            }
+            if link:
+                data["link"] = link
+            resp = client.post(url, data=data)
 
     if resp.status_code == 200:
         data = resp.json()
@@ -128,6 +179,18 @@ def publish_to_facebook(message: str) -> dict:
         return {"error": error}
 
 
+def generate_full_post() -> dict:
+    """Generate post content + image. Returns dict with content, image_url, topic_type."""
+    topic = _get_today_topic()
+    content = generate_post_content()
+    image_url = generate_post_image(topic["type"], content)
+    return {
+        "content": content,
+        "image_url": image_url,
+        "topic_type": topic["type"],
+    }
+
+
 def run_daily_social_post():
     """Scheduled job: generate and publish daily Facebook post."""
     config = _get_fb_config()
@@ -136,10 +199,10 @@ def run_daily_social_post():
         return
 
     try:
-        content = generate_post_content()
-        result = publish_to_facebook(content)
+        post = generate_full_post()
+        result = publish_to_facebook(post["content"], image_url=post["image_url"])
         if result.get("success"):
-            logger.info(f"Daily social post published successfully")
+            logger.info(f"Daily social post published successfully ({post['topic_type']})")
         else:
             logger.error(f"Daily social post failed: {result.get('error')}")
     except Exception as e:
