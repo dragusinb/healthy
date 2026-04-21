@@ -7,7 +7,8 @@ import {
     Trash2, RotateCcw, Play, Brain, Power,
     Clock, XCircle, UserSearch, Calendar,
     Zap, X, KeyRound, Wifi, Timer, Bug, Download, User,
-    Crown, Star, Users2, DollarSign, TrendingUp, Cpu
+    Crown, Star, Users2, DollarSign, TrendingUp, Cpu,
+    Send, Eye, MessageSquare, ExternalLink, Heart
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -301,6 +302,9 @@ const Admin = () => {
     const [syncHistory, setSyncHistory] = useState(null);
     const [schedulerStatus, setSchedulerStatus] = useState(null);
     const [openaiUsage, setOpenaiUsage] = useState(null);
+    const [fbStatus, setFbStatus] = useState(null);
+    const [fbPosts, setFbPosts] = useState([]);
+    const [fbPreview, setFbPreview] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -310,14 +314,16 @@ const Admin = () => {
         setLoading(true);
         setError(null);
         try {
-            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes, openaiRes] = await Promise.all([
+            const [statsRes, serverRes, usersRes, jobsRes, historyRes, schedulerRes, openaiRes, fbStatusRes, fbPostsRes] = await Promise.all([
                 api.get('/admin/stats'),
                 api.get('/admin/server'),
                 api.get('/admin/users'),
                 api.get('/admin/sync-jobs?limit=20'),
                 api.get('/admin/sync-history?days=14'),
                 api.get('/admin/scheduler-status'),
-                api.get('/admin/openai-usage?days=30').catch(() => ({ data: null }))
+                api.get('/admin/openai-usage?days=30').catch(() => ({ data: null })),
+                api.get('/admin/facebook/status').catch(() => ({ data: null })),
+                api.get('/admin/facebook/posts').catch(() => ({ data: { posts: [] } }))
             ]);
             setStats(statsRes.data);
             setServerStats(serverRes.data);
@@ -326,6 +332,8 @@ const Admin = () => {
             setSyncHistory(historyRes.data);
             setSchedulerStatus(schedulerRes.data);
             setOpenaiUsage(openaiRes.data);
+            setFbStatus(fbStatusRes.data);
+            setFbPosts(fbPostsRes.data?.posts || []);
         } catch (e) {
             console.error("Failed to fetch admin data", e);
             if (e.response?.status === 403) {
@@ -812,6 +820,131 @@ const Admin = () => {
                     </div>
                 </div>
             )}
+
+            {/* Facebook Management */}
+            <div className="card p-6">
+                <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <Send size={20} className="text-blue-600" />
+                    Facebook Auto-Posting
+                </h2>
+
+                {/* Connection Status */}
+                <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-slate-50">
+                    <div className={cn("w-3 h-3 rounded-full", fbStatus?.connected ? "bg-green-500" : "bg-red-500")} />
+                    <span className="text-sm font-medium text-slate-700">
+                        {fbStatus?.connected ? `Conectat — Page ID: ${fbStatus.page_id}` : "Neconectat"}
+                    </span>
+                    {!fbStatus?.connected && fbStatus?.auth_url && (
+                        <a href={fbStatus.auth_url} className="ml-auto text-sm text-blue-600 hover:underline">
+                            Conectează Facebook →
+                        </a>
+                    )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap gap-3 mb-6">
+                    <button
+                        onClick={async () => {
+                            setActionLoading('fb-preview');
+                            try {
+                                const res = await api.get('/admin/facebook/preview');
+                                setFbPreview(res.data.content);
+                            } catch (e) {
+                                alert(e.response?.data?.detail || "Preview failed");
+                            } finally {
+                                setActionLoading(null);
+                            }
+                        }}
+                        disabled={actionLoading === 'fb-preview' || !fbStatus?.connected}
+                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        {actionLoading === 'fb-preview' ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
+                        Preview Post
+                    </button>
+                    <button
+                        onClick={async () => {
+                            if (!confirm("Publică un post nou pe Facebook cu imagine generată AI?")) return;
+                            setActionLoading('fb-post');
+                            try {
+                                const res = await api.post('/admin/facebook/post', {});
+                                alert(`Post publicat! ID: ${res.data.post_id}`);
+                                setFbPreview(null);
+                                const postsRes = await api.get('/admin/facebook/posts').catch(() => ({ data: { posts: [] } }));
+                                setFbPosts(postsRes.data?.posts || []);
+                            } catch (e) {
+                                alert(e.response?.data?.detail || "Post failed");
+                            } finally {
+                                setActionLoading(null);
+                            }
+                        }}
+                        disabled={actionLoading === 'fb-post' || !fbStatus?.connected}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                        {actionLoading === 'fb-post' ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                        Generează & Publică
+                    </button>
+                </div>
+
+                {/* Preview */}
+                {fbPreview && (
+                    <div className="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-100">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-blue-700">Preview — următorul post</span>
+                            <button onClick={() => setFbPreview(null)} className="text-blue-400 hover:text-blue-600">
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <p className="text-sm text-slate-700 whitespace-pre-line">{fbPreview}</p>
+                    </div>
+                )}
+
+                {/* Recent Posts */}
+                {fbPosts.length > 0 && (
+                    <div>
+                        <h3 className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-3">Postări recente</h3>
+                        <div className="space-y-3">
+                            {fbPosts.map((post) => (
+                                <div key={post.id} className="flex gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                                    {post.image && (
+                                        <img src={post.image} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm text-slate-700 line-clamp-2">{post.message || '(fără text)'}</p>
+                                        <div className="flex items-center gap-4 mt-1.5 text-xs text-slate-500">
+                                            <span>{new Date(post.created_time).toLocaleDateString('ro-RO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                                            <span className="flex items-center gap-1"><Heart size={12} /> {post.likes}</span>
+                                            <span className="flex items-center gap-1"><MessageSquare size={12} /> {post.comments}</span>
+                                            <span className="flex items-center gap-1"><Send size={12} /> {post.shares}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-1 flex-shrink-0">
+                                        {post.url && (
+                                            <a href={post.url} target="_blank" rel="noopener noreferrer"
+                                               className="p-1.5 text-slate-400 hover:text-blue-600 rounded">
+                                                <ExternalLink size={14} />
+                                            </a>
+                                        )}
+                                        <button
+                                            onClick={async () => {
+                                                if (!confirm("Șterge acest post de pe Facebook?")) return;
+                                                try {
+                                                    await api.delete(`/admin/facebook/posts/${post.id}`);
+                                                    setFbPosts(prev => prev.filter(p => p.id !== post.id));
+                                                } catch (e) {
+                                                    alert(e.response?.data?.detail || "Delete failed");
+                                                }
+                                            }}
+                                            className="p-1.5 text-slate-400 hover:text-red-600 rounded"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
 
             {/* Actions */}
             <div className="card p-6">
