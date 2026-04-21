@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, Text, LargeBinary, Index
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Float, Text, LargeBinary, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
@@ -743,12 +743,16 @@ class BlogArticle(Base):
 class LeadCapture(Base):
     """Capture emails from free analyzer for follow-up."""
     __tablename__ = "lead_captures"
+    __table_args__ = (
+        UniqueConstraint("email", "source", name="uq_lead_email_source"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, index=True, nullable=False)
-    source = Column(String, default="analyzer")  # analyzer_text, analyzer_pdf
+    source = Column(String, default="analyzer")  # analyzer_text, analyzer_pdf, nutrition_preview
     ip_hash = Column(String(64), nullable=True)
     created_at = Column(DateTime, default=utc_now)
+    converted = Column(Boolean, default=False)  # Did they register?
 
 
 class PageView(Base):

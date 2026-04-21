@@ -87,11 +87,17 @@ def _save_lead(db: Session, email: Optional[str], source: str, request: Request)
     ip = request.client.host if request.client else "unknown"
     ip_hash = hashlib.sha256(ip.encode()).hexdigest()
     try:
-        existing = db.query(LeadCapture).filter(LeadCapture.email == email).first()
-        if not existing:
+        existing = db.query(LeadCapture).filter(
+            LeadCapture.email == email,
+            LeadCapture.source == source,
+        ).first()
+        if existing:
+            existing.created_at = datetime.now(timezone.utc)
+            existing.ip_hash = ip_hash
+        else:
             lead = LeadCapture(email=email, source=source, ip_hash=ip_hash)
             db.add(lead)
-            db.commit()
+        db.commit()
     except Exception as e:
         logger.warning(f"Lead capture failed: {e}")
         db.rollback()

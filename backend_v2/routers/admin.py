@@ -9,12 +9,12 @@ from datetime import datetime, timedelta, timezone
 
 try:
     from backend_v2.database import get_db
-    from backend_v2.models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics, OpenAIUsageLog
+    from backend_v2.models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics, OpenAIUsageLog, LeadCapture
     from backend_v2.routers.documents import get_current_user
     from backend_v2.services.audit_service import AuditService
 except ImportError:
     from database import get_db
-    from models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics, OpenAIUsageLog
+    from models import User, Document, TestResult, LinkedAccount, HealthReport, SyncJob, AuditLog, AbuseFlag, UsageMetrics, OpenAIUsageLog, LeadCapture
     from routers.documents import get_current_user
     from services.audit_service import AuditService
 
@@ -1439,4 +1439,55 @@ def get_openai_daily_usage(
             }
             for d in daily
         ]
+    }
+
+
+# =============================================================================
+# Lead Capture Management
+# =============================================================================
+
+@router.get("/leads")
+def get_leads(
+    source: str = None,
+    converted: bool = None,
+    limit: int = 200,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Get all captured leads, ordered by most recent."""
+    query = db.query(LeadCapture).order_by(LeadCapture.created_at.desc())
+
+    if source:
+        query = query.filter(LeadCapture.source == source)
+    if converted is not None:
+        query = query.filter(LeadCapture.converted == converted)
+
+    leads = query.limit(limit).all()
+    total = db.query(func.count(LeadCapture.id)).scalar()
+
+    # Count by source
+    source_counts = db.query(
+        LeadCapture.source,
+        func.count(LeadCapture.id),
+    ).group_by(LeadCapture.source).all()
+
+    converted_count = db.query(func.count(LeadCapture.id)).filter(
+        LeadCapture.converted == True
+    ).scalar()
+
+    return {
+        "total": total,
+        "converted": converted_count,
+        "by_source": {s: c for s, c in source_counts},
+        "leads": [
+            {
+                "id": lead.id,
+                "email": lead.email,
+                "source": lead.source,
+                "ip_hash": lead.ip_hash,
+                "created_at": lead.created_at.isoformat() if lead.created_at else None,
+                "converted": lead.converted,
+            }
+            for lead in leads
+        ],
     }
