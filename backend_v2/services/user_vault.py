@@ -349,3 +349,68 @@ def is_user_vault_unlocked(user_id: int) -> bool:
     """Check if a user's vault is currently unlocked."""
     vault = _user_vault_sessions.get(user_id)
     return vault is not None and vault.is_unlocked
+
+
+# --- Service key: allows server to unlock user vaults without password ---
+
+def _get_service_key() -> Optional[bytes]:
+    """Get the server-side service key from env, or None if not configured."""
+    raw = os.getenv("VAULT_SERVICE_KEY")
+    if not raw:
+        return None
+    return hashlib.sha256(raw.encode()).digest()
+
+
+def save_service_encrypted_key(user_id: int, vault: UserVault, vault_data: Dict) -> Dict:
+    """Encrypt the user's vault key with the service key and store in vault_data.
+    Called on login so the scheduler can unlock vaults after restart."""
+    service_key = _get_service_key()
+    if not service_key or not vault.is_unlocked:
+        return vault_data
+    encrypted = UserVault._encrypt(vault._vault_key, service_key)
+    updated = vault_data.copy()
+    updated["service_encrypted_vault_key"] = base64.b64encode(encrypted).decode("utf-8")
+    return updated
+
+
+def unlock_all_service_vaults():
+    """On startup, unlock all user vaults that have a service-encrypted key."""
+    import logging
+    logger = logging.getLogger(__name__)
+    service_key = _get_service_key()
+    if not service_key:
+        logger.info("No VAULT_SERVICE_KEY configured — skipping auto-unlock")
+        return
+
+    try:
+        try:
+            from backend_v2.database import SessionLocal
+            from backend_v2.models import User
+        except ImportError:
+            from database import SessionLocal
+            from models import User
+
+        db = SessionLocal()
+        try:
+            users = db.query(User).filter(User.vault_data.isnot(None)).all()
+            unlocked = 0
+            for user in users:
+                try:
+                    vd = json.loads(user.vault_data) if isinstance(user.vault_data, str) else user.vault_data
+                    sek = vd.get("service_encrypted_vault_key")
+                    if not sek:
+                        continue
+                    encrypted = base64.b64decode(sek)
+                    vault_key = UserVault._decrypt(encrypted, service_key)
+                    v = UserVault(user.id)
+                    v._vault_key = vault_key
+                    v._is_unlocked = True
+                    _user_vault_sessions[user.id] = v
+                    unlocked += 1
+                except Exception:
+                    pass
+            logger.info(f"Auto-unlocked {unlocked} user vaults via service key")
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Failed to auto-unlock user vaults: {e}")

@@ -19,7 +19,7 @@ try:
     from backend_v2.auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit, check_password_reset_rate_limit
     from backend_v2.services.email_service import get_email_service
     from backend_v2.services.audit_service import AuditService
-    from backend_v2.services.user_vault import UserVault, set_user_vault_session, get_user_vault
+    from backend_v2.services.user_vault import UserVault, set_user_vault_session, get_user_vault, save_service_encrypted_key
     from backend_v2.services.user_migration import setup_vault_for_legacy_user
 except ImportError:
     from database import get_db
@@ -28,7 +28,7 @@ except ImportError:
     from auth.rate_limiter import check_login_rate_limit, check_register_rate_limit, reset_login_rate_limit, check_password_reset_rate_limit
     from services.email_service import get_email_service
     from services.audit_service import AuditService
-    from services.user_vault import UserVault, set_user_vault_session, get_user_vault
+    from services.user_vault import UserVault, set_user_vault_session, get_user_vault, save_service_encrypted_key
     from services.user_migration import setup_vault_for_legacy_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -283,6 +283,12 @@ def login(
         if vault_unlocked:
             set_user_vault_session(user.id, vault)
 
+            # Save service-encrypted key for background operations (scheduler)
+            updated_vd = save_service_encrypted_key(user.id, vault, vault_data)
+            if updated_vd != vault_data:
+                user.vault_data = json.dumps(updated_vd)
+                db.commit()
+
             # Auto-migrate: Check if user has plaintext data that needs re-encryption
             # This handles cases where migration didn't complete properly
             try:
@@ -320,9 +326,16 @@ def login(
             vault_unlocked = True
             is_legacy_migration = True
             logger.info(f"Legacy migration completed for user {user.id}: {migration_stats}")
+
+            # Save service-encrypted key for background operations
+            if user.vault_data:
+                vd = json.loads(user.vault_data)
+                updated_vd = save_service_encrypted_key(user.id, vault, vd)
+                if updated_vd != vd:
+                    user.vault_data = json.dumps(updated_vd)
+                    db.commit()
         except Exception as e:
             logger.error(f"Failed to create vault for legacy user {user.id}: {e}")
-            # Continue login even if vault creation fails
             vault_unlocked = False
 
     # Log successful login
