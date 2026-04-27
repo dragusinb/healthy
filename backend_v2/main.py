@@ -153,6 +153,21 @@ instrumentator.instrument(app).expose(app, endpoint="/api/metrics", include_in_s
 # Initialize scheduler on startup
 @app.on_event("startup")
 def startup_event():
+    # Auto-unlock vault if master password is in environment
+    vault_password = os.getenv("VAULT_MASTER_PASSWORD")
+    if vault_password:
+        try:
+            from services.vault import vault
+        except ImportError:
+            from backend_v2.services.vault import vault
+        try:
+            if vault.unlock(vault_password):
+                logging.getLogger(__name__).info("Vault auto-unlocked on startup")
+            else:
+                logging.getLogger(__name__).error("Vault auto-unlock FAILED — wrong VAULT_MASTER_PASSWORD")
+        except Exception as e:
+            logging.getLogger(__name__).error(f"Vault auto-unlock error: {e}")
+
     init_scheduler()
 
 

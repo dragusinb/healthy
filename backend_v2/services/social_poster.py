@@ -148,7 +148,22 @@ def publish_to_facebook(message: str, image_url: str = None, link: str = None) -
         return {"error": "Facebook credentials not configured"}
 
     with httpx.Client(timeout=60) as client:
-        if image_url and os.path.isfile(image_url):
+        if link:
+            # Link post — renders OG card (image, title, description) for more clicks
+            url = f"{FB_GRAPH_URL}/{config['page_id']}/feed"
+            resp = client.post(url, data={
+                "message": message,
+                "link": link,
+                "access_token": config["page_token"],
+            })
+            # Clean up unused generated image
+            if image_url and os.path.isfile(image_url):
+                try:
+                    os.unlink(image_url)
+                except Exception:
+                    pass
+        elif image_url and os.path.isfile(image_url):
+            # Photo post — no link preview but shows full image
             url = f"{FB_GRAPH_URL}/{config['page_id']}/photos"
             with open(image_url, "rb") as img_file:
                 resp = client.post(url, data={
@@ -161,13 +176,10 @@ def publish_to_facebook(message: str, image_url: str = None, link: str = None) -
                 pass
         else:
             url = f"{FB_GRAPH_URL}/{config['page_id']}/feed"
-            data = {
+            resp = client.post(url, data={
                 "message": message,
                 "access_token": config["page_token"],
-            }
-            if link:
-                data["link"] = link
-            resp = client.post(url, data=data)
+            })
 
     if resp.status_code == 200:
         data = resp.json()
@@ -192,21 +204,32 @@ def generate_full_post() -> dict:
 
 
 def run_daily_social_post():
-    """Scheduled job: generate and publish daily Facebook post."""
+    """Scheduled job: generate and publish daily Facebook post with retry."""
     config = _get_fb_config()
     if not config["page_token"]:
         logger.warning("Skipping daily social post — no FB_PAGE_TOKEN configured")
         return
 
-    try:
-        post = generate_full_post()
-        result = publish_to_facebook(post["content"], image_url=post["image_url"])
-        if result.get("success"):
-            logger.info(f"Daily social post published successfully ({post['topic_type']})")
-        else:
-            logger.error(f"Daily social post failed: {result.get('error')}")
-    except Exception as e:
-        logger.error(f"Daily social post error: {e}")
+    max_retries = 2
+    for attempt in range(max_retries + 1):
+        try:
+            post = generate_full_post()
+            result = publish_to_facebook(
+                post["content"],
+                image_url=post["image_url"],
+                link="https://analize.online/nutrition-preview",
+            )
+            if result.get("success"):
+                logger.info(f"Daily social post published successfully ({post['topic_type']})")
+                return
+            else:
+                logger.error(f"Daily social post failed (attempt {attempt+1}): {result.get('error')}")
+        except Exception as e:
+            logger.error(f"Daily social post error (attempt {attempt+1}): {e}")
+
+        if attempt < max_retries:
+            import time
+            time.sleep(30)
 
 
 def exchange_code_for_token(code: str, redirect_uri: str) -> dict:

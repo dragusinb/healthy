@@ -320,6 +320,19 @@ def nutrition_preview(
     return result
 
 
+# ---------- Lead capture (email gate) ----------
+
+class LeadRequest(BaseModel):
+    email: str
+    source: str = "nutrition_preview"
+
+
+@router.post("/analyzer/nutrition-lead")
+def capture_nutrition_lead(body: LeadRequest, request: Request, db: Session = Depends(get_db)):
+    _save_lead(db, body.email, body.source, request)
+    return {"ok": True}
+
+
 # ---------- Public stats ----------
 _stats_cache: dict = {}
 _stats_cache_time: float = 0

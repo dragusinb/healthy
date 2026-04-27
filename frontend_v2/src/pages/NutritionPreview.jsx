@@ -19,8 +19,10 @@ export default function NutritionPreview() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
+  const [unlocked, setUnlocked] = useState(false);
   const [error, setError] = useState('');
   const resultsRef = useRef(null);
+  const emailGateRef = useRef(null);
 
   usePageTitle(null, null, {
     title: isRo
@@ -79,15 +81,12 @@ export default function NutritionPreview() {
   const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
   const generate = async () => {
-    if (!isValidEmail(email)) {
-      setError(isRo ? 'Te rugăm introdu adresa de email pentru a primi planul.' : 'Please enter your email to receive the plan.');
-      return;
-    }
     setError('');
     setLoading(true);
     setResults(null);
+    setUnlocked(false);
     try {
-      const res = await api.post('/analyzer/nutrition-preview', { text, email: email || undefined });
+      const res = await api.post('/analyzer/nutrition-preview', { text });
       setResults(res.data);
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (err) {
@@ -96,6 +95,18 @@ export default function NutritionPreview() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const unlockWithEmail = async () => {
+    if (!isValidEmail(email)) {
+      setError(isRo ? 'Te rugăm introdu o adresă de email validă.' : 'Please enter a valid email address.');
+      return;
+    }
+    setError('');
+    try {
+      await api.post('/analyzer/nutrition-lead', { email, source: 'nutrition_preview' });
+    } catch { /* lead save is best-effort */ }
+    setUnlocked(true);
   };
 
   return (
@@ -132,19 +143,11 @@ export default function NutritionPreview() {
             rows={8}
             className="w-full border border-slate-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
           />
-          <div className="flex flex-col sm:flex-row gap-3 mt-4">
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder={isRo ? 'Adresa ta de email *' : 'Your email address *'}
-              required
-              className="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
+          <div className="mt-4">
             <button
               onClick={generate}
-              disabled={loading || text.trim().length < 20 || !email.trim()}
-              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+              disabled={loading || text.trim().length < 20}
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
             >
               {loading ? (
                 <>
@@ -154,7 +157,7 @@ export default function NutritionPreview() {
               ) : (
                 <>
                   <UtensilsCrossed size={18} />
-                  {isRo ? 'Generează Plan' : 'Generate Plan'}
+                  {isRo ? 'Generează Plan Gratuit' : 'Generate Free Plan'}
                 </>
               )}
             </button>
@@ -220,7 +223,8 @@ export default function NutritionPreview() {
                   {isRo ? 'Plan alimentar — 3 zile' : '3-Day Meal Plan'}
                 </h2>
                 <div className="space-y-4">
-                  {results.meal_plan.map((day, i) => (
+                  {/* Day 1: always visible */}
+                  {results.meal_plan.slice(0, 1).map((day, i) => (
                     <div key={i} className="border border-slate-100 rounded-xl p-4">
                       <p className="font-bold text-slate-700 mb-3 flex items-center gap-2">
                         <Calendar size={16} className="text-amber-500" />
@@ -244,6 +248,75 @@ export default function NutritionPreview() {
                       </div>
                     </div>
                   ))}
+
+                  {/* Days 2-3: visible after email */}
+                  {unlocked ? (
+                    results.meal_plan.slice(1).map((day, i) => (
+                      <div key={i + 1} className="border border-slate-100 rounded-xl p-4">
+                        <p className="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                          <Calendar size={16} className="text-amber-500" />
+                          {day.day}
+                        </p>
+                        <div className="space-y-2">
+                          {day.meals?.map((meal, j) => (
+                            <div key={j} className="bg-slate-50 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm font-semibold text-slate-700">{meal.meal}</span>
+                                <span className="text-xs font-medium text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">{meal.calories}</span>
+                              </div>
+                              {meal.items?.map((item, k) => (
+                                <p key={k} className="text-sm text-slate-500 ml-1">• {item}</p>
+                              ))}
+                              {meal.notes && (
+                                <p className="text-xs text-teal-600 mt-1 italic">{meal.notes}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    /* Email gate for days 2-3 */
+                    <div ref={emailGateRef} className="relative">
+                      <div className="border border-slate-100 rounded-xl p-4 blur-[4px] select-none pointer-events-none">
+                        <p className="font-bold text-slate-400 mb-2">{results.meal_plan[1]?.day || (isRo ? 'Ziua 2' : 'Day 2')}</p>
+                        <div className="space-y-2 text-sm text-slate-300">
+                          <p>{isRo ? 'Mic dejun: Omletă cu legume și brânză telemea...' : 'Breakfast: Omelette with vegetables and cheese...'}</p>
+                          <p>{isRo ? 'Prânz: Ciorbă de perișoare cu smântână...' : 'Lunch: Meatball soup with sour cream...'}</p>
+                          <p>{isRo ? 'Cină: Piept de pui la grătar cu salată...' : 'Dinner: Grilled chicken breast with salad...'}</p>
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-amber-200 max-w-sm w-full mx-4 text-center">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <UtensilsCrossed size={20} className="text-amber-600" />
+                          </div>
+                          <p className="font-bold text-slate-800 mb-1">
+                            {isRo ? 'Planul tău e gata!' : 'Your plan is ready!'}
+                          </p>
+                          <p className="text-sm text-slate-500 mb-4">
+                            {isRo ? 'Introdu emailul pentru a vedea zilele 2-3, lista de cumpărături și exercițiile.' : 'Enter your email to see days 2-3, shopping list and exercises.'}
+                          </p>
+                          <input
+                            type="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && unlockWithEmail()}
+                            placeholder={isRo ? 'adresa@email.ro' : 'your@email.com'}
+                            className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 mb-3"
+                          />
+                          <button
+                            onClick={unlockWithEmail}
+                            className="w-full px-5 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-600 transition-all flex items-center justify-center gap-2"
+                          >
+                            <CheckCircle size={16} />
+                            {isRo ? 'Vezi planul complet' : 'See full plan'}
+                          </button>
+                          <p className="text-xs text-slate-400 mt-2">{isRo ? 'Nu trimitem spam. Promitem.' : 'No spam. We promise.'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Blurred days 4-7 */}
@@ -270,57 +343,84 @@ export default function NutritionPreview() {
               </div>
             )}
 
-            {/* Shopping List */}
+            {/* Shopping List — gated behind email */}
             {results.shopping_list?.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                  <ShoppingCart size={20} className="text-teal-500" />
-                  {isRo ? 'Listă de cumpărături' : 'Shopping List'}
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {results.shopping_list.map((cat, i) => (
-                    <div key={i} className="bg-slate-50 rounded-xl p-4">
-                      <p className="text-sm font-bold text-slate-700 mb-2">{cat.category}</p>
-                      <ul className="space-y-1">
-                        {cat.items?.map((item, j) => (
-                          <li key={j} className="text-sm text-slate-500 flex items-center gap-2">
-                            <CheckCircle size={12} className="text-teal-400 flex-shrink-0" />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
+              unlocked ? (
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                  <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <ShoppingCart size={20} className="text-teal-500" />
+                    {isRo ? 'Listă de cumpărături' : 'Shopping List'}
+                  </h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {results.shopping_list.map((cat, i) => (
+                      <div key={i} className="bg-slate-50 rounded-xl p-4">
+                        <p className="text-sm font-bold text-slate-700 mb-2">{cat.category}</p>
+                        <ul className="space-y-1">
+                          {cat.items?.map((item, j) => (
+                            <li key={j} className="text-sm text-slate-500 flex items-center gap-2">
+                              <CheckCircle size={12} className="text-teal-400 flex-shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="relative">
+                  <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm blur-[4px] select-none pointer-events-none">
+                    <h2 className="text-lg font-bold text-slate-400 mb-4 flex items-center gap-2">
+                      <ShoppingCart size={20} />
+                      {isRo ? 'Listă de cumpărături' : 'Shopping List'}
+                    </h2>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="bg-slate-50 rounded-xl p-4"><p className="text-sm text-slate-300">{isRo ? 'Proteine, legume, lactate...' : 'Proteins, vegetables, dairy...'}</p></div>
+                      <div className="bg-slate-50 rounded-xl p-4"><p className="text-sm text-slate-300">{isRo ? 'Fructe, cereale, condimente...' : 'Fruits, grains, spices...'}</p></div>
+                    </div>
+                  </div>
+                </div>
+              )
             )}
 
-            {/* Exercise */}
+            {/* Exercise — gated behind email */}
             {results.exercise?.sections?.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                  <Dumbbell size={20} className="text-violet-500" />
-                  {results.exercise.title || (isRo ? 'Program exerciții' : 'Exercise Program')}
-                </h2>
-                <div className="space-y-4">
-                  {results.exercise.sections.map((section, i) => (
-                    <div key={i} className="bg-violet-50 rounded-xl p-4">
-                      <p className="text-sm font-bold text-violet-700 mb-2 flex items-center gap-2">
-                        {i === 0 ? <Activity size={14} /> : i === section.length - 1 ? <Leaf size={14} /> : <Dumbbell size={14} />}
-                        {section.name} — {section.duration}
-                      </p>
-                      <ul className="space-y-1">
-                        {section.exercises?.map((ex, j) => (
-                          <li key={j} className="text-sm text-slate-600 flex justify-between">
-                            <span>{ex.name}</span>
-                            {ex.sets && <span className="text-violet-500 font-medium">{ex.sets}</span>}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
+              unlocked ? (
+                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                  <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <Dumbbell size={20} className="text-violet-500" />
+                    {results.exercise.title || (isRo ? 'Program exerciții' : 'Exercise Program')}
+                  </h2>
+                  <div className="space-y-4">
+                    {results.exercise.sections.map((section, i) => (
+                      <div key={i} className="bg-violet-50 rounded-xl p-4">
+                        <p className="text-sm font-bold text-violet-700 mb-2 flex items-center gap-2">
+                          {i === 0 ? <Activity size={14} /> : <Dumbbell size={14} />}
+                          {section.name} — {section.duration}
+                        </p>
+                        <ul className="space-y-1">
+                          {section.exercises?.map((ex, j) => (
+                            <li key={j} className="text-sm text-slate-600 flex justify-between">
+                              <span>{ex.name}</span>
+                              {ex.sets && <span className="text-violet-500 font-medium">{ex.sets}</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="relative">
+                  <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm blur-[4px] select-none pointer-events-none">
+                    <h2 className="text-lg font-bold text-slate-400 mb-4 flex items-center gap-2">
+                      <Dumbbell size={20} />
+                      {isRo ? 'Program exerciții' : 'Exercise Program'}
+                    </h2>
+                    <div className="bg-violet-50 rounded-xl p-4"><p className="text-sm text-slate-300">{isRo ? 'Cardio, forță, stretching...' : 'Cardio, strength, stretching...'}</p></div>
+                  </div>
+                </div>
+              )
             )}
 
             {/* Final CTA */}
